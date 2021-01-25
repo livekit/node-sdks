@@ -1,5 +1,5 @@
-import * as jwt from "jsonwebtoken";
-import { ClaimGrants, VideoGrant } from "./grants";
+import * as jwt from 'jsonwebtoken';
+import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
 const defaultTTL = 4 * 60 * 60;
@@ -38,7 +38,7 @@ export class AccessToken {
 
   toJwt(): string {
     if (!this.identity) {
-      throw new Error("identity is required but not set");
+      throw new Error('identity is required but not set');
     }
 
     const opts: jwt.SignOptions = {

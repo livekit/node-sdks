@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from 'axios';
 
 // twirp RPC adapter for client implementation
 
-const defaultPrefix = "/twirp";
+const defaultPrefix = '/twirp';
 
 /**
  * JSON based Twirp V7 RPC

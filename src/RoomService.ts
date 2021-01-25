@@ -1,6 +1,6 @@
-import { AccessToken } from "./AccessToken";
-import { VideoGrant } from "./grants";
-import { Room } from "./proto/model";
+import { AccessToken } from './AccessToken';
+import { VideoGrant } from './grants';
+import { Room } from './proto/model';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -8,8 +8,8 @@ import {
   ListRoomsRequest,
   ListRoomsResponse,
   RoomService,
-} from "./proto/room";
-import { TwirpRpc } from "./TwirpRPC";
+} from './proto/room';
+import { TwirpRpc } from './TwirpRPC';
 
 interface Rpc {
   request(
@@ -28,7 +28,7 @@ export function NewRoomService(
   return new RoomServiceClientImpl(host, apiKey, secret);
 }
 
-const livekitPackage = "livekit";
+const livekitPackage = 'livekit';
 
 export class RoomServiceClientImpl implements RoomService {
   private readonly rpc: Rpc;
@@ -43,8 +43,8 @@ export class RoomServiceClientImpl implements RoomService {
 
   async CreateRoom(request: CreateRoomRequest): Promise<Room> {
     const data = await this.rpc.request(
-      "RoomService",
-      "CreateRoom",
+      'RoomService',
+      'CreateRoom',
       CreateRoomRequest.toJSON(request),
       this.authHeader({ roomCreate: true })
     );
@@ -53,8 +53,8 @@ export class RoomServiceClientImpl implements RoomService {
 
   async ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse> {
     const data = await this.rpc.request(
-      "RoomService",
-      "ListRooms",
+      'RoomService',
+      'ListRooms',
       ListRoomsRequest.toJSON(request),
       this.authHeader({ roomList: true })
     );
@@ -63,8 +63,8 @@ export class RoomServiceClientImpl implements RoomService {
 
   async DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse> {
     const data = await this.rpc.request(
-      "RoomService",
-      "DeleteRoom",
+      'RoomService',
+      'DeleteRoom',
       DeleteRoomRequest.toJSON(request),
       this.authHeader({ roomCreate: true })
     );
@@ -72,10 +72,10 @@ export class RoomServiceClientImpl implements RoomService {
   }
 
   private authHeader(grant: VideoGrant): any {
-    const at = new AccessToken(this.apiKey, this.secret, { ttl: "10m" });
+    const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m' });
     at.addGrant(grant);
     return {
-      Authorization: "Bearer " + at.toJwt(),
+      Authorization: 'Bearer ' + at.toJwt(),
     };
   }
 }

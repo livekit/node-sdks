@@ -35,16 +35,16 @@ export interface CreateOptions {
 
 export class RoomServiceClient {
   private readonly rpc: Rpc;
-  private apiKey: string;
-  private secret: string;
+  private apiKey?: string;
+  private secret?: string;
 
-  constructor(host: string, apiKey: string, secret: string) {
+  constructor(host: string, apiKey?: string, secret?: string) {
     this.rpc = new TwirpRpc(host, livekitPackage);
     this.apiKey = apiKey;
     this.secret = secret;
   }
 
-  async CreateRoom(options: CreateOptions): Promise<Room> {
+  async createRoom(options: CreateOptions): Promise<Room> {
     const data = await this.rpc.request(
       'RoomService',
       'CreateRoom',
@@ -54,7 +54,7 @@ export class RoomServiceClient {
     return Room.fromJSON(data);
   }
 
-  async ListRooms(): Promise<Room[]> {
+  async listRooms(): Promise<Room[]> {
     const data = await this.rpc.request(
       'RoomService',
       'ListRooms',
@@ -65,7 +65,7 @@ export class RoomServiceClient {
     return res.rooms;
   }
 
-  async DeleteRoom(room: string): Promise<void> {
+  async deleteRoom(room: string): Promise<void> {
     await this.rpc.request(
       'RoomService',
       'DeleteRoom',

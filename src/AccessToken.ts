@@ -20,7 +20,20 @@ export class AccessToken {
   identity?: string;
   ttl?: number | string;
 
-  constructor(apiKey: string, apiSecret: string, options?: AccessTokenOptions) {
+  constructor(
+    apiKey?: string,
+    apiSecret?: string,
+    options?: AccessTokenOptions
+  ) {
+    if (!apiKey) {
+      apiKey = process.env.LIVEKIT_API_KEY;
+    }
+    if (!apiSecret) {
+      apiSecret = process.env.LIVEKIT_API_SECRET;
+    }
+    if (!apiKey || !apiSecret) {
+      throw 'api-key and api-secret must be set';
+    }
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.grants = {};

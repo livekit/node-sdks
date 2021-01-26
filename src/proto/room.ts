@@ -1,19 +1,23 @@
 /* eslint-disable */
-import { Room } from "./model";
-import { Writer, Reader } from "protobufjs/minimal";
+import { Room } from './model';
+import { Writer, Reader } from 'protobufjs/minimal';
 
-export const protobufPackage = "livekit";
 
 export interface CreateRoomRequest {
   name: string;
-  /** number of seconds the room should cleanup after being empty */
+  /**
+   *  number of seconds the room should cleanup after being empty
+   */
   emptyTimeout: number;
   maxParticipants: number;
-  /** override the node room is allocated to, for debugging */
+  /**
+   *  override the node room is allocated to, for debugging
+   */
   nodeId: string;
 }
 
-export interface ListRoomsRequest {}
+export interface ListRoomsRequest {
+}
 
 export interface ListRoomsResponse {
   rooms: Room[];
@@ -23,7 +27,8 @@ export interface DeleteRoomRequest {
   room: string;
 }
 
-export interface DeleteRoomResponse {}
+export interface DeleteRoomResponse {
+}
 
 const baseCreateRoomRequest: object = {
   name: "",
@@ -31,6 +36,39 @@ const baseCreateRoomRequest: object = {
   maxParticipants: 0,
   nodeId: "",
 };
+
+const baseListRoomsRequest: object = {
+};
+
+const baseListRoomsResponse: object = {
+};
+
+const baseDeleteRoomRequest: object = {
+  room: "",
+};
+
+const baseDeleteRoomResponse: object = {
+};
+
+/**
+ *  Room service that can be performed on any node
+ *  they are simple HTTP req/responses
+ */
+export interface RoomService {
+
+  /**
+   *  TODO: how do we secure room service?
+   *  should be accessible to only internal servers, not external
+   */
+  CreateRoom(request: CreateRoomRequest): Promise<Room>;
+
+  ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse>;
+
+  DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse>;
+
+}
+
+export const protobufPackage = 'livekit'
 
 export const CreateRoomRequest = {
   encode(message: CreateRoomRequest, writer: Writer = Writer.create()): Writer {
@@ -40,8 +78,7 @@ export const CreateRoomRequest = {
     writer.uint32(34).string(message.nodeId);
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): CreateRoomRequest {
+  decode(input: Uint8Array | Reader, length?: number): CreateRoomRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
@@ -67,7 +104,6 @@ export const CreateRoomRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): CreateRoomRequest {
     const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
     if (object.name !== undefined && object.name !== null) {
@@ -80,10 +116,7 @@ export const CreateRoomRequest = {
     } else {
       message.emptyTimeout = 0;
     }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
+    if (object.maxParticipants !== undefined && object.maxParticipants !== null) {
       message.maxParticipants = Number(object.maxParticipants);
     } else {
       message.maxParticipants = 0;
@@ -95,7 +128,6 @@ export const CreateRoomRequest = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<CreateRoomRequest>): CreateRoomRequest {
     const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
     if (object.name !== undefined && object.name !== null) {
@@ -108,10 +140,7 @@ export const CreateRoomRequest = {
     } else {
       message.emptyTimeout = 0;
     }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
+    if (object.maxParticipants !== undefined && object.maxParticipants !== null) {
       message.maxParticipants = object.maxParticipants;
     } else {
       message.maxParticipants = 0;
@@ -123,27 +152,21 @@ export const CreateRoomRequest = {
     }
     return message;
   },
-
   toJSON(message: CreateRoomRequest): unknown {
     const obj: any = {};
     message.name !== undefined && (obj.name = message.name);
-    message.emptyTimeout !== undefined &&
-      (obj.emptyTimeout = message.emptyTimeout);
-    message.maxParticipants !== undefined &&
-      (obj.maxParticipants = message.maxParticipants);
+    message.emptyTimeout !== undefined && (obj.emptyTimeout = message.emptyTimeout);
+    message.maxParticipants !== undefined && (obj.maxParticipants = message.maxParticipants);
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
     return obj;
   },
 };
 
-const baseListRoomsRequest: object = {};
-
 export const ListRoomsRequest = {
   encode(_: ListRoomsRequest, writer: Writer = Writer.create()): Writer {
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): ListRoomsRequest {
+  decode(input: Uint8Array | Reader, length?: number): ListRoomsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
@@ -157,24 +180,19 @@ export const ListRoomsRequest = {
     }
     return message;
   },
-
   fromJSON(_: any): ListRoomsRequest {
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
     return message;
   },
-
   fromPartial(_: DeepPartial<ListRoomsRequest>): ListRoomsRequest {
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
     return message;
   },
-
   toJSON(_: ListRoomsRequest): unknown {
     const obj: any = {};
     return obj;
   },
 };
-
-const baseListRoomsResponse: object = {};
 
 export const ListRoomsResponse = {
   encode(message: ListRoomsResponse, writer: Writer = Writer.create()): Writer {
@@ -183,8 +201,7 @@ export const ListRoomsResponse = {
     }
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): ListRoomsResponse {
+  decode(input: Uint8Array | Reader, length?: number): ListRoomsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseListRoomsResponse } as ListRoomsResponse;
@@ -202,7 +219,6 @@ export const ListRoomsResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): ListRoomsResponse {
     const message = { ...baseListRoomsResponse } as ListRoomsResponse;
     message.rooms = [];
@@ -213,7 +229,6 @@ export const ListRoomsResponse = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<ListRoomsResponse>): ListRoomsResponse {
     const message = { ...baseListRoomsResponse } as ListRoomsResponse;
     message.rooms = [];
@@ -224,11 +239,10 @@ export const ListRoomsResponse = {
     }
     return message;
   },
-
   toJSON(message: ListRoomsResponse): unknown {
     const obj: any = {};
     if (message.rooms) {
-      obj.rooms = message.rooms.map((e) => (e ? Room.toJSON(e) : undefined));
+      obj.rooms = message.rooms.map(e => e ? Room.toJSON(e) : undefined);
     } else {
       obj.rooms = [];
     }
@@ -236,15 +250,12 @@ export const ListRoomsResponse = {
   },
 };
 
-const baseDeleteRoomRequest: object = { room: "" };
-
 export const DeleteRoomRequest = {
   encode(message: DeleteRoomRequest, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.room);
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): DeleteRoomRequest {
+  decode(input: Uint8Array | Reader, length?: number): DeleteRoomRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
@@ -261,7 +272,6 @@ export const DeleteRoomRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): DeleteRoomRequest {
     const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
     if (object.room !== undefined && object.room !== null) {
@@ -271,7 +281,6 @@ export const DeleteRoomRequest = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<DeleteRoomRequest>): DeleteRoomRequest {
     const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
     if (object.room !== undefined && object.room !== null) {
@@ -281,7 +290,6 @@ export const DeleteRoomRequest = {
     }
     return message;
   },
-
   toJSON(message: DeleteRoomRequest): unknown {
     const obj: any = {};
     message.room !== undefined && (obj.room = message.room);
@@ -289,14 +297,11 @@ export const DeleteRoomRequest = {
   },
 };
 
-const baseDeleteRoomResponse: object = {};
-
 export const DeleteRoomResponse = {
   encode(_: DeleteRoomResponse, writer: Writer = Writer.create()): Writer {
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): DeleteRoomResponse {
+  decode(input: Uint8Array | Reader, length?: number): DeleteRoomResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
@@ -310,36 +315,19 @@ export const DeleteRoomResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): DeleteRoomResponse {
     const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
     return message;
   },
-
   fromPartial(_: DeepPartial<DeleteRoomResponse>): DeleteRoomResponse {
     const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
     return message;
   },
-
   toJSON(_: DeleteRoomResponse): unknown {
     const obj: any = {};
     return obj;
   },
 };
-
-/**
- * Room service that can be performed on any node
- * they are simple HTTP req/responses
- */
-export interface RoomService {
-  /**
-   * TODO: how do we secure room service?
-   * should be accessible to only internal servers, not external
-   */
-  CreateRoom(request: CreateRoomRequest): Promise<Room>;
-  ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse>;
-  DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse>;
-}
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin

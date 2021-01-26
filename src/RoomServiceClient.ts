@@ -4,10 +4,8 @@ import { Room } from './proto/model';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
-  DeleteRoomResponse,
   ListRoomsRequest,
   ListRoomsResponse,
-  RoomService,
 } from './proto/room';
 import { TwirpRpc } from './TwirpRPC';
 
@@ -20,17 +18,22 @@ interface Rpc {
   ): Promise<string>;
 }
 
-export function NewRoomService(
-  host: string,
-  apiKey: string,
-  secret: string
-): RoomService {
-  return new RoomServiceClientImpl(host, apiKey, secret);
-}
-
 const livekitPackage = 'livekit';
 
-export class RoomServiceClientImpl implements RoomService {
+export interface CreateOptions {
+  name: string;
+  /**
+   *  number of seconds the room should cleanup after being empty
+   */
+  emptyTimeout?: number;
+  maxParticipants?: number;
+  /**
+   *  override the node room is allocated to, for debugging
+   */
+  nodeId?: string;
+}
+
+export class RoomServiceClient {
   private readonly rpc: Rpc;
   private apiKey: string;
   private secret: string;
@@ -41,34 +44,34 @@ export class RoomServiceClientImpl implements RoomService {
     this.secret = secret;
   }
 
-  async CreateRoom(request: CreateRoomRequest): Promise<Room> {
+  async CreateRoom(options: CreateOptions): Promise<Room> {
     const data = await this.rpc.request(
       'RoomService',
       'CreateRoom',
-      CreateRoomRequest.toJSON(request),
+      CreateRoomRequest.toJSON(CreateRoomRequest.fromPartial(options)),
       this.authHeader({ roomCreate: true })
     );
     return Room.fromJSON(data);
   }
 
-  async ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse> {
+  async ListRooms(): Promise<Room[]> {
     const data = await this.rpc.request(
       'RoomService',
       'ListRooms',
-      ListRoomsRequest.toJSON(request),
+      ListRoomsRequest.toJSON({}),
       this.authHeader({ roomList: true })
     );
-    return ListRoomsResponse.fromJSON(data);
+    const res = ListRoomsResponse.fromJSON(data);
+    return res.rooms;
   }
 
-  async DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse> {
-    const data = await this.rpc.request(
+  async DeleteRoom(room: string): Promise<void> {
+    await this.rpc.request(
       'RoomService',
       'DeleteRoom',
-      DeleteRoomRequest.toJSON(request),
+      DeleteRoomRequest.toJSON({ room: room }),
       this.authHeader({ roomCreate: true })
     );
-    return DeleteRoomResponse.fromJSON(data);
   }
 
   private authHeader(grant: VideoGrant): any {

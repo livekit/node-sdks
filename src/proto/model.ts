@@ -1,8 +1,67 @@
 /* eslint-disable */
-import * as Long from "long";
-import { configure, Reader, util, Writer } from "protobufjs/minimal";
+import * as Long from 'long';
+import { Writer, Reader, util, configure } from 'protobufjs/minimal';
 
-export const protobufPackage = "livekit";
+
+export interface Room {
+  sid: string;
+  name: string;
+  emptyTimeout: number;
+  maxParticipants: number;
+  creationTime: number;
+}
+
+export interface ParticipantInfo {
+  sid: string;
+  name: string;
+  state: ParticipantInfo_State;
+  tracks: TrackInfo[];
+}
+
+export interface TrackInfo {
+  sid: string;
+  type: TrackType;
+  name: string;
+  muted: boolean;
+}
+
+export interface DataMessage {
+  text: string | undefined;
+  binary: Uint8Array | undefined;
+}
+
+const baseRoom: object = {
+  sid: "",
+  name: "",
+  emptyTimeout: 0,
+  maxParticipants: 0,
+  creationTime: 0,
+};
+
+const baseParticipantInfo: object = {
+  sid: "",
+  name: "",
+  state: 0,
+};
+
+const baseTrackInfo: object = {
+  sid: "",
+  type: 0,
+  name: "",
+  muted: false,
+};
+
+const baseDataMessage: object = {
+};
+
+function longToNumber(long: Long) {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
+
+export const protobufPackage = 'livekit'
 
 export enum TrackType {
   AUDIO = 0,
@@ -42,36 +101,23 @@ export function trackTypeToJSON(object: TrackType): string {
   }
 }
 
-export interface Room {
-  sid: string;
-  name: string;
-  emptyTimeout: number;
-  maxParticipants: number;
-  creationTime: number;
-}
-
-export interface ParticipantInfo {
-  sid: string;
-  name: string;
-  state: ParticipantInfo_State;
-  tracks: TrackInfo[];
-}
-
 export enum ParticipantInfo_State {
-  /** JOINING - websocket' connected, but not offered yet */
+  /** JOINING -  websocket' connected, but not offered yet
+   */
   JOINING = 0,
-  /** JOINED - server received client offer */
+  /** JOINED -  server received client offer
+   */
   JOINED = 1,
-  /** ACTIVE - ICE connectivity established */
+  /** ACTIVE -  ICE connectivity established
+   */
   ACTIVE = 2,
-  /** DISCONNECTED - WS disconnected */
+  /** DISCONNECTED -  WS disconnected
+   */
   DISCONNECTED = 3,
   UNRECOGNIZED = -1,
 }
 
-export function participantInfo_StateFromJSON(
-  object: any
-): ParticipantInfo_State {
+export function participantInfo_StateFromJSON(object: any): ParticipantInfo_State {
   switch (object) {
     case 0:
     case "JOINING":
@@ -92,9 +138,7 @@ export function participantInfo_StateFromJSON(
   }
 }
 
-export function participantInfo_StateToJSON(
-  object: ParticipantInfo_State
-): string {
+export function participantInfo_StateToJSON(object: ParticipantInfo_State): string {
   switch (object) {
     case ParticipantInfo_State.JOINING:
       return "JOINING";
@@ -109,26 +153,6 @@ export function participantInfo_StateToJSON(
   }
 }
 
-export interface TrackInfo {
-  sid: string;
-  type: TrackType;
-  name: string;
-  muted: boolean;
-}
-
-export interface DataMessage {
-  text: string | undefined;
-  binary: Uint8Array | undefined;
-}
-
-const baseRoom: object = {
-  sid: "",
-  name: "",
-  emptyTimeout: 0,
-  maxParticipants: 0,
-  creationTime: 0,
-};
-
 export const Room = {
   encode(message: Room, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.sid);
@@ -138,8 +162,7 @@ export const Room = {
     writer.uint32(40).int64(message.creationTime);
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): Room {
+  decode(input: Uint8Array | Reader, length?: number): Room {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRoom } as Room;
@@ -168,7 +191,6 @@ export const Room = {
     }
     return message;
   },
-
   fromJSON(object: any): Room {
     const message = { ...baseRoom } as Room;
     if (object.sid !== undefined && object.sid !== null) {
@@ -186,10 +208,7 @@ export const Room = {
     } else {
       message.emptyTimeout = 0;
     }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
+    if (object.maxParticipants !== undefined && object.maxParticipants !== null) {
       message.maxParticipants = Number(object.maxParticipants);
     } else {
       message.maxParticipants = 0;
@@ -201,7 +220,6 @@ export const Room = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<Room>): Room {
     const message = { ...baseRoom } as Room;
     if (object.sid !== undefined && object.sid !== null) {
@@ -219,10 +237,7 @@ export const Room = {
     } else {
       message.emptyTimeout = 0;
     }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
+    if (object.maxParticipants !== undefined && object.maxParticipants !== null) {
       message.maxParticipants = object.maxParticipants;
     } else {
       message.maxParticipants = 0;
@@ -234,22 +249,16 @@ export const Room = {
     }
     return message;
   },
-
   toJSON(message: Room): unknown {
     const obj: any = {};
     message.sid !== undefined && (obj.sid = message.sid);
     message.name !== undefined && (obj.name = message.name);
-    message.emptyTimeout !== undefined &&
-      (obj.emptyTimeout = message.emptyTimeout);
-    message.maxParticipants !== undefined &&
-      (obj.maxParticipants = message.maxParticipants);
-    message.creationTime !== undefined &&
-      (obj.creationTime = message.creationTime);
+    message.emptyTimeout !== undefined && (obj.emptyTimeout = message.emptyTimeout);
+    message.maxParticipants !== undefined && (obj.maxParticipants = message.maxParticipants);
+    message.creationTime !== undefined && (obj.creationTime = message.creationTime);
     return obj;
   },
 };
-
-const baseParticipantInfo: object = { sid: "", name: "", state: 0 };
 
 export const ParticipantInfo = {
   encode(message: ParticipantInfo, writer: Writer = Writer.create()): Writer {
@@ -261,8 +270,7 @@ export const ParticipantInfo = {
     }
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): ParticipantInfo {
+  decode(input: Uint8Array | Reader, length?: number): ParticipantInfo {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseParticipantInfo } as ParticipantInfo;
@@ -289,7 +297,6 @@ export const ParticipantInfo = {
     }
     return message;
   },
-
   fromJSON(object: any): ParticipantInfo {
     const message = { ...baseParticipantInfo } as ParticipantInfo;
     message.tracks = [];
@@ -315,7 +322,6 @@ export const ParticipantInfo = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<ParticipantInfo>): ParticipantInfo {
     const message = { ...baseParticipantInfo } as ParticipantInfo;
     message.tracks = [];
@@ -341,25 +347,19 @@ export const ParticipantInfo = {
     }
     return message;
   },
-
   toJSON(message: ParticipantInfo): unknown {
     const obj: any = {};
     message.sid !== undefined && (obj.sid = message.sid);
     message.name !== undefined && (obj.name = message.name);
-    message.state !== undefined &&
-      (obj.state = participantInfo_StateToJSON(message.state));
+    message.state !== undefined && (obj.state = participantInfo_StateToJSON(message.state));
     if (message.tracks) {
-      obj.tracks = message.tracks.map((e) =>
-        e ? TrackInfo.toJSON(e) : undefined
-      );
+      obj.tracks = message.tracks.map(e => e ? TrackInfo.toJSON(e) : undefined);
     } else {
       obj.tracks = [];
     }
     return obj;
   },
 };
-
-const baseTrackInfo: object = { sid: "", type: 0, name: "", muted: false };
 
 export const TrackInfo = {
   encode(message: TrackInfo, writer: Writer = Writer.create()): Writer {
@@ -369,8 +369,7 @@ export const TrackInfo = {
     writer.uint32(32).bool(message.muted);
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): TrackInfo {
+  decode(input: Uint8Array | Reader, length?: number): TrackInfo {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTrackInfo } as TrackInfo;
@@ -396,7 +395,6 @@ export const TrackInfo = {
     }
     return message;
   },
-
   fromJSON(object: any): TrackInfo {
     const message = { ...baseTrackInfo } as TrackInfo;
     if (object.sid !== undefined && object.sid !== null) {
@@ -421,7 +419,6 @@ export const TrackInfo = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<TrackInfo>): TrackInfo {
     const message = { ...baseTrackInfo } as TrackInfo;
     if (object.sid !== undefined && object.sid !== null) {
@@ -446,7 +443,6 @@ export const TrackInfo = {
     }
     return message;
   },
-
   toJSON(message: TrackInfo): unknown {
     const obj: any = {};
     message.sid !== undefined && (obj.sid = message.sid);
@@ -456,8 +452,6 @@ export const TrackInfo = {
     return obj;
   },
 };
-
-const baseDataMessage: object = {};
 
 export const DataMessage = {
   encode(message: DataMessage, writer: Writer = Writer.create()): Writer {
@@ -469,8 +463,7 @@ export const DataMessage = {
     }
     return writer;
   },
-
-  decode(input: Reader | Uint8Array, length?: number): DataMessage {
+  decode(input: Uint8Array | Reader, length?: number): DataMessage {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseDataMessage } as DataMessage;
@@ -490,7 +483,6 @@ export const DataMessage = {
     }
     return message;
   },
-
   fromJSON(object: any): DataMessage {
     const message = { ...baseDataMessage } as DataMessage;
     if (object.text !== undefined && object.text !== null) {
@@ -503,7 +495,6 @@ export const DataMessage = {
     }
     return message;
   },
-
   fromPartial(object: DeepPartial<DataMessage>): DataMessage {
     const message = { ...baseDataMessage } as DataMessage;
     if (object.text !== undefined && object.text !== null) {
@@ -518,52 +509,44 @@ export const DataMessage = {
     }
     return message;
   },
-
   toJSON(message: DataMessage): unknown {
     const obj: any = {};
     message.text !== undefined && (obj.text = message.text);
-    message.binary !== undefined &&
-      (obj.binary =
-        message.binary !== undefined
-          ? base64FromBytes(message.binary)
-          : undefined);
+    message.binary !== undefined && (obj.binary = message.binary !== undefined ? base64FromBytes(message.binary) : undefined);
     return obj;
   },
 };
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw new Error("Unable to locate global object");
-})();
+if (util.Long !== Long as any) {
+  util.Long = Long as any;
+  configure();
+}
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
+interface WindowBase64 {
+  atob(b64: string): string;
+  btoa(bin: string): string;
+}
+
+const windowBase64 = (globalThis as unknown as WindowBase64);
+const atob = windowBase64.atob || ((b64: string) => Buffer.from(b64, 'base64').toString('binary'));
+const btoa = windowBase64.btoa || ((bin: string) => Buffer.from(bin, 'binary').toString('base64'));
+
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64);
   const arr = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; ++i) {
-    arr[i] = bin.charCodeAt(i);
+      arr[i] = bin.charCodeAt(i);
   }
   return arr;
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
   for (let i = 0; i < arr.byteLength; ++i) {
     bin.push(String.fromCharCode(arr[i]));
   }
-  return btoa(bin.join(""));
+  return btoa(bin.join(''));
 }
-
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -574,16 +557,3 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  return long.toNumber();
-}
-
-// @ts-ignore
-if (util.Long !== Long) {
-  util.Long = Long as any;
-  configure();
-}

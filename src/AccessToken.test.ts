@@ -4,7 +4,7 @@ import { AccessToken } from './AccessToken';
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';
 
-test('encodes valid access tokens', () => {
+describe('encoded tokens are valid', () => {
   const t = new AccessToken(testApiKey, testSecret, {
     identity: 'me',
   });
@@ -12,7 +12,33 @@ test('encodes valid access tokens', () => {
   const token = t.toJwt();
 
   const decoded = <any>jwt.verify(token, testSecret, { jwtid: 'me' });
-  expect(decoded).not.toBe(undefined);
-  expect(decoded.video).toBeTruthy;
-  expect(decoded.video.room).toEqual('myroom');
+  it('can be decoded', () => {
+    expect(decoded).not.toBe(undefined);
+  });
+
+  it('has video grants set', () => {
+    expect(decoded.video).toBeTruthy();
+    expect(decoded.video.room).toEqual('myroom');
+  });
+
+  it('autosets join when only room is provided', () => {
+    expect(decoded.video.roomJoin).toBeTruthy();
+  });
+});
+
+describe('identity is required for only join grants', () => {
+  it('allows empty identity for create', () => {
+    const t = new AccessToken(testApiKey, testSecret);
+    t.addGrant({ roomCreate: true });
+
+    expect(t.toJwt()).toBeTruthy();
+  });
+  it('throws error when identity is not provided for join', () => {
+    const t = new AccessToken(testApiKey, testSecret);
+    t.addGrant({ roomJoin: true });
+
+    expect(() => {
+      t.toJwt();
+    }).toThrow();
+  });
 });

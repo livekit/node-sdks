@@ -37,17 +37,16 @@ export class AccessToken {
   }
 
   toJwt(): string {
-    if (!this.identity) {
-      throw new Error('identity is required but not set');
-    }
-
     const opts: jwt.SignOptions = {
       issuer: this.apiKey,
       expiresIn: this.ttl,
       notBefore: 0,
-      jwtid: this.identity,
     };
-
+    if (this.identity) {
+      opts.jwtid = this.identity;
+    } else if (this.grants.video?.roomJoin) {
+      throw 'identity is required for joining but not set';
+    }
     return jwt.sign(this.grants, this.apiSecret, opts);
   }
 }

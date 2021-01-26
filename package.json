@@ -1,6 +1,6 @@
 {
   "name": "livekit-server-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn exec tsc",
-    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=./src/proto --ts_proto_opt=outputClientImpl=false,useOptionals=true -I../livekit-server/proto ../livekit-server/proto/room.proto",
+    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I../livekit-server/proto ../livekit-server/proto/room.proto",
     "test": "jest"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "jest": "^26.6.3",
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.11",
-    "ts-proto": "^1.39.0",
+    "ts-proto": "1.41.0",
     "typescript": "^4.1.2",
     "webpack": "^5.9.0",
     "webpack-cli": "^4.2.0"

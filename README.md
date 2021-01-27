@@ -25,6 +25,16 @@ You may store credentials in environment variables. If api-key or api-secret is 
 - `LIVEKIT_API_KEY`
 - `LIVEKIT_API_SECRET`
 
+### CommonJS
+
+If your environment doesn't support ES6 imports, replace the import statements in the examples with
+
+```javascript
+const livekitApi = require('livekit-server-api');
+const AccessToken = livekit.AccessToken;
+const RoomServiceClient = livekitApi.RoomServiceClient;
+```
+
 ### Creating Access Tokens
 
 Creating a token for participant to join a room.

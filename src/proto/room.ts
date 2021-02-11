@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Room } from './model';
+import { Room, ParticipantInfo, TrackInfo } from './model';
 import { Writer, Reader } from 'protobufjs/minimal';
 
 
@@ -30,6 +30,33 @@ export interface DeleteRoomRequest {
 export interface DeleteRoomResponse {
 }
 
+export interface ListParticipantsRequest {
+  room: string;
+}
+
+export interface ListParticipantsResponse {
+  participants: ParticipantInfo[];
+}
+
+export interface RoomParticipantIdentity {
+  room: string;
+  identity: string;
+}
+
+export interface RemoveParticipantResponse {
+}
+
+export interface MuteRoomTrackRequest {
+  room: string;
+  identity: string;
+  trackSid: string;
+  muted: boolean;
+}
+
+export interface MuteRoomTrackResponse {
+  track?: TrackInfo;
+}
+
 const baseCreateRoomRequest: object = {
   name: "",
   emptyTimeout: 0,
@@ -50,14 +77,38 @@ const baseDeleteRoomRequest: object = {
 const baseDeleteRoomResponse: object = {
 };
 
+const baseListParticipantsRequest: object = {
+  room: "",
+};
+
+const baseListParticipantsResponse: object = {
+};
+
+const baseRoomParticipantIdentity: object = {
+  room: "",
+  identity: "",
+};
+
+const baseRemoveParticipantResponse: object = {
+};
+
+const baseMuteRoomTrackRequest: object = {
+  room: "",
+  identity: "",
+  trackSid: "",
+  muted: false,
+};
+
+const baseMuteRoomTrackResponse: object = {
+};
+
 /**
  *  Room service that can be performed on any node
- *  they are simple HTTP req/responses
+ *  they are Twirp-based HTTP req/responses
  */
 export interface RoomService {
 
   /**
-   *  TODO: how do we secure room service?
    *  should be accessible to only internal servers, not external
    */
   CreateRoom(request: CreateRoomRequest): Promise<Room>;
@@ -65,6 +116,26 @@ export interface RoomService {
   ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse>;
 
   DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse>;
+
+  /**
+   *  lists participants in a room, requires RoomAdmin
+   */
+  ListParticipants(request: ListParticipantsRequest): Promise<ListParticipantsResponse>;
+
+  /**
+   *  get information on a specific participant, requires RoomAdmin
+   */
+  GetParticipant(request: RoomParticipantIdentity): Promise<ParticipantInfo>;
+
+  /**
+   *  removes a participant from room, requires RoomAdmin
+   */
+  RemoveParticipant(request: RoomParticipantIdentity): Promise<RemoveParticipantResponse>;
+
+  /**
+   *  mute/unmute a participant, requires RoomAdmin
+   */
+  MutePublishedTrack(request: MuteRoomTrackRequest): Promise<MuteRoomTrackResponse>;
 
 }
 
@@ -325,6 +396,344 @@ export const DeleteRoomResponse = {
   },
   toJSON(_: DeleteRoomResponse): unknown {
     const obj: any = {};
+    return obj;
+  },
+};
+
+export const ListParticipantsRequest = {
+  encode(message: ListParticipantsRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.room);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ListParticipantsRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseListParticipantsRequest } as ListParticipantsRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ListParticipantsRequest {
+    const message = { ...baseListParticipantsRequest } as ListParticipantsRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ListParticipantsRequest>): ListParticipantsRequest {
+    const message = { ...baseListParticipantsRequest } as ListParticipantsRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = "";
+    }
+    return message;
+  },
+  toJSON(message: ListParticipantsRequest): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    return obj;
+  },
+};
+
+export const ListParticipantsResponse = {
+  encode(message: ListParticipantsResponse, writer: Writer = Writer.create()): Writer {
+    for (const v of message.participants) {
+      ParticipantInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ListParticipantsResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseListParticipantsResponse } as ListParticipantsResponse;
+    message.participants = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.participants.push(ParticipantInfo.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ListParticipantsResponse {
+    const message = { ...baseListParticipantsResponse } as ListParticipantsResponse;
+    message.participants = [];
+    if (object.participants !== undefined && object.participants !== null) {
+      for (const e of object.participants) {
+        message.participants.push(ParticipantInfo.fromJSON(e));
+      }
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ListParticipantsResponse>): ListParticipantsResponse {
+    const message = { ...baseListParticipantsResponse } as ListParticipantsResponse;
+    message.participants = [];
+    if (object.participants !== undefined && object.participants !== null) {
+      for (const e of object.participants) {
+        message.participants.push(ParticipantInfo.fromPartial(e));
+      }
+    }
+    return message;
+  },
+  toJSON(message: ListParticipantsResponse): unknown {
+    const obj: any = {};
+    if (message.participants) {
+      obj.participants = message.participants.map(e => e ? ParticipantInfo.toJSON(e) : undefined);
+    } else {
+      obj.participants = [];
+    }
+    return obj;
+  },
+};
+
+export const RoomParticipantIdentity = {
+  encode(message: RoomParticipantIdentity, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.room);
+    writer.uint32(18).string(message.identity);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): RoomParticipantIdentity {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRoomParticipantIdentity } as RoomParticipantIdentity;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.identity = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): RoomParticipantIdentity {
+    const message = { ...baseRoomParticipantIdentity } as RoomParticipantIdentity;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = String(object.identity);
+    } else {
+      message.identity = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<RoomParticipantIdentity>): RoomParticipantIdentity {
+    const message = { ...baseRoomParticipantIdentity } as RoomParticipantIdentity;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = object.identity;
+    } else {
+      message.identity = "";
+    }
+    return message;
+  },
+  toJSON(message: RoomParticipantIdentity): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    message.identity !== undefined && (obj.identity = message.identity);
+    return obj;
+  },
+};
+
+export const RemoveParticipantResponse = {
+  encode(_: RemoveParticipantResponse, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): RemoveParticipantResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRemoveParticipantResponse } as RemoveParticipantResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): RemoveParticipantResponse {
+    const message = { ...baseRemoveParticipantResponse } as RemoveParticipantResponse;
+    return message;
+  },
+  fromPartial(_: DeepPartial<RemoveParticipantResponse>): RemoveParticipantResponse {
+    const message = { ...baseRemoveParticipantResponse } as RemoveParticipantResponse;
+    return message;
+  },
+  toJSON(_: RemoveParticipantResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const MuteRoomTrackRequest = {
+  encode(message: MuteRoomTrackRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.room);
+    writer.uint32(18).string(message.identity);
+    writer.uint32(26).string(message.trackSid);
+    writer.uint32(32).bool(message.muted);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): MuteRoomTrackRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.identity = reader.string();
+          break;
+        case 3:
+          message.trackSid = reader.string();
+          break;
+        case 4:
+          message.muted = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): MuteRoomTrackRequest {
+    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = String(object.identity);
+    } else {
+      message.identity = "";
+    }
+    if (object.trackSid !== undefined && object.trackSid !== null) {
+      message.trackSid = String(object.trackSid);
+    } else {
+      message.trackSid = "";
+    }
+    if (object.muted !== undefined && object.muted !== null) {
+      message.muted = Boolean(object.muted);
+    } else {
+      message.muted = false;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<MuteRoomTrackRequest>): MuteRoomTrackRequest {
+    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = object.identity;
+    } else {
+      message.identity = "";
+    }
+    if (object.trackSid !== undefined && object.trackSid !== null) {
+      message.trackSid = object.trackSid;
+    } else {
+      message.trackSid = "";
+    }
+    if (object.muted !== undefined && object.muted !== null) {
+      message.muted = object.muted;
+    } else {
+      message.muted = false;
+    }
+    return message;
+  },
+  toJSON(message: MuteRoomTrackRequest): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    message.identity !== undefined && (obj.identity = message.identity);
+    message.trackSid !== undefined && (obj.trackSid = message.trackSid);
+    message.muted !== undefined && (obj.muted = message.muted);
+    return obj;
+  },
+};
+
+export const MuteRoomTrackResponse = {
+  encode(message: MuteRoomTrackResponse, writer: Writer = Writer.create()): Writer {
+    if (message.track !== undefined && message.track !== undefined) {
+      TrackInfo.encode(message.track, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): MuteRoomTrackResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.track = TrackInfo.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): MuteRoomTrackResponse {
+    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
+    if (object.track !== undefined && object.track !== null) {
+      message.track = TrackInfo.fromJSON(object.track);
+    } else {
+      message.track = undefined;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<MuteRoomTrackResponse>): MuteRoomTrackResponse {
+    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
+    if (object.track !== undefined && object.track !== null) {
+      message.track = TrackInfo.fromPartial(object.track);
+    } else {
+      message.track = undefined;
+    }
+    return message;
+  },
+  toJSON(message: MuteRoomTrackResponse): unknown {
+    const obj: any = {};
+    message.track !== undefined && (obj.track = message.track ? TrackInfo.toJSON(message.track) : undefined);
     return obj;
   },
 };

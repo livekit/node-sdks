@@ -1,11 +1,16 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
-import { Room } from './proto/model';
+import { ParticipantInfo, Room, TrackInfo } from './proto/model';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
+  ListParticipantsRequest,
+  ListParticipantsResponse,
   ListRoomsRequest,
   ListRoomsResponse,
+  MuteRoomTrackRequest,
+  MuteRoomTrackResponse,
+  RoomParticipantIdentity,
 } from './proto/room';
 import { TwirpRpc } from './TwirpRPC';
 
@@ -33,6 +38,8 @@ export interface CreateOptions {
   nodeId?: string;
 }
 
+const svc = 'RoomService';
+
 export class RoomServiceClient {
   private readonly rpc: Rpc;
   private apiKey?: string;
@@ -46,7 +53,7 @@ export class RoomServiceClient {
 
   async createRoom(options: CreateOptions): Promise<Room> {
     const data = await this.rpc.request(
-      'RoomService',
+      svc,
       'CreateRoom',
       CreateRoomRequest.toJSON(CreateRoomRequest.fromPartial(options)),
       this.authHeader({ roomCreate: true })
@@ -56,7 +63,7 @@ export class RoomServiceClient {
 
   async listRooms(): Promise<Room[]> {
     const data = await this.rpc.request(
-      'RoomService',
+      svc,
       'ListRooms',
       ListRoomsRequest.toJSON({}),
       this.authHeader({ roomList: true })
@@ -67,11 +74,67 @@ export class RoomServiceClient {
 
   async deleteRoom(room: string): Promise<void> {
     await this.rpc.request(
-      'RoomService',
+      svc,
       'DeleteRoom',
-      DeleteRoomRequest.toJSON({ room: room }),
+      DeleteRoomRequest.toJSON({ room }),
       this.authHeader({ roomCreate: true })
     );
+  }
+
+  async listParticipants(room: string): Promise<ParticipantInfo[]> {
+    const data = await this.rpc.request(
+      svc,
+      'ListParticipants',
+      ListParticipantsRequest.toJSON({ room }),
+      this.authHeader({ roomAdmin: true, room: room })
+    );
+    const res = ListParticipantsResponse.fromJSON(data);
+    return res.participants;
+  }
+
+  async getParticipant(
+    room: string,
+    identity: string
+  ): Promise<ParticipantInfo> {
+    const data = await this.rpc.request(
+      svc,
+      'GetParticipant',
+      RoomParticipantIdentity.toJSON({ room, identity }),
+      this.authHeader({ roomAdmin: true, room: room })
+    );
+
+    return ParticipantInfo.fromJSON(data);
+  }
+
+  async removeParticipant(room: string, identity: string): Promise<void> {
+    await this.rpc.request(
+      svc,
+      'RemoveParticipant',
+      RoomParticipantIdentity.toJSON({ room, identity }),
+      this.authHeader({ roomAdmin: true, room: room })
+    );
+  }
+
+  async mutePublishedTrack(
+    room: string,
+    identity: string,
+    trackSid: string,
+    muted: boolean
+  ): Promise<TrackInfo> {
+    const req = MuteRoomTrackRequest.toJSON({
+      room,
+      identity,
+      trackSid,
+      muted,
+    });
+    const data = await this.rpc.request(
+      svc,
+      'MutePublishedTrack',
+      req,
+      this.authHeader({ roomAdmin: true, room: room })
+    );
+    const res = MuteRoomTrackResponse.fromJSON(data);
+    return res.track!;
   }
 
   private authHeader(grant: VideoGrant): any {

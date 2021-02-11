@@ -49,6 +49,10 @@ export class AccessToken {
     }
   }
 
+  set metadata(md: object) {
+    this.grants.metadata = md;
+  }
+
   toJwt(): string {
     const opts: jwt.SignOptions = {
       issuer: this.apiKey,
@@ -57,8 +61,8 @@ export class AccessToken {
     };
     if (this.identity) {
       opts.jwtid = this.identity;
-    } else if (this.grants.video?.roomJoin) {
-      throw 'identity is required for joining but not set';
+    } else if (this.grants.video?.roomJoin || this.grants.video?.roomAdmin) {
+      throw 'identity is required for admin and join but not set';
     }
     return jwt.sign(this.grants, this.apiSecret, opts);
   }

@@ -31,7 +31,7 @@ If your environment doesn't support ES6 imports, replace the import statements i
 
 ```javascript
 const livekitApi = require('livekit-server-api');
-const AccessToken = livekit.AccessToken;
+const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
 ```
 

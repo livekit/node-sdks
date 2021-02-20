@@ -12,5 +12,18 @@
   },
   "include": [
     "src/**/*",
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeExternals": true,
+    "includeVersion": true,
+    "name": "LiveKit JS Server SDK",
+    "out": "docs",
+    "theme": "default"
+  }
 }

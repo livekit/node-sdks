@@ -25,13 +25,25 @@ interface Rpc {
 
 const livekitPackage = 'livekit';
 
+/**
+ * Options for when creating a room
+ */
 export interface CreateOptions {
+  /**
+   * name of the room. required
+   */
   name: string;
+
   /**
    *  number of seconds the room should cleanup after being empty
    */
   emptyTimeout?: number;
+
+  /**
+   * limit to the number of participants in a room at a time
+   */
   maxParticipants?: number;
+
   /**
    *  override the node room is allocated to, for debugging
    */
@@ -40,17 +52,32 @@ export interface CreateOptions {
 
 const svc = 'RoomService';
 
+/**
+ * Client to access Room APIs
+ */
 export class RoomServiceClient {
   private readonly rpc: Rpc;
   private apiKey?: string;
   private secret?: string;
 
+  /**
+   *
+   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   */
   constructor(host: string, apiKey?: string, secret?: string) {
     this.rpc = new TwirpRpc(host, livekitPackage);
     this.apiKey = apiKey;
     this.secret = secret;
   }
 
+  /**
+   * Creates a new room. Explicit room creation is not required, since rooms will
+   * be automatically created when the first participant joins. This method can be
+   * used to customize room settings.
+   * @param options
+   */
   async createRoom(options: CreateOptions): Promise<Room> {
     const data = await this.rpc.request(
       svc,
@@ -81,6 +108,10 @@ export class RoomServiceClient {
     );
   }
 
+  /**
+   * List participants in a room
+   * @param room name of the room
+   */
   async listParticipants(room: string): Promise<ParticipantInfo[]> {
     const data = await this.rpc.request(
       svc,
@@ -92,6 +123,12 @@ export class RoomServiceClient {
     return res.participants;
   }
 
+  /**
+   * Get information on a specific participant, including the tracks that participant
+   * has published
+   * @param room name of the room
+   * @param identity identity of the participant to return
+   */
   async getParticipant(
     room: string,
     identity: string
@@ -106,6 +143,13 @@ export class RoomServiceClient {
     return ParticipantInfo.fromJSON(data);
   }
 
+  /**
+   * Removes a participant in the room. This will disconnect the participant
+   * and will emit a Disconnected event for that participant.
+   * Even after being removed, the participant can still re-join the room.
+   * @param room
+   * @param identity
+   */
   async removeParticipant(room: string, identity: string): Promise<void> {
     await this.rpc.request(
       svc,
@@ -115,6 +159,13 @@ export class RoomServiceClient {
     );
   }
 
+  /**s
+   * Mutes a track that the participant has published.
+   * @param room
+   * @param identity
+   * @param trackSid sid of the track to be muted
+   * @param muted true to mute, false to unmute
+   */
   async mutePublishedTrack(
     room: string,
     identity: string,

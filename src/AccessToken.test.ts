@@ -20,10 +20,6 @@ describe('encoded tokens are valid', () => {
     expect(decoded.video).toBeTruthy();
     expect(decoded.video.room).toEqual('myroom');
   });
-
-  it('autosets join when only room is provided', () => {
-    expect(decoded.video.roomJoin).toBeTruthy();
-  });
 });
 
 describe('identity is required for only join grants', () => {

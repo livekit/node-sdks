@@ -67,10 +67,6 @@ export class AccessToken {
    */
   addGrant(grant: VideoGrant) {
     this.grants.video = grant;
-    if (grant.room) {
-      // default to join token
-      grant.roomJoin = true;
-    }
   }
 
   /**
@@ -84,6 +80,8 @@ export class AccessToken {
    * @returns JWT encoded token
    */
   toJwt(): string {
+    // TODO: check for video grant validity
+
     const opts: jwt.SignOptions = {
       issuer: this.apiKey,
       expiresIn: this.ttl,

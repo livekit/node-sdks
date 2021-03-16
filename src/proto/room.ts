@@ -57,6 +57,11 @@ export interface MuteRoomTrackResponse {
   track?: TrackInfo;
 }
 
+export interface UpdateParticipantMetadataRequest {
+  target?: RoomParticipantIdentity;
+  metadata: string;
+}
+
 const baseCreateRoomRequest: object = {
   name: "",
   emptyTimeout: 0,
@@ -102,6 +107,10 @@ const baseMuteRoomTrackRequest: object = {
 const baseMuteRoomTrackResponse: object = {
 };
 
+const baseUpdateParticipantMetadataRequest: object = {
+  metadata: "",
+};
+
 /**
  *  Room service that can be performed on any node
  *  they are Twirp-based HTTP req/responses
@@ -136,6 +145,11 @@ export interface RoomService {
    *  mute/unmute a participant, requires RoomAdmin
    */
   MutePublishedTrack(request: MuteRoomTrackRequest): Promise<MuteRoomTrackResponse>;
+
+  /**
+   *  update participant metadata
+   */
+  UpdateParticipantMetadata(request: UpdateParticipantMetadataRequest): Promise<ParticipantInfo>;
 
 }
 
@@ -734,6 +748,70 @@ export const MuteRoomTrackResponse = {
   toJSON(message: MuteRoomTrackResponse): unknown {
     const obj: any = {};
     message.track !== undefined && (obj.track = message.track ? TrackInfo.toJSON(message.track) : undefined);
+    return obj;
+  },
+};
+
+export const UpdateParticipantMetadataRequest = {
+  encode(message: UpdateParticipantMetadataRequest, writer: Writer = Writer.create()): Writer {
+    if (message.target !== undefined && message.target !== undefined) {
+      RoomParticipantIdentity.encode(message.target, writer.uint32(10).fork()).ldelim();
+    }
+    writer.uint32(18).string(message.metadata);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): UpdateParticipantMetadataRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.target = RoomParticipantIdentity.decode(reader, reader.uint32());
+          break;
+        case 2:
+          message.metadata = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): UpdateParticipantMetadataRequest {
+    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
+    if (object.target !== undefined && object.target !== null) {
+      message.target = RoomParticipantIdentity.fromJSON(object.target);
+    } else {
+      message.target = undefined;
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = String(object.metadata);
+    } else {
+      message.metadata = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<UpdateParticipantMetadataRequest>): UpdateParticipantMetadataRequest {
+    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
+    if (object.target !== undefined && object.target !== null) {
+      message.target = RoomParticipantIdentity.fromPartial(object.target);
+    } else {
+      message.target = undefined;
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    } else {
+      message.metadata = "";
+    }
+    return message;
+  },
+  toJSON(message: UpdateParticipantMetadataRequest): unknown {
+    const obj: any = {};
+    message.target !== undefined && (obj.target = message.target ? RoomParticipantIdentity.toJSON(message.target) : undefined);
+    message.metadata !== undefined && (obj.metadata = message.metadata);
     return obj;
   },
 };

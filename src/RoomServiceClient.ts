@@ -11,6 +11,7 @@ import {
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
   RoomParticipantIdentity,
+  UpdateParticipantMetadataRequest,
 } from './proto/room';
 import { TwirpRpc } from './TwirpRPC';
 
@@ -24,6 +25,8 @@ interface Rpc {
 }
 
 const livekitPackage = 'livekit';
+
+export type ParticipantMetadata = { [key: string]: any };
 
 /**
  * Options for when creating a room
@@ -186,6 +189,27 @@ export class RoomServiceClient {
     );
     const res = MuteRoomTrackResponse.fromJSON(data);
     return res.track!;
+  }
+
+  async updateParticipantMetadata(
+    room: string,
+    identity: string,
+    metadata: ParticipantMetadata
+  ): Promise<ParticipantInfo> {
+    const req = UpdateParticipantMetadataRequest.toJSON({
+      target: {
+        room,
+        identity,
+      },
+      metadata: JSON.stringify(metadata),
+    });
+    const data = await this.rpc.request(
+      svc,
+      'UpdateParticipantMetadata',
+      req,
+      this.authHeader({ roomAdmin: true, room: room })
+    );
+    return ParticipantInfo.fromJSON(data);
   }
 
   private authHeader(grant: VideoGrant): any {

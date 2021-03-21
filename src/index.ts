@@ -6,5 +6,5 @@ export {
   Room,
   TrackInfo,
   TrackType,
-} from './proto/model';
+} from './proto/livekit_models';
 export * from './RoomServiceClient';

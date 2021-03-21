@@ -10,7 +10,7 @@
   "scripts": {
     "build": "yarn exec tsc",
     "build-docs": "yarn exec typedoc",
-    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I../protocol ../protocol/room.proto",
+    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I../protocol ../protocol/livekit_room.proto",
     "test": "jest"
   },
   "dependencies": {

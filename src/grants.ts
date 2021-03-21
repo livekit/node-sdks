@@ -13,10 +13,19 @@ export interface VideoGrant {
 
   /** name of the room, must be set for admin or join permissions */
   room?: string;
+
+  /**
+   * allow participant to publish. If neither canPublish or canSubscribe is set,
+   * both publish and subscribe are enabled
+   */
+  canPublish?: boolean;
+
+  /** allow participant to subscribe to other tracks */
+  canSubscribe?: boolean;
 }
 
 /** @internal */
 export interface ClaimGrants {
   video?: VideoGrant;
-  metadata?: object;
+  metadata?: string;
 }

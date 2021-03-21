@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Room, ParticipantInfo, TrackInfo } from './model';
+import { Room, ParticipantInfo, TrackInfo } from './livekit_models';
 import { Writer, Reader } from 'protobufjs/minimal';
 
 
@@ -57,9 +57,16 @@ export interface MuteRoomTrackResponse {
   track?: TrackInfo;
 }
 
-export interface UpdateParticipantMetadataRequest {
-  target?: RoomParticipantIdentity;
+export interface ParticipantPermission {
+  canSubscribe: boolean;
+  canPublish: boolean;
+}
+
+export interface UpdateParticipantRequest {
+  room: string;
+  identity: string;
   metadata: string;
+  permission?: ParticipantPermission;
 }
 
 const baseCreateRoomRequest: object = {
@@ -107,7 +114,14 @@ const baseMuteRoomTrackRequest: object = {
 const baseMuteRoomTrackResponse: object = {
 };
 
-const baseUpdateParticipantMetadataRequest: object = {
+const baseParticipantPermission: object = {
+  canSubscribe: false,
+  canPublish: false,
+};
+
+const baseUpdateParticipantRequest: object = {
+  room: "",
+  identity: "",
   metadata: "",
 };
 
@@ -149,7 +163,7 @@ export interface RoomService {
   /**
    *  update participant metadata
    */
-  UpdateParticipantMetadata(request: UpdateParticipantMetadataRequest): Promise<ParticipantInfo>;
+  UpdateParticipant(request: UpdateParticipantRequest): Promise<ParticipantInfo>;
 
 }
 
@@ -752,26 +766,24 @@ export const MuteRoomTrackResponse = {
   },
 };
 
-export const UpdateParticipantMetadataRequest = {
-  encode(message: UpdateParticipantMetadataRequest, writer: Writer = Writer.create()): Writer {
-    if (message.target !== undefined && message.target !== undefined) {
-      RoomParticipantIdentity.encode(message.target, writer.uint32(10).fork()).ldelim();
-    }
-    writer.uint32(18).string(message.metadata);
+export const ParticipantPermission = {
+  encode(message: ParticipantPermission, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).bool(message.canSubscribe);
+    writer.uint32(16).bool(message.canPublish);
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): UpdateParticipantMetadataRequest {
+  decode(input: Uint8Array | Reader, length?: number): ParticipantPermission {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
+    const message = { ...baseParticipantPermission } as ParticipantPermission;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.target = RoomParticipantIdentity.decode(reader, reader.uint32());
+          message.canSubscribe = reader.bool();
           break;
         case 2:
-          message.metadata = reader.string();
+          message.canPublish = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -780,38 +792,132 @@ export const UpdateParticipantMetadataRequest = {
     }
     return message;
   },
-  fromJSON(object: any): UpdateParticipantMetadataRequest {
-    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
-    if (object.target !== undefined && object.target !== null) {
-      message.target = RoomParticipantIdentity.fromJSON(object.target);
+  fromJSON(object: any): ParticipantPermission {
+    const message = { ...baseParticipantPermission } as ParticipantPermission;
+    if (object.canSubscribe !== undefined && object.canSubscribe !== null) {
+      message.canSubscribe = Boolean(object.canSubscribe);
     } else {
-      message.target = undefined;
+      message.canSubscribe = false;
+    }
+    if (object.canPublish !== undefined && object.canPublish !== null) {
+      message.canPublish = Boolean(object.canPublish);
+    } else {
+      message.canPublish = false;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ParticipantPermission>): ParticipantPermission {
+    const message = { ...baseParticipantPermission } as ParticipantPermission;
+    if (object.canSubscribe !== undefined && object.canSubscribe !== null) {
+      message.canSubscribe = object.canSubscribe;
+    } else {
+      message.canSubscribe = false;
+    }
+    if (object.canPublish !== undefined && object.canPublish !== null) {
+      message.canPublish = object.canPublish;
+    } else {
+      message.canPublish = false;
+    }
+    return message;
+  },
+  toJSON(message: ParticipantPermission): unknown {
+    const obj: any = {};
+    message.canSubscribe !== undefined && (obj.canSubscribe = message.canSubscribe);
+    message.canPublish !== undefined && (obj.canPublish = message.canPublish);
+    return obj;
+  },
+};
+
+export const UpdateParticipantRequest = {
+  encode(message: UpdateParticipantRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.room);
+    writer.uint32(18).string(message.identity);
+    writer.uint32(26).string(message.metadata);
+    if (message.permission !== undefined && message.permission !== undefined) {
+      ParticipantPermission.encode(message.permission, writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): UpdateParticipantRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseUpdateParticipantRequest } as UpdateParticipantRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.identity = reader.string();
+          break;
+        case 3:
+          message.metadata = reader.string();
+          break;
+        case 4:
+          message.permission = ParticipantPermission.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): UpdateParticipantRequest {
+    const message = { ...baseUpdateParticipantRequest } as UpdateParticipantRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = String(object.identity);
+    } else {
+      message.identity = "";
     }
     if (object.metadata !== undefined && object.metadata !== null) {
       message.metadata = String(object.metadata);
     } else {
       message.metadata = "";
     }
+    if (object.permission !== undefined && object.permission !== null) {
+      message.permission = ParticipantPermission.fromJSON(object.permission);
+    } else {
+      message.permission = undefined;
+    }
     return message;
   },
-  fromPartial(object: DeepPartial<UpdateParticipantMetadataRequest>): UpdateParticipantMetadataRequest {
-    const message = { ...baseUpdateParticipantMetadataRequest } as UpdateParticipantMetadataRequest;
-    if (object.target !== undefined && object.target !== null) {
-      message.target = RoomParticipantIdentity.fromPartial(object.target);
+  fromPartial(object: DeepPartial<UpdateParticipantRequest>): UpdateParticipantRequest {
+    const message = { ...baseUpdateParticipantRequest } as UpdateParticipantRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
     } else {
-      message.target = undefined;
+      message.room = "";
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = object.identity;
+    } else {
+      message.identity = "";
     }
     if (object.metadata !== undefined && object.metadata !== null) {
       message.metadata = object.metadata;
     } else {
       message.metadata = "";
     }
+    if (object.permission !== undefined && object.permission !== null) {
+      message.permission = ParticipantPermission.fromPartial(object.permission);
+    } else {
+      message.permission = undefined;
+    }
     return message;
   },
-  toJSON(message: UpdateParticipantMetadataRequest): unknown {
+  toJSON(message: UpdateParticipantRequest): unknown {
     const obj: any = {};
-    message.target !== undefined && (obj.target = message.target ? RoomParticipantIdentity.toJSON(message.target) : undefined);
+    message.room !== undefined && (obj.room = message.room);
+    message.identity !== undefined && (obj.identity = message.identity);
     message.metadata !== undefined && (obj.metadata = message.metadata);
+    message.permission !== undefined && (obj.permission = message.permission ? ParticipantPermission.toJSON(message.permission) : undefined);
     return obj;
   },
 };

@@ -20,7 +20,7 @@ export interface AccessTokenOptions {
   /**
    * custom metadata to be passed to participants
    */
-  metadata?: object;
+  metadata?: string;
 }
 
 export class AccessToken {
@@ -72,7 +72,7 @@ export class AccessToken {
   /**
    * Set metadata to be passed to the Participant, used only when joining the room
    */
-  set metadata(md: object) {
+  set metadata(md: string) {
     this.grants.metadata = md;
   }
 

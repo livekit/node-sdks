@@ -1,6 +1,6 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
-import { ParticipantInfo, Room, TrackInfo } from './proto/model';
+import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -10,9 +10,10 @@ import {
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
+  ParticipantPermission,
   RoomParticipantIdentity,
-  UpdateParticipantMetadataRequest,
-} from './proto/room';
+  UpdateParticipantRequest,
+} from './proto/livekit_room';
 import { TwirpRpc } from './TwirpRPC';
 
 interface Rpc {
@@ -25,8 +26,6 @@ interface Rpc {
 }
 
 const livekitPackage = 'livekit';
-
-export type ParticipantMetadata = { [key: string]: any };
 
 /**
  * Options for when creating a room
@@ -191,22 +190,22 @@ export class RoomServiceClient {
     return res.track!;
   }
 
-  async updateParticipantMetadata(
+  async updateParticipant(
     room: string,
     identity: string,
-    metadata: ParticipantMetadata
+    metadata?: string,
+    permission?: ParticipantPermission
   ): Promise<ParticipantInfo> {
-    const req = UpdateParticipantMetadataRequest.toJSON({
-      target: {
-        room,
-        identity,
-      },
-      metadata: JSON.stringify(metadata),
-    });
+    const req: UpdateParticipantRequest = {
+      room,
+      identity,
+      metadata: metadata || '',
+      permission,
+    };
     const data = await this.rpc.request(
       svc,
-      'UpdateParticipantMetadata',
-      req,
+      'UpdateParticipant',
+      UpdateParticipantRequest.toJSON(req),
       this.authHeader({ roomAdmin: true, room: room })
     );
     return ParticipantInfo.fromJSON(data);

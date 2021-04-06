@@ -52,7 +52,7 @@ const participantName = 'user-name';
 const at = new AccessToken('api-key', 'secret-key', {
   identity: participantName,
 });
-at.addGrant({ room: roomName });
+at.addGrant({ roomJoin: true, room: roomName });
 
 const token = at.toJwt();
 console.log('access token', token);

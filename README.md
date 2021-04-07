@@ -60,6 +60,25 @@ console.log('access token', token);
 
 By default, the token expires after 6 hours. you may override this by passing in `ttl` in the access token options. `ttl` is expressed in seconds (as number) or a string describing a time span [vercel/ms](https://github.com/vercel/ms). eg: '2 days', '10h'.
 
+### Permissions in Access Tokens
+
+It's possible to customize the permissions of each participant:
+
+```typescript
+const at = new AccessToken('api-key', 'secret-key', {
+  identity: participantName,
+});
+
+at.addGrant({
+  roomJoin: true,
+  room: roomName,
+  canPublish: false,
+  canSubscribe: true,
+});
+```
+
+This will allow the participant to subscribe to tracks, but not publish their own to the room.
+
 ### Managing Rooms
 
 `RoomServiceClient` gives you APIs to list, create, and delete rooms. It also requires a pair of api key/secret key to operate.

@@ -32,12 +32,20 @@ jobs:
             ${{ runner.os }}-node-server-api-
 
       - name: Install Yarn
-        run: npm install -g yarn
+        run: |
+          npm install -g yarn
+          yarn install
+
+      - name: Build
+        run: yarn build
 
       - name: Build Docs
-        run: |
-          yarn install
-          yarn build-docs
+        run: yarn build-docs
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: S3 Upload
         uses: ItsKarma/aws-cli@v1.70.0

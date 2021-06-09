@@ -1,14 +1,12 @@
-name: Publish
+name: Test
 
 # Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    # branches: [ main ]
-    workflow_dispatch:
-    # only publish on version tags
-    tags:
-      - v*
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -35,16 +33,6 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
-      - name: Build Docs
+      - name: Test
         run: |
-          yarn install
-          yarn build-docs
-
-      - name: S3 Upload
-        uses: ItsKarma/aws-cli@v1.70.0
-        with:
-          args: s3 cp docs/ s3://livekit-docs/server-api-js --recursive
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          yarn test

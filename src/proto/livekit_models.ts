@@ -118,6 +118,15 @@ export interface TrackInfo {
   type: TrackType;
   name: string;
   muted: boolean;
+  /**
+   * original width of video (unset for audio)
+   * clients may receive a lower resolution version with simulcast
+   */
+  width: number;
+  /** original height of video (unset for audio) */
+  height: number;
+  /** true if track is simulcasted */
+  simulcast: boolean;
 }
 
 /** old DataTrack message */
@@ -442,7 +451,15 @@ export const ParticipantInfo = {
   },
 };
 
-const baseTrackInfo: object = { sid: '', type: 0, name: '', muted: false };
+const baseTrackInfo: object = {
+  sid: '',
+  type: 0,
+  name: '',
+  muted: false,
+  width: 0,
+  height: 0,
+  simulcast: false,
+};
 
 export const TrackInfo = {
   encode(
@@ -460,6 +477,15 @@ export const TrackInfo = {
     }
     if (message.muted === true) {
       writer.uint32(32).bool(message.muted);
+    }
+    if (message.width !== 0) {
+      writer.uint32(40).uint32(message.width);
+    }
+    if (message.height !== 0) {
+      writer.uint32(48).uint32(message.height);
+    }
+    if (message.simulcast === true) {
+      writer.uint32(56).bool(message.simulcast);
     }
     return writer;
   },
@@ -482,6 +508,15 @@ export const TrackInfo = {
           break;
         case 4:
           message.muted = reader.bool();
+          break;
+        case 5:
+          message.width = reader.uint32();
+          break;
+        case 6:
+          message.height = reader.uint32();
+          break;
+        case 7:
+          message.simulcast = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -513,6 +548,21 @@ export const TrackInfo = {
     } else {
       message.muted = false;
     }
+    if (object.width !== undefined && object.width !== null) {
+      message.width = Number(object.width);
+    } else {
+      message.width = 0;
+    }
+    if (object.height !== undefined && object.height !== null) {
+      message.height = Number(object.height);
+    } else {
+      message.height = 0;
+    }
+    if (object.simulcast !== undefined && object.simulcast !== null) {
+      message.simulcast = Boolean(object.simulcast);
+    } else {
+      message.simulcast = false;
+    }
     return message;
   },
 
@@ -522,6 +572,9 @@ export const TrackInfo = {
     message.type !== undefined && (obj.type = trackTypeToJSON(message.type));
     message.name !== undefined && (obj.name = message.name);
     message.muted !== undefined && (obj.muted = message.muted);
+    message.width !== undefined && (obj.width = message.width);
+    message.height !== undefined && (obj.height = message.height);
+    message.simulcast !== undefined && (obj.simulcast = message.simulcast);
     return obj;
   },
 
@@ -546,6 +599,21 @@ export const TrackInfo = {
       message.muted = object.muted;
     } else {
       message.muted = false;
+    }
+    if (object.width !== undefined && object.width !== null) {
+      message.width = object.width;
+    } else {
+      message.width = 0;
+    }
+    if (object.height !== undefined && object.height !== null) {
+      message.height = object.height;
+    } else {
+      message.height = 0;
+    }
+    if (object.simulcast !== undefined && object.simulcast !== null) {
+      message.simulcast = object.simulcast;
+    } else {
+      message.simulcast = false;
     }
     return message;
   },

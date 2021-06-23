@@ -64,6 +64,16 @@ export interface UpdateParticipantRequest {
   permission?: ParticipantPermission;
 }
 
+export interface UpdateSubscriptionsRequest {
+  room: string;
+  identity: string;
+  trackSids: string[];
+  subscribe: boolean;
+}
+
+/** empty for now */
+export interface UpdateSubscriptionsResponse {}
+
 const baseCreateRoomRequest: object = {
   name: '',
   emptyTimeout: 0,
@@ -1076,6 +1086,190 @@ export const UpdateParticipantRequest = {
   },
 };
 
+const baseUpdateSubscriptionsRequest: object = {
+  room: '',
+  identity: '',
+  trackSids: '',
+  subscribe: false,
+};
+
+export const UpdateSubscriptionsRequest = {
+  encode(
+    message: UpdateSubscriptionsRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.room !== '') {
+      writer.uint32(10).string(message.room);
+    }
+    if (message.identity !== '') {
+      writer.uint32(18).string(message.identity);
+    }
+    for (const v of message.trackSids) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.subscribe === true) {
+      writer.uint32(32).bool(message.subscribe);
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): UpdateSubscriptionsRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseUpdateSubscriptionsRequest,
+    } as UpdateSubscriptionsRequest;
+    message.trackSids = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.identity = reader.string();
+          break;
+        case 3:
+          message.trackSids.push(reader.string());
+          break;
+        case 4:
+          message.subscribe = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateSubscriptionsRequest {
+    const message = {
+      ...baseUpdateSubscriptionsRequest,
+    } as UpdateSubscriptionsRequest;
+    message.trackSids = [];
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = '';
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = String(object.identity);
+    } else {
+      message.identity = '';
+    }
+    if (object.trackSids !== undefined && object.trackSids !== null) {
+      for (const e of object.trackSids) {
+        message.trackSids.push(String(e));
+      }
+    }
+    if (object.subscribe !== undefined && object.subscribe !== null) {
+      message.subscribe = Boolean(object.subscribe);
+    } else {
+      message.subscribe = false;
+    }
+    return message;
+  },
+
+  toJSON(message: UpdateSubscriptionsRequest): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    message.identity !== undefined && (obj.identity = message.identity);
+    if (message.trackSids) {
+      obj.trackSids = message.trackSids.map((e) => e);
+    } else {
+      obj.trackSids = [];
+    }
+    message.subscribe !== undefined && (obj.subscribe = message.subscribe);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<UpdateSubscriptionsRequest>
+  ): UpdateSubscriptionsRequest {
+    const message = {
+      ...baseUpdateSubscriptionsRequest,
+    } as UpdateSubscriptionsRequest;
+    message.trackSids = [];
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = '';
+    }
+    if (object.identity !== undefined && object.identity !== null) {
+      message.identity = object.identity;
+    } else {
+      message.identity = '';
+    }
+    if (object.trackSids !== undefined && object.trackSids !== null) {
+      for (const e of object.trackSids) {
+        message.trackSids.push(e);
+      }
+    }
+    if (object.subscribe !== undefined && object.subscribe !== null) {
+      message.subscribe = object.subscribe;
+    } else {
+      message.subscribe = false;
+    }
+    return message;
+  },
+};
+
+const baseUpdateSubscriptionsResponse: object = {};
+
+export const UpdateSubscriptionsResponse = {
+  encode(
+    _: UpdateSubscriptionsResponse,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): UpdateSubscriptionsResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseUpdateSubscriptionsResponse,
+    } as UpdateSubscriptionsResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): UpdateSubscriptionsResponse {
+    const message = {
+      ...baseUpdateSubscriptionsResponse,
+    } as UpdateSubscriptionsResponse;
+    return message;
+  },
+
+  toJSON(_: UpdateSubscriptionsResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<UpdateSubscriptionsResponse>
+  ): UpdateSubscriptionsResponse {
+    const message = {
+      ...baseUpdateSubscriptionsResponse,
+    } as UpdateSubscriptionsResponse;
+    return message;
+  },
+};
+
 /**
  * Room service that can be performed on any node
  * they are Twirp-based HTTP req/responses
@@ -1103,6 +1297,10 @@ export interface RoomService {
   UpdateParticipant(
     request: UpdateParticipantRequest
   ): Promise<ParticipantInfo>;
+  /** selective subscriptions */
+  UpdateSubscriptions(
+    request: UpdateSubscriptionsRequest
+  ): Promise<UpdateSubscriptionsResponse>;
 }
 
 type Builtin =

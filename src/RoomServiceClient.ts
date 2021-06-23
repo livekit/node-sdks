@@ -1,6 +1,6 @@
-import { AccessToken } from './AccessToken';
-import { VideoGrant } from './grants';
-import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models';
+import { AccessToken } from './AccessToken'
+import { VideoGrant } from './grants'
+import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -13,8 +13,9 @@ import {
   ParticipantPermission,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
-} from './proto/livekit_room';
-import { TwirpRpc } from './TwirpRPC';
+  UpdateSubscriptionsRequest
+} from './proto/livekit_room'
+import { TwirpRpc } from './TwirpRPC'
 
 interface Rpc {
   request(
@@ -161,7 +162,7 @@ export class RoomServiceClient {
     );
   }
 
-  /**s
+  /**
    * Mutes a track that the participant has published.
    * @param room
    * @param identity
@@ -209,6 +210,33 @@ export class RoomServiceClient {
       this.authHeader({ roomAdmin: true, room: room })
     );
     return ParticipantInfo.fromJSON(data);
+  }
+
+  /**
+   * Mutes a track that the participant has published.
+   * @param room
+   * @param identity
+   * @param trackSid sid of the track to be muted
+   * @param muted true to mute, false to unmute
+   */
+  async updateSubscriptions(
+    room: string,
+    identity: string,
+    trackSids: string[],
+    subscribe: boolean
+  ): Promise<void> {
+    const req = UpdateSubscriptionsRequest.toJSON({
+      room,
+      identity,
+      trackSids,
+      subscribe,
+    });
+    await this.rpc.request(
+      svc,
+      'MutePublishedTrack',
+      req,
+      this.authHeader({ roomAdmin: true, room: room })
+    );
   }
 
   private authHeader(grant: VideoGrant): any {

@@ -233,7 +233,7 @@ export class RoomServiceClient {
     });
     await this.rpc.request(
       svc,
-      'MutePublishedTrack',
+      'UpdateSubscriptions',
       req,
       this.authHeader({ roomAdmin: true, room: room })
     );

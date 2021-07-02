@@ -4,7 +4,7 @@
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "git@github.com:livekit/server-api-js.git",
+  "repository": "git@github.com:livekit/server-sdk-js.git",
   "author": "David Zhao <david@davidzhao.com>",
   "license": "MIT",
   "scripts": {

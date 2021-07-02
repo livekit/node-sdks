@@ -52,7 +52,7 @@ jobs:
       - name: S3 Upload
         uses: ItsKarma/aws-cli@v1.70.0
         with:
-          args: s3 cp docs/ s3://livekit-docs/server-api-js --recursive
+          args: s3 cp docs/ s3://livekit-docs/server-sdk-js --recursive
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}

@@ -22,6 +22,9 @@ export interface VideoGrant {
 
   /** allow participant to subscribe to other tracks */
   canSubscribe?: boolean;
+
+  /** hidden participant (used for recording) */
+  hidden?: boolean;
 }
 
 /** @internal */

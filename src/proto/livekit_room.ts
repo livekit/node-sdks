@@ -6,9 +6,11 @@ import { TrackInfo, Room, ParticipantInfo } from './livekit_models';
 export const protobufPackage = 'livekit';
 
 export interface CreateRoomRequest {
+  /** name of the room */
   name: string;
-  /** number of seconds the room should cleanup after being empty */
+  /** number of seconds to keep the room open if no one joins */
   emptyTimeout: number;
+  /** limit number of participants that can be in a room */
   maxParticipants: number;
   /** override the node room is allocated to, for debugging */
   nodeId: string;
@@ -21,12 +23,14 @@ export interface ListRoomsResponse {
 }
 
 export interface DeleteRoomRequest {
+  /** name of the room */
   room: string;
 }
 
 export interface DeleteRoomResponse {}
 
 export interface ListParticipantsRequest {
+  /** name of the room */
   room: string;
 }
 
@@ -35,16 +39,21 @@ export interface ListParticipantsResponse {
 }
 
 export interface RoomParticipantIdentity {
+  /** name of the room */
   room: string;
+  /** identity of the participant */
   identity: string;
 }
 
 export interface RemoveParticipantResponse {}
 
 export interface MuteRoomTrackRequest {
+  /** name of the room */
   room: string;
   identity: string;
+  /** sid of the track to mute */
   trackSid: string;
+  /** set to true to mute, false to unmute */
   muted: boolean;
 }
 
@@ -53,21 +62,27 @@ export interface MuteRoomTrackResponse {
 }
 
 export interface ParticipantPermission {
+  /** allow participant to subscribe to other tracks in the room */
   canSubscribe: boolean;
+  /** allow participant to publish new tracks to room */
   canPublish: boolean;
 }
 
 export interface UpdateParticipantRequest {
   room: string;
   identity: string;
+  /** metadata to update. skipping updates if left empty */
   metadata: string;
+  /** set to update the participant's permissions */
   permission?: ParticipantPermission;
 }
 
 export interface UpdateSubscriptionsRequest {
   room: string;
   identity: string;
+  /** list of sids of tracks */
   trackSids: string[];
+  /** set to true to subscribe, false to unsubscribe from tracks */
   subscribe: boolean;
 }
 
@@ -1275,29 +1290,37 @@ export const UpdateSubscriptionsResponse = {
  * they are Twirp-based HTTP req/responses
  */
 export interface RoomService {
-  /** should be accessible to only internal servers, not external */
+  /**
+   * Creates a room with settings. Requires `roomCreate` permission.
+   * This method is optional; rooms are automatically created when clients connect to them for the first time.
+   */
   CreateRoom(request: CreateRoomRequest): Promise<Room>;
+  /** List rooms that are active on the server. Requires `roomList` permission. */
   ListRooms(request: ListRoomsRequest): Promise<ListRoomsResponse>;
+  /**
+   * Deletes an existing room by name or id. Requires `roomCreate` permission.
+   * DeleteRoom will disconnect all participants that are currently in the room.
+   */
   DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse>;
-  /** lists participants in a room, requires RoomAdmin */
+  /** Lists participants in a room, Requires `roomAdmin` */
   ListParticipants(
     request: ListParticipantsRequest
   ): Promise<ListParticipantsResponse>;
-  /** get information on a specific participant, requires RoomAdmin */
+  /** Get information on a specific participant, Requires `roomAdmin` */
   GetParticipant(request: RoomParticipantIdentity): Promise<ParticipantInfo>;
-  /** removes a participant from room, requires RoomAdmin */
+  /** Removes a participant from room. Requires `roomAdmin` */
   RemoveParticipant(
     request: RoomParticipantIdentity
   ): Promise<RemoveParticipantResponse>;
-  /** mute/unmute a participant, requires RoomAdmin */
+  /** Mute/unmute a participant's track, Requires `roomAdmin` */
   MutePublishedTrack(
     request: MuteRoomTrackRequest
   ): Promise<MuteRoomTrackResponse>;
-  /** update participant metadata */
+  /** Update participant metadata, will cause updates to be broadcasted to everyone in the room. Requires `roomAdmin` */
   UpdateParticipant(
     request: UpdateParticipantRequest
   ): Promise<ParticipantInfo>;
-  /** selective subscriptions */
+  /** Subscribes or unsubscribe a participant from tracks. Requires `roomAdmin` */
   UpdateSubscriptions(
     request: UpdateSubscriptionsRequest
   ): Promise<UpdateSubscriptionsResponse>;

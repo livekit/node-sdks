@@ -65,6 +65,7 @@ export interface ParticipantInfo {
   metadata: string;
   /** timestamp when participant joined room */
   joinedAt: number;
+  /** hidden participant (used for recording) */
   hidden: boolean;
 }
 

@@ -95,10 +95,10 @@ svc.listRooms().then((rooms: Room[]) => {
 
 // create a new room
 const opts = {
-  name: 'myroom';
+  name: 'myroom',
   // timeout in seconds
-  emptyTimeout: 10 * 60;
-  maxParticipants: 20;
+  emptyTimeout: 10 * 60,
+  maxParticipants: 20
 }
 svc.createRoom(opts).then((room: Room) => {
   console.log('room created', room)

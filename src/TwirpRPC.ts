@@ -34,7 +34,7 @@ export class TwirpRpc {
       this.instance
         .post(path, data, { headers: headers })
         .then((res) => {
-          resolve(camelcaseKeys(res.data));
+          resolve(camelcaseKeys(res.data, {deep: true}));
         })
         .catch(reject);
     });

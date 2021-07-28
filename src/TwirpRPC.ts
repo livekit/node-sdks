@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import camelcaseKeys from 'camelcase-keys';
 
 // twirp RPC adapter for client implementation
 
@@ -33,7 +34,7 @@ export class TwirpRpc {
       this.instance
         .post(path, data, { headers: headers })
         .then((res) => {
-          resolve(res.data);
+          resolve(camelcaseKeys(res.data));
         })
         .catch(reject);
     });

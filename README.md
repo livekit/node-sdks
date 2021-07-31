@@ -7,7 +7,7 @@ Javascript/Typescript APIs to manage rooms and to create access tokens. This lib
 ### Yarn
 
 ```
-yarn add livekit-server-api
+yarn add livekit-server-sdk
 ```
 
 ### NPM
@@ -30,7 +30,7 @@ You may store credentials in environment variables. If api-key or api-secret is 
 If your environment doesn't support ES6 imports, replace the import statements in the examples with
 
 ```javascript
-const livekitApi = require('livekit-server-api');
+const livekitApi = require('livekit-server-sdk');
 const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
 ```
@@ -40,7 +40,7 @@ const RoomServiceClient = livekitApi.RoomServiceClient;
 Creating a token for participant to join a room.
 
 ```typescript
-import { AccessToken } from 'livekit-server-api';
+import { AccessToken } from 'livekit-server-sdk';
 
 // if this room doesn't exist, it'll be automatically created when the first
 // client joins
@@ -84,7 +84,7 @@ This will allow the participant to subscribe to tracks, but not publish their ow
 `RoomServiceClient` gives you APIs to list, create, and delete rooms. It also requires a pair of api key/secret key to operate.
 
 ```typescript
-import { RoomServiceClient, Room } from 'livekit-server-api';
+import { RoomServiceClient, Room } from 'livekit-server-sdk';
 const livekitHost = 'https://my.livekit.host';
 const svc = new RoomServiceClient(livekitHost, 'api-key', 'secret-key');
 

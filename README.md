@@ -13,7 +13,7 @@ yarn add livekit-server-api
 ### NPM
 
 ```
-npm install livekit-server-api --save
+npm install livekit-server-sdk --save
 ```
 
 ## Usage

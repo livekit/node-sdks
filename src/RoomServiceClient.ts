@@ -1,16 +1,16 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
+import {ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo} from './proto/livekit_models'
 import {
   CreateRoomRequest,
-  DeleteRoomRequest,
+  DeleteRoomRequest, EndRecordingRequest,
   ListParticipantsRequest,
   ListParticipantsResponse,
   ListRoomsRequest,
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
-  ParticipantPermission,
+  ParticipantPermission, RecordingResponse, RecordRoomRequest,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
@@ -212,13 +212,6 @@ export class RoomServiceClient {
     return ParticipantInfo.fromJSON(data);
   }
 
-  /**
-   * Mutes a track that the participant has published.
-   * @param room
-   * @param identity
-   * @param trackSid sid of the track to be muted
-   * @param muted true to mute, false to unmute
-   */
   async updateSubscriptions(
     room: string,
     identity: string,
@@ -236,6 +229,33 @@ export class RoomServiceClient {
       'UpdateSubscriptions',
       req,
       this.authHeader({ roomAdmin: true, room: room })
+    );
+  }
+
+  async startRecording(
+    input: RecordingInput,
+    output: RecordingOutput
+  ): Promise<string> {
+    const req = RecordRoomRequest.toJSON({
+      input,
+      output,
+    });
+    const data = await this.rpc.request(
+      svc,
+      'RecordRoom',
+      req,
+    );
+    return RecordingResponse.fromJSON(data).recordingId!;
+  }
+
+  async endRecording(recordingId: string): Promise<void> {
+    const req = EndRecordingRequest.toJSON({
+      recordingId: recordingId,
+    });
+    await this.rpc.request(
+      svc,
+      'EndRoomRecording',
+      req,
     );
   }
 

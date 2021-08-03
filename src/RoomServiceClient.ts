@@ -1,16 +1,17 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import {ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo} from './proto/livekit_models'
+import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
 import {
   CreateRoomRequest,
-  DeleteRoomRequest, EndRecordingRequest,
+  DeleteRoomRequest,
   ListParticipantsRequest,
   ListParticipantsResponse,
   ListRoomsRequest,
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
-  ParticipantPermission, RecordingResponse, RecordRoomRequest,
+  ParticipantPermission,
+  RecordRoomRequest,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
@@ -38,7 +39,7 @@ export interface CreateOptions {
   name: string;
 
   /**
-   *  number of seconds the room should cleanup after being empty
+   * number of seconds the room should cleanup after being empty
    */
   emptyTimeout?: number;
 
@@ -48,9 +49,14 @@ export interface CreateOptions {
   maxParticipants?: number;
 
   /**
-   *  override the node room is allocated to, for debugging
+   * override the node room is allocated to, for debugging
    */
   nodeId?: string;
+
+  /**
+   * recording options
+   */
+  recording?: RecordRoomRequest;
 }
 
 const svc = 'RoomService';
@@ -229,33 +235,6 @@ export class RoomServiceClient {
       'UpdateSubscriptions',
       req,
       this.authHeader({ roomAdmin: true, room: room })
-    );
-  }
-
-  async startRecording(
-    input: RecordingInput,
-    output: RecordingOutput
-  ): Promise<string> {
-    const req = RecordRoomRequest.toJSON({
-      input,
-      output,
-    });
-    const data = await this.rpc.request(
-      svc,
-      'RecordRoom',
-      req,
-    );
-    return RecordingResponse.fromJSON(data).recordingId!;
-  }
-
-  async endRecording(recordingId: string): Promise<void> {
-    const req = EndRecordingRequest.toJSON({
-      recordingId: recordingId,
-    });
-    await this.rpc.request(
-      svc,
-      'EndRoomRecording',
-      req,
     );
   }
 

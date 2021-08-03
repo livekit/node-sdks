@@ -1,16 +1,19 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import {ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo} from './proto/livekit_models'
+import { ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo } from './proto/livekit_models'
 import {
   CreateRoomRequest,
-  DeleteRoomRequest, EndRecordingRequest,
+  DeleteRoomRequest,
+  EndRecordingRequest,
   ListParticipantsRequest,
   ListParticipantsResponse,
   ListRoomsRequest,
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
-  ParticipantPermission, RecordingResponse, RecordRoomRequest,
+  ParticipantPermission,
+  RecordingResponse,
+  RecordRoomRequest,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
@@ -38,7 +41,7 @@ export interface CreateOptions {
   name: string;
 
   /**
-   *  number of seconds the room should cleanup after being empty
+   * number of seconds the room should cleanup after being empty
    */
   emptyTimeout?: number;
 
@@ -48,9 +51,14 @@ export interface CreateOptions {
   maxParticipants?: number;
 
   /**
-   *  override the node room is allocated to, for debugging
+   * override the node room is allocated to, for debugging
    */
   nodeId?: string;
+
+  /**
+   * recording options
+   */
+  recording?: RecordRoomRequest;
 }
 
 const svc = 'RoomService';

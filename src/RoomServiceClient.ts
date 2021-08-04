@@ -4,7 +4,6 @@ import { ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo } fro
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
-  EndRecordingRequest,
   ListParticipantsRequest,
   ListParticipantsResponse,
   ListRoomsRequest,
@@ -12,8 +11,6 @@ import {
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
   ParticipantPermission,
-  RecordingResponse,
-  RecordRoomRequest,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
@@ -54,11 +51,6 @@ export interface CreateOptions {
    * override the node room is allocated to, for debugging
    */
   nodeId?: string;
-
-  /**
-   * recording options
-   */
-  recording?: RecordRoomRequest;
 }
 
 const svc = 'RoomService';
@@ -68,8 +60,8 @@ const svc = 'RoomService';
  */
 export class RoomServiceClient {
   private readonly rpc: Rpc;
-  private apiKey?: string;
-  private secret?: string;
+  private readonly apiKey?: string;
+  private readonly secret?: string;
 
   /**
    *
@@ -237,35 +229,6 @@ export class RoomServiceClient {
       'UpdateSubscriptions',
       req,
       this.authHeader({ roomAdmin: true, room: room })
-    );
-  }
-
-  async startRecording(
-      input: RecordingInput,
-      output: RecordingOutput
-  ): Promise<string> {
-    const req = RecordRoomRequest.toJSON({
-      input,
-      output,
-    });
-    const data = await this.rpc.request(
-        svc,
-        'StartRecording',
-        req,
-        this.authHeader({ roomAdmin: true })
-    );
-    return RecordingResponse.fromJSON(data).recordingId!;
-  }
-
-  async endRecording(recordingId: string): Promise<void> {
-    const req = EndRecordingRequest.toJSON({
-      recordingId: recordingId,
-    });
-    await this.rpc.request(
-        svc,
-        'EndRecording',
-        req,
-        this.authHeader({ roomAdmin: true })
     );
   }
 

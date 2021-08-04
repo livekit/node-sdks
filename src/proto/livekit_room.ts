@@ -1,13 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
-import {
-  TrackInfo,
-  RecordingInput,
-  RecordingOutput,
-  Room,
-  ParticipantInfo,
-} from './livekit_models';
+import { TrackInfo, Room, ParticipantInfo } from './livekit_models';
 
 export const protobufPackage = 'livekit';
 
@@ -20,8 +14,6 @@ export interface CreateRoomRequest {
   maxParticipants: number;
   /** override the node room is allocated to, for debugging */
   nodeId: string;
-  /** record room */
-  recording?: RecordRoomRequest;
 }
 
 export interface ListRoomsRequest {}
@@ -97,19 +89,6 @@ export interface UpdateSubscriptionsRequest {
 /** empty for now */
 export interface UpdateSubscriptionsResponse {}
 
-export interface RecordRoomRequest {
-  input?: RecordingInput;
-  output?: RecordingOutput;
-}
-
-export interface EndRecordingRequest {
-  recordingId: string;
-}
-
-export interface RecordingResponse {
-  recordingId: string;
-}
-
 const baseCreateRoomRequest: object = {
   name: '',
   emptyTimeout: 0,
@@ -134,12 +113,6 @@ export const CreateRoomRequest = {
     if (message.nodeId !== '') {
       writer.uint32(34).string(message.nodeId);
     }
-    if (message.recording !== undefined) {
-      RecordRoomRequest.encode(
-        message.recording,
-        writer.uint32(42).fork()
-      ).ldelim();
-    }
     return writer;
   },
 
@@ -161,9 +134,6 @@ export const CreateRoomRequest = {
           break;
         case 4:
           message.nodeId = reader.string();
-          break;
-        case 5:
-          message.recording = RecordRoomRequest.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -198,11 +168,6 @@ export const CreateRoomRequest = {
     } else {
       message.nodeId = '';
     }
-    if (object.recording !== undefined && object.recording !== null) {
-      message.recording = RecordRoomRequest.fromJSON(object.recording);
-    } else {
-      message.recording = undefined;
-    }
     return message;
   },
 
@@ -214,10 +179,6 @@ export const CreateRoomRequest = {
     message.maxParticipants !== undefined &&
       (obj.maxParticipants = message.maxParticipants);
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
-    message.recording !== undefined &&
-      (obj.recording = message.recording
-        ? RecordRoomRequest.toJSON(message.recording)
-        : undefined);
     return obj;
   },
 
@@ -245,11 +206,6 @@ export const CreateRoomRequest = {
       message.nodeId = object.nodeId;
     } else {
       message.nodeId = '';
-    }
-    if (object.recording !== undefined && object.recording !== null) {
-      message.recording = RecordRoomRequest.fromPartial(object.recording);
-    } else {
-      message.recording = undefined;
     }
     return message;
   },
@@ -1329,205 +1285,6 @@ export const UpdateSubscriptionsResponse = {
   },
 };
 
-const baseRecordRoomRequest: object = {};
-
-export const RecordRoomRequest = {
-  encode(
-    message: RecordRoomRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.input !== undefined) {
-      RecordingInput.encode(message.input, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.output !== undefined) {
-      RecordingOutput.encode(message.output, writer.uint32(18).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): RecordRoomRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordRoomRequest } as RecordRoomRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.input = RecordingInput.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.output = RecordingOutput.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): RecordRoomRequest {
-    const message = { ...baseRecordRoomRequest } as RecordRoomRequest;
-    if (object.input !== undefined && object.input !== null) {
-      message.input = RecordingInput.fromJSON(object.input);
-    } else {
-      message.input = undefined;
-    }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = RecordingOutput.fromJSON(object.output);
-    } else {
-      message.output = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: RecordRoomRequest): unknown {
-    const obj: any = {};
-    message.input !== undefined &&
-      (obj.input = message.input
-        ? RecordingInput.toJSON(message.input)
-        : undefined);
-    message.output !== undefined &&
-      (obj.output = message.output
-        ? RecordingOutput.toJSON(message.output)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<RecordRoomRequest>): RecordRoomRequest {
-    const message = { ...baseRecordRoomRequest } as RecordRoomRequest;
-    if (object.input !== undefined && object.input !== null) {
-      message.input = RecordingInput.fromPartial(object.input);
-    } else {
-      message.input = undefined;
-    }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = RecordingOutput.fromPartial(object.output);
-    } else {
-      message.output = undefined;
-    }
-    return message;
-  },
-};
-
-const baseEndRecordingRequest: object = { recordingId: '' };
-
-export const EndRecordingRequest = {
-  encode(
-    message: EndRecordingRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== '') {
-      writer.uint32(10).string(message.recordingId);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): EndRecordingRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.recordingId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): EndRecordingRequest {
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = '';
-    }
-    return message;
-  },
-
-  toJSON(message: EndRecordingRequest): unknown {
-    const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<EndRecordingRequest>): EndRecordingRequest {
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = '';
-    }
-    return message;
-  },
-};
-
-const baseRecordingResponse: object = { recordingId: '' };
-
-export const RecordingResponse = {
-  encode(
-    message: RecordingResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== '') {
-      writer.uint32(10).string(message.recordingId);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): RecordingResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordingResponse } as RecordingResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.recordingId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): RecordingResponse {
-    const message = { ...baseRecordingResponse } as RecordingResponse;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = '';
-    }
-    return message;
-  },
-
-  toJSON(message: RecordingResponse): unknown {
-    const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<RecordingResponse>): RecordingResponse {
-    const message = { ...baseRecordingResponse } as RecordingResponse;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = '';
-    }
-    return message;
-  },
-};
-
 /**
  * Room service that can be performed on any node
  * they are Twirp-based HTTP req/responses
@@ -1567,10 +1324,6 @@ export interface RoomService {
   UpdateSubscriptions(
     request: UpdateSubscriptionsRequest
   ): Promise<UpdateSubscriptionsResponse>;
-  /** Begins recording a room */
-  RecordRoom(request: RecordRoomRequest): Promise<RecordingResponse>;
-  /** Ends a room recording */
-  EndRoomRecording(request: EndRecordingRequest): Promise<RecordingResponse>;
 }
 
 type Builtin =

@@ -5,6 +5,16 @@ import camelcaseKeys from 'camelcase-keys';
 
 const defaultPrefix = '/twirp';
 
+export const livekitPackage = 'livekit';
+export interface Rpc {
+  request(
+      service: string,
+      method: string,
+      data: any,
+      headers?: any
+  ): Promise<string>;
+}
+
 /**
  * JSON based Twirp V7 RPC
  */

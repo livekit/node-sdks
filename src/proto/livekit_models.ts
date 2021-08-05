@@ -154,7 +154,7 @@ export interface RecordingInput {
 }
 
 export interface RecordingTemplate {
-  type: string;
+  layout: string;
   wsUrl: string;
   /** either token or room name required */
   token: string;
@@ -1015,7 +1015,7 @@ export const RecordingInput = {
 };
 
 const baseRecordingTemplate: object = {
-  type: '',
+  layout: '',
   wsUrl: '',
   token: '',
   roomName: '',
@@ -1026,8 +1026,8 @@ export const RecordingTemplate = {
     message: RecordingTemplate,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.type !== '') {
-      writer.uint32(10).string(message.type);
+    if (message.layout !== '') {
+      writer.uint32(10).string(message.layout);
     }
     if (message.wsUrl !== '') {
       writer.uint32(18).string(message.wsUrl);
@@ -1049,7 +1049,7 @@ export const RecordingTemplate = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.type = reader.string();
+          message.layout = reader.string();
           break;
         case 2:
           message.wsUrl = reader.string();
@@ -1070,10 +1070,10 @@ export const RecordingTemplate = {
 
   fromJSON(object: any): RecordingTemplate {
     const message = { ...baseRecordingTemplate } as RecordingTemplate;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = String(object.type);
+    if (object.layout !== undefined && object.layout !== null) {
+      message.layout = String(object.layout);
     } else {
-      message.type = '';
+      message.layout = '';
     }
     if (object.wsUrl !== undefined && object.wsUrl !== null) {
       message.wsUrl = String(object.wsUrl);
@@ -1095,7 +1095,7 @@ export const RecordingTemplate = {
 
   toJSON(message: RecordingTemplate): unknown {
     const obj: any = {};
-    message.type !== undefined && (obj.type = message.type);
+    message.layout !== undefined && (obj.layout = message.layout);
     message.wsUrl !== undefined && (obj.wsUrl = message.wsUrl);
     message.token !== undefined && (obj.token = message.token);
     message.roomName !== undefined && (obj.roomName = message.roomName);
@@ -1104,10 +1104,10 @@ export const RecordingTemplate = {
 
   fromPartial(object: DeepPartial<RecordingTemplate>): RecordingTemplate {
     const message = { ...baseRecordingTemplate } as RecordingTemplate;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = object.type;
+    if (object.layout !== undefined && object.layout !== null) {
+      message.layout = object.layout;
     } else {
-      message.type = '';
+      message.layout = '';
     }
     if (object.wsUrl !== undefined && object.wsUrl !== null) {
       message.wsUrl = object.wsUrl;

@@ -1,6 +1,6 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
+import { ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo } from './proto/livekit_models'
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -11,23 +11,11 @@ import {
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
   ParticipantPermission,
-  RecordRoomRequest,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
 } from './proto/livekit_room'
-import { TwirpRpc } from './TwirpRPC'
-
-interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: any,
-    headers?: any
-  ): Promise<string>;
-}
-
-const livekitPackage = 'livekit';
+import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
 
 /**
  * Options for when creating a room
@@ -52,11 +40,6 @@ export interface CreateOptions {
    * override the node room is allocated to, for debugging
    */
   nodeId?: string;
-
-  /**
-   * recording options
-   */
-  recording?: RecordRoomRequest;
 }
 
 const svc = 'RoomService';
@@ -66,8 +49,8 @@ const svc = 'RoomService';
  */
 export class RoomServiceClient {
   private readonly rpc: Rpc;
-  private apiKey?: string;
-  private secret?: string;
+  private readonly apiKey?: string;
+  private readonly secret?: string;
 
   /**
    *

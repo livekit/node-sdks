@@ -1,6 +1,6 @@
 {
   "name": "livekit-server-sdk",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "yarn exec tsc",
     "build-docs": "yarn exec typedoc",
-    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I../protocol ../protocol/livekit_room.proto",
+    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I../protocol ../protocol/livekit_room.proto ../protocol/livekit_recording.proto",
     "test": "jest"
   },
   "dependencies": {

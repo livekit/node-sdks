@@ -15,18 +15,7 @@ import {
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
 } from './proto/livekit_room'
-import { TwirpRpc } from './TwirpRPC'
-
-interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: any,
-    headers?: any
-  ): Promise<string>;
-}
-
-const livekitPackage = 'livekit';
+import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
 
 /**
  * Options for when creating a room

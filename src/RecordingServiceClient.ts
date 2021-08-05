@@ -2,18 +2,7 @@ import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
 import { RecordingInput, RecordingOutput } from './proto/livekit_models'
 import { StartRecordingRequest, EndRecordingRequest, RecordingResponse } from "./proto/livekit_recording";
-import { TwirpRpc } from './TwirpRPC'
-
-interface Rpc {
-    request(
-        service: string,
-        method: string,
-        data: any,
-        headers?: any
-    ): Promise<string>;
-}
-
-const livekitPackage = 'livekit';
+import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
 
 const svc = 'RoomService';
 
@@ -49,7 +38,7 @@ export class RoomServiceClient {
           svc,
           'StartRecording',
           req,
-          this.authHeader({ roomAdmin: true })
+          this.authHeader({ roomRecord: true })
       );
       return RecordingResponse.fromJSON(data).recordingId!;
     }
@@ -62,7 +51,7 @@ export class RoomServiceClient {
           svc,
           'EndRecording',
           req,
-          this.authHeader({ roomAdmin: true })
+          this.authHeader({ roomRecord: true })
       );
     }
 

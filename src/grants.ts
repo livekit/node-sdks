@@ -8,6 +8,9 @@ export interface VideoGrant {
   /** permission to list rooms */
   roomList?: boolean;
 
+  /** permission to start a recording */
+  roomRecord?: boolean;
+
   /** permission to control a specific room, room must be set */
   roomAdmin?: boolean;
 

@@ -1,6 +1,6 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import { RecordingInput, RecordingOutput } from './proto/livekit_models'
+import { RecordingOptions, RecordingS3Output, RecordingTemplate } from './proto/livekit_models'
 import { StartRecordingRequest, EndRecordingRequest, RecordingResponse } from "./proto/livekit_recording";
 import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
 
@@ -26,13 +26,30 @@ export class RoomServiceClient {
         this.secret = secret;
     }
 
+    /**
+     * Required: either url or template, and either file, s3, or rtmp.
+     * @param url input url
+     * @param template input template
+     * @param file output filename
+     * @param s3 output s3 location
+     * @param rtmp output rtmp address
+     * @param options recording options
+     */
     async startRecording(
-        input: RecordingInput,
-        output: RecordingOutput
+        url?: string | undefined,
+        template?: RecordingTemplate | undefined,
+        file?: string | undefined,
+        s3?: RecordingS3Output | undefined,
+        rtmp?: string | undefined,
+        options?: RecordingOptions | undefined,
     ): Promise<string> {
       const req = StartRecordingRequest.toJSON({
-        input,
-        output,
+        url,
+        template,
+        file,
+        s3,
+        rtmp,
+        options
       });
       const data = await this.rpc.request(
           svc,

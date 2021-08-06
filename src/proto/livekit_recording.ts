@@ -1,13 +1,21 @@
 /* eslint-disable */
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
-import { RecordingInput, RecordingOutput } from './livekit_models';
+import {
+  RecordingOptions,
+  RecordingTemplate,
+  RecordingS3Output,
+} from './livekit_models';
 
 export const protobufPackage = 'livekit';
 
 export interface StartRecordingRequest {
-  input?: RecordingInput;
-  output?: RecordingOutput;
+  url: string | undefined;
+  template?: RecordingTemplate | undefined;
+  file: string | undefined;
+  s3?: RecordingS3Output | undefined;
+  rtmp: string | undefined;
+  options?: RecordingOptions;
 }
 
 export interface EndRecordingRequest {
@@ -25,11 +33,29 @@ export const StartRecordingRequest = {
     message: StartRecordingRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.input !== undefined) {
-      RecordingInput.encode(message.input, writer.uint32(10).fork()).ldelim();
+    if (message.url !== undefined) {
+      writer.uint32(10).string(message.url);
     }
-    if (message.output !== undefined) {
-      RecordingOutput.encode(message.output, writer.uint32(18).fork()).ldelim();
+    if (message.template !== undefined) {
+      RecordingTemplate.encode(
+        message.template,
+        writer.uint32(18).fork()
+      ).ldelim();
+    }
+    if (message.file !== undefined) {
+      writer.uint32(26).string(message.file);
+    }
+    if (message.s3 !== undefined) {
+      RecordingS3Output.encode(message.s3, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.rtmp !== undefined) {
+      writer.uint32(42).string(message.rtmp);
+    }
+    if (message.options !== undefined) {
+      RecordingOptions.encode(
+        message.options,
+        writer.uint32(50).fork()
+      ).ldelim();
     }
     return writer;
   },
@@ -45,10 +71,22 @@ export const StartRecordingRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.input = RecordingInput.decode(reader, reader.uint32());
+          message.url = reader.string();
           break;
         case 2:
-          message.output = RecordingOutput.decode(reader, reader.uint32());
+          message.template = RecordingTemplate.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.file = reader.string();
+          break;
+        case 4:
+          message.s3 = RecordingS3Output.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.rtmp = reader.string();
+          break;
+        case 6:
+          message.options = RecordingOptions.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -60,28 +98,53 @@ export const StartRecordingRequest = {
 
   fromJSON(object: any): StartRecordingRequest {
     const message = { ...baseStartRecordingRequest } as StartRecordingRequest;
-    if (object.input !== undefined && object.input !== null) {
-      message.input = RecordingInput.fromJSON(object.input);
+    if (object.url !== undefined && object.url !== null) {
+      message.url = String(object.url);
     } else {
-      message.input = undefined;
+      message.url = undefined;
     }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = RecordingOutput.fromJSON(object.output);
+    if (object.template !== undefined && object.template !== null) {
+      message.template = RecordingTemplate.fromJSON(object.template);
     } else {
-      message.output = undefined;
+      message.template = undefined;
+    }
+    if (object.file !== undefined && object.file !== null) {
+      message.file = String(object.file);
+    } else {
+      message.file = undefined;
+    }
+    if (object.s3 !== undefined && object.s3 !== null) {
+      message.s3 = RecordingS3Output.fromJSON(object.s3);
+    } else {
+      message.s3 = undefined;
+    }
+    if (object.rtmp !== undefined && object.rtmp !== null) {
+      message.rtmp = String(object.rtmp);
+    } else {
+      message.rtmp = undefined;
+    }
+    if (object.options !== undefined && object.options !== null) {
+      message.options = RecordingOptions.fromJSON(object.options);
+    } else {
+      message.options = undefined;
     }
     return message;
   },
 
   toJSON(message: StartRecordingRequest): unknown {
     const obj: any = {};
-    message.input !== undefined &&
-      (obj.input = message.input
-        ? RecordingInput.toJSON(message.input)
+    message.url !== undefined && (obj.url = message.url);
+    message.template !== undefined &&
+      (obj.template = message.template
+        ? RecordingTemplate.toJSON(message.template)
         : undefined);
-    message.output !== undefined &&
-      (obj.output = message.output
-        ? RecordingOutput.toJSON(message.output)
+    message.file !== undefined && (obj.file = message.file);
+    message.s3 !== undefined &&
+      (obj.s3 = message.s3 ? RecordingS3Output.toJSON(message.s3) : undefined);
+    message.rtmp !== undefined && (obj.rtmp = message.rtmp);
+    message.options !== undefined &&
+      (obj.options = message.options
+        ? RecordingOptions.toJSON(message.options)
         : undefined);
     return obj;
   },
@@ -90,15 +153,35 @@ export const StartRecordingRequest = {
     object: DeepPartial<StartRecordingRequest>
   ): StartRecordingRequest {
     const message = { ...baseStartRecordingRequest } as StartRecordingRequest;
-    if (object.input !== undefined && object.input !== null) {
-      message.input = RecordingInput.fromPartial(object.input);
+    if (object.url !== undefined && object.url !== null) {
+      message.url = object.url;
     } else {
-      message.input = undefined;
+      message.url = undefined;
     }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = RecordingOutput.fromPartial(object.output);
+    if (object.template !== undefined && object.template !== null) {
+      message.template = RecordingTemplate.fromPartial(object.template);
     } else {
-      message.output = undefined;
+      message.template = undefined;
+    }
+    if (object.file !== undefined && object.file !== null) {
+      message.file = object.file;
+    } else {
+      message.file = undefined;
+    }
+    if (object.s3 !== undefined && object.s3 !== null) {
+      message.s3 = RecordingS3Output.fromPartial(object.s3);
+    } else {
+      message.s3 = undefined;
+    }
+    if (object.rtmp !== undefined && object.rtmp !== null) {
+      message.rtmp = object.rtmp;
+    } else {
+      message.rtmp = undefined;
+    }
+    if (object.options !== undefined && object.options !== null) {
+      message.options = RecordingOptions.fromPartial(object.options);
+    } else {
+      message.options = undefined;
     }
     return message;
   },

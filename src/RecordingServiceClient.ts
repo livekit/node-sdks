@@ -4,12 +4,23 @@ import { RecordingOptions, RecordingS3Output, RecordingTemplate } from './proto/
 import { StartRecordingRequest, EndRecordingRequest, RecordingResponse } from "./proto/livekit_recording";
 import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
 
-const svc = 'RoomService';
+const svc = 'RecordingService';
+
+export interface RecordingInput {
+    url?: string
+    template?: RecordingTemplate
+}
+
+export interface RecordingOutput {
+    file?: string
+    s3?: RecordingS3Output
+    rtmp?: string
+}
 
 /**
- * Client to access Room APIs
+ * Client to access Recording APIs
  */
-export class RoomServiceClient {
+export class RecordingServiceClient {
     private readonly rpc: Rpc;
     private readonly apiKey?: string;
     private readonly secret?: string;
@@ -27,49 +38,39 @@ export class RoomServiceClient {
     }
 
     /**
-     * Required: either url or template, and either file, s3, or rtmp.
-     * @param url input url
-     * @param template input template
-     * @param file output filename
-     * @param s3 output s3 location
-     * @param rtmp output rtmp address
+     * @param input input url or template
+     * @param output output filename, s3, or rtmp
      * @param options recording options
      */
     async startRecording(
-        url?: string | undefined,
-        template?: RecordingTemplate | undefined,
-        file?: string | undefined,
-        s3?: RecordingS3Output | undefined,
-        rtmp?: string | undefined,
-        options?: RecordingOptions | undefined,
+        input: RecordingInput,
+        output: RecordingOutput,
+        options?: RecordingOptions,
     ): Promise<string> {
-      const req = StartRecordingRequest.toJSON({
-        url,
-        template,
-        file,
-        s3,
-        rtmp,
-        options
-      });
-      const data = await this.rpc.request(
-          svc,
-          'StartRecording',
-          req,
-          this.authHeader({ roomRecord: true })
-      );
-      return RecordingResponse.fromJSON(data).recordingId!;
+        const req = StartRecordingRequest.toJSON({
+            url: input.url, template: input.template,
+            file: output.file, s3: output.s3, rtmp: output.rtmp,
+            options
+        });
+        const data = await this.rpc.request(
+            svc,
+            'StartRecording',
+            req,
+            this.authHeader({ roomRecord: true })
+        );
+        return RecordingResponse.fromJSON(data).recordingId!;
     }
 
     async endRecording(recordingId: string): Promise<void> {
-      const req = EndRecordingRequest.toJSON({
-        recordingId: recordingId,
-      });
-      await this.rpc.request(
-          svc,
-          'EndRecording',
-          req,
-          this.authHeader({ roomRecord: true })
-      );
+        const req = EndRecordingRequest.toJSON({
+            recordingId: recordingId,
+        });
+        await this.rpc.request(
+            svc,
+            'EndRecording',
+            req,
+            this.authHeader({ roomRecord: true })
+        );
     }
 
     private authHeader(grant: VideoGrant): any {

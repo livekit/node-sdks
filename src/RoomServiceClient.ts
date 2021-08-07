@@ -1,6 +1,6 @@
 import { AccessToken } from './AccessToken'
 import { VideoGrant } from './grants'
-import { ParticipantInfo, RecordingInput, RecordingOutput, Room, TrackInfo } from './proto/livekit_models'
+import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
 import {
   CreateRoomRequest,
   DeleteRoomRequest,

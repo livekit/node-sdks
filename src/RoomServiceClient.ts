@@ -15,7 +15,7 @@ import {
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest
 } from './proto/livekit_room'
-import { TwirpRpc, Rpc, livekitPackage } from './TwirpRPC'
+import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC'
 
 /**
  * Options for when creating a room

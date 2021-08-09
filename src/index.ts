@@ -9,3 +9,4 @@ export {
 } from './proto/livekit_models';
 export * from './RecordingServiceClient';
 export * from './RoomServiceClient';
+export * from './WebhookReceiver';

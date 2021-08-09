@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { AccessToken } from './AccessToken';
+import { AccessToken, TokenVerifier } from './AccessToken';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';
@@ -36,5 +36,20 @@ describe('identity is required for only join grants', () => {
     expect(() => {
       t.toJwt();
     }).toThrow();
+  });
+});
+
+describe('verify token is valid', () => {
+  it('can decode encoded token', () => {
+    const t = new AccessToken(testApiKey, testSecret);
+    t.sha256 = 'abcdefg';
+    t.addGrant({ roomCreate: true });
+
+    const v = new TokenVerifier(testApiKey, testSecret);
+    const decoded = v.verify(t.toJwt());
+
+    expect(decoded).not.toBe(undefined);
+    expect(decoded.sha256).toEqual('abcdefg');
+    expect(decoded.video?.roomCreate).toBeTruthy();
   });
 });

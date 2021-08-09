@@ -1,13 +1,13 @@
 /* eslint-disable */
-import Long from 'long';
-import _m0 from 'protobufjs/minimal';
+import Long from "long";
+import _m0 from "protobufjs/minimal";
 import {
   RecordingOptions,
   RecordingTemplate,
   RecordingS3Output,
-} from './livekit_models';
+} from "./livekit_models";
 
-export const protobufPackage = 'livekit';
+export const protobufPackage = "livekit";
 
 export interface StartRecordingRequest {
   url: string | undefined;
@@ -187,14 +187,14 @@ export const StartRecordingRequest = {
   },
 };
 
-const baseEndRecordingRequest: object = { recordingId: '' };
+const baseEndRecordingRequest: object = { recordingId: "" };
 
 export const EndRecordingRequest = {
   encode(
     message: EndRecordingRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.recordingId !== '') {
+    if (message.recordingId !== "") {
       writer.uint32(10).string(message.recordingId);
     }
     return writer;
@@ -223,7 +223,7 @@ export const EndRecordingRequest = {
     if (object.recordingId !== undefined && object.recordingId !== null) {
       message.recordingId = String(object.recordingId);
     } else {
-      message.recordingId = '';
+      message.recordingId = "";
     }
     return message;
   },
@@ -240,20 +240,20 @@ export const EndRecordingRequest = {
     if (object.recordingId !== undefined && object.recordingId !== null) {
       message.recordingId = object.recordingId;
     } else {
-      message.recordingId = '';
+      message.recordingId = "";
     }
     return message;
   },
 };
 
-const baseRecordingResponse: object = { recordingId: '' };
+const baseRecordingResponse: object = { recordingId: "" };
 
 export const RecordingResponse = {
   encode(
     message: RecordingResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.recordingId !== '') {
+    if (message.recordingId !== "") {
       writer.uint32(10).string(message.recordingId);
     }
     return writer;
@@ -282,7 +282,7 @@ export const RecordingResponse = {
     if (object.recordingId !== undefined && object.recordingId !== null) {
       message.recordingId = String(object.recordingId);
     } else {
-      message.recordingId = '';
+      message.recordingId = "";
     }
     return message;
   },
@@ -299,7 +299,7 @@ export const RecordingResponse = {
     if (object.recordingId !== undefined && object.recordingId !== null) {
       message.recordingId = object.recordingId;
     } else {
-      message.recordingId = '';
+      message.recordingId = "";
     }
     return message;
   },

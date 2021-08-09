@@ -1,9 +1,9 @@
 /* eslint-disable */
-import Long from 'long';
-import _m0 from 'protobufjs/minimal';
-import { TrackInfo, Room, ParticipantInfo } from './livekit_models';
+import Long from "long";
+import _m0 from "protobufjs/minimal";
+import { TrackInfo, Room, ParticipantInfo } from "./livekit_models";
 
-export const protobufPackage = 'livekit';
+export const protobufPackage = "livekit";
 
 export interface CreateRoomRequest {
   /** name of the room */
@@ -90,10 +90,10 @@ export interface UpdateSubscriptionsRequest {
 export interface UpdateSubscriptionsResponse {}
 
 const baseCreateRoomRequest: object = {
-  name: '',
+  name: "",
   emptyTimeout: 0,
   maxParticipants: 0,
-  nodeId: '',
+  nodeId: "",
 };
 
 export const CreateRoomRequest = {
@@ -101,7 +101,7 @@ export const CreateRoomRequest = {
     message: CreateRoomRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.name !== '') {
+    if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
     if (message.emptyTimeout !== 0) {
@@ -110,7 +110,7 @@ export const CreateRoomRequest = {
     if (message.maxParticipants !== 0) {
       writer.uint32(24).uint32(message.maxParticipants);
     }
-    if (message.nodeId !== '') {
+    if (message.nodeId !== "") {
       writer.uint32(34).string(message.nodeId);
     }
     return writer;
@@ -148,7 +148,7 @@ export const CreateRoomRequest = {
     if (object.name !== undefined && object.name !== null) {
       message.name = String(object.name);
     } else {
-      message.name = '';
+      message.name = "";
     }
     if (object.emptyTimeout !== undefined && object.emptyTimeout !== null) {
       message.emptyTimeout = Number(object.emptyTimeout);
@@ -166,7 +166,7 @@ export const CreateRoomRequest = {
     if (object.nodeId !== undefined && object.nodeId !== null) {
       message.nodeId = String(object.nodeId);
     } else {
-      message.nodeId = '';
+      message.nodeId = "";
     }
     return message;
   },
@@ -187,7 +187,7 @@ export const CreateRoomRequest = {
     if (object.name !== undefined && object.name !== null) {
       message.name = object.name;
     } else {
-      message.name = '';
+      message.name = "";
     }
     if (object.emptyTimeout !== undefined && object.emptyTimeout !== null) {
       message.emptyTimeout = object.emptyTimeout;
@@ -205,7 +205,7 @@ export const CreateRoomRequest = {
     if (object.nodeId !== undefined && object.nodeId !== null) {
       message.nodeId = object.nodeId;
     } else {
-      message.nodeId = '';
+      message.nodeId = "";
     }
     return message;
   },
@@ -317,14 +317,14 @@ export const ListRoomsResponse = {
   },
 };
 
-const baseDeleteRoomRequest: object = { room: '' };
+const baseDeleteRoomRequest: object = { room: "" };
 
 export const DeleteRoomRequest = {
   encode(
     message: DeleteRoomRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
     return writer;
@@ -353,7 +353,7 @@ export const DeleteRoomRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     return message;
   },
@@ -369,7 +369,7 @@ export const DeleteRoomRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     return message;
   },
@@ -416,14 +416,14 @@ export const DeleteRoomResponse = {
   },
 };
 
-const baseListParticipantsRequest: object = { room: '' };
+const baseListParticipantsRequest: object = { room: "" };
 
 export const ListParticipantsRequest = {
   encode(
     message: ListParticipantsRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
     return writer;
@@ -459,7 +459,7 @@ export const ListParticipantsRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     return message;
   },
@@ -479,7 +479,7 @@ export const ListParticipantsRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     return message;
   },
@@ -565,17 +565,17 @@ export const ListParticipantsResponse = {
   },
 };
 
-const baseRoomParticipantIdentity: object = { room: '', identity: '' };
+const baseRoomParticipantIdentity: object = { room: "", identity: "" };
 
 export const RoomParticipantIdentity = {
   encode(
     message: RoomParticipantIdentity,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== "") {
       writer.uint32(18).string(message.identity);
     }
     return writer;
@@ -614,12 +614,12 @@ export const RoomParticipantIdentity = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = String(object.identity);
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     return message;
   },
@@ -640,12 +640,12 @@ export const RoomParticipantIdentity = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = object.identity;
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     return message;
   },
@@ -704,9 +704,9 @@ export const RemoveParticipantResponse = {
 };
 
 const baseMuteRoomTrackRequest: object = {
-  room: '',
-  identity: '',
-  trackSid: '',
+  room: "",
+  identity: "",
+  trackSid: "",
   muted: false,
 };
 
@@ -715,13 +715,13 @@ export const MuteRoomTrackRequest = {
     message: MuteRoomTrackRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== "") {
       writer.uint32(18).string(message.identity);
     }
-    if (message.trackSid !== '') {
+    if (message.trackSid !== "") {
       writer.uint32(26).string(message.trackSid);
     }
     if (message.muted === true) {
@@ -765,17 +765,17 @@ export const MuteRoomTrackRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = String(object.identity);
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.trackSid !== undefined && object.trackSid !== null) {
       message.trackSid = String(object.trackSid);
     } else {
-      message.trackSid = '';
+      message.trackSid = "";
     }
     if (object.muted !== undefined && object.muted !== null) {
       message.muted = Boolean(object.muted);
@@ -799,17 +799,17 @@ export const MuteRoomTrackRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = object.identity;
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.trackSid !== undefined && object.trackSid !== null) {
       message.trackSid = object.trackSid;
     } else {
-      message.trackSid = '';
+      message.trackSid = "";
     }
     if (object.muted !== undefined && object.muted !== null) {
       message.muted = object.muted;
@@ -969,9 +969,9 @@ export const ParticipantPermission = {
 };
 
 const baseUpdateParticipantRequest: object = {
-  room: '',
-  identity: '',
-  metadata: '',
+  room: "",
+  identity: "",
+  metadata: "",
 };
 
 export const UpdateParticipantRequest = {
@@ -979,13 +979,13 @@ export const UpdateParticipantRequest = {
     message: UpdateParticipantRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== "") {
       writer.uint32(18).string(message.identity);
     }
-    if (message.metadata !== '') {
+    if (message.metadata !== "") {
       writer.uint32(26).string(message.metadata);
     }
     if (message.permission !== undefined) {
@@ -1039,17 +1039,17 @@ export const UpdateParticipantRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = String(object.identity);
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.metadata !== undefined && object.metadata !== null) {
       message.metadata = String(object.metadata);
     } else {
-      message.metadata = '';
+      message.metadata = "";
     }
     if (object.permission !== undefined && object.permission !== null) {
       message.permission = ParticipantPermission.fromJSON(object.permission);
@@ -1080,17 +1080,17 @@ export const UpdateParticipantRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = object.identity;
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.metadata !== undefined && object.metadata !== null) {
       message.metadata = object.metadata;
     } else {
-      message.metadata = '';
+      message.metadata = "";
     }
     if (object.permission !== undefined && object.permission !== null) {
       message.permission = ParticipantPermission.fromPartial(object.permission);
@@ -1102,9 +1102,9 @@ export const UpdateParticipantRequest = {
 };
 
 const baseUpdateSubscriptionsRequest: object = {
-  room: '',
-  identity: '',
-  trackSids: '',
+  room: "",
+  identity: "",
+  trackSids: "",
   subscribe: false,
 };
 
@@ -1113,10 +1113,10 @@ export const UpdateSubscriptionsRequest = {
     message: UpdateSubscriptionsRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== "") {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== "") {
       writer.uint32(18).string(message.identity);
     }
     for (const v of message.trackSids) {
@@ -1169,12 +1169,12 @@ export const UpdateSubscriptionsRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = String(object.identity);
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.trackSids !== undefined && object.trackSids !== null) {
       for (const e of object.trackSids) {
@@ -1212,12 +1212,12 @@ export const UpdateSubscriptionsRequest = {
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
-      message.room = '';
+      message.room = "";
     }
     if (object.identity !== undefined && object.identity !== null) {
       message.identity = object.identity;
     } else {
-      message.identity = '';
+      message.identity = "";
     }
     if (object.trackSids !== undefined && object.trackSids !== null) {
       for (const e of object.trackSids) {

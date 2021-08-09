@@ -12,5 +12,6 @@ module.exports = {
     'consistent-return': 'off',
     'class-methods-use-this': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    'no-restricted-syntax': ['error', 'WithStatement', "BinaryExpression[operator='in']"],
   },
 };

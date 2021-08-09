@@ -32,9 +32,12 @@ jobs:
             ${{ runner.os }}-node-server-api-
 
       - name: Install Yarn
-        run: npm install -g yarn
+        run: |
+          npm install -g yarn
+          yarn install
+
+      - name: Lint
+        run: yarn lint
 
       - name: Test
-        run: |
-          yarn install
-          yarn test
+        run: yarn test

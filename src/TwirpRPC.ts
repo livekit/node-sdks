@@ -8,10 +8,10 @@ const defaultPrefix = '/twirp';
 export const livekitPackage = 'livekit';
 export interface Rpc {
   request(
-      service: string,
-      method: string,
-      data: any,
-      headers?: any
+    service: string,
+    method: string,
+    data: any,
+    headers?: any
   ): Promise<string>;
 }
 
@@ -20,8 +20,11 @@ export interface Rpc {
  */
 export class TwirpRpc {
   host: string;
+
   pkg: string;
+
   prefix: string;
+
   instance: AxiosInstance;
 
   constructor(host: string, pkg: string, prefix?: string) {
@@ -37,14 +40,14 @@ export class TwirpRpc {
     service: string,
     method: string,
     data: any,
-    headers?: any
+    headers?: any,
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
       this.instance
-        .post(path, data, { headers: headers })
+        .post(path, data, { headers })
         .then((res) => {
-          resolve(camelcaseKeys(res.data, {deep: true}));
+          resolve(camelcaseKeys(res.data, { deep: true }));
         })
         .catch(reject);
     });

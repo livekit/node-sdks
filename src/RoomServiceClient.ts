@@ -1,6 +1,6 @@
-import { AccessToken } from './AccessToken'
-import { VideoGrant } from './grants'
-import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models'
+import { AccessToken } from './AccessToken';
+import { VideoGrant } from './grants';
+import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -13,9 +13,9 @@ import {
   ParticipantPermission,
   RoomParticipantIdentity,
   UpdateParticipantRequest,
-  UpdateSubscriptionsRequest
-} from './proto/livekit_room'
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC'
+  UpdateSubscriptionsRequest,
+} from './proto/livekit_room';
+import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
 /**
  * Options for when creating a room
@@ -49,7 +49,9 @@ const svc = 'RoomService';
  */
 export class RoomServiceClient {
   private readonly rpc: Rpc;
+
   private readonly apiKey?: string;
+
   private readonly secret?: string;
 
   /**
@@ -75,7 +77,7 @@ export class RoomServiceClient {
       svc,
       'CreateRoom',
       CreateRoomRequest.toJSON(CreateRoomRequest.fromPartial(options)),
-      this.authHeader({ roomCreate: true })
+      this.authHeader({ roomCreate: true }),
     );
     return Room.fromJSON(data);
   }
@@ -85,7 +87,7 @@ export class RoomServiceClient {
       svc,
       'ListRooms',
       ListRoomsRequest.toJSON({}),
-      this.authHeader({ roomList: true })
+      this.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
     return res.rooms;
@@ -96,7 +98,7 @@ export class RoomServiceClient {
       svc,
       'DeleteRoom',
       DeleteRoomRequest.toJSON({ room }),
-      this.authHeader({ roomCreate: true })
+      this.authHeader({ roomCreate: true }),
     );
   }
 
@@ -109,7 +111,7 @@ export class RoomServiceClient {
       svc,
       'ListParticipants',
       ListParticipantsRequest.toJSON({ room }),
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
     const res = ListParticipantsResponse.fromJSON(data);
     return res.participants;
@@ -123,13 +125,13 @@ export class RoomServiceClient {
    */
   async getParticipant(
     room: string,
-    identity: string
+    identity: string,
   ): Promise<ParticipantInfo> {
     const data = await this.rpc.request(
       svc,
       'GetParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
 
     return ParticipantInfo.fromJSON(data);
@@ -147,7 +149,7 @@ export class RoomServiceClient {
       svc,
       'RemoveParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -162,7 +164,7 @@ export class RoomServiceClient {
     room: string,
     identity: string,
     trackSid: string,
-    muted: boolean
+    muted: boolean,
   ): Promise<TrackInfo> {
     const req = MuteRoomTrackRequest.toJSON({
       room,
@@ -174,7 +176,7 @@ export class RoomServiceClient {
       svc,
       'MutePublishedTrack',
       req,
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
     const res = MuteRoomTrackResponse.fromJSON(data);
     return res.track!;
@@ -184,7 +186,7 @@ export class RoomServiceClient {
     room: string,
     identity: string,
     metadata?: string,
-    permission?: ParticipantPermission
+    permission?: ParticipantPermission,
   ): Promise<ParticipantInfo> {
     const req: UpdateParticipantRequest = {
       room,
@@ -196,7 +198,7 @@ export class RoomServiceClient {
       svc,
       'UpdateParticipant',
       UpdateParticipantRequest.toJSON(req),
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
     return ParticipantInfo.fromJSON(data);
   }
@@ -205,7 +207,7 @@ export class RoomServiceClient {
     room: string,
     identity: string,
     trackSids: string[],
-    subscribe: boolean
+    subscribe: boolean,
   ): Promise<void> {
     const req = UpdateSubscriptionsRequest.toJSON({
       room,
@@ -217,7 +219,7 @@ export class RoomServiceClient {
       svc,
       'UpdateSubscriptions',
       req,
-      this.authHeader({ roomAdmin: true, room: room })
+      this.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -225,7 +227,7 @@ export class RoomServiceClient {
     const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m' });
     at.addGrant(grant);
     return {
-      Authorization: 'Bearer ' + at.toJwt(),
+      Authorization: `Bearer ${at.toJwt()}`,
     };
   }
 }

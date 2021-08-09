@@ -7,5 +7,5 @@ export {
   TrackInfo,
   TrackType,
 } from './proto/livekit_models';
-export * from './RoomServiceClient';
 export * from './RecordingServiceClient';
+export * from './RoomServiceClient';

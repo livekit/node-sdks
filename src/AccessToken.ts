@@ -25,10 +25,13 @@ export interface AccessTokenOptions {
 
 export class AccessToken {
   private apiKey: string;
+
   private apiSecret: string;
+
   private grants: ClaimGrants;
 
   identity?: string;
+
   ttl?: number | string;
 
   /**
@@ -39,7 +42,7 @@ export class AccessToken {
   constructor(
     apiKey?: string,
     apiSecret?: string,
-    options?: AccessTokenOptions
+    options?: AccessTokenOptions,
   ) {
     if (!apiKey) {
       apiKey = process.env.LIVEKIT_API_KEY;
@@ -48,7 +51,7 @@ export class AccessToken {
       apiSecret = process.env.LIVEKIT_API_SECRET;
     }
     if (!apiKey || !apiSecret) {
-      throw 'api-key and api-secret must be set';
+      throw Error('api-key and api-secret must be set');
     }
 
     this.apiKey = apiKey;
@@ -90,7 +93,7 @@ export class AccessToken {
     if (this.identity) {
       opts.jwtid = this.identity;
     } else if (this.grants.video?.roomJoin) {
-      throw 'identity is required for join but not set';
+      throw Error('identity is required for join but not set');
     }
     return jwt.sign(this.grants, this.apiSecret, opts);
   }

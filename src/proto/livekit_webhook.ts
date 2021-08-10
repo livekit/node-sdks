@@ -7,21 +7,21 @@ export const protobufPackage = "livekit";
 
 export interface WebhookEvent {
   /** one of room_started, room_finished, participant_joined, participant_left */
-  type: string;
+  event: string;
   room?: Room;
   /** set when event is participant_* */
   participant?: ParticipantInfo;
 }
 
-const baseWebhookEvent: object = { type: "" };
+const baseWebhookEvent: object = { event: "" };
 
 export const WebhookEvent = {
   encode(
     message: WebhookEvent,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.type !== "") {
-      writer.uint32(10).string(message.type);
+    if (message.event !== "") {
+      writer.uint32(10).string(message.event);
     }
     if (message.room !== undefined) {
       Room.encode(message.room, writer.uint32(18).fork()).ldelim();
@@ -43,7 +43,7 @@ export const WebhookEvent = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.type = reader.string();
+          message.event = reader.string();
           break;
         case 2:
           message.room = Room.decode(reader, reader.uint32());
@@ -61,10 +61,10 @@ export const WebhookEvent = {
 
   fromJSON(object: any): WebhookEvent {
     const message = { ...baseWebhookEvent } as WebhookEvent;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = String(object.type);
+    if (object.event !== undefined && object.event !== null) {
+      message.event = String(object.event);
     } else {
-      message.type = "";
+      message.event = "";
     }
     if (object.room !== undefined && object.room !== null) {
       message.room = Room.fromJSON(object.room);
@@ -81,7 +81,7 @@ export const WebhookEvent = {
 
   toJSON(message: WebhookEvent): unknown {
     const obj: any = {};
-    message.type !== undefined && (obj.type = message.type);
+    message.event !== undefined && (obj.event = message.event);
     message.room !== undefined &&
       (obj.room = message.room ? Room.toJSON(message.room) : undefined);
     message.participant !== undefined &&
@@ -93,10 +93,10 @@ export const WebhookEvent = {
 
   fromPartial(object: DeepPartial<WebhookEvent>): WebhookEvent {
     const message = { ...baseWebhookEvent } as WebhookEvent;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = object.type;
+    if (object.event !== undefined && object.event !== null) {
+      message.event = object.event;
     } else {
-      message.type = "";
+      message.event = "";
     }
     if (object.room !== undefined && object.room !== null) {
       message.room = Room.fromPartial(object.room);

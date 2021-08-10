@@ -26,6 +26,11 @@ export interface VideoGrant {
   /** allow participant to subscribe to other tracks */
   canSubscribe?: boolean;
 
+  /**
+   * allow participants to publish data, defaults to true if not set
+   */
+  canPublishData?: boolean;
+
   /** hidden participant (used for recording) */
   hidden?: boolean;
 }
@@ -34,4 +39,5 @@ export interface VideoGrant {
 export interface ClaimGrants {
   video?: VideoGrant;
   metadata?: string;
+  sha256?: string;
 }

@@ -109,3 +109,16 @@ svc.deleteRoom('myroom').then(() => {
   console.log('room deleted')
 })
 ```
+
+## Webhooks
+
+The JS SDK also provides helper functions to decode and verify webhook callbacks. While verification is optional, it ensures the authenticity of the message. LiveKit webhooks are signed with API key/secret pair.
+
+```typescript
+const receiver = new WebhookReceiver('apikey', 'apisecret');
+// assuming using express.raw
+app.post('/webhook-endpoint', (req, res) => {
+  // event is a WebhookEvent object
+  const event = receiver.receive(req.body, req.get('Authorization'))
+})
+```

@@ -79,6 +79,14 @@ export class AccessToken {
     this.grants.metadata = md;
   }
 
+  get sha256(): string | undefined {
+    return this.grants.sha256;
+  }
+
+  set sha256(sha: string | undefined) {
+    this.grants.sha256 = sha;
+  }
+
   /**
    * @returns JWT encoded token
    */
@@ -91,10 +99,31 @@ export class AccessToken {
       notBefore: 0,
     };
     if (this.identity) {
+      opts.subject = this.identity;
       opts.jwtid = this.identity;
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
     return jwt.sign(this.grants, this.apiSecret, opts);
+  }
+}
+
+export class TokenVerifier {
+  private apiKey: string;
+
+  private apiSecret: string;
+
+  constructor(apiKey: string, apiSecret: string) {
+    this.apiKey = apiKey;
+    this.apiSecret = apiSecret;
+  }
+
+  verify(token: string): ClaimGrants {
+    const decoded = jwt.verify(token, this.apiSecret, { issuer: this.apiKey });
+    if (!decoded) {
+      throw Error('invalid token');
+    }
+
+    return decoded as ClaimGrants;
   }
 }

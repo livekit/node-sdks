@@ -1,4 +1,5 @@
 import { AccessToken } from './AccessToken';
+import { WebhookEvent } from './proto/livekit_webhook';
 import { WebhookReceiver } from './WebhookReceiver';
 
 const testApiKey = 'abcdefg';
@@ -17,5 +18,22 @@ describe('webhook receiver', () => {
     expect(event).toBeTruthy();
     expect(event.room?.name).toBe('mytestroom');
     expect(event.type).toBe('room_started');
+  });
+});
+
+describe('decoding json payload', () => {
+  it('should allow server to return extra fields', () => {
+    const obj = {
+      type: 'room_started',
+      room: {
+        sid: 'RM_TkVjUvAqgzKz',
+        name: 'mytestroom',
+      },
+      extra: 'extra',
+    };
+
+    const event = WebhookEvent.fromJSON(obj);
+    expect(event).toBeTruthy();
+    expect(event.room?.name).toBe('mytestroom');
   });
 });

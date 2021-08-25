@@ -6,7 +6,7 @@ import {
   RecordingOutput,
   RecordingOptions,
   RecordingResponse,
-  StartRecordingRequest
+  StartRecordingRequest,
 } from './proto/livekit_recording';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -15,7 +15,7 @@ const svc = 'RecordingService';
 /**
  * Client to access Recording APIs
  */
-export class RecordingServiceClient {
+class RecordingServiceClient {
   private readonly rpc: Rpc;
 
   private readonly apiKey?: string;
@@ -44,7 +44,7 @@ export class RecordingServiceClient {
     output: RecordingOutput,
     options?: RecordingOptions,
   ): Promise<string> {
-    const req = StartRecordingRequest.toJSON({input, output, options});
+    const req = StartRecordingRequest.toJSON({ input, output, options });
     const data = await this.rpc.request(
       svc,
       'StartRecording',
@@ -55,7 +55,7 @@ export class RecordingServiceClient {
   }
 
   async endRecording(recordingId: string): Promise<void> {
-    const req = EndRecordingRequest.toJSON({recordingId});
+    const req = EndRecordingRequest.toJSON({ recordingId });
     await this.rpc.request(
       svc,
       'EndRecording',
@@ -72,3 +72,5 @@ export class RecordingServiceClient {
     };
   }
 }
+
+export default RecordingServiceClient;

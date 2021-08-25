@@ -1,21 +1,16 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
-import { RecordingOptions, RecordingS3Output, RecordingTemplate } from './proto/livekit_models';
-import { EndRecordingRequest, RecordingResponse, StartRecordingRequest } from './proto/livekit_recording';
+import {
+  EndRecordingRequest,
+  RecordingInput,
+  RecordingOutput,
+  RecordingOptions,
+  RecordingResponse,
+  StartRecordingRequest
+} from './proto/livekit_recording';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
 const svc = 'RecordingService';
-
-export interface RecordingInput {
-  url?: string
-  template?: RecordingTemplate
-}
-
-export interface RecordingOutput {
-  file?: string
-  s3?: RecordingS3Output
-  rtmp?: string
-}
 
 /**
  * Client to access Recording APIs
@@ -49,14 +44,7 @@ export class RecordingServiceClient {
     output: RecordingOutput,
     options?: RecordingOptions,
   ): Promise<string> {
-    const req = StartRecordingRequest.toJSON({
-      url: input.url,
-      template: input.template,
-      file: output.file,
-      s3: output.s3,
-      rtmp: output.rtmp,
-      options,
-    });
+    const req = StartRecordingRequest.toJSON({input, output, options});
     const data = await this.rpc.request(
       svc,
       'StartRecording',
@@ -67,9 +55,7 @@ export class RecordingServiceClient {
   }
 
   async endRecording(recordingId: string): Promise<void> {
-    const req = EndRecordingRequest.toJSON({
-      recordingId,
-    });
+    const req = EndRecordingRequest.toJSON({recordingId});
     await this.rpc.request(
       svc,
       'EndRecording',

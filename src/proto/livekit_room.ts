@@ -1,7 +1,14 @@
 /* eslint-disable */
 import Long from "long";
 import _m0 from "protobufjs/minimal";
-import { TrackInfo, Room, ParticipantInfo } from "./livekit_models";
+import {
+  TrackInfo,
+  DataPacket_Kind,
+  Room,
+  ParticipantInfo,
+  dataPacket_KindFromJSON,
+  dataPacket_KindToJSON,
+} from "./livekit_models";
 
 export const protobufPackage = "livekit";
 
@@ -66,6 +73,8 @@ export interface ParticipantPermission {
   canSubscribe: boolean;
   /** allow participant to publish new tracks to room */
   canPublish: boolean;
+  /** allow participant to publish data */
+  canPublishData: boolean;
 }
 
 export interface UpdateParticipantRequest {
@@ -88,6 +97,16 @@ export interface UpdateSubscriptionsRequest {
 
 /** empty for now */
 export interface UpdateSubscriptionsResponse {}
+
+export interface SendDataRequest {
+  room: string;
+  data: Uint8Array;
+  kind: DataPacket_Kind;
+  destinationSids: string[];
+}
+
+/**  */
+export interface SendDataResponse {}
 
 const baseCreateRoomRequest: object = {
   name: "",
@@ -887,6 +906,7 @@ export const MuteRoomTrackResponse = {
 const baseParticipantPermission: object = {
   canSubscribe: false,
   canPublish: false,
+  canPublishData: false,
 };
 
 export const ParticipantPermission = {
@@ -899,6 +919,9 @@ export const ParticipantPermission = {
     }
     if (message.canPublish === true) {
       writer.uint32(16).bool(message.canPublish);
+    }
+    if (message.canPublishData === true) {
+      writer.uint32(24).bool(message.canPublishData);
     }
     return writer;
   },
@@ -918,6 +941,9 @@ export const ParticipantPermission = {
           break;
         case 2:
           message.canPublish = reader.bool();
+          break;
+        case 3:
+          message.canPublishData = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -939,6 +965,11 @@ export const ParticipantPermission = {
     } else {
       message.canPublish = false;
     }
+    if (object.canPublishData !== undefined && object.canPublishData !== null) {
+      message.canPublishData = Boolean(object.canPublishData);
+    } else {
+      message.canPublishData = false;
+    }
     return message;
   },
 
@@ -947,6 +978,8 @@ export const ParticipantPermission = {
     message.canSubscribe !== undefined &&
       (obj.canSubscribe = message.canSubscribe);
     message.canPublish !== undefined && (obj.canPublish = message.canPublish);
+    message.canPublishData !== undefined &&
+      (obj.canPublishData = message.canPublishData);
     return obj;
   },
 
@@ -963,6 +996,11 @@ export const ParticipantPermission = {
       message.canPublish = object.canPublish;
     } else {
       message.canPublish = false;
+    }
+    if (object.canPublishData !== undefined && object.canPublishData !== null) {
+      message.canPublishData = object.canPublishData;
+    } else {
+      message.canPublishData = false;
     }
     return message;
   },
@@ -1285,6 +1323,173 @@ export const UpdateSubscriptionsResponse = {
   },
 };
 
+const baseSendDataRequest: object = { room: "", kind: 0, destinationSids: "" };
+
+export const SendDataRequest = {
+  encode(
+    message: SendDataRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.room !== "") {
+      writer.uint32(10).string(message.room);
+    }
+    if (message.data.length !== 0) {
+      writer.uint32(18).bytes(message.data);
+    }
+    if (message.kind !== 0) {
+      writer.uint32(24).int32(message.kind);
+    }
+    for (const v of message.destinationSids) {
+      writer.uint32(34).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SendDataRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseSendDataRequest } as SendDataRequest;
+    message.destinationSids = [];
+    message.data = new Uint8Array();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.data = reader.bytes();
+          break;
+        case 3:
+          message.kind = reader.int32() as any;
+          break;
+        case 4:
+          message.destinationSids.push(reader.string());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SendDataRequest {
+    const message = { ...baseSendDataRequest } as SendDataRequest;
+    message.destinationSids = [];
+    message.data = new Uint8Array();
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    if (object.data !== undefined && object.data !== null) {
+      message.data = bytesFromBase64(object.data);
+    }
+    if (object.kind !== undefined && object.kind !== null) {
+      message.kind = dataPacket_KindFromJSON(object.kind);
+    } else {
+      message.kind = 0;
+    }
+    if (
+      object.destinationSids !== undefined &&
+      object.destinationSids !== null
+    ) {
+      for (const e of object.destinationSids) {
+        message.destinationSids.push(String(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: SendDataRequest): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    message.data !== undefined &&
+      (obj.data = base64FromBytes(
+        message.data !== undefined ? message.data : new Uint8Array()
+      ));
+    message.kind !== undefined &&
+      (obj.kind = dataPacket_KindToJSON(message.kind));
+    if (message.destinationSids) {
+      obj.destinationSids = message.destinationSids.map((e) => e);
+    } else {
+      obj.destinationSids = [];
+    }
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<SendDataRequest>): SendDataRequest {
+    const message = { ...baseSendDataRequest } as SendDataRequest;
+    message.destinationSids = [];
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = "";
+    }
+    if (object.data !== undefined && object.data !== null) {
+      message.data = object.data;
+    } else {
+      message.data = new Uint8Array();
+    }
+    if (object.kind !== undefined && object.kind !== null) {
+      message.kind = object.kind;
+    } else {
+      message.kind = 0;
+    }
+    if (
+      object.destinationSids !== undefined &&
+      object.destinationSids !== null
+    ) {
+      for (const e of object.destinationSids) {
+        message.destinationSids.push(e);
+      }
+    }
+    return message;
+  },
+};
+
+const baseSendDataResponse: object = {};
+
+export const SendDataResponse = {
+  encode(
+    _: SendDataResponse,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SendDataResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseSendDataResponse } as SendDataResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): SendDataResponse {
+    const message = { ...baseSendDataResponse } as SendDataResponse;
+    return message;
+  },
+
+  toJSON(_: SendDataResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<SendDataResponse>): SendDataResponse {
+    const message = { ...baseSendDataResponse } as SendDataResponse;
+    return message;
+  },
+};
+
 /**
  * Room service that can be performed on any node
  * they are Twirp-based HTTP req/responses
@@ -1324,6 +1529,41 @@ export interface RoomService {
   UpdateSubscriptions(
     request: UpdateSubscriptionsRequest
   ): Promise<UpdateSubscriptionsResponse>;
+  /** Send data over data channel to participants in a room, Requires `roomAdmin` */
+  SendData(request: SendDataRequest): Promise<SendDataResponse>;
+}
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
+
+const atob: (b64: string) => string =
+  globalThis.atob ||
+  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
+function bytesFromBase64(b64: string): Uint8Array {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; ++i) {
+    arr[i] = bin.charCodeAt(i);
+  }
+  return arr;
+}
+
+const btoa: (bin: string) => string =
+  globalThis.btoa ||
+  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
+function base64FromBytes(arr: Uint8Array): string {
+  const bin: string[] = [];
+  for (let i = 0; i < arr.byteLength; ++i) {
+    bin.push(String.fromCharCode(arr[i]));
+  }
+  return btoa(bin.join(""));
 }
 
 type Builtin =

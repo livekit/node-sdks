@@ -1,6 +1,8 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
-import { ParticipantInfo, Room, TrackInfo } from './proto/livekit_models';
+import {
+  DataPacket_Kind, ParticipantInfo, Room, TrackInfo,
+} from './proto/livekit_models';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -12,6 +14,7 @@ import {
   MuteRoomTrackResponse,
   ParticipantPermission,
   RoomParticipantIdentity,
+  SendDataRequest,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest,
 } from './proto/livekit_room';
@@ -182,6 +185,13 @@ export class RoomServiceClient {
     return res.track!;
   }
 
+  /**
+   * Updates a participant's metadata or permissions
+   * @param room
+   * @param identity
+   * @param metadata optional, metadata to update
+   * @param permission optional, new permissions to assign to participant
+   */
   async updateParticipant(
     room: string,
     identity: string,
@@ -203,6 +213,13 @@ export class RoomServiceClient {
     return ParticipantInfo.fromJSON(data);
   }
 
+  /**
+   * Updates a participant's subscription to tracks
+   * @param room
+   * @param identity
+   * @param trackSids
+   * @param subscribe true to subscribe, false to unsubscribe
+   */
   async updateSubscriptions(
     room: string,
     identity: string,
@@ -218,6 +235,33 @@ export class RoomServiceClient {
     await this.rpc.request(
       svc,
       'UpdateSubscriptions',
+      req,
+      this.authHeader({ roomAdmin: true, room }),
+    );
+  }
+
+  /**
+   * Sends data message to participants in the room
+   * @param room
+   * @param data opaque payload to send
+   * @param kind delivery reliability
+   * @param destinationSids optional. when empty, message is sent to everyone
+   */
+  async sendData(
+    room: string,
+    data: Uint8Array,
+    kind: DataPacket_Kind,
+    destinationSids: string[] = [],
+  ): Promise<void> {
+    const req = SendDataRequest.toJSON({
+      room,
+      data,
+      kind,
+      destinationSids,
+    });
+    await this.rpc.request(
+      svc,
+      'SendData',
       req,
       this.authHeader({ roomAdmin: true, room }),
     );

@@ -79,24 +79,15 @@ export interface RecordingInput {
 
 export interface RecordingTemplate {
   layout: string;
-  wsUrl: string;
   /** either token or room name required */
   token: string;
   roomName: string;
 }
 
 export interface RecordingOutput {
-  file: string;
-  s3?: RecordingS3Output;
   rtmp: string;
-}
-
-export interface RecordingS3Output {
-  bucket: string;
-  key: string;
-  /** optional */
-  accessKey: string;
-  secret: string;
+  /** bucket/key */
+  s3Path: string;
 }
 
 export interface RecordingOptions {
@@ -420,12 +411,7 @@ export const RecordingInput = {
   },
 };
 
-const baseRecordingTemplate: object = {
-  layout: "",
-  wsUrl: "",
-  token: "",
-  roomName: "",
-};
+const baseRecordingTemplate: object = { layout: "", token: "", roomName: "" };
 
 export const RecordingTemplate = {
   encode(
@@ -434,9 +420,6 @@ export const RecordingTemplate = {
   ): _m0.Writer {
     if (message.layout !== "") {
       writer.uint32(10).string(message.layout);
-    }
-    if (message.wsUrl !== "") {
-      writer.uint32(18).string(message.wsUrl);
     }
     if (message.token !== "") {
       writer.uint32(26).string(message.token);
@@ -456,9 +439,6 @@ export const RecordingTemplate = {
       switch (tag >>> 3) {
         case 1:
           message.layout = reader.string();
-          break;
-        case 2:
-          message.wsUrl = reader.string();
           break;
         case 3:
           message.token = reader.string();
@@ -481,11 +461,6 @@ export const RecordingTemplate = {
     } else {
       message.layout = "";
     }
-    if (object.wsUrl !== undefined && object.wsUrl !== null) {
-      message.wsUrl = String(object.wsUrl);
-    } else {
-      message.wsUrl = "";
-    }
     if (object.token !== undefined && object.token !== null) {
       message.token = String(object.token);
     } else {
@@ -502,7 +477,6 @@ export const RecordingTemplate = {
   toJSON(message: RecordingTemplate): unknown {
     const obj: any = {};
     message.layout !== undefined && (obj.layout = message.layout);
-    message.wsUrl !== undefined && (obj.wsUrl = message.wsUrl);
     message.token !== undefined && (obj.token = message.token);
     message.roomName !== undefined && (obj.roomName = message.roomName);
     return obj;
@@ -514,11 +488,6 @@ export const RecordingTemplate = {
       message.layout = object.layout;
     } else {
       message.layout = "";
-    }
-    if (object.wsUrl !== undefined && object.wsUrl !== null) {
-      message.wsUrl = object.wsUrl;
-    } else {
-      message.wsUrl = "";
     }
     if (object.token !== undefined && object.token !== null) {
       message.token = object.token;
@@ -534,21 +503,18 @@ export const RecordingTemplate = {
   },
 };
 
-const baseRecordingOutput: object = { file: "", rtmp: "" };
+const baseRecordingOutput: object = { rtmp: "", s3Path: "" };
 
 export const RecordingOutput = {
   encode(
     message: RecordingOutput,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.file !== "") {
-      writer.uint32(10).string(message.file);
-    }
-    if (message.s3 !== undefined) {
-      RecordingS3Output.encode(message.s3, writer.uint32(18).fork()).ldelim();
-    }
     if (message.rtmp !== "") {
       writer.uint32(26).string(message.rtmp);
+    }
+    if (message.s3Path !== "") {
+      writer.uint32(34).string(message.s3Path);
     }
     return writer;
   },
@@ -560,14 +526,11 @@ export const RecordingOutput = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1:
-          message.file = reader.string();
-          break;
-        case 2:
-          message.s3 = RecordingS3Output.decode(reader, reader.uint32());
-          break;
         case 3:
           message.rtmp = reader.string();
+          break;
+        case 4:
+          message.s3Path = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -579,163 +542,37 @@ export const RecordingOutput = {
 
   fromJSON(object: any): RecordingOutput {
     const message = { ...baseRecordingOutput } as RecordingOutput;
-    if (object.file !== undefined && object.file !== null) {
-      message.file = String(object.file);
-    } else {
-      message.file = "";
-    }
-    if (object.s3 !== undefined && object.s3 !== null) {
-      message.s3 = RecordingS3Output.fromJSON(object.s3);
-    } else {
-      message.s3 = undefined;
-    }
     if (object.rtmp !== undefined && object.rtmp !== null) {
       message.rtmp = String(object.rtmp);
     } else {
       message.rtmp = "";
+    }
+    if (object.s3Path !== undefined && object.s3Path !== null) {
+      message.s3Path = String(object.s3Path);
+    } else {
+      message.s3Path = "";
     }
     return message;
   },
 
   toJSON(message: RecordingOutput): unknown {
     const obj: any = {};
-    message.file !== undefined && (obj.file = message.file);
-    message.s3 !== undefined &&
-      (obj.s3 = message.s3 ? RecordingS3Output.toJSON(message.s3) : undefined);
     message.rtmp !== undefined && (obj.rtmp = message.rtmp);
+    message.s3Path !== undefined && (obj.s3Path = message.s3Path);
     return obj;
   },
 
   fromPartial(object: DeepPartial<RecordingOutput>): RecordingOutput {
     const message = { ...baseRecordingOutput } as RecordingOutput;
-    if (object.file !== undefined && object.file !== null) {
-      message.file = object.file;
-    } else {
-      message.file = "";
-    }
-    if (object.s3 !== undefined && object.s3 !== null) {
-      message.s3 = RecordingS3Output.fromPartial(object.s3);
-    } else {
-      message.s3 = undefined;
-    }
     if (object.rtmp !== undefined && object.rtmp !== null) {
       message.rtmp = object.rtmp;
     } else {
       message.rtmp = "";
     }
-    return message;
-  },
-};
-
-const baseRecordingS3Output: object = {
-  bucket: "",
-  key: "",
-  accessKey: "",
-  secret: "",
-};
-
-export const RecordingS3Output = {
-  encode(
-    message: RecordingS3Output,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.bucket !== "") {
-      writer.uint32(10).string(message.bucket);
-    }
-    if (message.key !== "") {
-      writer.uint32(18).string(message.key);
-    }
-    if (message.accessKey !== "") {
-      writer.uint32(26).string(message.accessKey);
-    }
-    if (message.secret !== "") {
-      writer.uint32(34).string(message.secret);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): RecordingS3Output {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordingS3Output } as RecordingS3Output;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.bucket = reader.string();
-          break;
-        case 2:
-          message.key = reader.string();
-          break;
-        case 3:
-          message.accessKey = reader.string();
-          break;
-        case 4:
-          message.secret = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): RecordingS3Output {
-    const message = { ...baseRecordingS3Output } as RecordingS3Output;
-    if (object.bucket !== undefined && object.bucket !== null) {
-      message.bucket = String(object.bucket);
+    if (object.s3Path !== undefined && object.s3Path !== null) {
+      message.s3Path = object.s3Path;
     } else {
-      message.bucket = "";
-    }
-    if (object.key !== undefined && object.key !== null) {
-      message.key = String(object.key);
-    } else {
-      message.key = "";
-    }
-    if (object.accessKey !== undefined && object.accessKey !== null) {
-      message.accessKey = String(object.accessKey);
-    } else {
-      message.accessKey = "";
-    }
-    if (object.secret !== undefined && object.secret !== null) {
-      message.secret = String(object.secret);
-    } else {
-      message.secret = "";
-    }
-    return message;
-  },
-
-  toJSON(message: RecordingS3Output): unknown {
-    const obj: any = {};
-    message.bucket !== undefined && (obj.bucket = message.bucket);
-    message.key !== undefined && (obj.key = message.key);
-    message.accessKey !== undefined && (obj.accessKey = message.accessKey);
-    message.secret !== undefined && (obj.secret = message.secret);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<RecordingS3Output>): RecordingS3Output {
-    const message = { ...baseRecordingS3Output } as RecordingS3Output;
-    if (object.bucket !== undefined && object.bucket !== null) {
-      message.bucket = object.bucket;
-    } else {
-      message.bucket = "";
-    }
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = "";
-    }
-    if (object.accessKey !== undefined && object.accessKey !== null) {
-      message.accessKey = object.accessKey;
-    } else {
-      message.accessKey = "";
-    }
-    if (object.secret !== undefined && object.secret !== null) {
-      message.secret = object.secret;
-    } else {
-      message.secret = "";
+      message.s3Path = "";
     }
     return message;
   },

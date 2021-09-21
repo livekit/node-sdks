@@ -1,6 +1,7 @@
 export * from './AccessToken';
 export * from './grants';
 export {
+  DataPacket_Kind,
   ParticipantInfo,
   ParticipantInfo_State,
   Room,

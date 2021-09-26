@@ -108,6 +108,12 @@ export interface SendDataRequest {
 /**  */
 export interface SendDataResponse {}
 
+export interface UpdateRoomMetadataRequest {
+  room: string;
+  /** metadata to update. skipping updates if left empty */
+  metadata: string;
+}
+
 const baseCreateRoomRequest: object = {
   name: "",
   emptyTimeout: 0,
@@ -1490,6 +1496,92 @@ export const SendDataResponse = {
   },
 };
 
+const baseUpdateRoomMetadataRequest: object = { room: "", metadata: "" };
+
+export const UpdateRoomMetadataRequest = {
+  encode(
+    message: UpdateRoomMetadataRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.room !== "") {
+      writer.uint32(10).string(message.room);
+    }
+    if (message.metadata !== "") {
+      writer.uint32(18).string(message.metadata);
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): UpdateRoomMetadataRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseUpdateRoomMetadataRequest,
+    } as UpdateRoomMetadataRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = reader.string();
+          break;
+        case 2:
+          message.metadata = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateRoomMetadataRequest {
+    const message = {
+      ...baseUpdateRoomMetadataRequest,
+    } as UpdateRoomMetadataRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = String(object.room);
+    } else {
+      message.room = "";
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = String(object.metadata);
+    } else {
+      message.metadata = "";
+    }
+    return message;
+  },
+
+  toJSON(message: UpdateRoomMetadataRequest): unknown {
+    const obj: any = {};
+    message.room !== undefined && (obj.room = message.room);
+    message.metadata !== undefined && (obj.metadata = message.metadata);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<UpdateRoomMetadataRequest>
+  ): UpdateRoomMetadataRequest {
+    const message = {
+      ...baseUpdateRoomMetadataRequest,
+    } as UpdateRoomMetadataRequest;
+    if (object.room !== undefined && object.room !== null) {
+      message.room = object.room;
+    } else {
+      message.room = "";
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    } else {
+      message.metadata = "";
+    }
+    return message;
+  },
+};
+
 /**
  * Room service that can be performed on any node
  * they are Twirp-based HTTP req/responses
@@ -1531,6 +1623,8 @@ export interface RoomService {
   ): Promise<UpdateSubscriptionsResponse>;
   /** Send data over data channel to participants in a room, Requires `roomAdmin` */
   SendData(request: SendDataRequest): Promise<SendDataResponse>;
+  /** Update room metadata, will cause updates to be broadcasted to everyone in the room, Requires `roomAdmin` */
+  UpdateRoomMetadata(request: UpdateRoomMetadataRequest): Promise<Room>;
 }
 
 declare var self: any | undefined;

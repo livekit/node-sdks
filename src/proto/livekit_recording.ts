@@ -422,10 +422,10 @@ export const RecordingTemplate = {
       writer.uint32(10).string(message.layout);
     }
     if (message.token !== "") {
-      writer.uint32(26).string(message.token);
+      writer.uint32(18).string(message.token);
     }
     if (message.roomName !== "") {
-      writer.uint32(34).string(message.roomName);
+      writer.uint32(26).string(message.roomName);
     }
     return writer;
   },
@@ -440,10 +440,10 @@ export const RecordingTemplate = {
         case 1:
           message.layout = reader.string();
           break;
-        case 3:
+        case 2:
           message.token = reader.string();
           break;
-        case 4:
+        case 3:
           message.roomName = reader.string();
           break;
         default:
@@ -511,10 +511,10 @@ export const RecordingOutput = {
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.rtmp !== "") {
-      writer.uint32(26).string(message.rtmp);
+      writer.uint32(10).string(message.rtmp);
     }
     if (message.s3Path !== "") {
-      writer.uint32(34).string(message.s3Path);
+      writer.uint32(18).string(message.s3Path);
     }
     return writer;
   },
@@ -526,10 +526,10 @@ export const RecordingOutput = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 3:
+        case 1:
           message.rtmp = reader.string();
           break;
-        case 4:
+        case 2:
           message.s3Path = reader.string();
           break;
         default:

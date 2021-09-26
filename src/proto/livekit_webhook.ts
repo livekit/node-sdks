@@ -1,16 +1,18 @@
 /* eslint-disable */
 import Long from "long";
 import _m0 from "protobufjs/minimal";
-import { Room, ParticipantInfo } from "./livekit_models";
+import { Room, ParticipantInfo, RecordingResult } from "./livekit_models";
 
 export const protobufPackage = "livekit";
 
 export interface WebhookEvent {
-  /** one of room_started, room_finished, participant_joined, participant_left */
+  /** one of room_started, room_finished, participant_joined, participant_left, recording_finished */
   event: string;
   room?: Room;
   /** set when event is participant_* */
   participant?: ParticipantInfo;
+  /** set when event is recording_finished */
+  recordingResult?: RecordingResult;
 }
 
 const baseWebhookEvent: object = { event: "" };
@@ -32,6 +34,12 @@ export const WebhookEvent = {
         writer.uint32(26).fork()
       ).ldelim();
     }
+    if (message.recordingResult !== undefined) {
+      RecordingResult.encode(
+        message.recordingResult,
+        writer.uint32(34).fork()
+      ).ldelim();
+    }
     return writer;
   },
 
@@ -50,6 +58,12 @@ export const WebhookEvent = {
           break;
         case 3:
           message.participant = ParticipantInfo.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.recordingResult = RecordingResult.decode(
+            reader,
+            reader.uint32()
+          );
           break;
         default:
           reader.skipType(tag & 7);
@@ -76,6 +90,16 @@ export const WebhookEvent = {
     } else {
       message.participant = undefined;
     }
+    if (
+      object.recordingResult !== undefined &&
+      object.recordingResult !== null
+    ) {
+      message.recordingResult = RecordingResult.fromJSON(
+        object.recordingResult
+      );
+    } else {
+      message.recordingResult = undefined;
+    }
     return message;
   },
 
@@ -87,6 +111,10 @@ export const WebhookEvent = {
     message.participant !== undefined &&
       (obj.participant = message.participant
         ? ParticipantInfo.toJSON(message.participant)
+        : undefined);
+    message.recordingResult !== undefined &&
+      (obj.recordingResult = message.recordingResult
+        ? RecordingResult.toJSON(message.recordingResult)
         : undefined);
     return obj;
   },
@@ -107,6 +135,16 @@ export const WebhookEvent = {
       message.participant = ParticipantInfo.fromPartial(object.participant);
     } else {
       message.participant = undefined;
+    }
+    if (
+      object.recordingResult !== undefined &&
+      object.recordingResult !== null
+    ) {
+      message.recordingResult = RecordingResult.fromPartial(
+        object.recordingResult
+      );
+    } else {
+      message.recordingResult = undefined;
     }
     return message;
   },

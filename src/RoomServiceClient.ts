@@ -115,9 +115,9 @@ export class RoomServiceClient {
     const data = await this.rpc.request(
       svc,
       'UpdateRoomMetadata',
-      UpdateRoomMetadataRequest.toJSON({room, metadata}),
+      UpdateRoomMetadataRequest.toJSON({ room, metadata }),
       this.authHeader({ roomAdmin: true, room }),
-    )
+    );
     return Room.fromJSON(data);
   }
 

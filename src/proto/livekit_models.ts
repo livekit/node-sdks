@@ -51,6 +51,7 @@ export interface Room {
   turnPassword: string;
   enabledCodecs: Codec[];
   metadata: string;
+  numParticipants: number;
 }
 
 export interface Codec {
@@ -213,6 +214,7 @@ const baseRoom: object = {
   creationTime: 0,
   turnPassword: "",
   metadata: "",
+  numParticipants: 0,
 };
 
 export const Room = {
@@ -240,6 +242,9 @@ export const Room = {
     }
     if (message.metadata !== "") {
       writer.uint32(66).string(message.metadata);
+    }
+    if (message.numParticipants !== 0) {
+      writer.uint32(72).uint32(message.numParticipants);
     }
     return writer;
   },
@@ -275,6 +280,9 @@ export const Room = {
           break;
         case 8:
           message.metadata = reader.string();
+          break;
+        case 9:
+          message.numParticipants = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -330,6 +338,14 @@ export const Room = {
     } else {
       message.metadata = "";
     }
+    if (
+      object.numParticipants !== undefined &&
+      object.numParticipants !== null
+    ) {
+      message.numParticipants = Number(object.numParticipants);
+    } else {
+      message.numParticipants = 0;
+    }
     return message;
   },
 
@@ -353,6 +369,8 @@ export const Room = {
       obj.enabledCodecs = [];
     }
     message.metadata !== undefined && (obj.metadata = message.metadata);
+    message.numParticipants !== undefined &&
+      (obj.numParticipants = message.numParticipants);
     return obj;
   },
 
@@ -401,6 +419,14 @@ export const Room = {
       message.metadata = object.metadata;
     } else {
       message.metadata = "";
+    }
+    if (
+      object.numParticipants !== undefined &&
+      object.numParticipants !== null
+    ) {
+      message.numParticipants = object.numParticipants;
+    } else {
+      message.numParticipants = 0;
     }
     return message;
   },

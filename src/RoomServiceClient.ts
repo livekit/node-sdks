@@ -17,6 +17,7 @@ import {
   SendDataRequest,
   UpdateParticipantRequest,
   UpdateSubscriptionsRequest,
+  UpdateRoomMetadataRequest,
 } from './proto/livekit_room';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -103,6 +104,21 @@ export class RoomServiceClient {
       DeleteRoomRequest.toJSON({ room }),
       this.authHeader({ roomCreate: true }),
     );
+  }
+
+  /**
+   * Update metadata of a room
+   * @param room name of the room
+   * @param metadata the new metadata for the room
+   */
+  async updateRoomMetadata(room: string, metadata: string) {
+    const data = await this.rpc.request(
+      svc,
+      'UpdateRoomMetadata',
+      UpdateRoomMetadataRequest.toJSON({room, metadata}),
+      this.authHeader({ roomAdmin: true, room }),
+    )
+    return Room.fromJSON(data);
   }
 
   /**

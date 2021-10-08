@@ -1,12 +1,9 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
 import {
-  EndRecordingRequest,
-  RecordingTemplate,
-  RtmpOutput,
-  RecordingOptions,
-  StartRecordingRequest,
-  StartRecordingResponse, AddOutputRequest, RemoveOutputRequest
+  RecordingTemplate, RtmpOutput, RecordingOptions,
+  StartRecordingRequest, StartRecordingResponse,
+  AddOutputRequest, RemoveOutputRequest, EndRecordingRequest,
 } from './proto/livekit_recording';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -23,7 +20,6 @@ class RecordingServiceClient {
   private readonly secret?: string;
 
   /**
-   *
    * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
    * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
@@ -44,29 +40,30 @@ class RecordingServiceClient {
     output: string | RtmpOutput,
     options?: RecordingOptions,
   ): Promise<string> {
-
-    let url: string | undefined
-    let template: RecordingTemplate | undefined
+    let url: string | undefined;
+    let template: RecordingTemplate | undefined;
     if (typeof input === 'string') {
-      url = input
+      url = input;
     } else {
-      template = input
+      template = input;
     }
 
-    let s3Url: string | undefined
-    let rtmp: RtmpOutput | undefined
-    let file: string | undefined
+    let s3Url: string | undefined;
+    let rtmp: RtmpOutput | undefined;
+    let file: string | undefined;
     if (typeof output === 'string') {
       if (output.lastIndexOf('s3://', 0) === 0) {
-        s3Url = output
+        s3Url = output;
       } else {
-        file = output
+        file = output;
       }
     } else {
-      rtmp = output
+      rtmp = output;
     }
 
-    const req = StartRecordingRequest.toJSON({url, template, s3Url, rtmp, file});
+    const req = StartRecordingRequest.toJSON({
+      url, template, s3Url, rtmp, file, options,
+    });
     const data = await this.rpc.request(
       svc,
       'StartRecording',
@@ -79,20 +76,20 @@ class RecordingServiceClient {
   async addOutput(recordingId: string, rtmpUrl: string): Promise<void> {
     const req = AddOutputRequest.toJSON({ recordingId, rtmpUrl });
     await this.rpc.request(
-        svc,
-        'AddOutput',
-        req,
-        this.authHeader({ roomRecord: true }),
+      svc,
+      'AddOutput',
+      req,
+      this.authHeader({ roomRecord: true }),
     );
   }
 
   async removeOutput(recordingId: string, rtmpUrl: string): Promise<void> {
     const req = RemoveOutputRequest.toJSON({ recordingId, rtmpUrl });
     await this.rpc.request(
-        svc,
-        'RemoveOutput',
-        req,
-        this.authHeader({ roomRecord: true }),
+      svc,
+      'RemoveOutput',
+      req,
+      this.authHeader({ roomRecord: true }),
     );
   }
 

@@ -32,7 +32,7 @@ class RecordingServiceClient {
 
   /**
    * @param input input url or recording template
-   * @param output output filename, s3 url (format s3://bucket/{path/}filename.mp4), or RtmpOutput
+   * @param output output filepath or RtmpOutput
    * @param options recording options
    */
   async startRecording(

@@ -48,21 +48,16 @@ class RecordingServiceClient {
       template = input;
     }
 
-    let s3Url: string | undefined;
     let rtmp: RtmpOutput | undefined;
-    let file: string | undefined;
+    let filepath: string | undefined;
     if (typeof output === 'string') {
-      if (output.lastIndexOf('s3://', 0) === 0) {
-        s3Url = output;
-      } else {
-        file = output;
-      }
+      filepath = output;
     } else {
       rtmp = output;
     }
 
     const req = StartRecordingRequest.toJSON({
-      url, template, s3Url, rtmp, file, options,
+      url, template, rtmp, filepath, options,
     });
     const data = await this.rpc.request(
       svc,

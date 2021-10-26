@@ -63,9 +63,8 @@ export function recordingPresetToJSON(object: RecordingPreset): string {
 export interface StartRecordingRequest {
   url: string | undefined;
   template?: RecordingTemplate | undefined;
-  s3Url: string | undefined;
   rtmp?: RtmpOutput | undefined;
-  file: string | undefined;
+  filepath: string | undefined;
   options?: RecordingOptions;
 }
 
@@ -131,19 +130,16 @@ export const StartRecordingRequest = {
         writer.uint32(18).fork()
       ).ldelim();
     }
-    if (message.s3Url !== undefined) {
-      writer.uint32(26).string(message.s3Url);
-    }
     if (message.rtmp !== undefined) {
-      RtmpOutput.encode(message.rtmp, writer.uint32(34).fork()).ldelim();
+      RtmpOutput.encode(message.rtmp, writer.uint32(26).fork()).ldelim();
     }
-    if (message.file !== undefined) {
-      writer.uint32(42).string(message.file);
+    if (message.filepath !== undefined) {
+      writer.uint32(34).string(message.filepath);
     }
     if (message.options !== undefined) {
       RecordingOptions.encode(
         message.options,
-        writer.uint32(50).fork()
+        writer.uint32(42).fork()
       ).ldelim();
     }
     return writer;
@@ -166,15 +162,12 @@ export const StartRecordingRequest = {
           message.template = RecordingTemplate.decode(reader, reader.uint32());
           break;
         case 3:
-          message.s3Url = reader.string();
-          break;
-        case 4:
           message.rtmp = RtmpOutput.decode(reader, reader.uint32());
           break;
-        case 5:
-          message.file = reader.string();
+        case 4:
+          message.filepath = reader.string();
           break;
-        case 6:
+        case 5:
           message.options = RecordingOptions.decode(reader, reader.uint32());
           break;
         default:
@@ -197,20 +190,15 @@ export const StartRecordingRequest = {
     } else {
       message.template = undefined;
     }
-    if (object.s3Url !== undefined && object.s3Url !== null) {
-      message.s3Url = String(object.s3Url);
-    } else {
-      message.s3Url = undefined;
-    }
     if (object.rtmp !== undefined && object.rtmp !== null) {
       message.rtmp = RtmpOutput.fromJSON(object.rtmp);
     } else {
       message.rtmp = undefined;
     }
-    if (object.file !== undefined && object.file !== null) {
-      message.file = String(object.file);
+    if (object.filepath !== undefined && object.filepath !== null) {
+      message.filepath = String(object.filepath);
     } else {
-      message.file = undefined;
+      message.filepath = undefined;
     }
     if (object.options !== undefined && object.options !== null) {
       message.options = RecordingOptions.fromJSON(object.options);
@@ -227,10 +215,9 @@ export const StartRecordingRequest = {
       (obj.template = message.template
         ? RecordingTemplate.toJSON(message.template)
         : undefined);
-    message.s3Url !== undefined && (obj.s3Url = message.s3Url);
     message.rtmp !== undefined &&
       (obj.rtmp = message.rtmp ? RtmpOutput.toJSON(message.rtmp) : undefined);
-    message.file !== undefined && (obj.file = message.file);
+    message.filepath !== undefined && (obj.filepath = message.filepath);
     message.options !== undefined &&
       (obj.options = message.options
         ? RecordingOptions.toJSON(message.options)
@@ -252,20 +239,15 @@ export const StartRecordingRequest = {
     } else {
       message.template = undefined;
     }
-    if (object.s3Url !== undefined && object.s3Url !== null) {
-      message.s3Url = object.s3Url;
-    } else {
-      message.s3Url = undefined;
-    }
     if (object.rtmp !== undefined && object.rtmp !== null) {
       message.rtmp = RtmpOutput.fromPartial(object.rtmp);
     } else {
       message.rtmp = undefined;
     }
-    if (object.file !== undefined && object.file !== null) {
-      message.file = object.file;
+    if (object.filepath !== undefined && object.filepath !== null) {
+      message.filepath = object.filepath;
     } else {
-      message.file = undefined;
+      message.filepath = undefined;
     }
     if (object.options !== undefined && object.options !== null) {
       message.options = RecordingOptions.fromPartial(object.options);

@@ -8,6 +8,6 @@ export {
   TrackInfo,
   TrackType,
 } from './proto/livekit_models';
-export { RecordingServiceClient } from './RecordingServiceClient';
+export { default } from './RecordingServiceClient';
 export * from './RoomServiceClient';
 export * from './WebhookReceiver';

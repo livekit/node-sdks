@@ -12,7 +12,7 @@ const svc = 'RecordingService';
 /**
  * Client to access Recording APIs
  */
-export class RecordingServiceClient {
+export default class RecordingServiceClient {
   private readonly rpc: Rpc;
 
   private readonly apiKey?: string;

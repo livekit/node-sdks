@@ -70,8 +70,9 @@ export interface StartRecordingRequest {
 
 export interface RecordingTemplate {
   layout: string;
-  roomName: string | undefined;
-  token: string | undefined;
+  roomName: string;
+  /** defaults to https://recorder.livekit.io */
+  baseUrl: string;
 }
 
 export interface RtmpOutput {
@@ -112,6 +113,25 @@ export interface RemoveOutputRequest {
 
 export interface EndRecordingRequest {
   recordingId: string;
+}
+
+export interface RecordingInfo {
+  id: string;
+  roomName: string;
+  active: boolean;
+  error: string;
+  file?: FileResult;
+  rtmp: RtmpResult[];
+}
+
+export interface FileResult {
+  downloadUrl: string;
+  duration: number;
+}
+
+export interface RtmpResult {
+  streamUrl: string;
+  duration: number;
 }
 
 const baseStartRecordingRequest: object = {};
@@ -258,7 +278,7 @@ export const StartRecordingRequest = {
   },
 };
 
-const baseRecordingTemplate: object = { layout: "" };
+const baseRecordingTemplate: object = { layout: "", roomName: "", baseUrl: "" };
 
 export const RecordingTemplate = {
   encode(
@@ -268,11 +288,11 @@ export const RecordingTemplate = {
     if (message.layout !== "") {
       writer.uint32(10).string(message.layout);
     }
-    if (message.roomName !== undefined) {
+    if (message.roomName !== "") {
       writer.uint32(18).string(message.roomName);
     }
-    if (message.token !== undefined) {
-      writer.uint32(26).string(message.token);
+    if (message.baseUrl !== "") {
+      writer.uint32(26).string(message.baseUrl);
     }
     return writer;
   },
@@ -291,7 +311,7 @@ export const RecordingTemplate = {
           message.roomName = reader.string();
           break;
         case 3:
-          message.token = reader.string();
+          message.baseUrl = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -311,12 +331,12 @@ export const RecordingTemplate = {
     if (object.roomName !== undefined && object.roomName !== null) {
       message.roomName = String(object.roomName);
     } else {
-      message.roomName = undefined;
+      message.roomName = "";
     }
-    if (object.token !== undefined && object.token !== null) {
-      message.token = String(object.token);
+    if (object.baseUrl !== undefined && object.baseUrl !== null) {
+      message.baseUrl = String(object.baseUrl);
     } else {
-      message.token = undefined;
+      message.baseUrl = "";
     }
     return message;
   },
@@ -325,7 +345,7 @@ export const RecordingTemplate = {
     const obj: any = {};
     message.layout !== undefined && (obj.layout = message.layout);
     message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.token !== undefined && (obj.token = message.token);
+    message.baseUrl !== undefined && (obj.baseUrl = message.baseUrl);
     return obj;
   },
 
@@ -339,12 +359,12 @@ export const RecordingTemplate = {
     if (object.roomName !== undefined && object.roomName !== null) {
       message.roomName = object.roomName;
     } else {
-      message.roomName = undefined;
+      message.roomName = "";
     }
-    if (object.token !== undefined && object.token !== null) {
-      message.token = object.token;
+    if (object.baseUrl !== undefined && object.baseUrl !== null) {
+      message.baseUrl = object.baseUrl;
     } else {
-      message.token = undefined;
+      message.baseUrl = "";
     }
     return message;
   },
@@ -880,6 +900,315 @@ export const EndRecordingRequest = {
   },
 };
 
+const baseRecordingInfo: object = {
+  id: "",
+  roomName: "",
+  active: false,
+  error: "",
+};
+
+export const RecordingInfo = {
+  encode(
+    message: RecordingInfo,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.roomName !== "") {
+      writer.uint32(18).string(message.roomName);
+    }
+    if (message.active === true) {
+      writer.uint32(24).bool(message.active);
+    }
+    if (message.error !== "") {
+      writer.uint32(34).string(message.error);
+    }
+    if (message.file !== undefined) {
+      FileResult.encode(message.file, writer.uint32(42).fork()).ldelim();
+    }
+    for (const v of message.rtmp) {
+      RtmpResult.encode(v!, writer.uint32(50).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RecordingInfo {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRecordingInfo } as RecordingInfo;
+    message.rtmp = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
+        case 2:
+          message.roomName = reader.string();
+          break;
+        case 3:
+          message.active = reader.bool();
+          break;
+        case 4:
+          message.error = reader.string();
+          break;
+        case 5:
+          message.file = FileResult.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.rtmp.push(RtmpResult.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RecordingInfo {
+    const message = { ...baseRecordingInfo } as RecordingInfo;
+    message.rtmp = [];
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (object.roomName !== undefined && object.roomName !== null) {
+      message.roomName = String(object.roomName);
+    } else {
+      message.roomName = "";
+    }
+    if (object.active !== undefined && object.active !== null) {
+      message.active = Boolean(object.active);
+    } else {
+      message.active = false;
+    }
+    if (object.error !== undefined && object.error !== null) {
+      message.error = String(object.error);
+    } else {
+      message.error = "";
+    }
+    if (object.file !== undefined && object.file !== null) {
+      message.file = FileResult.fromJSON(object.file);
+    } else {
+      message.file = undefined;
+    }
+    if (object.rtmp !== undefined && object.rtmp !== null) {
+      for (const e of object.rtmp) {
+        message.rtmp.push(RtmpResult.fromJSON(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: RecordingInfo): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    message.roomName !== undefined && (obj.roomName = message.roomName);
+    message.active !== undefined && (obj.active = message.active);
+    message.error !== undefined && (obj.error = message.error);
+    message.file !== undefined &&
+      (obj.file = message.file ? FileResult.toJSON(message.file) : undefined);
+    if (message.rtmp) {
+      obj.rtmp = message.rtmp.map((e) =>
+        e ? RtmpResult.toJSON(e) : undefined
+      );
+    } else {
+      obj.rtmp = [];
+    }
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<RecordingInfo>): RecordingInfo {
+    const message = { ...baseRecordingInfo } as RecordingInfo;
+    message.rtmp = [];
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (object.roomName !== undefined && object.roomName !== null) {
+      message.roomName = object.roomName;
+    } else {
+      message.roomName = "";
+    }
+    if (object.active !== undefined && object.active !== null) {
+      message.active = object.active;
+    } else {
+      message.active = false;
+    }
+    if (object.error !== undefined && object.error !== null) {
+      message.error = object.error;
+    } else {
+      message.error = "";
+    }
+    if (object.file !== undefined && object.file !== null) {
+      message.file = FileResult.fromPartial(object.file);
+    } else {
+      message.file = undefined;
+    }
+    if (object.rtmp !== undefined && object.rtmp !== null) {
+      for (const e of object.rtmp) {
+        message.rtmp.push(RtmpResult.fromPartial(e));
+      }
+    }
+    return message;
+  },
+};
+
+const baseFileResult: object = { downloadUrl: "", duration: 0 };
+
+export const FileResult = {
+  encode(
+    message: FileResult,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.downloadUrl !== "") {
+      writer.uint32(10).string(message.downloadUrl);
+    }
+    if (message.duration !== 0) {
+      writer.uint32(16).int64(message.duration);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): FileResult {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseFileResult } as FileResult;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.downloadUrl = reader.string();
+          break;
+        case 2:
+          message.duration = longToNumber(reader.int64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): FileResult {
+    const message = { ...baseFileResult } as FileResult;
+    if (object.downloadUrl !== undefined && object.downloadUrl !== null) {
+      message.downloadUrl = String(object.downloadUrl);
+    } else {
+      message.downloadUrl = "";
+    }
+    if (object.duration !== undefined && object.duration !== null) {
+      message.duration = Number(object.duration);
+    } else {
+      message.duration = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: FileResult): unknown {
+    const obj: any = {};
+    message.downloadUrl !== undefined &&
+      (obj.downloadUrl = message.downloadUrl);
+    message.duration !== undefined && (obj.duration = message.duration);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<FileResult>): FileResult {
+    const message = { ...baseFileResult } as FileResult;
+    if (object.downloadUrl !== undefined && object.downloadUrl !== null) {
+      message.downloadUrl = object.downloadUrl;
+    } else {
+      message.downloadUrl = "";
+    }
+    if (object.duration !== undefined && object.duration !== null) {
+      message.duration = object.duration;
+    } else {
+      message.duration = 0;
+    }
+    return message;
+  },
+};
+
+const baseRtmpResult: object = { streamUrl: "", duration: 0 };
+
+export const RtmpResult = {
+  encode(
+    message: RtmpResult,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.streamUrl !== "") {
+      writer.uint32(10).string(message.streamUrl);
+    }
+    if (message.duration !== 0) {
+      writer.uint32(16).int64(message.duration);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RtmpResult {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRtmpResult } as RtmpResult;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.streamUrl = reader.string();
+          break;
+        case 2:
+          message.duration = longToNumber(reader.int64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RtmpResult {
+    const message = { ...baseRtmpResult } as RtmpResult;
+    if (object.streamUrl !== undefined && object.streamUrl !== null) {
+      message.streamUrl = String(object.streamUrl);
+    } else {
+      message.streamUrl = "";
+    }
+    if (object.duration !== undefined && object.duration !== null) {
+      message.duration = Number(object.duration);
+    } else {
+      message.duration = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: RtmpResult): unknown {
+    const obj: any = {};
+    message.streamUrl !== undefined && (obj.streamUrl = message.streamUrl);
+    message.duration !== undefined && (obj.duration = message.duration);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<RtmpResult>): RtmpResult {
+    const message = { ...baseRtmpResult } as RtmpResult;
+    if (object.streamUrl !== undefined && object.streamUrl !== null) {
+      message.streamUrl = object.streamUrl;
+    } else {
+      message.streamUrl = "";
+    }
+    if (object.duration !== undefined && object.duration !== null) {
+      message.duration = object.duration;
+    } else {
+      message.duration = 0;
+    }
+    return message;
+  },
+};
+
 /**
  * Recording service that can be performed on any node
  * they are Twirp-based HTTP req/responses
@@ -896,6 +1225,16 @@ export interface RecordingService {
   /** Ends a recording */
   EndRecording(request: EndRecordingRequest): Promise<Empty>;
 }
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin =
   | Date
@@ -914,6 +1253,13 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

@@ -47,6 +47,7 @@ export enum TrackSource {
   CAMERA = 1,
   MICROPHONE = 2,
   SCREEN_SHARE = 3,
+  SCREEN_SHARE_AUDIO = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -64,6 +65,9 @@ export function trackSourceFromJSON(object: any): TrackSource {
     case 3:
     case "SCREEN_SHARE":
       return TrackSource.SCREEN_SHARE;
+    case 4:
+    case "SCREEN_SHARE_AUDIO":
+      return TrackSource.SCREEN_SHARE_AUDIO;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -81,6 +85,46 @@ export function trackSourceToJSON(object: TrackSource): string {
       return "MICROPHONE";
     case TrackSource.SCREEN_SHARE:
       return "SCREEN_SHARE";
+    case TrackSource.SCREEN_SHARE_AUDIO:
+      return "SCREEN_SHARE_AUDIO";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export enum ConnectionQuality {
+  POOR = 0,
+  GOOD = 1,
+  EXCELLENT = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function connectionQualityFromJSON(object: any): ConnectionQuality {
+  switch (object) {
+    case 0:
+    case "POOR":
+      return ConnectionQuality.POOR;
+    case 1:
+    case "GOOD":
+      return ConnectionQuality.GOOD;
+    case 2:
+    case "EXCELLENT":
+      return ConnectionQuality.EXCELLENT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ConnectionQuality.UNRECOGNIZED;
+  }
+}
+
+export function connectionQualityToJSON(object: ConnectionQuality): string {
+  switch (object) {
+    case ConnectionQuality.POOR:
+      return "POOR";
+    case ConnectionQuality.GOOD:
+      return "GOOD";
+    case ConnectionQuality.EXCELLENT:
+      return "EXCELLENT";
     default:
       return "UNKNOWN";
   }
@@ -96,6 +140,7 @@ export interface Room {
   enabledCodecs: Codec[];
   metadata: string;
   numParticipants: number;
+  activeRecording: boolean;
 }
 
 export interface Codec {
@@ -111,8 +156,8 @@ export interface ParticipantInfo {
   metadata: string;
   /** timestamp when participant joined room, in seconds */
   joinedAt: number;
-  /** hidden participant (used for recording) */
   hidden: boolean;
+  recorder: boolean;
 }
 
 export enum ParticipantInfo_State {
@@ -256,6 +301,7 @@ const baseRoom: object = {
   turnPassword: "",
   metadata: "",
   numParticipants: 0,
+  activeRecording: false,
 };
 
 export const Room = {
@@ -286,6 +332,9 @@ export const Room = {
     }
     if (message.numParticipants !== 0) {
       writer.uint32(72).uint32(message.numParticipants);
+    }
+    if (message.activeRecording === true) {
+      writer.uint32(80).bool(message.activeRecording);
     }
     return writer;
   },
@@ -324,6 +373,9 @@ export const Room = {
           break;
         case 9:
           message.numParticipants = reader.uint32();
+          break;
+        case 10:
+          message.activeRecording = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -387,6 +439,14 @@ export const Room = {
     } else {
       message.numParticipants = 0;
     }
+    if (
+      object.activeRecording !== undefined &&
+      object.activeRecording !== null
+    ) {
+      message.activeRecording = Boolean(object.activeRecording);
+    } else {
+      message.activeRecording = false;
+    }
     return message;
   },
 
@@ -412,6 +472,8 @@ export const Room = {
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.numParticipants !== undefined &&
       (obj.numParticipants = message.numParticipants);
+    message.activeRecording !== undefined &&
+      (obj.activeRecording = message.activeRecording);
     return obj;
   },
 
@@ -468,6 +530,14 @@ export const Room = {
       message.numParticipants = object.numParticipants;
     } else {
       message.numParticipants = 0;
+    }
+    if (
+      object.activeRecording !== undefined &&
+      object.activeRecording !== null
+    ) {
+      message.activeRecording = object.activeRecording;
+    } else {
+      message.activeRecording = false;
     }
     return message;
   },
@@ -552,6 +622,7 @@ const baseParticipantInfo: object = {
   metadata: "",
   joinedAt: 0,
   hidden: false,
+  recorder: false,
 };
 
 export const ParticipantInfo = {
@@ -579,6 +650,9 @@ export const ParticipantInfo = {
     }
     if (message.hidden === true) {
       writer.uint32(56).bool(message.hidden);
+    }
+    if (message.recorder === true) {
+      writer.uint32(64).bool(message.recorder);
     }
     return writer;
   },
@@ -611,6 +685,9 @@ export const ParticipantInfo = {
           break;
         case 7:
           message.hidden = reader.bool();
+          break;
+        case 8:
+          message.recorder = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -658,6 +735,11 @@ export const ParticipantInfo = {
     } else {
       message.hidden = false;
     }
+    if (object.recorder !== undefined && object.recorder !== null) {
+      message.recorder = Boolean(object.recorder);
+    } else {
+      message.recorder = false;
+    }
     return message;
   },
 
@@ -677,6 +759,7 @@ export const ParticipantInfo = {
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.joinedAt !== undefined && (obj.joinedAt = message.joinedAt);
     message.hidden !== undefined && (obj.hidden = message.hidden);
+    message.recorder !== undefined && (obj.recorder = message.recorder);
     return obj;
   },
 
@@ -717,6 +800,11 @@ export const ParticipantInfo = {
       message.hidden = object.hidden;
     } else {
       message.hidden = false;
+    }
+    if (object.recorder !== undefined && object.recorder !== null) {
+      message.recorder = object.recorder;
+    } else {
+      message.recorder = false;
     }
     return message;
   },

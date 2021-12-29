@@ -6,6 +6,7 @@ import {
   DataPacket_Kind,
   Room,
   ParticipantInfo,
+  ParticipantTracks,
   dataPacket_KindFromJSON,
   dataPacket_KindToJSON,
 } from "./livekit_models";
@@ -21,9 +22,14 @@ export interface CreateRoomRequest {
   maxParticipants: number;
   /** override the node room is allocated to, for debugging */
   nodeId: string;
+  /** metadata of room */
+  metadata: string;
 }
 
-export interface ListRoomsRequest {}
+export interface ListRoomsRequest {
+  /** when set, will only return rooms with name match */
+  names: string[];
+}
 
 export interface ListRoomsResponse {
   rooms: Room[];
@@ -93,6 +99,8 @@ export interface UpdateSubscriptionsRequest {
   trackSids: string[];
   /** set to true to subscribe, false to unsubscribe from tracks */
   subscribe: boolean;
+  /** list of participants and their tracks */
+  participantTracks: ParticipantTracks[];
 }
 
 /** empty for now */
@@ -119,6 +127,7 @@ const baseCreateRoomRequest: object = {
   emptyTimeout: 0,
   maxParticipants: 0,
   nodeId: "",
+  metadata: "",
 };
 
 export const CreateRoomRequest = {
@@ -137,6 +146,9 @@ export const CreateRoomRequest = {
     }
     if (message.nodeId !== "") {
       writer.uint32(34).string(message.nodeId);
+    }
+    if (message.metadata !== "") {
+      writer.uint32(42).string(message.metadata);
     }
     return writer;
   },
@@ -159,6 +171,9 @@ export const CreateRoomRequest = {
           break;
         case 4:
           message.nodeId = reader.string();
+          break;
+        case 5:
+          message.metadata = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -193,6 +208,11 @@ export const CreateRoomRequest = {
     } else {
       message.nodeId = "";
     }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = String(object.metadata);
+    } else {
+      message.metadata = "";
+    }
     return message;
   },
 
@@ -204,6 +224,7 @@ export const CreateRoomRequest = {
     message.maxParticipants !== undefined &&
       (obj.maxParticipants = message.maxParticipants);
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
+    message.metadata !== undefined && (obj.metadata = message.metadata);
     return obj;
   },
 
@@ -232,17 +253,25 @@ export const CreateRoomRequest = {
     } else {
       message.nodeId = "";
     }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    } else {
+      message.metadata = "";
+    }
     return message;
   },
 };
 
-const baseListRoomsRequest: object = {};
+const baseListRoomsRequest: object = { names: "" };
 
 export const ListRoomsRequest = {
   encode(
-    _: ListRoomsRequest,
+    message: ListRoomsRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
+    for (const v of message.names) {
+      writer.uint32(10).string(v!);
+    }
     return writer;
   },
 
@@ -250,9 +279,13 @@ export const ListRoomsRequest = {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
+    message.names = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.names.push(reader.string());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -261,18 +294,35 @@ export const ListRoomsRequest = {
     return message;
   },
 
-  fromJSON(_: any): ListRoomsRequest {
+  fromJSON(object: any): ListRoomsRequest {
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
+    message.names = [];
+    if (object.names !== undefined && object.names !== null) {
+      for (const e of object.names) {
+        message.names.push(String(e));
+      }
+    }
     return message;
   },
 
-  toJSON(_: ListRoomsRequest): unknown {
+  toJSON(message: ListRoomsRequest): unknown {
     const obj: any = {};
+    if (message.names) {
+      obj.names = message.names.map((e) => e);
+    } else {
+      obj.names = [];
+    }
     return obj;
   },
 
-  fromPartial(_: DeepPartial<ListRoomsRequest>): ListRoomsRequest {
+  fromPartial(object: DeepPartial<ListRoomsRequest>): ListRoomsRequest {
     const message = { ...baseListRoomsRequest } as ListRoomsRequest;
+    message.names = [];
+    if (object.names !== undefined && object.names !== null) {
+      for (const e of object.names) {
+        message.names.push(e);
+      }
+    }
     return message;
   },
 };
@@ -1169,6 +1219,9 @@ export const UpdateSubscriptionsRequest = {
     if (message.subscribe === true) {
       writer.uint32(32).bool(message.subscribe);
     }
+    for (const v of message.participantTracks) {
+      ParticipantTracks.encode(v!, writer.uint32(42).fork()).ldelim();
+    }
     return writer;
   },
 
@@ -1182,6 +1235,7 @@ export const UpdateSubscriptionsRequest = {
       ...baseUpdateSubscriptionsRequest,
     } as UpdateSubscriptionsRequest;
     message.trackSids = [];
+    message.participantTracks = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1197,6 +1251,11 @@ export const UpdateSubscriptionsRequest = {
         case 4:
           message.subscribe = reader.bool();
           break;
+        case 5:
+          message.participantTracks.push(
+            ParticipantTracks.decode(reader, reader.uint32())
+          );
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1210,6 +1269,7 @@ export const UpdateSubscriptionsRequest = {
       ...baseUpdateSubscriptionsRequest,
     } as UpdateSubscriptionsRequest;
     message.trackSids = [];
+    message.participantTracks = [];
     if (object.room !== undefined && object.room !== null) {
       message.room = String(object.room);
     } else {
@@ -1230,6 +1290,14 @@ export const UpdateSubscriptionsRequest = {
     } else {
       message.subscribe = false;
     }
+    if (
+      object.participantTracks !== undefined &&
+      object.participantTracks !== null
+    ) {
+      for (const e of object.participantTracks) {
+        message.participantTracks.push(ParticipantTracks.fromJSON(e));
+      }
+    }
     return message;
   },
 
@@ -1243,6 +1311,13 @@ export const UpdateSubscriptionsRequest = {
       obj.trackSids = [];
     }
     message.subscribe !== undefined && (obj.subscribe = message.subscribe);
+    if (message.participantTracks) {
+      obj.participantTracks = message.participantTracks.map((e) =>
+        e ? ParticipantTracks.toJSON(e) : undefined
+      );
+    } else {
+      obj.participantTracks = [];
+    }
     return obj;
   },
 
@@ -1253,6 +1328,7 @@ export const UpdateSubscriptionsRequest = {
       ...baseUpdateSubscriptionsRequest,
     } as UpdateSubscriptionsRequest;
     message.trackSids = [];
+    message.participantTracks = [];
     if (object.room !== undefined && object.room !== null) {
       message.room = object.room;
     } else {
@@ -1272,6 +1348,14 @@ export const UpdateSubscriptionsRequest = {
       message.subscribe = object.subscribe;
     } else {
       message.subscribe = false;
+    }
+    if (
+      object.participantTracks !== undefined &&
+      object.participantTracks !== null
+    ) {
+      for (const e of object.participantTracks) {
+        message.participantTracks.push(ParticipantTracks.fromPartial(e));
+      }
     }
     return message;
   },
@@ -1629,6 +1713,7 @@ export interface RoomService {
 
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== "undefined") return globalThis;
   if (typeof self !== "undefined") return self;
@@ -1654,8 +1739,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(""));
 }

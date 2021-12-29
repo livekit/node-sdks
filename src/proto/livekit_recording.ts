@@ -95,6 +95,8 @@ export interface RecordingOptions {
   audioFrequency: number;
   /** default 4500 */
   videoBitrate: number;
+  /** baseline, main, or high. default main */
+  profile: string;
 }
 
 export interface StartRecordingResponse {
@@ -444,6 +446,7 @@ const baseRecordingOptions: object = {
   audioBitrate: 0,
   audioFrequency: 0,
   videoBitrate: 0,
+  profile: "",
 };
 
 export const RecordingOptions = {
@@ -474,6 +477,9 @@ export const RecordingOptions = {
     }
     if (message.videoBitrate !== 0) {
       writer.uint32(64).int32(message.videoBitrate);
+    }
+    if (message.profile !== "") {
+      writer.uint32(74).string(message.profile);
     }
     return writer;
   },
@@ -508,6 +514,9 @@ export const RecordingOptions = {
           break;
         case 8:
           message.videoBitrate = reader.int32();
+          break;
+        case 9:
+          message.profile = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -559,6 +568,11 @@ export const RecordingOptions = {
     } else {
       message.videoBitrate = 0;
     }
+    if (object.profile !== undefined && object.profile !== null) {
+      message.profile = String(object.profile);
+    } else {
+      message.profile = "";
+    }
     return message;
   },
 
@@ -576,6 +590,7 @@ export const RecordingOptions = {
       (obj.audioFrequency = message.audioFrequency);
     message.videoBitrate !== undefined &&
       (obj.videoBitrate = message.videoBitrate);
+    message.profile !== undefined && (obj.profile = message.profile);
     return obj;
   },
 
@@ -620,6 +635,11 @@ export const RecordingOptions = {
       message.videoBitrate = object.videoBitrate;
     } else {
       message.videoBitrate = 0;
+    }
+    if (object.profile !== undefined && object.profile !== null) {
+      message.profile = object.profile;
+    } else {
+      message.profile = "";
     }
     return message;
   },
@@ -1228,6 +1248,7 @@ export interface RecordingService {
 
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== "undefined") return globalThis;
   if (typeof self !== "undefined") return self;

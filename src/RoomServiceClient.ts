@@ -15,9 +15,7 @@ import {
   ParticipantPermission,
   RoomParticipantIdentity,
   SendDataRequest,
-  UpdateParticipantRequest,
-  UpdateSubscriptionsRequest,
-  UpdateRoomMetadataRequest,
+  UpdateParticipantRequest, UpdateRoomMetadataRequest, UpdateSubscriptionsRequest,
 } from './proto/livekit_room';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -86,11 +84,17 @@ export class RoomServiceClient {
     return Room.fromJSON(data);
   }
 
-  async listRooms(): Promise<Room[]> {
+  /**
+   * List active rooms
+   * @param names when undefined or empty, list all rooms.
+   *              otherwise returns rooms with matching names
+   * @returns
+   */
+  async listRooms(names?: string[]): Promise<Room[]> {
     const data = await this.rpc.request(
       svc,
       'ListRooms',
-      ListRoomsRequest.toJSON({}),
+      ListRoomsRequest.toJSON({ names: names ?? [] }),
       this.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
@@ -247,6 +251,7 @@ export class RoomServiceClient {
       identity,
       trackSids,
       subscribe,
+      participantTracks: [],
     });
     await this.rpc.request(
       svc,

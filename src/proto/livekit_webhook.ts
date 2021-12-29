@@ -14,9 +14,13 @@ export interface WebhookEvent {
   participant?: ParticipantInfo;
   /** set when event is recording_* */
   recordingInfo?: RecordingInfo;
+  /** unique event uuid */
+  id: string;
+  /** timestamp in seconds */
+  createdAt: number;
 }
 
-const baseWebhookEvent: object = { event: "" };
+const baseWebhookEvent: object = { event: "", id: "", createdAt: 0 };
 
 export const WebhookEvent = {
   encode(
@@ -41,6 +45,12 @@ export const WebhookEvent = {
         writer.uint32(42).fork()
       ).ldelim();
     }
+    if (message.id !== "") {
+      writer.uint32(50).string(message.id);
+    }
+    if (message.createdAt !== 0) {
+      writer.uint32(56).int64(message.createdAt);
+    }
     return writer;
   },
 
@@ -62,6 +72,12 @@ export const WebhookEvent = {
           break;
         case 5:
           message.recordingInfo = RecordingInfo.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.id = reader.string();
+          break;
+        case 7:
+          message.createdAt = longToNumber(reader.int64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -93,6 +109,16 @@ export const WebhookEvent = {
     } else {
       message.recordingInfo = undefined;
     }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (object.createdAt !== undefined && object.createdAt !== null) {
+      message.createdAt = Number(object.createdAt);
+    } else {
+      message.createdAt = 0;
+    }
     return message;
   },
 
@@ -109,6 +135,8 @@ export const WebhookEvent = {
       (obj.recordingInfo = message.recordingInfo
         ? RecordingInfo.toJSON(message.recordingInfo)
         : undefined);
+    message.id !== undefined && (obj.id = message.id);
+    message.createdAt !== undefined && (obj.createdAt = message.createdAt);
     return obj;
   },
 
@@ -134,9 +162,30 @@ export const WebhookEvent = {
     } else {
       message.recordingInfo = undefined;
     }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (object.createdAt !== undefined && object.createdAt !== null) {
+      message.createdAt = object.createdAt;
+    } else {
+      message.createdAt = 0;
+    }
     return message;
   },
 };
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+declare var global: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin =
   | Date
@@ -155,6 +204,13 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

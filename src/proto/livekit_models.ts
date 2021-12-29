@@ -92,6 +92,44 @@ export function trackSourceToJSON(object: TrackSource): string {
   }
 }
 
+export enum VideoQuality {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function videoQualityFromJSON(object: any): VideoQuality {
+  switch (object) {
+    case 0:
+    case "LOW":
+      return VideoQuality.LOW;
+    case 1:
+    case "MEDIUM":
+      return VideoQuality.MEDIUM;
+    case 2:
+    case "HIGH":
+      return VideoQuality.HIGH;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return VideoQuality.UNRECOGNIZED;
+  }
+}
+
+export function videoQualityToJSON(object: VideoQuality): string {
+  switch (object) {
+    case VideoQuality.LOW:
+      return "LOW";
+    case VideoQuality.MEDIUM:
+      return "MEDIUM";
+    case VideoQuality.HIGH:
+      return "HIGH";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 export enum ConnectionQuality {
   POOR = 0,
   GOOD = 1,
@@ -158,6 +196,7 @@ export interface ParticipantInfo {
   joinedAt: number;
   hidden: boolean;
   recorder: boolean;
+  name: string;
 }
 
 export enum ParticipantInfo_State {
@@ -230,6 +269,19 @@ export interface TrackInfo {
   disableDtx: boolean;
   /** source of media */
   source: TrackSource;
+  layers: VideoLayer[];
+  /** mime type of codec */
+  mimeType: string;
+}
+
+/** provide information about available spatial layers */
+export interface VideoLayer {
+  /** for tracks with a single layer, this should be HIGH */
+  quality: VideoQuality;
+  width: number;
+  height: number;
+  /** target bitrate, server will measure actual */
+  bitrate: number;
 }
 
 /** new DataPacket API */
@@ -290,6 +342,12 @@ export interface UserPacket {
   payload: Uint8Array;
   /** the ID of the participants who will receive the message (the message will be sent to all the people in the room if this variable is empty) */
   destinationSids: string[];
+}
+
+export interface ParticipantTracks {
+  /** participant ID of participant to whom the tracks belong */
+  participantSid: string;
+  trackSids: string[];
 }
 
 const baseRoom: object = {
@@ -623,6 +681,7 @@ const baseParticipantInfo: object = {
   joinedAt: 0,
   hidden: false,
   recorder: false,
+  name: "",
 };
 
 export const ParticipantInfo = {
@@ -653,6 +712,9 @@ export const ParticipantInfo = {
     }
     if (message.recorder === true) {
       writer.uint32(64).bool(message.recorder);
+    }
+    if (message.name !== "") {
+      writer.uint32(74).string(message.name);
     }
     return writer;
   },
@@ -688,6 +750,9 @@ export const ParticipantInfo = {
           break;
         case 8:
           message.recorder = reader.bool();
+          break;
+        case 9:
+          message.name = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -740,6 +805,11 @@ export const ParticipantInfo = {
     } else {
       message.recorder = false;
     }
+    if (object.name !== undefined && object.name !== null) {
+      message.name = String(object.name);
+    } else {
+      message.name = "";
+    }
     return message;
   },
 
@@ -760,6 +830,7 @@ export const ParticipantInfo = {
     message.joinedAt !== undefined && (obj.joinedAt = message.joinedAt);
     message.hidden !== undefined && (obj.hidden = message.hidden);
     message.recorder !== undefined && (obj.recorder = message.recorder);
+    message.name !== undefined && (obj.name = message.name);
     return obj;
   },
 
@@ -806,6 +877,11 @@ export const ParticipantInfo = {
     } else {
       message.recorder = false;
     }
+    if (object.name !== undefined && object.name !== null) {
+      message.name = object.name;
+    } else {
+      message.name = "";
+    }
     return message;
   },
 };
@@ -820,6 +896,7 @@ const baseTrackInfo: object = {
   simulcast: false,
   disableDtx: false,
   source: 0,
+  mimeType: "",
 };
 
 export const TrackInfo = {
@@ -854,6 +931,12 @@ export const TrackInfo = {
     if (message.source !== 0) {
       writer.uint32(72).int32(message.source);
     }
+    for (const v of message.layers) {
+      VideoLayer.encode(v!, writer.uint32(82).fork()).ldelim();
+    }
+    if (message.mimeType !== "") {
+      writer.uint32(90).string(message.mimeType);
+    }
     return writer;
   },
 
@@ -861,6 +944,7 @@ export const TrackInfo = {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTrackInfo } as TrackInfo;
+    message.layers = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -891,6 +975,12 @@ export const TrackInfo = {
         case 9:
           message.source = reader.int32() as any;
           break;
+        case 10:
+          message.layers.push(VideoLayer.decode(reader, reader.uint32()));
+          break;
+        case 11:
+          message.mimeType = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -901,6 +991,7 @@ export const TrackInfo = {
 
   fromJSON(object: any): TrackInfo {
     const message = { ...baseTrackInfo } as TrackInfo;
+    message.layers = [];
     if (object.sid !== undefined && object.sid !== null) {
       message.sid = String(object.sid);
     } else {
@@ -946,6 +1037,16 @@ export const TrackInfo = {
     } else {
       message.source = 0;
     }
+    if (object.layers !== undefined && object.layers !== null) {
+      for (const e of object.layers) {
+        message.layers.push(VideoLayer.fromJSON(e));
+      }
+    }
+    if (object.mimeType !== undefined && object.mimeType !== null) {
+      message.mimeType = String(object.mimeType);
+    } else {
+      message.mimeType = "";
+    }
     return message;
   },
 
@@ -961,11 +1062,20 @@ export const TrackInfo = {
     message.disableDtx !== undefined && (obj.disableDtx = message.disableDtx);
     message.source !== undefined &&
       (obj.source = trackSourceToJSON(message.source));
+    if (message.layers) {
+      obj.layers = message.layers.map((e) =>
+        e ? VideoLayer.toJSON(e) : undefined
+      );
+    } else {
+      obj.layers = [];
+    }
+    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
     return obj;
   },
 
   fromPartial(object: DeepPartial<TrackInfo>): TrackInfo {
     const message = { ...baseTrackInfo } as TrackInfo;
+    message.layers = [];
     if (object.sid !== undefined && object.sid !== null) {
       message.sid = object.sid;
     } else {
@@ -1010,6 +1120,126 @@ export const TrackInfo = {
       message.source = object.source;
     } else {
       message.source = 0;
+    }
+    if (object.layers !== undefined && object.layers !== null) {
+      for (const e of object.layers) {
+        message.layers.push(VideoLayer.fromPartial(e));
+      }
+    }
+    if (object.mimeType !== undefined && object.mimeType !== null) {
+      message.mimeType = object.mimeType;
+    } else {
+      message.mimeType = "";
+    }
+    return message;
+  },
+};
+
+const baseVideoLayer: object = { quality: 0, width: 0, height: 0, bitrate: 0 };
+
+export const VideoLayer = {
+  encode(
+    message: VideoLayer,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.quality !== 0) {
+      writer.uint32(8).int32(message.quality);
+    }
+    if (message.width !== 0) {
+      writer.uint32(16).uint32(message.width);
+    }
+    if (message.height !== 0) {
+      writer.uint32(24).uint32(message.height);
+    }
+    if (message.bitrate !== 0) {
+      writer.uint32(32).uint32(message.bitrate);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): VideoLayer {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseVideoLayer } as VideoLayer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.quality = reader.int32() as any;
+          break;
+        case 2:
+          message.width = reader.uint32();
+          break;
+        case 3:
+          message.height = reader.uint32();
+          break;
+        case 4:
+          message.bitrate = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): VideoLayer {
+    const message = { ...baseVideoLayer } as VideoLayer;
+    if (object.quality !== undefined && object.quality !== null) {
+      message.quality = videoQualityFromJSON(object.quality);
+    } else {
+      message.quality = 0;
+    }
+    if (object.width !== undefined && object.width !== null) {
+      message.width = Number(object.width);
+    } else {
+      message.width = 0;
+    }
+    if (object.height !== undefined && object.height !== null) {
+      message.height = Number(object.height);
+    } else {
+      message.height = 0;
+    }
+    if (object.bitrate !== undefined && object.bitrate !== null) {
+      message.bitrate = Number(object.bitrate);
+    } else {
+      message.bitrate = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: VideoLayer): unknown {
+    const obj: any = {};
+    message.quality !== undefined &&
+      (obj.quality = videoQualityToJSON(message.quality));
+    message.width !== undefined && (obj.width = message.width);
+    message.height !== undefined && (obj.height = message.height);
+    message.bitrate !== undefined && (obj.bitrate = message.bitrate);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<VideoLayer>): VideoLayer {
+    const message = { ...baseVideoLayer } as VideoLayer;
+    if (object.quality !== undefined && object.quality !== null) {
+      message.quality = object.quality;
+    } else {
+      message.quality = 0;
+    }
+    if (object.width !== undefined && object.width !== null) {
+      message.width = object.width;
+    } else {
+      message.width = 0;
+    }
+    if (object.height !== undefined && object.height !== null) {
+      message.height = object.height;
+    } else {
+      message.height = 0;
+    }
+    if (object.bitrate !== undefined && object.bitrate !== null) {
+      message.bitrate = object.bitrate;
+    } else {
+      message.bitrate = 0;
     }
     return message;
   },
@@ -1383,8 +1613,92 @@ export const UserPacket = {
   },
 };
 
+const baseParticipantTracks: object = { participantSid: "", trackSids: "" };
+
+export const ParticipantTracks = {
+  encode(
+    message: ParticipantTracks,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.participantSid !== "") {
+      writer.uint32(10).string(message.participantSid);
+    }
+    for (const v of message.trackSids) {
+      writer.uint32(18).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantTracks {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseParticipantTracks } as ParticipantTracks;
+    message.trackSids = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.participantSid = reader.string();
+          break;
+        case 2:
+          message.trackSids.push(reader.string());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ParticipantTracks {
+    const message = { ...baseParticipantTracks } as ParticipantTracks;
+    message.trackSids = [];
+    if (object.participantSid !== undefined && object.participantSid !== null) {
+      message.participantSid = String(object.participantSid);
+    } else {
+      message.participantSid = "";
+    }
+    if (object.trackSids !== undefined && object.trackSids !== null) {
+      for (const e of object.trackSids) {
+        message.trackSids.push(String(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: ParticipantTracks): unknown {
+    const obj: any = {};
+    message.participantSid !== undefined &&
+      (obj.participantSid = message.participantSid);
+    if (message.trackSids) {
+      obj.trackSids = message.trackSids.map((e) => e);
+    } else {
+      obj.trackSids = [];
+    }
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ParticipantTracks>): ParticipantTracks {
+    const message = { ...baseParticipantTracks } as ParticipantTracks;
+    message.trackSids = [];
+    if (object.participantSid !== undefined && object.participantSid !== null) {
+      message.participantSid = object.participantSid;
+    } else {
+      message.participantSid = "";
+    }
+    if (object.trackSids !== undefined && object.trackSids !== null) {
+      for (const e of object.trackSids) {
+        message.trackSids.push(e);
+      }
+    }
+    return message;
+  },
+};
+
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== "undefined") return globalThis;
   if (typeof self !== "undefined") return self;
@@ -1410,8 +1724,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(""));
 }

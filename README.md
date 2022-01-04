@@ -120,7 +120,7 @@ import { WebhookReceiver } from 'livekit-server-sdk';
 const receiver = new WebhookReceiver('apikey', 'apisecret');
 
 // when using express.raw middleware, it's important to parse the 'application/json' content type:
-// app.use( express.raw({ type: 'application/json' }) );
+// router.use('/webhook/path', express.raw());
 
 app.post('/webhook-endpoint', (req, res) => {
   // event is a WebhookEvent object

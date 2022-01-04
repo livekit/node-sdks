@@ -119,7 +119,8 @@ import { WebhookReceiver } from 'livekit-server-sdk';
 
 const receiver = new WebhookReceiver('apikey', 'apisecret');
 
-// when using express.raw middleware, it's important to parse the 'application/json' content type:
+// In order to use the validator, WebhookReceiver must have access to the raw POSTed string (instead of a parsed JSON object)
+// if you are using express middleware, ensure that `express.raw` is used for the webhook endpoint
 // router.use('/webhook/path', express.raw());
 
 app.post('/webhook-endpoint', (req, res) => {

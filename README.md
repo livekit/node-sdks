@@ -118,7 +118,11 @@ The JS SDK also provides helper functions to decode and verify webhook callbacks
 import { WebhookReceiver } from 'livekit-server-sdk';
 
 const receiver = new WebhookReceiver('apikey', 'apisecret');
-// assuming using express.raw
+
+// In order to use the validator, WebhookReceiver must have access to the raw POSTed string (instead of a parsed JSON object)
+// if you are using express middleware, ensure that `express.raw` is used for the webhook endpoint
+// router.use('/webhook/path', express.raw());
+
 app.post('/webhook-endpoint', (req, res) => {
   // event is a WebhookEvent object
   const event = receiver.receive(req.body, req.get('Authorization'))

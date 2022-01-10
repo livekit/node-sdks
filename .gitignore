@@ -106,3 +106,5 @@ docs/
 
 # Idea
 .idea/
+pkg/
+bin/

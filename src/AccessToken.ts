@@ -13,6 +13,11 @@ export interface AccessTokenOptions {
   ttl?: number | string;
 
   /**
+   * display name for the participant, available as `Participant.name`
+   */
+  name?: string;
+
+  /**
    * identity of the user, required for room join tokens
    */
   identity?: string;
@@ -62,6 +67,9 @@ export class AccessToken {
     if (options?.metadata) {
       this.metadata = options.metadata;
     }
+    if (options?.name) {
+      this.name = options.name;
+    }
   }
 
   /**
@@ -77,6 +85,10 @@ export class AccessToken {
    */
   set metadata(md: string) {
     this.grants.metadata = md;
+  }
+
+  set name(name: string) {
+    this.grants.name = name;
   }
 
   get sha256(): string | undefined {

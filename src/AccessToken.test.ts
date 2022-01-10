@@ -7,6 +7,7 @@ const testSecret = 'abababa';
 describe('encoded tokens are valid', () => {
   const t = new AccessToken(testApiKey, testSecret, {
     identity: 'me',
+    name: 'myname',
   });
   t.addGrant({ room: 'myroom' });
   const token = t.toJwt();
@@ -14,6 +15,10 @@ describe('encoded tokens are valid', () => {
   const decoded = <any>jwt.verify(token, testSecret, { jwtid: 'me' });
   it('can be decoded', () => {
     expect(decoded).not.toBe(undefined);
+  });
+
+  it('has name set', () => {
+    expect(decoded.name).toBe('myname');
   });
 
   it('has video grants set', () => {

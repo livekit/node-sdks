@@ -31,12 +31,15 @@ export interface VideoGrant {
    */
   canPublishData?: boolean;
 
-  /** hidden participant (used for recording) */
+  /** participant isn't visible to others */
   hidden?: boolean;
+  /** participant is recording the room, when set, allows room to indicate it's being recorded */
+  recorder?: boolean;
 }
 
 /** @internal */
 export interface ClaimGrants {
+  name?: string;
   video?: VideoGrant;
   metadata?: string;
   sha256?: string;

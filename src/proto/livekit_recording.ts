@@ -136,7 +136,15 @@ export interface RtmpResult {
   duration: number;
 }
 
-const baseStartRecordingRequest: object = {};
+function createBaseStartRecordingRequest(): StartRecordingRequest {
+  return {
+    url: undefined,
+    template: undefined,
+    rtmp: undefined,
+    filepath: undefined,
+    options: undefined,
+  };
+}
 
 export const StartRecordingRequest = {
   encode(
@@ -173,7 +181,7 @@ export const StartRecordingRequest = {
   ): StartRecordingRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseStartRecordingRequest } as StartRecordingRequest;
+    const message = createBaseStartRecordingRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -201,32 +209,27 @@ export const StartRecordingRequest = {
   },
 
   fromJSON(object: any): StartRecordingRequest {
-    const message = { ...baseStartRecordingRequest } as StartRecordingRequest;
-    if (object.url !== undefined && object.url !== null) {
-      message.url = String(object.url);
-    } else {
-      message.url = undefined;
-    }
-    if (object.template !== undefined && object.template !== null) {
-      message.template = RecordingTemplate.fromJSON(object.template);
-    } else {
-      message.template = undefined;
-    }
-    if (object.rtmp !== undefined && object.rtmp !== null) {
-      message.rtmp = RtmpOutput.fromJSON(object.rtmp);
-    } else {
-      message.rtmp = undefined;
-    }
-    if (object.filepath !== undefined && object.filepath !== null) {
-      message.filepath = String(object.filepath);
-    } else {
-      message.filepath = undefined;
-    }
-    if (object.options !== undefined && object.options !== null) {
-      message.options = RecordingOptions.fromJSON(object.options);
-    } else {
-      message.options = undefined;
-    }
+    const message = createBaseStartRecordingRequest();
+    message.url =
+      object.url !== undefined && object.url !== null
+        ? String(object.url)
+        : undefined;
+    message.template =
+      object.template !== undefined && object.template !== null
+        ? RecordingTemplate.fromJSON(object.template)
+        : undefined;
+    message.rtmp =
+      object.rtmp !== undefined && object.rtmp !== null
+        ? RtmpOutput.fromJSON(object.rtmp)
+        : undefined;
+    message.filepath =
+      object.filepath !== undefined && object.filepath !== null
+        ? String(object.filepath)
+        : undefined;
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? RecordingOptions.fromJSON(object.options)
+        : undefined;
     return message;
   },
 
@@ -247,40 +250,31 @@ export const StartRecordingRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<StartRecordingRequest>
+  fromPartial<I extends Exact<DeepPartial<StartRecordingRequest>, I>>(
+    object: I
   ): StartRecordingRequest {
-    const message = { ...baseStartRecordingRequest } as StartRecordingRequest;
-    if (object.url !== undefined && object.url !== null) {
-      message.url = object.url;
-    } else {
-      message.url = undefined;
-    }
-    if (object.template !== undefined && object.template !== null) {
-      message.template = RecordingTemplate.fromPartial(object.template);
-    } else {
-      message.template = undefined;
-    }
-    if (object.rtmp !== undefined && object.rtmp !== null) {
-      message.rtmp = RtmpOutput.fromPartial(object.rtmp);
-    } else {
-      message.rtmp = undefined;
-    }
-    if (object.filepath !== undefined && object.filepath !== null) {
-      message.filepath = object.filepath;
-    } else {
-      message.filepath = undefined;
-    }
-    if (object.options !== undefined && object.options !== null) {
-      message.options = RecordingOptions.fromPartial(object.options);
-    } else {
-      message.options = undefined;
-    }
+    const message = createBaseStartRecordingRequest();
+    message.url = object.url ?? undefined;
+    message.template =
+      object.template !== undefined && object.template !== null
+        ? RecordingTemplate.fromPartial(object.template)
+        : undefined;
+    message.rtmp =
+      object.rtmp !== undefined && object.rtmp !== null
+        ? RtmpOutput.fromPartial(object.rtmp)
+        : undefined;
+    message.filepath = object.filepath ?? undefined;
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? RecordingOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
 
-const baseRecordingTemplate: object = { layout: "", roomName: "", baseUrl: "" };
+function createBaseRecordingTemplate(): RecordingTemplate {
+  return { layout: "", roomName: "", baseUrl: "" };
+}
 
 export const RecordingTemplate = {
   encode(
@@ -302,7 +296,7 @@ export const RecordingTemplate = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecordingTemplate {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordingTemplate } as RecordingTemplate;
+    const message = createBaseRecordingTemplate();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -324,22 +318,19 @@ export const RecordingTemplate = {
   },
 
   fromJSON(object: any): RecordingTemplate {
-    const message = { ...baseRecordingTemplate } as RecordingTemplate;
-    if (object.layout !== undefined && object.layout !== null) {
-      message.layout = String(object.layout);
-    } else {
-      message.layout = "";
-    }
-    if (object.roomName !== undefined && object.roomName !== null) {
-      message.roomName = String(object.roomName);
-    } else {
-      message.roomName = "";
-    }
-    if (object.baseUrl !== undefined && object.baseUrl !== null) {
-      message.baseUrl = String(object.baseUrl);
-    } else {
-      message.baseUrl = "";
-    }
+    const message = createBaseRecordingTemplate();
+    message.layout =
+      object.layout !== undefined && object.layout !== null
+        ? String(object.layout)
+        : "";
+    message.roomName =
+      object.roomName !== undefined && object.roomName !== null
+        ? String(object.roomName)
+        : "";
+    message.baseUrl =
+      object.baseUrl !== undefined && object.baseUrl !== null
+        ? String(object.baseUrl)
+        : "";
     return message;
   },
 
@@ -351,28 +342,20 @@ export const RecordingTemplate = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecordingTemplate>): RecordingTemplate {
-    const message = { ...baseRecordingTemplate } as RecordingTemplate;
-    if (object.layout !== undefined && object.layout !== null) {
-      message.layout = object.layout;
-    } else {
-      message.layout = "";
-    }
-    if (object.roomName !== undefined && object.roomName !== null) {
-      message.roomName = object.roomName;
-    } else {
-      message.roomName = "";
-    }
-    if (object.baseUrl !== undefined && object.baseUrl !== null) {
-      message.baseUrl = object.baseUrl;
-    } else {
-      message.baseUrl = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<RecordingTemplate>, I>>(
+    object: I
+  ): RecordingTemplate {
+    const message = createBaseRecordingTemplate();
+    message.layout = object.layout ?? "";
+    message.roomName = object.roomName ?? "";
+    message.baseUrl = object.baseUrl ?? "";
     return message;
   },
 };
 
-const baseRtmpOutput: object = { urls: "" };
+function createBaseRtmpOutput(): RtmpOutput {
+  return { urls: [] };
+}
 
 export const RtmpOutput = {
   encode(
@@ -388,8 +371,7 @@ export const RtmpOutput = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RtmpOutput {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRtmpOutput } as RtmpOutput;
-    message.urls = [];
+    const message = createBaseRtmpOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -405,13 +387,8 @@ export const RtmpOutput = {
   },
 
   fromJSON(object: any): RtmpOutput {
-    const message = { ...baseRtmpOutput } as RtmpOutput;
-    message.urls = [];
-    if (object.urls !== undefined && object.urls !== null) {
-      for (const e of object.urls) {
-        message.urls.push(String(e));
-      }
-    }
+    const message = createBaseRtmpOutput();
+    message.urls = (object.urls ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -425,29 +402,28 @@ export const RtmpOutput = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RtmpOutput>): RtmpOutput {
-    const message = { ...baseRtmpOutput } as RtmpOutput;
-    message.urls = [];
-    if (object.urls !== undefined && object.urls !== null) {
-      for (const e of object.urls) {
-        message.urls.push(e);
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<RtmpOutput>, I>>(
+    object: I
+  ): RtmpOutput {
+    const message = createBaseRtmpOutput();
+    message.urls = object.urls?.map((e) => e) || [];
     return message;
   },
 };
 
-const baseRecordingOptions: object = {
-  preset: 0,
-  width: 0,
-  height: 0,
-  depth: 0,
-  framerate: 0,
-  audioBitrate: 0,
-  audioFrequency: 0,
-  videoBitrate: 0,
-  profile: "",
-};
+function createBaseRecordingOptions(): RecordingOptions {
+  return {
+    preset: 0,
+    width: 0,
+    height: 0,
+    depth: 0,
+    framerate: 0,
+    audioBitrate: 0,
+    audioFrequency: 0,
+    videoBitrate: 0,
+    profile: "",
+  };
+}
 
 export const RecordingOptions = {
   encode(
@@ -487,7 +463,7 @@ export const RecordingOptions = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecordingOptions {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordingOptions } as RecordingOptions;
+    const message = createBaseRecordingOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -527,52 +503,43 @@ export const RecordingOptions = {
   },
 
   fromJSON(object: any): RecordingOptions {
-    const message = { ...baseRecordingOptions } as RecordingOptions;
-    if (object.preset !== undefined && object.preset !== null) {
-      message.preset = recordingPresetFromJSON(object.preset);
-    } else {
-      message.preset = 0;
-    }
-    if (object.width !== undefined && object.width !== null) {
-      message.width = Number(object.width);
-    } else {
-      message.width = 0;
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Number(object.height);
-    } else {
-      message.height = 0;
-    }
-    if (object.depth !== undefined && object.depth !== null) {
-      message.depth = Number(object.depth);
-    } else {
-      message.depth = 0;
-    }
-    if (object.framerate !== undefined && object.framerate !== null) {
-      message.framerate = Number(object.framerate);
-    } else {
-      message.framerate = 0;
-    }
-    if (object.audioBitrate !== undefined && object.audioBitrate !== null) {
-      message.audioBitrate = Number(object.audioBitrate);
-    } else {
-      message.audioBitrate = 0;
-    }
-    if (object.audioFrequency !== undefined && object.audioFrequency !== null) {
-      message.audioFrequency = Number(object.audioFrequency);
-    } else {
-      message.audioFrequency = 0;
-    }
-    if (object.videoBitrate !== undefined && object.videoBitrate !== null) {
-      message.videoBitrate = Number(object.videoBitrate);
-    } else {
-      message.videoBitrate = 0;
-    }
-    if (object.profile !== undefined && object.profile !== null) {
-      message.profile = String(object.profile);
-    } else {
-      message.profile = "";
-    }
+    const message = createBaseRecordingOptions();
+    message.preset =
+      object.preset !== undefined && object.preset !== null
+        ? recordingPresetFromJSON(object.preset)
+        : 0;
+    message.width =
+      object.width !== undefined && object.width !== null
+        ? Number(object.width)
+        : 0;
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Number(object.height)
+        : 0;
+    message.depth =
+      object.depth !== undefined && object.depth !== null
+        ? Number(object.depth)
+        : 0;
+    message.framerate =
+      object.framerate !== undefined && object.framerate !== null
+        ? Number(object.framerate)
+        : 0;
+    message.audioBitrate =
+      object.audioBitrate !== undefined && object.audioBitrate !== null
+        ? Number(object.audioBitrate)
+        : 0;
+    message.audioFrequency =
+      object.audioFrequency !== undefined && object.audioFrequency !== null
+        ? Number(object.audioFrequency)
+        : 0;
+    message.videoBitrate =
+      object.videoBitrate !== undefined && object.videoBitrate !== null
+        ? Number(object.videoBitrate)
+        : 0;
+    message.profile =
+      object.profile !== undefined && object.profile !== null
+        ? String(object.profile)
+        : "";
     return message;
   },
 
@@ -580,72 +547,41 @@ export const RecordingOptions = {
     const obj: any = {};
     message.preset !== undefined &&
       (obj.preset = recordingPresetToJSON(message.preset));
-    message.width !== undefined && (obj.width = message.width);
-    message.height !== undefined && (obj.height = message.height);
-    message.depth !== undefined && (obj.depth = message.depth);
-    message.framerate !== undefined && (obj.framerate = message.framerate);
+    message.width !== undefined && (obj.width = Math.round(message.width));
+    message.height !== undefined && (obj.height = Math.round(message.height));
+    message.depth !== undefined && (obj.depth = Math.round(message.depth));
+    message.framerate !== undefined &&
+      (obj.framerate = Math.round(message.framerate));
     message.audioBitrate !== undefined &&
-      (obj.audioBitrate = message.audioBitrate);
+      (obj.audioBitrate = Math.round(message.audioBitrate));
     message.audioFrequency !== undefined &&
-      (obj.audioFrequency = message.audioFrequency);
+      (obj.audioFrequency = Math.round(message.audioFrequency));
     message.videoBitrate !== undefined &&
-      (obj.videoBitrate = message.videoBitrate);
+      (obj.videoBitrate = Math.round(message.videoBitrate));
     message.profile !== undefined && (obj.profile = message.profile);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecordingOptions>): RecordingOptions {
-    const message = { ...baseRecordingOptions } as RecordingOptions;
-    if (object.preset !== undefined && object.preset !== null) {
-      message.preset = object.preset;
-    } else {
-      message.preset = 0;
-    }
-    if (object.width !== undefined && object.width !== null) {
-      message.width = object.width;
-    } else {
-      message.width = 0;
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = object.height;
-    } else {
-      message.height = 0;
-    }
-    if (object.depth !== undefined && object.depth !== null) {
-      message.depth = object.depth;
-    } else {
-      message.depth = 0;
-    }
-    if (object.framerate !== undefined && object.framerate !== null) {
-      message.framerate = object.framerate;
-    } else {
-      message.framerate = 0;
-    }
-    if (object.audioBitrate !== undefined && object.audioBitrate !== null) {
-      message.audioBitrate = object.audioBitrate;
-    } else {
-      message.audioBitrate = 0;
-    }
-    if (object.audioFrequency !== undefined && object.audioFrequency !== null) {
-      message.audioFrequency = object.audioFrequency;
-    } else {
-      message.audioFrequency = 0;
-    }
-    if (object.videoBitrate !== undefined && object.videoBitrate !== null) {
-      message.videoBitrate = object.videoBitrate;
-    } else {
-      message.videoBitrate = 0;
-    }
-    if (object.profile !== undefined && object.profile !== null) {
-      message.profile = object.profile;
-    } else {
-      message.profile = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<RecordingOptions>, I>>(
+    object: I
+  ): RecordingOptions {
+    const message = createBaseRecordingOptions();
+    message.preset = object.preset ?? 0;
+    message.width = object.width ?? 0;
+    message.height = object.height ?? 0;
+    message.depth = object.depth ?? 0;
+    message.framerate = object.framerate ?? 0;
+    message.audioBitrate = object.audioBitrate ?? 0;
+    message.audioFrequency = object.audioFrequency ?? 0;
+    message.videoBitrate = object.videoBitrate ?? 0;
+    message.profile = object.profile ?? "";
     return message;
   },
 };
 
-const baseStartRecordingResponse: object = { recordingId: "" };
+function createBaseStartRecordingResponse(): StartRecordingResponse {
+  return { recordingId: "" };
+}
 
 export const StartRecordingResponse = {
   encode(
@@ -664,7 +600,7 @@ export const StartRecordingResponse = {
   ): StartRecordingResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseStartRecordingResponse } as StartRecordingResponse;
+    const message = createBaseStartRecordingResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -680,12 +616,11 @@ export const StartRecordingResponse = {
   },
 
   fromJSON(object: any): StartRecordingResponse {
-    const message = { ...baseStartRecordingResponse } as StartRecordingResponse;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = "";
-    }
+    const message = createBaseStartRecordingResponse();
+    message.recordingId =
+      object.recordingId !== undefined && object.recordingId !== null
+        ? String(object.recordingId)
+        : "";
     return message;
   },
 
@@ -696,20 +631,18 @@ export const StartRecordingResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<StartRecordingResponse>
+  fromPartial<I extends Exact<DeepPartial<StartRecordingResponse>, I>>(
+    object: I
   ): StartRecordingResponse {
-    const message = { ...baseStartRecordingResponse } as StartRecordingResponse;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = "";
-    }
+    const message = createBaseStartRecordingResponse();
+    message.recordingId = object.recordingId ?? "";
     return message;
   },
 };
 
-const baseAddOutputRequest: object = { recordingId: "", rtmpUrl: "" };
+function createBaseAddOutputRequest(): AddOutputRequest {
+  return { recordingId: "", rtmpUrl: "" };
+}
 
 export const AddOutputRequest = {
   encode(
@@ -728,7 +661,7 @@ export const AddOutputRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): AddOutputRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAddOutputRequest } as AddOutputRequest;
+    const message = createBaseAddOutputRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -747,17 +680,15 @@ export const AddOutputRequest = {
   },
 
   fromJSON(object: any): AddOutputRequest {
-    const message = { ...baseAddOutputRequest } as AddOutputRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = "";
-    }
-    if (object.rtmpUrl !== undefined && object.rtmpUrl !== null) {
-      message.rtmpUrl = String(object.rtmpUrl);
-    } else {
-      message.rtmpUrl = "";
-    }
+    const message = createBaseAddOutputRequest();
+    message.recordingId =
+      object.recordingId !== undefined && object.recordingId !== null
+        ? String(object.recordingId)
+        : "";
+    message.rtmpUrl =
+      object.rtmpUrl !== undefined && object.rtmpUrl !== null
+        ? String(object.rtmpUrl)
+        : "";
     return message;
   },
 
@@ -769,23 +700,19 @@ export const AddOutputRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<AddOutputRequest>): AddOutputRequest {
-    const message = { ...baseAddOutputRequest } as AddOutputRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = "";
-    }
-    if (object.rtmpUrl !== undefined && object.rtmpUrl !== null) {
-      message.rtmpUrl = object.rtmpUrl;
-    } else {
-      message.rtmpUrl = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<AddOutputRequest>, I>>(
+    object: I
+  ): AddOutputRequest {
+    const message = createBaseAddOutputRequest();
+    message.recordingId = object.recordingId ?? "";
+    message.rtmpUrl = object.rtmpUrl ?? "";
     return message;
   },
 };
 
-const baseRemoveOutputRequest: object = { recordingId: "", rtmpUrl: "" };
+function createBaseRemoveOutputRequest(): RemoveOutputRequest {
+  return { recordingId: "", rtmpUrl: "" };
+}
 
 export const RemoveOutputRequest = {
   encode(
@@ -804,7 +731,7 @@ export const RemoveOutputRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RemoveOutputRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRemoveOutputRequest } as RemoveOutputRequest;
+    const message = createBaseRemoveOutputRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -823,17 +750,15 @@ export const RemoveOutputRequest = {
   },
 
   fromJSON(object: any): RemoveOutputRequest {
-    const message = { ...baseRemoveOutputRequest } as RemoveOutputRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = "";
-    }
-    if (object.rtmpUrl !== undefined && object.rtmpUrl !== null) {
-      message.rtmpUrl = String(object.rtmpUrl);
-    } else {
-      message.rtmpUrl = "";
-    }
+    const message = createBaseRemoveOutputRequest();
+    message.recordingId =
+      object.recordingId !== undefined && object.recordingId !== null
+        ? String(object.recordingId)
+        : "";
+    message.rtmpUrl =
+      object.rtmpUrl !== undefined && object.rtmpUrl !== null
+        ? String(object.rtmpUrl)
+        : "";
     return message;
   },
 
@@ -845,23 +770,19 @@ export const RemoveOutputRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RemoveOutputRequest>): RemoveOutputRequest {
-    const message = { ...baseRemoveOutputRequest } as RemoveOutputRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = "";
-    }
-    if (object.rtmpUrl !== undefined && object.rtmpUrl !== null) {
-      message.rtmpUrl = object.rtmpUrl;
-    } else {
-      message.rtmpUrl = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<RemoveOutputRequest>, I>>(
+    object: I
+  ): RemoveOutputRequest {
+    const message = createBaseRemoveOutputRequest();
+    message.recordingId = object.recordingId ?? "";
+    message.rtmpUrl = object.rtmpUrl ?? "";
     return message;
   },
 };
 
-const baseEndRecordingRequest: object = { recordingId: "" };
+function createBaseEndRecordingRequest(): EndRecordingRequest {
+  return { recordingId: "" };
+}
 
 export const EndRecordingRequest = {
   encode(
@@ -877,7 +798,7 @@ export const EndRecordingRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): EndRecordingRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
+    const message = createBaseEndRecordingRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -893,12 +814,11 @@ export const EndRecordingRequest = {
   },
 
   fromJSON(object: any): EndRecordingRequest {
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = String(object.recordingId);
-    } else {
-      message.recordingId = "";
-    }
+    const message = createBaseEndRecordingRequest();
+    message.recordingId =
+      object.recordingId !== undefined && object.recordingId !== null
+        ? String(object.recordingId)
+        : "";
     return message;
   },
 
@@ -909,23 +829,25 @@ export const EndRecordingRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<EndRecordingRequest>): EndRecordingRequest {
-    const message = { ...baseEndRecordingRequest } as EndRecordingRequest;
-    if (object.recordingId !== undefined && object.recordingId !== null) {
-      message.recordingId = object.recordingId;
-    } else {
-      message.recordingId = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<EndRecordingRequest>, I>>(
+    object: I
+  ): EndRecordingRequest {
+    const message = createBaseEndRecordingRequest();
+    message.recordingId = object.recordingId ?? "";
     return message;
   },
 };
 
-const baseRecordingInfo: object = {
-  id: "",
-  roomName: "",
-  active: false,
-  error: "",
-};
+function createBaseRecordingInfo(): RecordingInfo {
+  return {
+    id: "",
+    roomName: "",
+    active: false,
+    error: "",
+    file: undefined,
+    rtmp: [],
+  };
+}
 
 export const RecordingInfo = {
   encode(
@@ -956,8 +878,7 @@ export const RecordingInfo = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecordingInfo {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecordingInfo } as RecordingInfo;
-    message.rtmp = [];
+    const message = createBaseRecordingInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -988,38 +909,26 @@ export const RecordingInfo = {
   },
 
   fromJSON(object: any): RecordingInfo {
-    const message = { ...baseRecordingInfo } as RecordingInfo;
-    message.rtmp = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = "";
-    }
-    if (object.roomName !== undefined && object.roomName !== null) {
-      message.roomName = String(object.roomName);
-    } else {
-      message.roomName = "";
-    }
-    if (object.active !== undefined && object.active !== null) {
-      message.active = Boolean(object.active);
-    } else {
-      message.active = false;
-    }
-    if (object.error !== undefined && object.error !== null) {
-      message.error = String(object.error);
-    } else {
-      message.error = "";
-    }
-    if (object.file !== undefined && object.file !== null) {
-      message.file = FileResult.fromJSON(object.file);
-    } else {
-      message.file = undefined;
-    }
-    if (object.rtmp !== undefined && object.rtmp !== null) {
-      for (const e of object.rtmp) {
-        message.rtmp.push(RtmpResult.fromJSON(e));
-      }
-    }
+    const message = createBaseRecordingInfo();
+    message.id =
+      object.id !== undefined && object.id !== null ? String(object.id) : "";
+    message.roomName =
+      object.roomName !== undefined && object.roomName !== null
+        ? String(object.roomName)
+        : "";
+    message.active =
+      object.active !== undefined && object.active !== null
+        ? Boolean(object.active)
+        : false;
+    message.error =
+      object.error !== undefined && object.error !== null
+        ? String(object.error)
+        : "";
+    message.file =
+      object.file !== undefined && object.file !== null
+        ? FileResult.fromJSON(object.file)
+        : undefined;
+    message.rtmp = (object.rtmp ?? []).map((e: any) => RtmpResult.fromJSON(e));
     return message;
   },
 
@@ -1041,44 +950,26 @@ export const RecordingInfo = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecordingInfo>): RecordingInfo {
-    const message = { ...baseRecordingInfo } as RecordingInfo;
-    message.rtmp = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = "";
-    }
-    if (object.roomName !== undefined && object.roomName !== null) {
-      message.roomName = object.roomName;
-    } else {
-      message.roomName = "";
-    }
-    if (object.active !== undefined && object.active !== null) {
-      message.active = object.active;
-    } else {
-      message.active = false;
-    }
-    if (object.error !== undefined && object.error !== null) {
-      message.error = object.error;
-    } else {
-      message.error = "";
-    }
-    if (object.file !== undefined && object.file !== null) {
-      message.file = FileResult.fromPartial(object.file);
-    } else {
-      message.file = undefined;
-    }
-    if (object.rtmp !== undefined && object.rtmp !== null) {
-      for (const e of object.rtmp) {
-        message.rtmp.push(RtmpResult.fromPartial(e));
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<RecordingInfo>, I>>(
+    object: I
+  ): RecordingInfo {
+    const message = createBaseRecordingInfo();
+    message.id = object.id ?? "";
+    message.roomName = object.roomName ?? "";
+    message.active = object.active ?? false;
+    message.error = object.error ?? "";
+    message.file =
+      object.file !== undefined && object.file !== null
+        ? FileResult.fromPartial(object.file)
+        : undefined;
+    message.rtmp = object.rtmp?.map((e) => RtmpResult.fromPartial(e)) || [];
     return message;
   },
 };
 
-const baseFileResult: object = { downloadUrl: "", duration: 0 };
+function createBaseFileResult(): FileResult {
+  return { downloadUrl: "", duration: 0 };
+}
 
 export const FileResult = {
   encode(
@@ -1097,7 +988,7 @@ export const FileResult = {
   decode(input: _m0.Reader | Uint8Array, length?: number): FileResult {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseFileResult } as FileResult;
+    const message = createBaseFileResult();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1116,17 +1007,15 @@ export const FileResult = {
   },
 
   fromJSON(object: any): FileResult {
-    const message = { ...baseFileResult } as FileResult;
-    if (object.downloadUrl !== undefined && object.downloadUrl !== null) {
-      message.downloadUrl = String(object.downloadUrl);
-    } else {
-      message.downloadUrl = "";
-    }
-    if (object.duration !== undefined && object.duration !== null) {
-      message.duration = Number(object.duration);
-    } else {
-      message.duration = 0;
-    }
+    const message = createBaseFileResult();
+    message.downloadUrl =
+      object.downloadUrl !== undefined && object.downloadUrl !== null
+        ? String(object.downloadUrl)
+        : "";
+    message.duration =
+      object.duration !== undefined && object.duration !== null
+        ? Number(object.duration)
+        : 0;
     return message;
   },
 
@@ -1134,27 +1023,24 @@ export const FileResult = {
     const obj: any = {};
     message.downloadUrl !== undefined &&
       (obj.downloadUrl = message.downloadUrl);
-    message.duration !== undefined && (obj.duration = message.duration);
+    message.duration !== undefined &&
+      (obj.duration = Math.round(message.duration));
     return obj;
   },
 
-  fromPartial(object: DeepPartial<FileResult>): FileResult {
-    const message = { ...baseFileResult } as FileResult;
-    if (object.downloadUrl !== undefined && object.downloadUrl !== null) {
-      message.downloadUrl = object.downloadUrl;
-    } else {
-      message.downloadUrl = "";
-    }
-    if (object.duration !== undefined && object.duration !== null) {
-      message.duration = object.duration;
-    } else {
-      message.duration = 0;
-    }
+  fromPartial<I extends Exact<DeepPartial<FileResult>, I>>(
+    object: I
+  ): FileResult {
+    const message = createBaseFileResult();
+    message.downloadUrl = object.downloadUrl ?? "";
+    message.duration = object.duration ?? 0;
     return message;
   },
 };
 
-const baseRtmpResult: object = { streamUrl: "", duration: 0 };
+function createBaseRtmpResult(): RtmpResult {
+  return { streamUrl: "", duration: 0 };
+}
 
 export const RtmpResult = {
   encode(
@@ -1173,7 +1059,7 @@ export const RtmpResult = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RtmpResult {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRtmpResult } as RtmpResult;
+    const message = createBaseRtmpResult();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1192,39 +1078,32 @@ export const RtmpResult = {
   },
 
   fromJSON(object: any): RtmpResult {
-    const message = { ...baseRtmpResult } as RtmpResult;
-    if (object.streamUrl !== undefined && object.streamUrl !== null) {
-      message.streamUrl = String(object.streamUrl);
-    } else {
-      message.streamUrl = "";
-    }
-    if (object.duration !== undefined && object.duration !== null) {
-      message.duration = Number(object.duration);
-    } else {
-      message.duration = 0;
-    }
+    const message = createBaseRtmpResult();
+    message.streamUrl =
+      object.streamUrl !== undefined && object.streamUrl !== null
+        ? String(object.streamUrl)
+        : "";
+    message.duration =
+      object.duration !== undefined && object.duration !== null
+        ? Number(object.duration)
+        : 0;
     return message;
   },
 
   toJSON(message: RtmpResult): unknown {
     const obj: any = {};
     message.streamUrl !== undefined && (obj.streamUrl = message.streamUrl);
-    message.duration !== undefined && (obj.duration = message.duration);
+    message.duration !== undefined &&
+      (obj.duration = Math.round(message.duration));
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RtmpResult>): RtmpResult {
-    const message = { ...baseRtmpResult } as RtmpResult;
-    if (object.streamUrl !== undefined && object.streamUrl !== null) {
-      message.streamUrl = object.streamUrl;
-    } else {
-      message.streamUrl = "";
-    }
-    if (object.duration !== undefined && object.duration !== null) {
-      message.duration = object.duration;
-    } else {
-      message.duration = 0;
-    }
+  fromPartial<I extends Exact<DeepPartial<RtmpResult>, I>>(
+    object: I
+  ): RtmpResult {
+    const message = createBaseRtmpResult();
+    message.streamUrl = object.streamUrl ?? "";
+    message.duration = object.duration ?? 0;
     return message;
   },
 };
@@ -1234,15 +1113,31 @@ export const RtmpResult = {
  * they are Twirp-based HTTP req/responses
  */
 export interface RecordingService {
-  /** Starts a room */
+  /**
+   * Starts a room
+   *
+   * @deprecated
+   */
   StartRecording(
     request: StartRecordingRequest
   ): Promise<StartRecordingResponse>;
-  /** Adds an rtmp output to a live recording */
+  /**
+   * Adds an rtmp output to a live recording
+   *
+   * @deprecated
+   */
   AddOutput(request: AddOutputRequest): Promise<Empty>;
-  /** Removes an rtmp output from a live recording */
+  /**
+   * Removes an rtmp output from a live recording
+   *
+   * @deprecated
+   */
   RemoveOutput(request: RemoveOutputRequest): Promise<Empty>;
-  /** Ends a recording */
+  /**
+   * Ends a recording
+   *
+   * @deprecated
+   */
   EndRecording(request: EndRecordingRequest): Promise<Empty>;
 }
 
@@ -1265,6 +1160,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>
@@ -1274,6 +1170,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {

@@ -33,6 +33,7 @@ export interface VideoGrant {
 
   /** participant isn't visible to others */
   hidden?: boolean;
+
   /** participant is recording the room, when set, allows room to indicate it's being recorded */
   recorder?: boolean;
 }

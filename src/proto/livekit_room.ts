@@ -122,13 +122,15 @@ export interface UpdateRoomMetadataRequest {
   metadata: string;
 }
 
-const baseCreateRoomRequest: object = {
-  name: "",
-  emptyTimeout: 0,
-  maxParticipants: 0,
-  nodeId: "",
-  metadata: "",
-};
+function createBaseCreateRoomRequest(): CreateRoomRequest {
+  return {
+    name: "",
+    emptyTimeout: 0,
+    maxParticipants: 0,
+    nodeId: "",
+    metadata: "",
+  };
+}
 
 export const CreateRoomRequest = {
   encode(
@@ -156,7 +158,7 @@ export const CreateRoomRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): CreateRoomRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
+    const message = createBaseCreateRoomRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -184,35 +186,27 @@ export const CreateRoomRequest = {
   },
 
   fromJSON(object: any): CreateRoomRequest {
-    const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = String(object.name);
-    } else {
-      message.name = "";
-    }
-    if (object.emptyTimeout !== undefined && object.emptyTimeout !== null) {
-      message.emptyTimeout = Number(object.emptyTimeout);
-    } else {
-      message.emptyTimeout = 0;
-    }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
-      message.maxParticipants = Number(object.maxParticipants);
-    } else {
-      message.maxParticipants = 0;
-    }
-    if (object.nodeId !== undefined && object.nodeId !== null) {
-      message.nodeId = String(object.nodeId);
-    } else {
-      message.nodeId = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = String(object.metadata);
-    } else {
-      message.metadata = "";
-    }
+    const message = createBaseCreateRoomRequest();
+    message.name =
+      object.name !== undefined && object.name !== null
+        ? String(object.name)
+        : "";
+    message.emptyTimeout =
+      object.emptyTimeout !== undefined && object.emptyTimeout !== null
+        ? Number(object.emptyTimeout)
+        : 0;
+    message.maxParticipants =
+      object.maxParticipants !== undefined && object.maxParticipants !== null
+        ? Number(object.maxParticipants)
+        : 0;
+    message.nodeId =
+      object.nodeId !== undefined && object.nodeId !== null
+        ? String(object.nodeId)
+        : "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? String(object.metadata)
+        : "";
     return message;
   },
 
@@ -220,49 +214,30 @@ export const CreateRoomRequest = {
     const obj: any = {};
     message.name !== undefined && (obj.name = message.name);
     message.emptyTimeout !== undefined &&
-      (obj.emptyTimeout = message.emptyTimeout);
+      (obj.emptyTimeout = Math.round(message.emptyTimeout));
     message.maxParticipants !== undefined &&
-      (obj.maxParticipants = message.maxParticipants);
+      (obj.maxParticipants = Math.round(message.maxParticipants));
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
     message.metadata !== undefined && (obj.metadata = message.metadata);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<CreateRoomRequest>): CreateRoomRequest {
-    const message = { ...baseCreateRoomRequest } as CreateRoomRequest;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = object.name;
-    } else {
-      message.name = "";
-    }
-    if (object.emptyTimeout !== undefined && object.emptyTimeout !== null) {
-      message.emptyTimeout = object.emptyTimeout;
-    } else {
-      message.emptyTimeout = 0;
-    }
-    if (
-      object.maxParticipants !== undefined &&
-      object.maxParticipants !== null
-    ) {
-      message.maxParticipants = object.maxParticipants;
-    } else {
-      message.maxParticipants = 0;
-    }
-    if (object.nodeId !== undefined && object.nodeId !== null) {
-      message.nodeId = object.nodeId;
-    } else {
-      message.nodeId = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = object.metadata;
-    } else {
-      message.metadata = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<CreateRoomRequest>, I>>(
+    object: I
+  ): CreateRoomRequest {
+    const message = createBaseCreateRoomRequest();
+    message.name = object.name ?? "";
+    message.emptyTimeout = object.emptyTimeout ?? 0;
+    message.maxParticipants = object.maxParticipants ?? 0;
+    message.nodeId = object.nodeId ?? "";
+    message.metadata = object.metadata ?? "";
     return message;
   },
 };
 
-const baseListRoomsRequest: object = { names: "" };
+function createBaseListRoomsRequest(): ListRoomsRequest {
+  return { names: [] };
+}
 
 export const ListRoomsRequest = {
   encode(
@@ -278,8 +253,7 @@ export const ListRoomsRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): ListRoomsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseListRoomsRequest } as ListRoomsRequest;
-    message.names = [];
+    const message = createBaseListRoomsRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -295,13 +269,8 @@ export const ListRoomsRequest = {
   },
 
   fromJSON(object: any): ListRoomsRequest {
-    const message = { ...baseListRoomsRequest } as ListRoomsRequest;
-    message.names = [];
-    if (object.names !== undefined && object.names !== null) {
-      for (const e of object.names) {
-        message.names.push(String(e));
-      }
-    }
+    const message = createBaseListRoomsRequest();
+    message.names = (object.names ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -315,19 +284,18 @@ export const ListRoomsRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ListRoomsRequest>): ListRoomsRequest {
-    const message = { ...baseListRoomsRequest } as ListRoomsRequest;
-    message.names = [];
-    if (object.names !== undefined && object.names !== null) {
-      for (const e of object.names) {
-        message.names.push(e);
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<ListRoomsRequest>, I>>(
+    object: I
+  ): ListRoomsRequest {
+    const message = createBaseListRoomsRequest();
+    message.names = object.names?.map((e) => e) || [];
     return message;
   },
 };
 
-const baseListRoomsResponse: object = {};
+function createBaseListRoomsResponse(): ListRoomsResponse {
+  return { rooms: [] };
+}
 
 export const ListRoomsResponse = {
   encode(
@@ -343,8 +311,7 @@ export const ListRoomsResponse = {
   decode(input: _m0.Reader | Uint8Array, length?: number): ListRoomsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseListRoomsResponse } as ListRoomsResponse;
-    message.rooms = [];
+    const message = createBaseListRoomsResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -360,13 +327,8 @@ export const ListRoomsResponse = {
   },
 
   fromJSON(object: any): ListRoomsResponse {
-    const message = { ...baseListRoomsResponse } as ListRoomsResponse;
-    message.rooms = [];
-    if (object.rooms !== undefined && object.rooms !== null) {
-      for (const e of object.rooms) {
-        message.rooms.push(Room.fromJSON(e));
-      }
-    }
+    const message = createBaseListRoomsResponse();
+    message.rooms = (object.rooms ?? []).map((e: any) => Room.fromJSON(e));
     return message;
   },
 
@@ -380,19 +342,18 @@ export const ListRoomsResponse = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ListRoomsResponse>): ListRoomsResponse {
-    const message = { ...baseListRoomsResponse } as ListRoomsResponse;
-    message.rooms = [];
-    if (object.rooms !== undefined && object.rooms !== null) {
-      for (const e of object.rooms) {
-        message.rooms.push(Room.fromPartial(e));
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<ListRoomsResponse>, I>>(
+    object: I
+  ): ListRoomsResponse {
+    const message = createBaseListRoomsResponse();
+    message.rooms = object.rooms?.map((e) => Room.fromPartial(e)) || [];
     return message;
   },
 };
 
-const baseDeleteRoomRequest: object = { room: "" };
+function createBaseDeleteRoomRequest(): DeleteRoomRequest {
+  return { room: "" };
+}
 
 export const DeleteRoomRequest = {
   encode(
@@ -408,7 +369,7 @@ export const DeleteRoomRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): DeleteRoomRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
+    const message = createBaseDeleteRoomRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -424,12 +385,11 @@ export const DeleteRoomRequest = {
   },
 
   fromJSON(object: any): DeleteRoomRequest {
-    const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
+    const message = createBaseDeleteRoomRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
     return message;
   },
 
@@ -439,18 +399,18 @@ export const DeleteRoomRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<DeleteRoomRequest>): DeleteRoomRequest {
-    const message = { ...baseDeleteRoomRequest } as DeleteRoomRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<DeleteRoomRequest>, I>>(
+    object: I
+  ): DeleteRoomRequest {
+    const message = createBaseDeleteRoomRequest();
+    message.room = object.room ?? "";
     return message;
   },
 };
 
-const baseDeleteRoomResponse: object = {};
+function createBaseDeleteRoomResponse(): DeleteRoomResponse {
+  return {};
+}
 
 export const DeleteRoomResponse = {
   encode(
@@ -463,7 +423,7 @@ export const DeleteRoomResponse = {
   decode(input: _m0.Reader | Uint8Array, length?: number): DeleteRoomResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
+    const message = createBaseDeleteRoomResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -476,7 +436,7 @@ export const DeleteRoomResponse = {
   },
 
   fromJSON(_: any): DeleteRoomResponse {
-    const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
+    const message = createBaseDeleteRoomResponse();
     return message;
   },
 
@@ -485,13 +445,17 @@ export const DeleteRoomResponse = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<DeleteRoomResponse>): DeleteRoomResponse {
-    const message = { ...baseDeleteRoomResponse } as DeleteRoomResponse;
+  fromPartial<I extends Exact<DeepPartial<DeleteRoomResponse>, I>>(
+    _: I
+  ): DeleteRoomResponse {
+    const message = createBaseDeleteRoomResponse();
     return message;
   },
 };
 
-const baseListParticipantsRequest: object = { room: "" };
+function createBaseListParticipantsRequest(): ListParticipantsRequest {
+  return { room: "" };
+}
 
 export const ListParticipantsRequest = {
   encode(
@@ -510,9 +474,7 @@ export const ListParticipantsRequest = {
   ): ListParticipantsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseListParticipantsRequest,
-    } as ListParticipantsRequest;
+    const message = createBaseListParticipantsRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -528,14 +490,11 @@ export const ListParticipantsRequest = {
   },
 
   fromJSON(object: any): ListParticipantsRequest {
-    const message = {
-      ...baseListParticipantsRequest,
-    } as ListParticipantsRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
+    const message = createBaseListParticipantsRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
     return message;
   },
 
@@ -545,22 +504,18 @@ export const ListParticipantsRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ListParticipantsRequest>
+  fromPartial<I extends Exact<DeepPartial<ListParticipantsRequest>, I>>(
+    object: I
   ): ListParticipantsRequest {
-    const message = {
-      ...baseListParticipantsRequest,
-    } as ListParticipantsRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
+    const message = createBaseListParticipantsRequest();
+    message.room = object.room ?? "";
     return message;
   },
 };
 
-const baseListParticipantsResponse: object = {};
+function createBaseListParticipantsResponse(): ListParticipantsResponse {
+  return { participants: [] };
+}
 
 export const ListParticipantsResponse = {
   encode(
@@ -579,10 +534,7 @@ export const ListParticipantsResponse = {
   ): ListParticipantsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseListParticipantsResponse,
-    } as ListParticipantsResponse;
-    message.participants = [];
+    const message = createBaseListParticipantsResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -600,15 +552,10 @@ export const ListParticipantsResponse = {
   },
 
   fromJSON(object: any): ListParticipantsResponse {
-    const message = {
-      ...baseListParticipantsResponse,
-    } as ListParticipantsResponse;
-    message.participants = [];
-    if (object.participants !== undefined && object.participants !== null) {
-      for (const e of object.participants) {
-        message.participants.push(ParticipantInfo.fromJSON(e));
-      }
-    }
+    const message = createBaseListParticipantsResponse();
+    message.participants = (object.participants ?? []).map((e: any) =>
+      ParticipantInfo.fromJSON(e)
+    );
     return message;
   },
 
@@ -624,23 +571,19 @@ export const ListParticipantsResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ListParticipantsResponse>
+  fromPartial<I extends Exact<DeepPartial<ListParticipantsResponse>, I>>(
+    object: I
   ): ListParticipantsResponse {
-    const message = {
-      ...baseListParticipantsResponse,
-    } as ListParticipantsResponse;
-    message.participants = [];
-    if (object.participants !== undefined && object.participants !== null) {
-      for (const e of object.participants) {
-        message.participants.push(ParticipantInfo.fromPartial(e));
-      }
-    }
+    const message = createBaseListParticipantsResponse();
+    message.participants =
+      object.participants?.map((e) => ParticipantInfo.fromPartial(e)) || [];
     return message;
   },
 };
 
-const baseRoomParticipantIdentity: object = { room: "", identity: "" };
+function createBaseRoomParticipantIdentity(): RoomParticipantIdentity {
+  return { room: "", identity: "" };
+}
 
 export const RoomParticipantIdentity = {
   encode(
@@ -662,9 +605,7 @@ export const RoomParticipantIdentity = {
   ): RoomParticipantIdentity {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseRoomParticipantIdentity,
-    } as RoomParticipantIdentity;
+    const message = createBaseRoomParticipantIdentity();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -683,19 +624,15 @@ export const RoomParticipantIdentity = {
   },
 
   fromJSON(object: any): RoomParticipantIdentity {
-    const message = {
-      ...baseRoomParticipantIdentity,
-    } as RoomParticipantIdentity;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = String(object.identity);
-    } else {
-      message.identity = "";
-    }
+    const message = createBaseRoomParticipantIdentity();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.identity =
+      object.identity !== undefined && object.identity !== null
+        ? String(object.identity)
+        : "";
     return message;
   },
 
@@ -706,27 +643,19 @@ export const RoomParticipantIdentity = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<RoomParticipantIdentity>
+  fromPartial<I extends Exact<DeepPartial<RoomParticipantIdentity>, I>>(
+    object: I
   ): RoomParticipantIdentity {
-    const message = {
-      ...baseRoomParticipantIdentity,
-    } as RoomParticipantIdentity;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = object.identity;
-    } else {
-      message.identity = "";
-    }
+    const message = createBaseRoomParticipantIdentity();
+    message.room = object.room ?? "";
+    message.identity = object.identity ?? "";
     return message;
   },
 };
 
-const baseRemoveParticipantResponse: object = {};
+function createBaseRemoveParticipantResponse(): RemoveParticipantResponse {
+  return {};
+}
 
 export const RemoveParticipantResponse = {
   encode(
@@ -742,9 +671,7 @@ export const RemoveParticipantResponse = {
   ): RemoveParticipantResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseRemoveParticipantResponse,
-    } as RemoveParticipantResponse;
+    const message = createBaseRemoveParticipantResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -757,9 +684,7 @@ export const RemoveParticipantResponse = {
   },
 
   fromJSON(_: any): RemoveParticipantResponse {
-    const message = {
-      ...baseRemoveParticipantResponse,
-    } as RemoveParticipantResponse;
+    const message = createBaseRemoveParticipantResponse();
     return message;
   },
 
@@ -768,22 +693,17 @@ export const RemoveParticipantResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<RemoveParticipantResponse>
+  fromPartial<I extends Exact<DeepPartial<RemoveParticipantResponse>, I>>(
+    _: I
   ): RemoveParticipantResponse {
-    const message = {
-      ...baseRemoveParticipantResponse,
-    } as RemoveParticipantResponse;
+    const message = createBaseRemoveParticipantResponse();
     return message;
   },
 };
 
-const baseMuteRoomTrackRequest: object = {
-  room: "",
-  identity: "",
-  trackSid: "",
-  muted: false,
-};
+function createBaseMuteRoomTrackRequest(): MuteRoomTrackRequest {
+  return { room: "", identity: "", trackSid: "", muted: false };
+}
 
 export const MuteRoomTrackRequest = {
   encode(
@@ -811,7 +731,7 @@ export const MuteRoomTrackRequest = {
   ): MuteRoomTrackRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
+    const message = createBaseMuteRoomTrackRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -836,27 +756,23 @@ export const MuteRoomTrackRequest = {
   },
 
   fromJSON(object: any): MuteRoomTrackRequest {
-    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = String(object.identity);
-    } else {
-      message.identity = "";
-    }
-    if (object.trackSid !== undefined && object.trackSid !== null) {
-      message.trackSid = String(object.trackSid);
-    } else {
-      message.trackSid = "";
-    }
-    if (object.muted !== undefined && object.muted !== null) {
-      message.muted = Boolean(object.muted);
-    } else {
-      message.muted = false;
-    }
+    const message = createBaseMuteRoomTrackRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.identity =
+      object.identity !== undefined && object.identity !== null
+        ? String(object.identity)
+        : "";
+    message.trackSid =
+      object.trackSid !== undefined && object.trackSid !== null
+        ? String(object.trackSid)
+        : "";
+    message.muted =
+      object.muted !== undefined && object.muted !== null
+        ? Boolean(object.muted)
+        : false;
     return message;
   },
 
@@ -869,33 +785,21 @@ export const MuteRoomTrackRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MuteRoomTrackRequest>): MuteRoomTrackRequest {
-    const message = { ...baseMuteRoomTrackRequest } as MuteRoomTrackRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = object.identity;
-    } else {
-      message.identity = "";
-    }
-    if (object.trackSid !== undefined && object.trackSid !== null) {
-      message.trackSid = object.trackSid;
-    } else {
-      message.trackSid = "";
-    }
-    if (object.muted !== undefined && object.muted !== null) {
-      message.muted = object.muted;
-    } else {
-      message.muted = false;
-    }
+  fromPartial<I extends Exact<DeepPartial<MuteRoomTrackRequest>, I>>(
+    object: I
+  ): MuteRoomTrackRequest {
+    const message = createBaseMuteRoomTrackRequest();
+    message.room = object.room ?? "";
+    message.identity = object.identity ?? "";
+    message.trackSid = object.trackSid ?? "";
+    message.muted = object.muted ?? false;
     return message;
   },
 };
 
-const baseMuteRoomTrackResponse: object = {};
+function createBaseMuteRoomTrackResponse(): MuteRoomTrackResponse {
+  return { track: undefined };
+}
 
 export const MuteRoomTrackResponse = {
   encode(
@@ -914,7 +818,7 @@ export const MuteRoomTrackResponse = {
   ): MuteRoomTrackResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
+    const message = createBaseMuteRoomTrackResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -930,12 +834,11 @@ export const MuteRoomTrackResponse = {
   },
 
   fromJSON(object: any): MuteRoomTrackResponse {
-    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
-    if (object.track !== undefined && object.track !== null) {
-      message.track = TrackInfo.fromJSON(object.track);
-    } else {
-      message.track = undefined;
-    }
+    const message = createBaseMuteRoomTrackResponse();
+    message.track =
+      object.track !== undefined && object.track !== null
+        ? TrackInfo.fromJSON(object.track)
+        : undefined;
     return message;
   },
 
@@ -946,24 +849,21 @@ export const MuteRoomTrackResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<MuteRoomTrackResponse>
+  fromPartial<I extends Exact<DeepPartial<MuteRoomTrackResponse>, I>>(
+    object: I
   ): MuteRoomTrackResponse {
-    const message = { ...baseMuteRoomTrackResponse } as MuteRoomTrackResponse;
-    if (object.track !== undefined && object.track !== null) {
-      message.track = TrackInfo.fromPartial(object.track);
-    } else {
-      message.track = undefined;
-    }
+    const message = createBaseMuteRoomTrackResponse();
+    message.track =
+      object.track !== undefined && object.track !== null
+        ? TrackInfo.fromPartial(object.track)
+        : undefined;
     return message;
   },
 };
 
-const baseParticipantPermission: object = {
-  canSubscribe: false,
-  canPublish: false,
-  canPublishData: false,
-};
+function createBaseParticipantPermission(): ParticipantPermission {
+  return { canSubscribe: false, canPublish: false, canPublishData: false };
+}
 
 export const ParticipantPermission = {
   encode(
@@ -988,7 +888,7 @@ export const ParticipantPermission = {
   ): ParticipantPermission {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseParticipantPermission } as ParticipantPermission;
+    const message = createBaseParticipantPermission();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1010,22 +910,19 @@ export const ParticipantPermission = {
   },
 
   fromJSON(object: any): ParticipantPermission {
-    const message = { ...baseParticipantPermission } as ParticipantPermission;
-    if (object.canSubscribe !== undefined && object.canSubscribe !== null) {
-      message.canSubscribe = Boolean(object.canSubscribe);
-    } else {
-      message.canSubscribe = false;
-    }
-    if (object.canPublish !== undefined && object.canPublish !== null) {
-      message.canPublish = Boolean(object.canPublish);
-    } else {
-      message.canPublish = false;
-    }
-    if (object.canPublishData !== undefined && object.canPublishData !== null) {
-      message.canPublishData = Boolean(object.canPublishData);
-    } else {
-      message.canPublishData = false;
-    }
+    const message = createBaseParticipantPermission();
+    message.canSubscribe =
+      object.canSubscribe !== undefined && object.canSubscribe !== null
+        ? Boolean(object.canSubscribe)
+        : false;
+    message.canPublish =
+      object.canPublish !== undefined && object.canPublish !== null
+        ? Boolean(object.canPublish)
+        : false;
+    message.canPublishData =
+      object.canPublishData !== undefined && object.canPublishData !== null
+        ? Boolean(object.canPublishData)
+        : false;
     return message;
   },
 
@@ -1039,34 +936,20 @@ export const ParticipantPermission = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ParticipantPermission>
+  fromPartial<I extends Exact<DeepPartial<ParticipantPermission>, I>>(
+    object: I
   ): ParticipantPermission {
-    const message = { ...baseParticipantPermission } as ParticipantPermission;
-    if (object.canSubscribe !== undefined && object.canSubscribe !== null) {
-      message.canSubscribe = object.canSubscribe;
-    } else {
-      message.canSubscribe = false;
-    }
-    if (object.canPublish !== undefined && object.canPublish !== null) {
-      message.canPublish = object.canPublish;
-    } else {
-      message.canPublish = false;
-    }
-    if (object.canPublishData !== undefined && object.canPublishData !== null) {
-      message.canPublishData = object.canPublishData;
-    } else {
-      message.canPublishData = false;
-    }
+    const message = createBaseParticipantPermission();
+    message.canSubscribe = object.canSubscribe ?? false;
+    message.canPublish = object.canPublish ?? false;
+    message.canPublishData = object.canPublishData ?? false;
     return message;
   },
 };
 
-const baseUpdateParticipantRequest: object = {
-  room: "",
-  identity: "",
-  metadata: "",
-};
+function createBaseUpdateParticipantRequest(): UpdateParticipantRequest {
+  return { room: "", identity: "", metadata: "", permission: undefined };
+}
 
 export const UpdateParticipantRequest = {
   encode(
@@ -1097,9 +980,7 @@ export const UpdateParticipantRequest = {
   ): UpdateParticipantRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseUpdateParticipantRequest,
-    } as UpdateParticipantRequest;
+    const message = createBaseUpdateParticipantRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1127,29 +1008,23 @@ export const UpdateParticipantRequest = {
   },
 
   fromJSON(object: any): UpdateParticipantRequest {
-    const message = {
-      ...baseUpdateParticipantRequest,
-    } as UpdateParticipantRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = String(object.identity);
-    } else {
-      message.identity = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = String(object.metadata);
-    } else {
-      message.metadata = "";
-    }
-    if (object.permission !== undefined && object.permission !== null) {
-      message.permission = ParticipantPermission.fromJSON(object.permission);
-    } else {
-      message.permission = undefined;
-    }
+    const message = createBaseUpdateParticipantRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.identity =
+      object.identity !== undefined && object.identity !== null
+        ? String(object.identity)
+        : "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? String(object.metadata)
+        : "";
+    message.permission =
+      object.permission !== undefined && object.permission !== null
+        ? ParticipantPermission.fromJSON(object.permission)
+        : undefined;
     return message;
   },
 
@@ -1165,42 +1040,30 @@ export const UpdateParticipantRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<UpdateParticipantRequest>
+  fromPartial<I extends Exact<DeepPartial<UpdateParticipantRequest>, I>>(
+    object: I
   ): UpdateParticipantRequest {
-    const message = {
-      ...baseUpdateParticipantRequest,
-    } as UpdateParticipantRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = object.identity;
-    } else {
-      message.identity = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = object.metadata;
-    } else {
-      message.metadata = "";
-    }
-    if (object.permission !== undefined && object.permission !== null) {
-      message.permission = ParticipantPermission.fromPartial(object.permission);
-    } else {
-      message.permission = undefined;
-    }
+    const message = createBaseUpdateParticipantRequest();
+    message.room = object.room ?? "";
+    message.identity = object.identity ?? "";
+    message.metadata = object.metadata ?? "";
+    message.permission =
+      object.permission !== undefined && object.permission !== null
+        ? ParticipantPermission.fromPartial(object.permission)
+        : undefined;
     return message;
   },
 };
 
-const baseUpdateSubscriptionsRequest: object = {
-  room: "",
-  identity: "",
-  trackSids: "",
-  subscribe: false,
-};
+function createBaseUpdateSubscriptionsRequest(): UpdateSubscriptionsRequest {
+  return {
+    room: "",
+    identity: "",
+    trackSids: [],
+    subscribe: false,
+    participantTracks: [],
+  };
+}
 
 export const UpdateSubscriptionsRequest = {
   encode(
@@ -1231,11 +1094,7 @@ export const UpdateSubscriptionsRequest = {
   ): UpdateSubscriptionsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseUpdateSubscriptionsRequest,
-    } as UpdateSubscriptionsRequest;
-    message.trackSids = [];
-    message.participantTracks = [];
+    const message = createBaseUpdateSubscriptionsRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1265,39 +1124,23 @@ export const UpdateSubscriptionsRequest = {
   },
 
   fromJSON(object: any): UpdateSubscriptionsRequest {
-    const message = {
-      ...baseUpdateSubscriptionsRequest,
-    } as UpdateSubscriptionsRequest;
-    message.trackSids = [];
-    message.participantTracks = [];
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = String(object.identity);
-    } else {
-      message.identity = "";
-    }
-    if (object.trackSids !== undefined && object.trackSids !== null) {
-      for (const e of object.trackSids) {
-        message.trackSids.push(String(e));
-      }
-    }
-    if (object.subscribe !== undefined && object.subscribe !== null) {
-      message.subscribe = Boolean(object.subscribe);
-    } else {
-      message.subscribe = false;
-    }
-    if (
-      object.participantTracks !== undefined &&
-      object.participantTracks !== null
-    ) {
-      for (const e of object.participantTracks) {
-        message.participantTracks.push(ParticipantTracks.fromJSON(e));
-      }
-    }
+    const message = createBaseUpdateSubscriptionsRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.identity =
+      object.identity !== undefined && object.identity !== null
+        ? String(object.identity)
+        : "";
+    message.trackSids = (object.trackSids ?? []).map((e: any) => String(e));
+    message.subscribe =
+      object.subscribe !== undefined && object.subscribe !== null
+        ? Boolean(object.subscribe)
+        : false;
+    message.participantTracks = (object.participantTracks ?? []).map((e: any) =>
+      ParticipantTracks.fromJSON(e)
+    );
     return message;
   },
 
@@ -1321,47 +1164,24 @@ export const UpdateSubscriptionsRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<UpdateSubscriptionsRequest>
+  fromPartial<I extends Exact<DeepPartial<UpdateSubscriptionsRequest>, I>>(
+    object: I
   ): UpdateSubscriptionsRequest {
-    const message = {
-      ...baseUpdateSubscriptionsRequest,
-    } as UpdateSubscriptionsRequest;
-    message.trackSids = [];
-    message.participantTracks = [];
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.identity !== undefined && object.identity !== null) {
-      message.identity = object.identity;
-    } else {
-      message.identity = "";
-    }
-    if (object.trackSids !== undefined && object.trackSids !== null) {
-      for (const e of object.trackSids) {
-        message.trackSids.push(e);
-      }
-    }
-    if (object.subscribe !== undefined && object.subscribe !== null) {
-      message.subscribe = object.subscribe;
-    } else {
-      message.subscribe = false;
-    }
-    if (
-      object.participantTracks !== undefined &&
-      object.participantTracks !== null
-    ) {
-      for (const e of object.participantTracks) {
-        message.participantTracks.push(ParticipantTracks.fromPartial(e));
-      }
-    }
+    const message = createBaseUpdateSubscriptionsRequest();
+    message.room = object.room ?? "";
+    message.identity = object.identity ?? "";
+    message.trackSids = object.trackSids?.map((e) => e) || [];
+    message.subscribe = object.subscribe ?? false;
+    message.participantTracks =
+      object.participantTracks?.map((e) => ParticipantTracks.fromPartial(e)) ||
+      [];
     return message;
   },
 };
 
-const baseUpdateSubscriptionsResponse: object = {};
+function createBaseUpdateSubscriptionsResponse(): UpdateSubscriptionsResponse {
+  return {};
+}
 
 export const UpdateSubscriptionsResponse = {
   encode(
@@ -1377,9 +1197,7 @@ export const UpdateSubscriptionsResponse = {
   ): UpdateSubscriptionsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseUpdateSubscriptionsResponse,
-    } as UpdateSubscriptionsResponse;
+    const message = createBaseUpdateSubscriptionsResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1392,9 +1210,7 @@ export const UpdateSubscriptionsResponse = {
   },
 
   fromJSON(_: any): UpdateSubscriptionsResponse {
-    const message = {
-      ...baseUpdateSubscriptionsResponse,
-    } as UpdateSubscriptionsResponse;
+    const message = createBaseUpdateSubscriptionsResponse();
     return message;
   },
 
@@ -1403,17 +1219,17 @@ export const UpdateSubscriptionsResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<UpdateSubscriptionsResponse>
+  fromPartial<I extends Exact<DeepPartial<UpdateSubscriptionsResponse>, I>>(
+    _: I
   ): UpdateSubscriptionsResponse {
-    const message = {
-      ...baseUpdateSubscriptionsResponse,
-    } as UpdateSubscriptionsResponse;
+    const message = createBaseUpdateSubscriptionsResponse();
     return message;
   },
 };
 
-const baseSendDataRequest: object = { room: "", kind: 0, destinationSids: "" };
+function createBaseSendDataRequest(): SendDataRequest {
+  return { room: "", data: new Uint8Array(), kind: 0, destinationSids: [] };
+}
 
 export const SendDataRequest = {
   encode(
@@ -1438,9 +1254,7 @@ export const SendDataRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): SendDataRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseSendDataRequest } as SendDataRequest;
-    message.destinationSids = [];
-    message.data = new Uint8Array();
+    const message = createBaseSendDataRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1465,30 +1279,22 @@ export const SendDataRequest = {
   },
 
   fromJSON(object: any): SendDataRequest {
-    const message = { ...baseSendDataRequest } as SendDataRequest;
-    message.destinationSids = [];
-    message.data = new Uint8Array();
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.data !== undefined && object.data !== null) {
-      message.data = bytesFromBase64(object.data);
-    }
-    if (object.kind !== undefined && object.kind !== null) {
-      message.kind = dataPacket_KindFromJSON(object.kind);
-    } else {
-      message.kind = 0;
-    }
-    if (
-      object.destinationSids !== undefined &&
-      object.destinationSids !== null
-    ) {
-      for (const e of object.destinationSids) {
-        message.destinationSids.push(String(e));
-      }
-    }
+    const message = createBaseSendDataRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.data =
+      object.data !== undefined && object.data !== null
+        ? bytesFromBase64(object.data)
+        : new Uint8Array();
+    message.kind =
+      object.kind !== undefined && object.kind !== null
+        ? dataPacket_KindFromJSON(object.kind)
+        : 0;
+    message.destinationSids = (object.destinationSids ?? []).map((e: any) =>
+      String(e)
+    );
     return message;
   },
 
@@ -1509,37 +1315,21 @@ export const SendDataRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<SendDataRequest>): SendDataRequest {
-    const message = { ...baseSendDataRequest } as SendDataRequest;
-    message.destinationSids = [];
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.data !== undefined && object.data !== null) {
-      message.data = object.data;
-    } else {
-      message.data = new Uint8Array();
-    }
-    if (object.kind !== undefined && object.kind !== null) {
-      message.kind = object.kind;
-    } else {
-      message.kind = 0;
-    }
-    if (
-      object.destinationSids !== undefined &&
-      object.destinationSids !== null
-    ) {
-      for (const e of object.destinationSids) {
-        message.destinationSids.push(e);
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<SendDataRequest>, I>>(
+    object: I
+  ): SendDataRequest {
+    const message = createBaseSendDataRequest();
+    message.room = object.room ?? "";
+    message.data = object.data ?? new Uint8Array();
+    message.kind = object.kind ?? 0;
+    message.destinationSids = object.destinationSids?.map((e) => e) || [];
     return message;
   },
 };
 
-const baseSendDataResponse: object = {};
+function createBaseSendDataResponse(): SendDataResponse {
+  return {};
+}
 
 export const SendDataResponse = {
   encode(
@@ -1552,7 +1342,7 @@ export const SendDataResponse = {
   decode(input: _m0.Reader | Uint8Array, length?: number): SendDataResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseSendDataResponse } as SendDataResponse;
+    const message = createBaseSendDataResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1565,7 +1355,7 @@ export const SendDataResponse = {
   },
 
   fromJSON(_: any): SendDataResponse {
-    const message = { ...baseSendDataResponse } as SendDataResponse;
+    const message = createBaseSendDataResponse();
     return message;
   },
 
@@ -1574,13 +1364,17 @@ export const SendDataResponse = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<SendDataResponse>): SendDataResponse {
-    const message = { ...baseSendDataResponse } as SendDataResponse;
+  fromPartial<I extends Exact<DeepPartial<SendDataResponse>, I>>(
+    _: I
+  ): SendDataResponse {
+    const message = createBaseSendDataResponse();
     return message;
   },
 };
 
-const baseUpdateRoomMetadataRequest: object = { room: "", metadata: "" };
+function createBaseUpdateRoomMetadataRequest(): UpdateRoomMetadataRequest {
+  return { room: "", metadata: "" };
+}
 
 export const UpdateRoomMetadataRequest = {
   encode(
@@ -1602,9 +1396,7 @@ export const UpdateRoomMetadataRequest = {
   ): UpdateRoomMetadataRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseUpdateRoomMetadataRequest,
-    } as UpdateRoomMetadataRequest;
+    const message = createBaseUpdateRoomMetadataRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1623,19 +1415,15 @@ export const UpdateRoomMetadataRequest = {
   },
 
   fromJSON(object: any): UpdateRoomMetadataRequest {
-    const message = {
-      ...baseUpdateRoomMetadataRequest,
-    } as UpdateRoomMetadataRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = String(object.room);
-    } else {
-      message.room = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = String(object.metadata);
-    } else {
-      message.metadata = "";
-    }
+    const message = createBaseUpdateRoomMetadataRequest();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? String(object.room)
+        : "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? String(object.metadata)
+        : "";
     return message;
   },
 
@@ -1646,22 +1434,12 @@ export const UpdateRoomMetadataRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<UpdateRoomMetadataRequest>
+  fromPartial<I extends Exact<DeepPartial<UpdateRoomMetadataRequest>, I>>(
+    object: I
   ): UpdateRoomMetadataRequest {
-    const message = {
-      ...baseUpdateRoomMetadataRequest,
-    } as UpdateRoomMetadataRequest;
-    if (object.room !== undefined && object.room !== null) {
-      message.room = object.room;
-    } else {
-      message.room = "";
-    }
-    if (object.metadata !== undefined && object.metadata !== null) {
-      message.metadata = object.metadata;
-    } else {
-      message.metadata = "";
-    }
+    const message = createBaseUpdateRoomMetadataRequest();
+    message.room = object.room ?? "";
+    message.metadata = object.metadata ?? "";
     return message;
   },
 };
@@ -1753,6 +1531,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>
@@ -1762,6 +1541,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

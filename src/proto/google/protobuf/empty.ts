@@ -17,7 +17,9 @@ export const protobufPackage = "google.protobuf";
  */
 export interface Empty {}
 
-const baseEmpty: object = {};
+function createBaseEmpty(): Empty {
+  return {};
+}
 
 export const Empty = {
   encode(_: Empty, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
@@ -27,7 +29,7 @@ export const Empty = {
   decode(input: _m0.Reader | Uint8Array, length?: number): Empty {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseEmpty } as Empty;
+    const message = createBaseEmpty();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -40,7 +42,7 @@ export const Empty = {
   },
 
   fromJSON(_: any): Empty {
-    const message = { ...baseEmpty } as Empty;
+    const message = createBaseEmpty();
     return message;
   },
 
@@ -49,8 +51,8 @@ export const Empty = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<Empty>): Empty {
-    const message = { ...baseEmpty } as Empty;
+  fromPartial<I extends Exact<DeepPartial<Empty>, I>>(_: I): Empty {
+    const message = createBaseEmpty();
     return message;
   },
 };
@@ -63,6 +65,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>
@@ -72,6 +75,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

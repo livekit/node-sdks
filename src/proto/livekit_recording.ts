@@ -1,6 +1,6 @@
 /* eslint-disable */
 import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "livekit";
@@ -209,28 +209,17 @@ export const StartRecordingRequest = {
   },
 
   fromJSON(object: any): StartRecordingRequest {
-    const message = createBaseStartRecordingRequest();
-    message.url =
-      object.url !== undefined && object.url !== null
-        ? String(object.url)
-        : undefined;
-    message.template =
-      object.template !== undefined && object.template !== null
+    return {
+      url: isSet(object.url) ? String(object.url) : undefined,
+      template: isSet(object.template)
         ? RecordingTemplate.fromJSON(object.template)
-        : undefined;
-    message.rtmp =
-      object.rtmp !== undefined && object.rtmp !== null
-        ? RtmpOutput.fromJSON(object.rtmp)
-        : undefined;
-    message.filepath =
-      object.filepath !== undefined && object.filepath !== null
-        ? String(object.filepath)
-        : undefined;
-    message.options =
-      object.options !== undefined && object.options !== null
+        : undefined,
+      rtmp: isSet(object.rtmp) ? RtmpOutput.fromJSON(object.rtmp) : undefined,
+      filepath: isSet(object.filepath) ? String(object.filepath) : undefined,
+      options: isSet(object.options)
         ? RecordingOptions.fromJSON(object.options)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: StartRecordingRequest): unknown {
@@ -318,20 +307,11 @@ export const RecordingTemplate = {
   },
 
   fromJSON(object: any): RecordingTemplate {
-    const message = createBaseRecordingTemplate();
-    message.layout =
-      object.layout !== undefined && object.layout !== null
-        ? String(object.layout)
-        : "";
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    message.baseUrl =
-      object.baseUrl !== undefined && object.baseUrl !== null
-        ? String(object.baseUrl)
-        : "";
-    return message;
+    return {
+      layout: isSet(object.layout) ? String(object.layout) : "",
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      baseUrl: isSet(object.baseUrl) ? String(object.baseUrl) : "",
+    };
   },
 
   toJSON(message: RecordingTemplate): unknown {
@@ -387,9 +367,11 @@ export const RtmpOutput = {
   },
 
   fromJSON(object: any): RtmpOutput {
-    const message = createBaseRtmpOutput();
-    message.urls = (object.urls ?? []).map((e: any) => String(e));
-    return message;
+    return {
+      urls: Array.isArray(object?.urls)
+        ? object.urls.map((e: any) => String(e))
+        : [],
+    };
   },
 
   toJSON(message: RtmpOutput): unknown {
@@ -503,44 +485,23 @@ export const RecordingOptions = {
   },
 
   fromJSON(object: any): RecordingOptions {
-    const message = createBaseRecordingOptions();
-    message.preset =
-      object.preset !== undefined && object.preset !== null
-        ? recordingPresetFromJSON(object.preset)
-        : 0;
-    message.width =
-      object.width !== undefined && object.width !== null
-        ? Number(object.width)
-        : 0;
-    message.height =
-      object.height !== undefined && object.height !== null
-        ? Number(object.height)
-        : 0;
-    message.depth =
-      object.depth !== undefined && object.depth !== null
-        ? Number(object.depth)
-        : 0;
-    message.framerate =
-      object.framerate !== undefined && object.framerate !== null
-        ? Number(object.framerate)
-        : 0;
-    message.audioBitrate =
-      object.audioBitrate !== undefined && object.audioBitrate !== null
+    return {
+      preset: isSet(object.preset) ? recordingPresetFromJSON(object.preset) : 0,
+      width: isSet(object.width) ? Number(object.width) : 0,
+      height: isSet(object.height) ? Number(object.height) : 0,
+      depth: isSet(object.depth) ? Number(object.depth) : 0,
+      framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
+      audioBitrate: isSet(object.audioBitrate)
         ? Number(object.audioBitrate)
-        : 0;
-    message.audioFrequency =
-      object.audioFrequency !== undefined && object.audioFrequency !== null
+        : 0,
+      audioFrequency: isSet(object.audioFrequency)
         ? Number(object.audioFrequency)
-        : 0;
-    message.videoBitrate =
-      object.videoBitrate !== undefined && object.videoBitrate !== null
+        : 0,
+      videoBitrate: isSet(object.videoBitrate)
         ? Number(object.videoBitrate)
-        : 0;
-    message.profile =
-      object.profile !== undefined && object.profile !== null
-        ? String(object.profile)
-        : "";
-    return message;
+        : 0,
+      profile: isSet(object.profile) ? String(object.profile) : "",
+    };
   },
 
   toJSON(message: RecordingOptions): unknown {
@@ -616,12 +577,9 @@ export const StartRecordingResponse = {
   },
 
   fromJSON(object: any): StartRecordingResponse {
-    const message = createBaseStartRecordingResponse();
-    message.recordingId =
-      object.recordingId !== undefined && object.recordingId !== null
-        ? String(object.recordingId)
-        : "";
-    return message;
+    return {
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+    };
   },
 
   toJSON(message: StartRecordingResponse): unknown {
@@ -680,16 +638,10 @@ export const AddOutputRequest = {
   },
 
   fromJSON(object: any): AddOutputRequest {
-    const message = createBaseAddOutputRequest();
-    message.recordingId =
-      object.recordingId !== undefined && object.recordingId !== null
-        ? String(object.recordingId)
-        : "";
-    message.rtmpUrl =
-      object.rtmpUrl !== undefined && object.rtmpUrl !== null
-        ? String(object.rtmpUrl)
-        : "";
-    return message;
+    return {
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : "",
+    };
   },
 
   toJSON(message: AddOutputRequest): unknown {
@@ -750,16 +702,10 @@ export const RemoveOutputRequest = {
   },
 
   fromJSON(object: any): RemoveOutputRequest {
-    const message = createBaseRemoveOutputRequest();
-    message.recordingId =
-      object.recordingId !== undefined && object.recordingId !== null
-        ? String(object.recordingId)
-        : "";
-    message.rtmpUrl =
-      object.rtmpUrl !== undefined && object.rtmpUrl !== null
-        ? String(object.rtmpUrl)
-        : "";
-    return message;
+    return {
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : "",
+    };
   },
 
   toJSON(message: RemoveOutputRequest): unknown {
@@ -814,12 +760,9 @@ export const EndRecordingRequest = {
   },
 
   fromJSON(object: any): EndRecordingRequest {
-    const message = createBaseEndRecordingRequest();
-    message.recordingId =
-      object.recordingId !== undefined && object.recordingId !== null
-        ? String(object.recordingId)
-        : "";
-    return message;
+    return {
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+    };
   },
 
   toJSON(message: EndRecordingRequest): unknown {
@@ -909,27 +852,16 @@ export const RecordingInfo = {
   },
 
   fromJSON(object: any): RecordingInfo {
-    const message = createBaseRecordingInfo();
-    message.id =
-      object.id !== undefined && object.id !== null ? String(object.id) : "";
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    message.active =
-      object.active !== undefined && object.active !== null
-        ? Boolean(object.active)
-        : false;
-    message.error =
-      object.error !== undefined && object.error !== null
-        ? String(object.error)
-        : "";
-    message.file =
-      object.file !== undefined && object.file !== null
-        ? FileResult.fromJSON(object.file)
-        : undefined;
-    message.rtmp = (object.rtmp ?? []).map((e: any) => RtmpResult.fromJSON(e));
-    return message;
+    return {
+      id: isSet(object.id) ? String(object.id) : "",
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      active: isSet(object.active) ? Boolean(object.active) : false,
+      error: isSet(object.error) ? String(object.error) : "",
+      file: isSet(object.file) ? FileResult.fromJSON(object.file) : undefined,
+      rtmp: Array.isArray(object?.rtmp)
+        ? object.rtmp.map((e: any) => RtmpResult.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: RecordingInfo): unknown {
@@ -1007,16 +939,10 @@ export const FileResult = {
   },
 
   fromJSON(object: any): FileResult {
-    const message = createBaseFileResult();
-    message.downloadUrl =
-      object.downloadUrl !== undefined && object.downloadUrl !== null
-        ? String(object.downloadUrl)
-        : "";
-    message.duration =
-      object.duration !== undefined && object.duration !== null
-        ? Number(object.duration)
-        : 0;
-    return message;
+    return {
+      downloadUrl: isSet(object.downloadUrl) ? String(object.downloadUrl) : "",
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
+    };
   },
 
   toJSON(message: FileResult): unknown {
@@ -1078,16 +1004,10 @@ export const RtmpResult = {
   },
 
   fromJSON(object: any): RtmpResult {
-    const message = createBaseRtmpResult();
-    message.streamUrl =
-      object.streamUrl !== undefined && object.streamUrl !== null
-        ? String(object.streamUrl)
-        : "";
-    message.duration =
-      object.duration !== undefined && object.duration !== null
-        ? Number(object.duration)
-        : 0;
-    return message;
+    return {
+      streamUrl: isSet(object.streamUrl) ? String(object.streamUrl) : "",
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
+    };
   },
 
   toJSON(message: RtmpResult): unknown {
@@ -1189,4 +1109,8 @@ function longToNumber(long: Long): number {
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }

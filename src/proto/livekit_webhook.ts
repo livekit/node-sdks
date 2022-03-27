@@ -1,6 +1,6 @@
 /* eslint-disable */
 import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
 import { Room, ParticipantInfo, TrackInfo } from "./livekit_models";
 import { RecordingInfo } from "./livekit_recording";
 import { EgressInfo } from "./livekit_egress";
@@ -119,38 +119,22 @@ export const WebhookEvent = {
   },
 
   fromJSON(object: any): WebhookEvent {
-    const message = createBaseWebhookEvent();
-    message.event =
-      object.event !== undefined && object.event !== null
-        ? String(object.event)
-        : "";
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? Room.fromJSON(object.room)
-        : undefined;
-    message.participant =
-      object.participant !== undefined && object.participant !== null
+    return {
+      event: isSet(object.event) ? String(object.event) : "",
+      room: isSet(object.room) ? Room.fromJSON(object.room) : undefined,
+      participant: isSet(object.participant)
         ? ParticipantInfo.fromJSON(object.participant)
-        : undefined;
-    message.recordingInfo =
-      object.recordingInfo !== undefined && object.recordingInfo !== null
+        : undefined,
+      recordingInfo: isSet(object.recordingInfo)
         ? RecordingInfo.fromJSON(object.recordingInfo)
-        : undefined;
-    message.egressInfo =
-      object.egressInfo !== undefined && object.egressInfo !== null
+        : undefined,
+      egressInfo: isSet(object.egressInfo)
         ? EgressInfo.fromJSON(object.egressInfo)
-        : undefined;
-    message.track =
-      object.track !== undefined && object.track !== null
-        ? TrackInfo.fromJSON(object.track)
-        : undefined;
-    message.id =
-      object.id !== undefined && object.id !== null ? String(object.id) : "";
-    message.createdAt =
-      object.createdAt !== undefined && object.createdAt !== null
-        ? Number(object.createdAt)
-        : 0;
-    return message;
+        : undefined,
+      track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
+      id: isSet(object.id) ? String(object.id) : "",
+      createdAt: isSet(object.createdAt) ? Number(object.createdAt) : 0,
+    };
   },
 
   toJSON(message: WebhookEvent): unknown {
@@ -257,4 +241,8 @@ function longToNumber(long: Long): number {
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }

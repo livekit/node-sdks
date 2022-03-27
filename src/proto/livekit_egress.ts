@@ -1,6 +1,6 @@
 /* eslint-disable */
 import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "livekit";
 
@@ -501,44 +501,27 @@ export const WebCompositeEgressRequest = {
   },
 
   fromJSON(object: any): WebCompositeEgressRequest {
-    const message = createBaseWebCompositeEgressRequest();
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    message.layout =
-      object.layout !== undefined && object.layout !== null
-        ? String(object.layout)
-        : "";
-    message.audioOnly =
-      object.audioOnly !== undefined && object.audioOnly !== null
-        ? Boolean(object.audioOnly)
-        : false;
-    message.videoOnly =
-      object.videoOnly !== undefined && object.videoOnly !== null
-        ? Boolean(object.videoOnly)
-        : false;
-    message.customBaseUrl =
-      object.customBaseUrl !== undefined && object.customBaseUrl !== null
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      layout: isSet(object.layout) ? String(object.layout) : "",
+      audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
+      videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
+      customBaseUrl: isSet(object.customBaseUrl)
         ? String(object.customBaseUrl)
-        : "";
-    message.file =
-      object.file !== undefined && object.file !== null
+        : "",
+      file: isSet(object.file)
         ? EncodedFileOutput.fromJSON(object.file)
-        : undefined;
-    message.stream =
-      object.stream !== undefined && object.stream !== null
+        : undefined,
+      stream: isSet(object.stream)
         ? StreamOutput.fromJSON(object.stream)
-        : undefined;
-    message.preset =
-      object.preset !== undefined && object.preset !== null
+        : undefined,
+      preset: isSet(object.preset)
         ? encodingOptionsPresetFromJSON(object.preset)
-        : undefined;
-    message.advanced =
-      object.advanced !== undefined && object.advanced !== null
+        : undefined,
+      advanced: isSet(object.advanced)
         ? EncodingOptions.fromJSON(object.advanced)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: WebCompositeEgressRequest): unknown {
@@ -679,36 +662,27 @@ export const TrackCompositeEgressRequest = {
   },
 
   fromJSON(object: any): TrackCompositeEgressRequest {
-    const message = createBaseTrackCompositeEgressRequest();
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    message.audioTrackId =
-      object.audioTrackId !== undefined && object.audioTrackId !== null
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      audioTrackId: isSet(object.audioTrackId)
         ? String(object.audioTrackId)
-        : "";
-    message.videoTrackId =
-      object.videoTrackId !== undefined && object.videoTrackId !== null
+        : "",
+      videoTrackId: isSet(object.videoTrackId)
         ? String(object.videoTrackId)
-        : "";
-    message.file =
-      object.file !== undefined && object.file !== null
+        : "",
+      file: isSet(object.file)
         ? EncodedFileOutput.fromJSON(object.file)
-        : undefined;
-    message.stream =
-      object.stream !== undefined && object.stream !== null
+        : undefined,
+      stream: isSet(object.stream)
         ? StreamOutput.fromJSON(object.stream)
-        : undefined;
-    message.preset =
-      object.preset !== undefined && object.preset !== null
+        : undefined,
+      preset: isSet(object.preset)
         ? encodingOptionsPresetFromJSON(object.preset)
-        : undefined;
-    message.advanced =
-      object.advanced !== undefined && object.advanced !== null
+        : undefined,
+      advanced: isSet(object.advanced)
         ? EncodingOptions.fromJSON(object.advanced)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: TrackCompositeEgressRequest): unknown {
@@ -819,24 +793,14 @@ export const TrackEgressRequest = {
   },
 
   fromJSON(object: any): TrackEgressRequest {
-    const message = createBaseTrackEgressRequest();
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    message.trackId =
-      object.trackId !== undefined && object.trackId !== null
-        ? String(object.trackId)
-        : "";
-    message.httpUrl =
-      object.httpUrl !== undefined && object.httpUrl !== null
-        ? String(object.httpUrl)
-        : undefined;
-    message.websocketUrl =
-      object.websocketUrl !== undefined && object.websocketUrl !== null
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      trackId: isSet(object.trackId) ? String(object.trackId) : "",
+      httpUrl: isSet(object.httpUrl) ? String(object.httpUrl) : undefined,
+      websocketUrl: isSet(object.websocketUrl)
         ? String(object.websocketUrl)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: TrackEgressRequest): unknown {
@@ -925,28 +889,17 @@ export const EncodedFileOutput = {
   },
 
   fromJSON(object: any): EncodedFileOutput {
-    const message = createBaseEncodedFileOutput();
-    message.fileType =
-      object.fileType !== undefined && object.fileType !== null
+    return {
+      fileType: isSet(object.fileType)
         ? encodedFileTypeFromJSON(object.fileType)
-        : 0;
-    message.filepath =
-      object.filepath !== undefined && object.filepath !== null
-        ? String(object.filepath)
-        : "";
-    message.s3 =
-      object.s3 !== undefined && object.s3 !== null
-        ? S3Upload.fromJSON(object.s3)
-        : undefined;
-    message.gcp =
-      object.gcp !== undefined && object.gcp !== null
-        ? GCPUpload.fromJSON(object.gcp)
-        : undefined;
-    message.azure =
-      object.azure !== undefined && object.azure !== null
+        : 0,
+      filepath: isSet(object.filepath) ? String(object.filepath) : "",
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure)
         ? AzureBlobUpload.fromJSON(object.azure)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: EncodedFileOutput): unknown {
@@ -1045,28 +998,13 @@ export const S3Upload = {
   },
 
   fromJSON(object: any): S3Upload {
-    const message = createBaseS3Upload();
-    message.accessKey =
-      object.accessKey !== undefined && object.accessKey !== null
-        ? String(object.accessKey)
-        : "";
-    message.secret =
-      object.secret !== undefined && object.secret !== null
-        ? String(object.secret)
-        : "";
-    message.region =
-      object.region !== undefined && object.region !== null
-        ? String(object.region)
-        : "";
-    message.endpoint =
-      object.endpoint !== undefined && object.endpoint !== null
-        ? String(object.endpoint)
-        : "";
-    message.bucket =
-      object.bucket !== undefined && object.bucket !== null
-        ? String(object.bucket)
-        : "";
-    return message;
+    return {
+      accessKey: isSet(object.accessKey) ? String(object.accessKey) : "",
+      secret: isSet(object.secret) ? String(object.secret) : "",
+      region: isSet(object.region) ? String(object.region) : "",
+      endpoint: isSet(object.endpoint) ? String(object.endpoint) : "",
+      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+    };
   },
 
   toJSON(message: S3Upload): unknown {
@@ -1130,16 +1068,12 @@ export const GCPUpload = {
   },
 
   fromJSON(object: any): GCPUpload {
-    const message = createBaseGCPUpload();
-    message.credentials =
-      object.credentials !== undefined && object.credentials !== null
+    return {
+      credentials: isSet(object.credentials)
         ? bytesFromBase64(object.credentials)
-        : new Uint8Array();
-    message.bucket =
-      object.bucket !== undefined && object.bucket !== null
-        ? String(object.bucket)
-        : "";
-    return message;
+        : new Uint8Array(),
+      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+    };
   },
 
   toJSON(message: GCPUpload): unknown {
@@ -1210,20 +1144,13 @@ export const AzureBlobUpload = {
   },
 
   fromJSON(object: any): AzureBlobUpload {
-    const message = createBaseAzureBlobUpload();
-    message.accountName =
-      object.accountName !== undefined && object.accountName !== null
-        ? String(object.accountName)
-        : "";
-    message.accountKey =
-      object.accountKey !== undefined && object.accountKey !== null
-        ? String(object.accountKey)
-        : "";
-    message.containerName =
-      object.containerName !== undefined && object.containerName !== null
+    return {
+      accountName: isSet(object.accountName) ? String(object.accountName) : "",
+      accountKey: isSet(object.accountKey) ? String(object.accountKey) : "",
+      containerName: isSet(object.containerName)
         ? String(object.containerName)
-        : "";
-    return message;
+        : "",
+    };
   },
 
   toJSON(message: AzureBlobUpload): unknown {
@@ -1287,13 +1214,14 @@ export const StreamOutput = {
   },
 
   fromJSON(object: any): StreamOutput {
-    const message = createBaseStreamOutput();
-    message.protocol =
-      object.protocol !== undefined && object.protocol !== null
+    return {
+      protocol: isSet(object.protocol)
         ? streamProtocolFromJSON(object.protocol)
-        : 0;
-    message.urls = (object.urls ?? []).map((e: any) => String(e));
-    return message;
+        : 0,
+      urls: Array.isArray(object?.urls)
+        ? object.urls.map((e: any) => String(e))
+        : [],
+    };
   },
 
   toJSON(message: StreamOutput): unknown {
@@ -1410,44 +1338,27 @@ export const EncodingOptions = {
   },
 
   fromJSON(object: any): EncodingOptions {
-    const message = createBaseEncodingOptions();
-    message.width =
-      object.width !== undefined && object.width !== null
-        ? Number(object.width)
-        : 0;
-    message.height =
-      object.height !== undefined && object.height !== null
-        ? Number(object.height)
-        : 0;
-    message.depth =
-      object.depth !== undefined && object.depth !== null
-        ? Number(object.depth)
-        : 0;
-    message.framerate =
-      object.framerate !== undefined && object.framerate !== null
-        ? Number(object.framerate)
-        : 0;
-    message.audioCodec =
-      object.audioCodec !== undefined && object.audioCodec !== null
+    return {
+      width: isSet(object.width) ? Number(object.width) : 0,
+      height: isSet(object.height) ? Number(object.height) : 0,
+      depth: isSet(object.depth) ? Number(object.depth) : 0,
+      framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
+      audioCodec: isSet(object.audioCodec)
         ? audioCodecFromJSON(object.audioCodec)
-        : 0;
-    message.audioBitrate =
-      object.audioBitrate !== undefined && object.audioBitrate !== null
+        : 0,
+      audioBitrate: isSet(object.audioBitrate)
         ? Number(object.audioBitrate)
-        : 0;
-    message.audioFrequency =
-      object.audioFrequency !== undefined && object.audioFrequency !== null
+        : 0,
+      audioFrequency: isSet(object.audioFrequency)
         ? Number(object.audioFrequency)
-        : 0;
-    message.videoCodec =
-      object.videoCodec !== undefined && object.videoCodec !== null
+        : 0,
+      videoCodec: isSet(object.videoCodec)
         ? videoCodecFromJSON(object.videoCodec)
-        : 0;
-    message.videoBitrate =
-      object.videoBitrate !== undefined && object.videoBitrate !== null
+        : 0,
+      videoBitrate: isSet(object.videoBitrate)
         ? Number(object.videoBitrate)
-        : 0;
-    return message;
+        : 0,
+    };
   },
 
   toJSON(message: EncodingOptions): unknown {
@@ -1527,16 +1438,10 @@ export const UpdateLayoutRequest = {
   },
 
   fromJSON(object: any): UpdateLayoutRequest {
-    const message = createBaseUpdateLayoutRequest();
-    message.egressId =
-      object.egressId !== undefined && object.egressId !== null
-        ? String(object.egressId)
-        : "";
-    message.layout =
-      object.layout !== undefined && object.layout !== null
-        ? String(object.layout)
-        : "";
-    return message;
+    return {
+      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      layout: isSet(object.layout) ? String(object.layout) : "",
+    };
   },
 
   toJSON(message: UpdateLayoutRequest): unknown {
@@ -1602,18 +1507,15 @@ export const UpdateStreamRequest = {
   },
 
   fromJSON(object: any): UpdateStreamRequest {
-    const message = createBaseUpdateStreamRequest();
-    message.egressId =
-      object.egressId !== undefined && object.egressId !== null
-        ? String(object.egressId)
-        : "";
-    message.addOutputUrls = (object.addOutputUrls ?? []).map((e: any) =>
-      String(e)
-    );
-    message.removeOutputUrls = (object.removeOutputUrls ?? []).map((e: any) =>
-      String(e)
-    );
-    return message;
+    return {
+      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      addOutputUrls: Array.isArray(object?.addOutputUrls)
+        ? object.addOutputUrls.map((e: any) => String(e))
+        : [],
+      removeOutputUrls: Array.isArray(object?.removeOutputUrls)
+        ? object.removeOutputUrls.map((e: any) => String(e))
+        : [],
+    };
   },
 
   toJSON(message: UpdateStreamRequest): unknown {
@@ -1677,12 +1579,9 @@ export const ListEgressRequest = {
   },
 
   fromJSON(object: any): ListEgressRequest {
-    const message = createBaseListEgressRequest();
-    message.roomName =
-      object.roomName !== undefined && object.roomName !== null
-        ? String(object.roomName)
-        : "";
-    return message;
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+    };
   },
 
   toJSON(message: ListEgressRequest): unknown {
@@ -1734,11 +1633,11 @@ export const ListEgressResponse = {
   },
 
   fromJSON(object: any): ListEgressResponse {
-    const message = createBaseListEgressResponse();
-    message.items = (object.items ?? []).map((e: any) =>
-      EgressInfo.fromJSON(e)
-    );
-    return message;
+    return {
+      items: Array.isArray(object?.items)
+        ? object.items.map((e: any) => EgressInfo.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: ListEgressResponse): unknown {
@@ -1796,12 +1695,9 @@ export const StopEgressRequest = {
   },
 
   fromJSON(object: any): StopEgressRequest {
-    const message = createBaseStopEgressRequest();
-    message.egressId =
-      object.egressId !== undefined && object.egressId !== null
-        ? String(object.egressId)
-        : "";
-    return message;
+    return {
+      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+    };
   },
 
   toJSON(message: StopEgressRequest): unknown {
@@ -1926,44 +1822,25 @@ export const EgressInfo = {
   },
 
   fromJSON(object: any): EgressInfo {
-    const message = createBaseEgressInfo();
-    message.egressId =
-      object.egressId !== undefined && object.egressId !== null
-        ? String(object.egressId)
-        : "";
-    message.roomId =
-      object.roomId !== undefined && object.roomId !== null
-        ? String(object.roomId)
-        : "";
-    message.status =
-      object.status !== undefined && object.status !== null
-        ? egressStatusFromJSON(object.status)
-        : 0;
-    message.webComposite =
-      object.webComposite !== undefined && object.webComposite !== null
+    return {
+      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      roomId: isSet(object.roomId) ? String(object.roomId) : "",
+      status: isSet(object.status) ? egressStatusFromJSON(object.status) : 0,
+      webComposite: isSet(object.webComposite)
         ? WebCompositeEgressRequest.fromJSON(object.webComposite)
-        : undefined;
-    message.trackComposite =
-      object.trackComposite !== undefined && object.trackComposite !== null
+        : undefined,
+      trackComposite: isSet(object.trackComposite)
         ? TrackCompositeEgressRequest.fromJSON(object.trackComposite)
-        : undefined;
-    message.track =
-      object.track !== undefined && object.track !== null
+        : undefined,
+      track: isSet(object.track)
         ? TrackEgressRequest.fromJSON(object.track)
-        : undefined;
-    message.stream =
-      object.stream !== undefined && object.stream !== null
+        : undefined,
+      stream: isSet(object.stream)
         ? StreamInfoList.fromJSON(object.stream)
-        : undefined;
-    message.file =
-      object.file !== undefined && object.file !== null
-        ? FileInfo.fromJSON(object.file)
-        : undefined;
-    message.error =
-      object.error !== undefined && object.error !== null
-        ? String(object.error)
-        : "";
-    return message;
+        : undefined,
+      file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
+      error: isSet(object.error) ? String(object.error) : "",
+    };
   },
 
   toJSON(message: EgressInfo): unknown {
@@ -2060,9 +1937,11 @@ export const StreamInfoList = {
   },
 
   fromJSON(object: any): StreamInfoList {
-    const message = createBaseStreamInfoList();
-    message.info = (object.info ?? []).map((e: any) => StreamInfo.fromJSON(e));
-    return message;
+    return {
+      info: Array.isArray(object?.info)
+        ? object.info.map((e: any) => StreamInfo.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: StreamInfoList): unknown {
@@ -2132,18 +2011,11 @@ export const StreamInfo = {
   },
 
   fromJSON(object: any): StreamInfo {
-    const message = createBaseStreamInfo();
-    message.url =
-      object.url !== undefined && object.url !== null ? String(object.url) : "";
-    message.startedAt =
-      object.startedAt !== undefined && object.startedAt !== null
-        ? Number(object.startedAt)
-        : 0;
-    message.endedAt =
-      object.endedAt !== undefined && object.endedAt !== null
-        ? Number(object.endedAt)
-        : 0;
-    return message;
+    return {
+      url: isSet(object.url) ? String(object.url) : "",
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+    };
   },
 
   toJSON(message: StreamInfo): unknown {
@@ -2225,28 +2097,13 @@ export const FileInfo = {
   },
 
   fromJSON(object: any): FileInfo {
-    const message = createBaseFileInfo();
-    message.filename =
-      object.filename !== undefined && object.filename !== null
-        ? String(object.filename)
-        : "";
-    message.startedAt =
-      object.startedAt !== undefined && object.startedAt !== null
-        ? Number(object.startedAt)
-        : 0;
-    message.endedAt =
-      object.endedAt !== undefined && object.endedAt !== null
-        ? Number(object.endedAt)
-        : 0;
-    message.size =
-      object.size !== undefined && object.size !== null
-        ? Number(object.size)
-        : 0;
-    message.location =
-      object.location !== undefined && object.location !== null
-        ? String(object.location)
-        : "";
-    return message;
+    return {
+      filename: isSet(object.filename) ? String(object.filename) : "",
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      size: isSet(object.size) ? Number(object.size) : 0,
+      location: isSet(object.location) ? String(object.location) : "",
+    };
   },
 
   toJSON(message: FileInfo): unknown {
@@ -2358,4 +2215,8 @@ function longToNumber(long: Long): number {
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }

@@ -1,8 +1,9 @@
 /* eslint-disable */
 import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
 import {
   TrackInfo,
+  ParticipantPermission,
   DataPacket_Kind,
   Room,
   ParticipantInfo,
@@ -72,15 +73,6 @@ export interface MuteRoomTrackRequest {
 
 export interface MuteRoomTrackResponse {
   track?: TrackInfo;
-}
-
-export interface ParticipantPermission {
-  /** allow participant to subscribe to other tracks in the room */
-  canSubscribe: boolean;
-  /** allow participant to publish new tracks to room */
-  canPublish: boolean;
-  /** allow participant to publish data */
-  canPublishData: boolean;
 }
 
 export interface UpdateParticipantRequest {
@@ -186,28 +178,17 @@ export const CreateRoomRequest = {
   },
 
   fromJSON(object: any): CreateRoomRequest {
-    const message = createBaseCreateRoomRequest();
-    message.name =
-      object.name !== undefined && object.name !== null
-        ? String(object.name)
-        : "";
-    message.emptyTimeout =
-      object.emptyTimeout !== undefined && object.emptyTimeout !== null
+    return {
+      name: isSet(object.name) ? String(object.name) : "",
+      emptyTimeout: isSet(object.emptyTimeout)
         ? Number(object.emptyTimeout)
-        : 0;
-    message.maxParticipants =
-      object.maxParticipants !== undefined && object.maxParticipants !== null
+        : 0,
+      maxParticipants: isSet(object.maxParticipants)
         ? Number(object.maxParticipants)
-        : 0;
-    message.nodeId =
-      object.nodeId !== undefined && object.nodeId !== null
-        ? String(object.nodeId)
-        : "";
-    message.metadata =
-      object.metadata !== undefined && object.metadata !== null
-        ? String(object.metadata)
-        : "";
-    return message;
+        : 0,
+      nodeId: isSet(object.nodeId) ? String(object.nodeId) : "",
+      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+    };
   },
 
   toJSON(message: CreateRoomRequest): unknown {
@@ -269,9 +250,11 @@ export const ListRoomsRequest = {
   },
 
   fromJSON(object: any): ListRoomsRequest {
-    const message = createBaseListRoomsRequest();
-    message.names = (object.names ?? []).map((e: any) => String(e));
-    return message;
+    return {
+      names: Array.isArray(object?.names)
+        ? object.names.map((e: any) => String(e))
+        : [],
+    };
   },
 
   toJSON(message: ListRoomsRequest): unknown {
@@ -327,9 +310,11 @@ export const ListRoomsResponse = {
   },
 
   fromJSON(object: any): ListRoomsResponse {
-    const message = createBaseListRoomsResponse();
-    message.rooms = (object.rooms ?? []).map((e: any) => Room.fromJSON(e));
-    return message;
+    return {
+      rooms: Array.isArray(object?.rooms)
+        ? object.rooms.map((e: any) => Room.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: ListRoomsResponse): unknown {
@@ -385,12 +370,9 @@ export const DeleteRoomRequest = {
   },
 
   fromJSON(object: any): DeleteRoomRequest {
-    const message = createBaseDeleteRoomRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+    };
   },
 
   toJSON(message: DeleteRoomRequest): unknown {
@@ -436,8 +418,7 @@ export const DeleteRoomResponse = {
   },
 
   fromJSON(_: any): DeleteRoomResponse {
-    const message = createBaseDeleteRoomResponse();
-    return message;
+    return {};
   },
 
   toJSON(_: DeleteRoomResponse): unknown {
@@ -490,12 +471,9 @@ export const ListParticipantsRequest = {
   },
 
   fromJSON(object: any): ListParticipantsRequest {
-    const message = createBaseListParticipantsRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+    };
   },
 
   toJSON(message: ListParticipantsRequest): unknown {
@@ -552,11 +530,11 @@ export const ListParticipantsResponse = {
   },
 
   fromJSON(object: any): ListParticipantsResponse {
-    const message = createBaseListParticipantsResponse();
-    message.participants = (object.participants ?? []).map((e: any) =>
-      ParticipantInfo.fromJSON(e)
-    );
-    return message;
+    return {
+      participants: Array.isArray(object?.participants)
+        ? object.participants.map((e: any) => ParticipantInfo.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: ListParticipantsResponse): unknown {
@@ -624,16 +602,10 @@ export const RoomParticipantIdentity = {
   },
 
   fromJSON(object: any): RoomParticipantIdentity {
-    const message = createBaseRoomParticipantIdentity();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.identity =
-      object.identity !== undefined && object.identity !== null
-        ? String(object.identity)
-        : "";
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      identity: isSet(object.identity) ? String(object.identity) : "",
+    };
   },
 
   toJSON(message: RoomParticipantIdentity): unknown {
@@ -684,8 +656,7 @@ export const RemoveParticipantResponse = {
   },
 
   fromJSON(_: any): RemoveParticipantResponse {
-    const message = createBaseRemoveParticipantResponse();
-    return message;
+    return {};
   },
 
   toJSON(_: RemoveParticipantResponse): unknown {
@@ -756,24 +727,12 @@ export const MuteRoomTrackRequest = {
   },
 
   fromJSON(object: any): MuteRoomTrackRequest {
-    const message = createBaseMuteRoomTrackRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.identity =
-      object.identity !== undefined && object.identity !== null
-        ? String(object.identity)
-        : "";
-    message.trackSid =
-      object.trackSid !== undefined && object.trackSid !== null
-        ? String(object.trackSid)
-        : "";
-    message.muted =
-      object.muted !== undefined && object.muted !== null
-        ? Boolean(object.muted)
-        : false;
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      identity: isSet(object.identity) ? String(object.identity) : "",
+      trackSid: isSet(object.trackSid) ? String(object.trackSid) : "",
+      muted: isSet(object.muted) ? Boolean(object.muted) : false,
+    };
   },
 
   toJSON(message: MuteRoomTrackRequest): unknown {
@@ -834,12 +793,9 @@ export const MuteRoomTrackResponse = {
   },
 
   fromJSON(object: any): MuteRoomTrackResponse {
-    const message = createBaseMuteRoomTrackResponse();
-    message.track =
-      object.track !== undefined && object.track !== null
-        ? TrackInfo.fromJSON(object.track)
-        : undefined;
-    return message;
+    return {
+      track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
+    };
   },
 
   toJSON(message: MuteRoomTrackResponse): unknown {
@@ -857,92 +813,6 @@ export const MuteRoomTrackResponse = {
       object.track !== undefined && object.track !== null
         ? TrackInfo.fromPartial(object.track)
         : undefined;
-    return message;
-  },
-};
-
-function createBaseParticipantPermission(): ParticipantPermission {
-  return { canSubscribe: false, canPublish: false, canPublishData: false };
-}
-
-export const ParticipantPermission = {
-  encode(
-    message: ParticipantPermission,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.canSubscribe === true) {
-      writer.uint32(8).bool(message.canSubscribe);
-    }
-    if (message.canPublish === true) {
-      writer.uint32(16).bool(message.canPublish);
-    }
-    if (message.canPublishData === true) {
-      writer.uint32(24).bool(message.canPublishData);
-    }
-    return writer;
-  },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): ParticipantPermission {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseParticipantPermission();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.canSubscribe = reader.bool();
-          break;
-        case 2:
-          message.canPublish = reader.bool();
-          break;
-        case 3:
-          message.canPublishData = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ParticipantPermission {
-    const message = createBaseParticipantPermission();
-    message.canSubscribe =
-      object.canSubscribe !== undefined && object.canSubscribe !== null
-        ? Boolean(object.canSubscribe)
-        : false;
-    message.canPublish =
-      object.canPublish !== undefined && object.canPublish !== null
-        ? Boolean(object.canPublish)
-        : false;
-    message.canPublishData =
-      object.canPublishData !== undefined && object.canPublishData !== null
-        ? Boolean(object.canPublishData)
-        : false;
-    return message;
-  },
-
-  toJSON(message: ParticipantPermission): unknown {
-    const obj: any = {};
-    message.canSubscribe !== undefined &&
-      (obj.canSubscribe = message.canSubscribe);
-    message.canPublish !== undefined && (obj.canPublish = message.canPublish);
-    message.canPublishData !== undefined &&
-      (obj.canPublishData = message.canPublishData);
-    return obj;
-  },
-
-  fromPartial<I extends Exact<DeepPartial<ParticipantPermission>, I>>(
-    object: I
-  ): ParticipantPermission {
-    const message = createBaseParticipantPermission();
-    message.canSubscribe = object.canSubscribe ?? false;
-    message.canPublish = object.canPublish ?? false;
-    message.canPublishData = object.canPublishData ?? false;
     return message;
   },
 };
@@ -1008,24 +878,14 @@ export const UpdateParticipantRequest = {
   },
 
   fromJSON(object: any): UpdateParticipantRequest {
-    const message = createBaseUpdateParticipantRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.identity =
-      object.identity !== undefined && object.identity !== null
-        ? String(object.identity)
-        : "";
-    message.metadata =
-      object.metadata !== undefined && object.metadata !== null
-        ? String(object.metadata)
-        : "";
-    message.permission =
-      object.permission !== undefined && object.permission !== null
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      identity: isSet(object.identity) ? String(object.identity) : "",
+      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      permission: isSet(object.permission)
         ? ParticipantPermission.fromJSON(object.permission)
-        : undefined;
-    return message;
+        : undefined,
+    };
   },
 
   toJSON(message: UpdateParticipantRequest): unknown {
@@ -1124,24 +984,19 @@ export const UpdateSubscriptionsRequest = {
   },
 
   fromJSON(object: any): UpdateSubscriptionsRequest {
-    const message = createBaseUpdateSubscriptionsRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.identity =
-      object.identity !== undefined && object.identity !== null
-        ? String(object.identity)
-        : "";
-    message.trackSids = (object.trackSids ?? []).map((e: any) => String(e));
-    message.subscribe =
-      object.subscribe !== undefined && object.subscribe !== null
-        ? Boolean(object.subscribe)
-        : false;
-    message.participantTracks = (object.participantTracks ?? []).map((e: any) =>
-      ParticipantTracks.fromJSON(e)
-    );
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      identity: isSet(object.identity) ? String(object.identity) : "",
+      trackSids: Array.isArray(object?.trackSids)
+        ? object.trackSids.map((e: any) => String(e))
+        : [],
+      subscribe: isSet(object.subscribe) ? Boolean(object.subscribe) : false,
+      participantTracks: Array.isArray(object?.participantTracks)
+        ? object.participantTracks.map((e: any) =>
+            ParticipantTracks.fromJSON(e)
+          )
+        : [],
+    };
   },
 
   toJSON(message: UpdateSubscriptionsRequest): unknown {
@@ -1210,8 +1065,7 @@ export const UpdateSubscriptionsResponse = {
   },
 
   fromJSON(_: any): UpdateSubscriptionsResponse {
-    const message = createBaseUpdateSubscriptionsResponse();
-    return message;
+    return {};
   },
 
   toJSON(_: UpdateSubscriptionsResponse): unknown {
@@ -1279,23 +1133,16 @@ export const SendDataRequest = {
   },
 
   fromJSON(object: any): SendDataRequest {
-    const message = createBaseSendDataRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.data =
-      object.data !== undefined && object.data !== null
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      data: isSet(object.data)
         ? bytesFromBase64(object.data)
-        : new Uint8Array();
-    message.kind =
-      object.kind !== undefined && object.kind !== null
-        ? dataPacket_KindFromJSON(object.kind)
-        : 0;
-    message.destinationSids = (object.destinationSids ?? []).map((e: any) =>
-      String(e)
-    );
-    return message;
+        : new Uint8Array(),
+      kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
+      destinationSids: Array.isArray(object?.destinationSids)
+        ? object.destinationSids.map((e: any) => String(e))
+        : [],
+    };
   },
 
   toJSON(message: SendDataRequest): unknown {
@@ -1355,8 +1202,7 @@ export const SendDataResponse = {
   },
 
   fromJSON(_: any): SendDataResponse {
-    const message = createBaseSendDataResponse();
-    return message;
+    return {};
   },
 
   toJSON(_: SendDataResponse): unknown {
@@ -1415,16 +1261,10 @@ export const UpdateRoomMetadataRequest = {
   },
 
   fromJSON(object: any): UpdateRoomMetadataRequest {
-    const message = createBaseUpdateRoomMetadataRequest();
-    message.room =
-      object.room !== undefined && object.room !== null
-        ? String(object.room)
-        : "";
-    message.metadata =
-      object.metadata !== undefined && object.metadata !== null
-        ? String(object.metadata)
-        : "";
-    return message;
+    return {
+      room: isSet(object.room) ? String(object.room) : "",
+      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+    };
   },
 
   toJSON(message: UpdateRoomMetadataRequest): unknown {
@@ -1553,4 +1393,8 @@ export type Exact<P, I extends P> = P extends Builtin
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }

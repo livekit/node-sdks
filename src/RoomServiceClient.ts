@@ -1,7 +1,7 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
 import {
-  DataPacket_Kind, ParticipantInfo, Room, TrackInfo,
+  DataPacket_Kind, ParticipantInfo, ParticipantPermission, Room, TrackInfo,
 } from './proto/livekit_models';
 import {
   CreateRoomRequest,
@@ -12,7 +12,6 @@ import {
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
-  ParticipantPermission,
   RoomParticipantIdentity,
   SendDataRequest,
   UpdateParticipantRequest, UpdateRoomMetadataRequest, UpdateSubscriptionsRequest,

@@ -1,12 +1,12 @@
 {
   "name": "livekit-server-sdk",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "git@github.com:livekit/server-sdk-js.git",
   "author": "David Zhao <david@davidzhao.com>",
-  "license": "MIT",
+  "license": "Apache 2.0",
   "scripts": {
     "build": "yarn exec tsc",
     "build-docs": "yarn exec typedoc",

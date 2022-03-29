@@ -1,6 +1,6 @@
 /* eslint-disable */
 import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "google.protobuf";
 
@@ -42,8 +42,7 @@ export const Empty = {
   },
 
   fromJSON(_: any): Empty {
-    const message = createBaseEmpty();
-    return message;
+    return {};
   },
 
   toJSON(_: Empty): unknown {

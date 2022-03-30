@@ -248,7 +248,7 @@ export function egressStatusToJSON(object: EgressStatus): string {
 }
 
 /** composite using a web browser */
-export interface WebCompositeEgressRequest {
+export interface RoomCompositeEgressRequest {
   /** required */
   roomName: string;
   /** (optional) */
@@ -377,7 +377,7 @@ export interface EgressInfo {
   egressId: string;
   roomId: string;
   status: EgressStatus;
-  webComposite?: WebCompositeEgressRequest | undefined;
+  roomComposite?: RoomCompositeEgressRequest | undefined;
   trackComposite?: TrackCompositeEgressRequest | undefined;
   track?: TrackEgressRequest | undefined;
   stream?: StreamInfoList | undefined;
@@ -403,7 +403,7 @@ export interface FileInfo {
   location: string;
 }
 
-function createBaseWebCompositeEgressRequest(): WebCompositeEgressRequest {
+function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
   return {
     roomName: "",
     layout: "",
@@ -417,9 +417,9 @@ function createBaseWebCompositeEgressRequest(): WebCompositeEgressRequest {
   };
 }
 
-export const WebCompositeEgressRequest = {
+export const RoomCompositeEgressRequest = {
   encode(
-    message: WebCompositeEgressRequest,
+    message: RoomCompositeEgressRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.roomName !== "") {
@@ -458,10 +458,10 @@ export const WebCompositeEgressRequest = {
   decode(
     input: _m0.Reader | Uint8Array,
     length?: number
-  ): WebCompositeEgressRequest {
+  ): RoomCompositeEgressRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseWebCompositeEgressRequest();
+    const message = createBaseRoomCompositeEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -500,7 +500,7 @@ export const WebCompositeEgressRequest = {
     return message;
   },
 
-  fromJSON(object: any): WebCompositeEgressRequest {
+  fromJSON(object: any): RoomCompositeEgressRequest {
     return {
       roomName: isSet(object.roomName) ? String(object.roomName) : "",
       layout: isSet(object.layout) ? String(object.layout) : "",
@@ -524,7 +524,7 @@ export const WebCompositeEgressRequest = {
     };
   },
 
-  toJSON(message: WebCompositeEgressRequest): unknown {
+  toJSON(message: RoomCompositeEgressRequest): unknown {
     const obj: any = {};
     message.roomName !== undefined && (obj.roomName = message.roomName);
     message.layout !== undefined && (obj.layout = message.layout);
@@ -552,10 +552,10 @@ export const WebCompositeEgressRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<WebCompositeEgressRequest>, I>>(
+  fromPartial<I extends Exact<DeepPartial<RoomCompositeEgressRequest>, I>>(
     object: I
-  ): WebCompositeEgressRequest {
-    const message = createBaseWebCompositeEgressRequest();
+  ): RoomCompositeEgressRequest {
+    const message = createBaseRoomCompositeEgressRequest();
     message.roomName = object.roomName ?? "";
     message.layout = object.layout ?? "";
     message.audioOnly = object.audioOnly ?? false;
@@ -1720,7 +1720,7 @@ function createBaseEgressInfo(): EgressInfo {
     egressId: "",
     roomId: "",
     status: 0,
-    webComposite: undefined,
+    roomComposite: undefined,
     trackComposite: undefined,
     track: undefined,
     stream: undefined,
@@ -1743,9 +1743,9 @@ export const EgressInfo = {
     if (message.status !== 0) {
       writer.uint32(24).int32(message.status);
     }
-    if (message.webComposite !== undefined) {
-      WebCompositeEgressRequest.encode(
-        message.webComposite,
+    if (message.roomComposite !== undefined) {
+      RoomCompositeEgressRequest.encode(
+        message.roomComposite,
         writer.uint32(34).fork()
       ).ldelim();
     }
@@ -1790,7 +1790,7 @@ export const EgressInfo = {
           message.status = reader.int32() as any;
           break;
         case 4:
-          message.webComposite = WebCompositeEgressRequest.decode(
+          message.roomComposite = RoomCompositeEgressRequest.decode(
             reader,
             reader.uint32()
           );
@@ -1826,8 +1826,8 @@ export const EgressInfo = {
       egressId: isSet(object.egressId) ? String(object.egressId) : "",
       roomId: isSet(object.roomId) ? String(object.roomId) : "",
       status: isSet(object.status) ? egressStatusFromJSON(object.status) : 0,
-      webComposite: isSet(object.webComposite)
-        ? WebCompositeEgressRequest.fromJSON(object.webComposite)
+      roomComposite: isSet(object.roomComposite)
+        ? RoomCompositeEgressRequest.fromJSON(object.roomComposite)
         : undefined,
       trackComposite: isSet(object.trackComposite)
         ? TrackCompositeEgressRequest.fromJSON(object.trackComposite)
@@ -1849,9 +1849,9 @@ export const EgressInfo = {
     message.roomId !== undefined && (obj.roomId = message.roomId);
     message.status !== undefined &&
       (obj.status = egressStatusToJSON(message.status));
-    message.webComposite !== undefined &&
-      (obj.webComposite = message.webComposite
-        ? WebCompositeEgressRequest.toJSON(message.webComposite)
+    message.roomComposite !== undefined &&
+      (obj.roomComposite = message.roomComposite
+        ? RoomCompositeEgressRequest.toJSON(message.roomComposite)
         : undefined);
     message.trackComposite !== undefined &&
       (obj.trackComposite = message.trackComposite
@@ -1878,9 +1878,9 @@ export const EgressInfo = {
     message.egressId = object.egressId ?? "";
     message.roomId = object.roomId ?? "";
     message.status = object.status ?? 0;
-    message.webComposite =
-      object.webComposite !== undefined && object.webComposite !== null
-        ? WebCompositeEgressRequest.fromPartial(object.webComposite)
+    message.roomComposite =
+      object.roomComposite !== undefined && object.roomComposite !== null
+        ? RoomCompositeEgressRequest.fromPartial(object.roomComposite)
         : undefined;
     message.trackComposite =
       object.trackComposite !== undefined && object.trackComposite !== null
@@ -2131,8 +2131,8 @@ export const FileInfo = {
 
 export interface Egress {
   /** start recording or streaming a room, participant, or tracks */
-  StartWebCompositeEgress(
-    request: WebCompositeEgressRequest
+  StartRoomCompositeEgress(
+    request: RoomCompositeEgressRequest
   ): Promise<EgressInfo>;
   /** update web composite layout */
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;

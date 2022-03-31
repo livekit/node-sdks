@@ -6,11 +6,11 @@ import {
   EncodingOptions,
   EncodingOptionsPreset,
   ListEgressRequest,
+  RoomCompositeEgressRequest,
   StopEgressRequest,
   StreamOutput,
   UpdateLayoutRequest,
   UpdateStreamRequest,
-  WebCompositeEgressRequest,
 } from './proto/livekit_egress';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -46,7 +46,7 @@ export default class EgressClient {
   * @param videoOnly record video only
   * @param customBaseUrl custom template url
   */
-  async startWebCompositeEgress(
+  async startRoomCompositeEgress(
     roomName: string,
     layout: string,
     output: EncodedFileOutput | StreamOutput,
@@ -84,13 +84,13 @@ export default class EgressClient {
       }
     }
 
-    const req = WebCompositeEgressRequest.toJSON({
+    const req = RoomCompositeEgressRequest.toJSON({
       roomName, layout, audioOnly, videoOnly, file, stream, preset, advanced, customBaseUrl,
     });
 
     const data = await this.rpc.request(
       svc,
-      'StartWebCompositeEgress',
+      'StartRoomCompositeEgress',
       req,
       this.authHeader({ roomRecord: true }),
     );

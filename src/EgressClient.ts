@@ -140,7 +140,7 @@ export default class EgressClient {
   /**
    * @param roomName list egress for one room only
    */
-  async listEgress(roomName?: string): Promise<EgressInfo> {
+  async listEgress(roomName?: string): Promise<Array<EgressInfo>> {
     if (!roomName) {
       roomName = '';
     }
@@ -151,7 +151,7 @@ export default class EgressClient {
       ListEgressRequest.toJSON({ roomName }),
       this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return <EgressInfo[]> JSON.parse(data);
   }
 
   /**

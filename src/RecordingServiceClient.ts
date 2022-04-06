@@ -1,9 +1,14 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
 import {
-  RecordingTemplate, RtmpOutput, RecordingOptions,
-  StartRecordingRequest, StartRecordingResponse,
-  AddOutputRequest, RemoveOutputRequest, EndRecordingRequest,
+  RecordingTemplate,
+  RtmpOutput,
+  RecordingOptions,
+  StartRecordingRequest,
+  StartRecordingResponse,
+  AddOutputRequest,
+  RemoveOutputRequest,
+  EndRecordingRequest,
 } from './proto/livekit_recording';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -57,7 +62,11 @@ export default class RecordingServiceClient {
     }
 
     const req = StartRecordingRequest.toJSON({
-      url, template, rtmp, filepath, options,
+      url,
+      template,
+      rtmp,
+      filepath,
+      options,
     });
     const data = await this.rpc.request(
       svc,
@@ -70,32 +79,17 @@ export default class RecordingServiceClient {
 
   async addOutput(recordingId: string, rtmpUrl: string): Promise<void> {
     const req = AddOutputRequest.toJSON({ recordingId, rtmpUrl });
-    await this.rpc.request(
-      svc,
-      'AddOutput',
-      req,
-      this.authHeader({ roomRecord: true }),
-    );
+    await this.rpc.request(svc, 'AddOutput', req, this.authHeader({ roomRecord: true }));
   }
 
   async removeOutput(recordingId: string, rtmpUrl: string): Promise<void> {
     const req = RemoveOutputRequest.toJSON({ recordingId, rtmpUrl });
-    await this.rpc.request(
-      svc,
-      'RemoveOutput',
-      req,
-      this.authHeader({ roomRecord: true }),
-    );
+    await this.rpc.request(svc, 'RemoveOutput', req, this.authHeader({ roomRecord: true }));
   }
 
   async endRecording(recordingId: string): Promise<void> {
     const req = EndRecordingRequest.toJSON({ recordingId });
-    await this.rpc.request(
-      svc,
-      'EndRecording',
-      req,
-      this.authHeader({ roomRecord: true }),
-    );
+    await this.rpc.request(svc, 'EndRecording', req, this.authHeader({ roomRecord: true }));
   }
 
   private authHeader(grant: VideoGrant): any {

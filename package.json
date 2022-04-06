@@ -12,6 +12,8 @@
     "build-docs": "yarn exec typedoc",
     "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I./protocol ./protocol/livekit_egress.proto ./protocol/livekit_room.proto ./protocol/livekit_recording.proto ./protocol/livekit_webhook.proto",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "jest"
   },
   "dependencies": {
@@ -26,8 +28,10 @@
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.24.0",
     "jest": "^26.6.3",
+    "prettier": "^2.6.2",
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.11",
     "ts-node": "^9.1.1",

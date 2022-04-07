@@ -17,8 +17,8 @@ import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 const svc = 'Egress';
 
 /**
-* Client to access Egress APIs
-*/
+ * Client to access Egress APIs
+ */
 export default class EgressClient {
   private readonly rpc: Rpc;
 
@@ -27,10 +27,10 @@ export default class EgressClient {
   private readonly secret?: string;
 
   /**
-  * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-  * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-  * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
-  */
+   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   */
   constructor(host: string, apiKey?: string, secret?: string) {
     this.rpc = new TwirpRpc(host, livekitPackage);
     this.apiKey = apiKey;
@@ -38,14 +38,14 @@ export default class EgressClient {
   }
 
   /**
-  * @param roomName room name
-  * @param layout egress layout
-  * @param output output filepath or RtmpOutput
-  * @param options egress options or preset
-  * @param audioOnly record audio only
-  * @param videoOnly record video only
-  * @param customBaseUrl custom template url
-  */
+   * @param roomName room name
+   * @param layout egress layout
+   * @param output output filepath or RtmpOutput
+   * @param options egress options or preset
+   * @param audioOnly record audio only
+   * @param videoOnly record video only
+   * @param customBaseUrl custom template url
+   */
   async startRoomCompositeEgress(
     roomName: string,
     layout: string,
@@ -85,7 +85,15 @@ export default class EgressClient {
     }
 
     const req = RoomCompositeEgressRequest.toJSON({
-      roomName, layout, audioOnly, videoOnly, file, stream, preset, advanced, customBaseUrl,
+      roomName,
+      layout,
+      audioOnly,
+      videoOnly,
+      file,
+      stream,
+      preset,
+      advanced,
+      customBaseUrl,
     });
 
     const data = await this.rpc.request(
@@ -98,9 +106,9 @@ export default class EgressClient {
   }
 
   /**
-  * @param egressId
-  * @param layout
-  */
+   * @param egressId
+   * @param layout
+   */
   async updateLayout(egressId: string, layout: string): Promise<EgressInfo> {
     const data = await this.rpc.request(
       svc,
@@ -112,10 +120,10 @@ export default class EgressClient {
   }
 
   /**
-  * @param egressId
-  * @param addOutputUrls
-  * @param removeOutputUrls
-  */
+   * @param egressId
+   * @param addOutputUrls
+   * @param removeOutputUrls
+   */
   async updateStream(
     egressId: string,
     addOutputUrls?: string[],
@@ -151,12 +159,12 @@ export default class EgressClient {
       ListEgressRequest.toJSON({ roomName }),
       this.authHeader({ roomRecord: true }),
     );
-    return <EgressInfo[]> JSON.parse(data);
+    return <EgressInfo[]>JSON.parse(data);
   }
 
   /**
-  * @param egressId
-  */
+   * @param egressId
+   */
   async stopEgress(egressId: string): Promise<EgressInfo> {
     const data = await this.rpc.request(
       svc,

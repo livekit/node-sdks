@@ -7,12 +7,7 @@ const defaultPrefix = '/twirp';
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: any,
-    headers?: any
-  ): Promise<string>;
+  request(service: string, method: string, data: any, headers?: any): Promise<string>;
 }
 
 /**
@@ -36,12 +31,7 @@ export class TwirpRpc {
     });
   }
 
-  request(
-    service: string,
-    method: string,
-    data: any,
-    headers?: any,
-  ): Promise<any> {
+  request(service: string, method: string, data: any, headers?: any): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
       this.instance

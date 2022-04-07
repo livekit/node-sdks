@@ -98,16 +98,16 @@ const opts = {
   name: 'myroom',
   // timeout in seconds
   emptyTimeout: 10 * 60,
-  maxParticipants: 20
-}
+  maxParticipants: 20,
+};
 svc.createRoom(opts).then((room: Room) => {
-  console.log('room created', room)
-})
+  console.log('room created', room);
+});
 
 // delete a room
 svc.deleteRoom('myroom').then(() => {
-  console.log('room deleted')
-})
+  console.log('room deleted');
+});
 ```
 
 ## Webhooks
@@ -125,6 +125,6 @@ const receiver = new WebhookReceiver('apikey', 'apisecret');
 
 app.post('/webhook-endpoint', (req, res) => {
   // event is a WebhookEvent object
-  const event = receiver.receive(req.body, req.get('Authorization'))
-})
+  const event = receiver.receive(req.body, req.get('Authorization'));
+});
 ```

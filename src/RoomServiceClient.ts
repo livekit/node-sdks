@@ -1,7 +1,11 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
 import {
-  DataPacket_Kind, ParticipantInfo, ParticipantPermission, Room, TrackInfo,
+  DataPacket_Kind,
+  ParticipantInfo,
+  ParticipantPermission,
+  Room,
+  TrackInfo,
 } from './proto/livekit_models';
 import {
   CreateRoomRequest,
@@ -14,7 +18,9 @@ import {
   MuteRoomTrackResponse,
   RoomParticipantIdentity,
   SendDataRequest,
-  UpdateParticipantRequest, UpdateRoomMetadataRequest, UpdateSubscriptionsRequest,
+  UpdateParticipantRequest,
+  UpdateRoomMetadataRequest,
+  UpdateSubscriptionsRequest,
 } from './proto/livekit_room';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -145,10 +151,7 @@ export class RoomServiceClient {
    * @param room name of the room
    * @param identity identity of the participant to return
    */
-  async getParticipant(
-    room: string,
-    identity: string,
-  ): Promise<ParticipantInfo> {
+  async getParticipant(room: string, identity: string): Promise<ParticipantInfo> {
     const data = await this.rpc.request(
       svc,
       'GetParticipant',
@@ -279,12 +282,7 @@ export class RoomServiceClient {
       kind,
       destinationSids,
     });
-    await this.rpc.request(
-      svc,
-      'SendData',
-      req,
-      this.authHeader({ roomAdmin: true, room }),
-    );
+    await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
   }
 
   private authHeader(grant: VideoGrant): any {

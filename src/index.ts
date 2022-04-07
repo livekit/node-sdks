@@ -4,7 +4,9 @@ export * from './grants';
 export {
   DataPacket_Kind,
   ParticipantInfo,
-  ParticipantInfo_State, ParticipantPermission, Room,
+  ParticipantInfo_State,
+  ParticipantPermission,
+  Room,
   TrackInfo,
   TrackType,
 } from './proto/livekit_models';

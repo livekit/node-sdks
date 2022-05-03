@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
-const defaultTTL = 4 * 60 * 60;
+const defaultTTL = 6 * 60 * 60;
 
 export interface AccessTokenOptions {
   /**

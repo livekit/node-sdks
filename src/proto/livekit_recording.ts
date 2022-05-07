@@ -71,8 +71,8 @@ export interface StartRecordingRequest {
 export interface RecordingTemplate {
   layout: string;
   roomName: string;
-  /** defaults to https://recorder.livekit.io */
-  baseUrl: string;
+  /** defaults to https://recorder.livekit.io/# */
+  baseUrl?: string;
 }
 
 export interface RtmpOutput {

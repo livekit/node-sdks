@@ -68,7 +68,7 @@ export default class EgressClient {
       customBaseUrl = '';
     }
 
-    const {file, stream, preset, advanced} = this.getOutputParams(output, options)
+    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = RoomCompositeEgressRequest.toJSON({
       roomName,
       layout,
@@ -105,13 +105,13 @@ export default class EgressClient {
     options?: EncodingOptionsPreset | EncodingOptions,
   ): Promise<EgressInfo> {
     if (!audioTrackId) {
-      audioTrackId = ''
+      audioTrackId = '';
     }
     if (!videoTrackId) {
-      videoTrackId = ''
+      videoTrackId = '';
     }
 
-    const {file, stream, preset, advanced} = this.getOutputParams(output, options)
+    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = TrackCompositeEgressRequest.toJSON({
       roomName,
       audioTrackId,
@@ -154,7 +154,7 @@ export default class EgressClient {
       }
     }
 
-    return {file, stream, preset, advanced}
+    return { file, stream, preset, advanced };
   }
 
   /**
@@ -167,8 +167,8 @@ export default class EgressClient {
     output: DirectFileOutput | string,
     trackId: string,
   ): Promise<EgressInfo> {
-    let file: DirectFileOutput | undefined
-    let websocketUrl: string | undefined
+    let file: DirectFileOutput | undefined;
+    let websocketUrl: string | undefined;
 
     if ((<DirectFileOutput>output).filepath !== undefined) {
       file = <DirectFileOutput>output;

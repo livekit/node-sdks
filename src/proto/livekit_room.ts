@@ -1,6 +1,6 @@
 /* eslint-disable */
-import Long from "long";
-import * as _m0 from "protobufjs/minimal";
+import Long from 'long';
+import * as _m0 from 'protobufjs/minimal';
 import {
   TrackInfo,
   ParticipantPermission,
@@ -10,9 +10,9 @@ import {
   ParticipantTracks,
   dataPacket_KindFromJSON,
   dataPacket_KindToJSON,
-} from "./livekit_models";
+} from './livekit_models';
 
-export const protobufPackage = "livekit";
+export const protobufPackage = 'livekit';
 
 export interface CreateRoomRequest {
   /** name of the room */
@@ -115,21 +115,12 @@ export interface UpdateRoomMetadataRequest {
 }
 
 function createBaseCreateRoomRequest(): CreateRoomRequest {
-  return {
-    name: "",
-    emptyTimeout: 0,
-    maxParticipants: 0,
-    nodeId: "",
-    metadata: "",
-  };
+  return { name: '', emptyTimeout: 0, maxParticipants: 0, nodeId: '', metadata: '' };
 }
 
 export const CreateRoomRequest = {
-  encode(
-    message: CreateRoomRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.name !== "") {
+  encode(message: CreateRoomRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
     if (message.emptyTimeout !== 0) {
@@ -138,10 +129,10 @@ export const CreateRoomRequest = {
     if (message.maxParticipants !== 0) {
       writer.uint32(24).uint32(message.maxParticipants);
     }
-    if (message.nodeId !== "") {
+    if (message.nodeId !== '') {
       writer.uint32(34).string(message.nodeId);
     }
-    if (message.metadata !== "") {
+    if (message.metadata !== '') {
       writer.uint32(42).string(message.metadata);
     }
     return writer;
@@ -179,23 +170,18 @@ export const CreateRoomRequest = {
 
   fromJSON(object: any): CreateRoomRequest {
     return {
-      name: isSet(object.name) ? String(object.name) : "",
-      emptyTimeout: isSet(object.emptyTimeout)
-        ? Number(object.emptyTimeout)
-        : 0,
-      maxParticipants: isSet(object.maxParticipants)
-        ? Number(object.maxParticipants)
-        : 0,
-      nodeId: isSet(object.nodeId) ? String(object.nodeId) : "",
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      name: isSet(object.name) ? String(object.name) : '',
+      emptyTimeout: isSet(object.emptyTimeout) ? Number(object.emptyTimeout) : 0,
+      maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
+      nodeId: isSet(object.nodeId) ? String(object.nodeId) : '',
+      metadata: isSet(object.metadata) ? String(object.metadata) : '',
     };
   },
 
   toJSON(message: CreateRoomRequest): unknown {
     const obj: any = {};
     message.name !== undefined && (obj.name = message.name);
-    message.emptyTimeout !== undefined &&
-      (obj.emptyTimeout = Math.round(message.emptyTimeout));
+    message.emptyTimeout !== undefined && (obj.emptyTimeout = Math.round(message.emptyTimeout));
     message.maxParticipants !== undefined &&
       (obj.maxParticipants = Math.round(message.maxParticipants));
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
@@ -203,15 +189,13 @@ export const CreateRoomRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CreateRoomRequest>, I>>(
-    object: I
-  ): CreateRoomRequest {
+  fromPartial<I extends Exact<DeepPartial<CreateRoomRequest>, I>>(object: I): CreateRoomRequest {
     const message = createBaseCreateRoomRequest();
-    message.name = object.name ?? "";
+    message.name = object.name ?? '';
     message.emptyTimeout = object.emptyTimeout ?? 0;
     message.maxParticipants = object.maxParticipants ?? 0;
-    message.nodeId = object.nodeId ?? "";
-    message.metadata = object.metadata ?? "";
+    message.nodeId = object.nodeId ?? '';
+    message.metadata = object.metadata ?? '';
     return message;
   },
 };
@@ -221,10 +205,7 @@ function createBaseListRoomsRequest(): ListRoomsRequest {
 }
 
 export const ListRoomsRequest = {
-  encode(
-    message: ListRoomsRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: ListRoomsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.names) {
       writer.uint32(10).string(v!);
     }
@@ -251,9 +232,7 @@ export const ListRoomsRequest = {
 
   fromJSON(object: any): ListRoomsRequest {
     return {
-      names: Array.isArray(object?.names)
-        ? object.names.map((e: any) => String(e))
-        : [],
+      names: Array.isArray(object?.names) ? object.names.map((e: any) => String(e)) : [],
     };
   },
 
@@ -267,9 +246,7 @@ export const ListRoomsRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ListRoomsRequest>, I>>(
-    object: I
-  ): ListRoomsRequest {
+  fromPartial<I extends Exact<DeepPartial<ListRoomsRequest>, I>>(object: I): ListRoomsRequest {
     const message = createBaseListRoomsRequest();
     message.names = object.names?.map((e) => e) || [];
     return message;
@@ -281,10 +258,7 @@ function createBaseListRoomsResponse(): ListRoomsResponse {
 }
 
 export const ListRoomsResponse = {
-  encode(
-    message: ListRoomsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: ListRoomsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.rooms) {
       Room.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -311,9 +285,7 @@ export const ListRoomsResponse = {
 
   fromJSON(object: any): ListRoomsResponse {
     return {
-      rooms: Array.isArray(object?.rooms)
-        ? object.rooms.map((e: any) => Room.fromJSON(e))
-        : [],
+      rooms: Array.isArray(object?.rooms) ? object.rooms.map((e: any) => Room.fromJSON(e)) : [],
     };
   },
 
@@ -327,9 +299,7 @@ export const ListRoomsResponse = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ListRoomsResponse>, I>>(
-    object: I
-  ): ListRoomsResponse {
+  fromPartial<I extends Exact<DeepPartial<ListRoomsResponse>, I>>(object: I): ListRoomsResponse {
     const message = createBaseListRoomsResponse();
     message.rooms = object.rooms?.map((e) => Room.fromPartial(e)) || [];
     return message;
@@ -337,15 +307,12 @@ export const ListRoomsResponse = {
 };
 
 function createBaseDeleteRoomRequest(): DeleteRoomRequest {
-  return { room: "" };
+  return { room: '' };
 }
 
 export const DeleteRoomRequest = {
-  encode(
-    message: DeleteRoomRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: DeleteRoomRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
     return writer;
@@ -371,7 +338,7 @@ export const DeleteRoomRequest = {
 
   fromJSON(object: any): DeleteRoomRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
+      room: isSet(object.room) ? String(object.room) : '',
     };
   },
 
@@ -381,11 +348,9 @@ export const DeleteRoomRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<DeleteRoomRequest>, I>>(
-    object: I
-  ): DeleteRoomRequest {
+  fromPartial<I extends Exact<DeepPartial<DeleteRoomRequest>, I>>(object: I): DeleteRoomRequest {
     const message = createBaseDeleteRoomRequest();
-    message.room = object.room ?? "";
+    message.room = object.room ?? '';
     return message;
   },
 };
@@ -395,10 +360,7 @@ function createBaseDeleteRoomResponse(): DeleteRoomResponse {
 }
 
 export const DeleteRoomResponse = {
-  encode(
-    _: DeleteRoomResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(_: DeleteRoomResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
 
@@ -426,33 +388,25 @@ export const DeleteRoomResponse = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<DeleteRoomResponse>, I>>(
-    _: I
-  ): DeleteRoomResponse {
+  fromPartial<I extends Exact<DeepPartial<DeleteRoomResponse>, I>>(_: I): DeleteRoomResponse {
     const message = createBaseDeleteRoomResponse();
     return message;
   },
 };
 
 function createBaseListParticipantsRequest(): ListParticipantsRequest {
-  return { room: "" };
+  return { room: '' };
 }
 
 export const ListParticipantsRequest = {
-  encode(
-    message: ListParticipantsRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: ListParticipantsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): ListParticipantsRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): ListParticipantsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListParticipantsRequest();
@@ -472,7 +426,7 @@ export const ListParticipantsRequest = {
 
   fromJSON(object: any): ListParticipantsRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
+      room: isSet(object.room) ? String(object.room) : '',
     };
   },
 
@@ -483,10 +437,10 @@ export const ListParticipantsRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<ListParticipantsRequest>, I>>(
-    object: I
+    object: I,
   ): ListParticipantsRequest {
     const message = createBaseListParticipantsRequest();
-    message.room = object.room ?? "";
+    message.room = object.room ?? '';
     return message;
   },
 };
@@ -496,20 +450,14 @@ function createBaseListParticipantsResponse(): ListParticipantsResponse {
 }
 
 export const ListParticipantsResponse = {
-  encode(
-    message: ListParticipantsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: ListParticipantsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.participants) {
       ParticipantInfo.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): ListParticipantsResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): ListParticipantsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListParticipantsResponse();
@@ -517,9 +465,7 @@ export const ListParticipantsResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.participants.push(
-            ParticipantInfo.decode(reader, reader.uint32())
-          );
+          message.participants.push(ParticipantInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -541,7 +487,7 @@ export const ListParticipantsResponse = {
     const obj: any = {};
     if (message.participants) {
       obj.participants = message.participants.map((e) =>
-        e ? ParticipantInfo.toJSON(e) : undefined
+        e ? ParticipantInfo.toJSON(e) : undefined,
       );
     } else {
       obj.participants = [];
@@ -550,37 +496,30 @@ export const ListParticipantsResponse = {
   },
 
   fromPartial<I extends Exact<DeepPartial<ListParticipantsResponse>, I>>(
-    object: I
+    object: I,
   ): ListParticipantsResponse {
     const message = createBaseListParticipantsResponse();
-    message.participants =
-      object.participants?.map((e) => ParticipantInfo.fromPartial(e)) || [];
+    message.participants = object.participants?.map((e) => ParticipantInfo.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseRoomParticipantIdentity(): RoomParticipantIdentity {
-  return { room: "", identity: "" };
+  return { room: '', identity: '' };
 }
 
 export const RoomParticipantIdentity = {
-  encode(
-    message: RoomParticipantIdentity,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: RoomParticipantIdentity, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== "") {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): RoomParticipantIdentity {
+  decode(input: _m0.Reader | Uint8Array, length?: number): RoomParticipantIdentity {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRoomParticipantIdentity();
@@ -603,8 +542,8 @@ export const RoomParticipantIdentity = {
 
   fromJSON(object: any): RoomParticipantIdentity {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
+      room: isSet(object.room) ? String(object.room) : '',
+      identity: isSet(object.identity) ? String(object.identity) : '',
     };
   },
 
@@ -616,11 +555,11 @@ export const RoomParticipantIdentity = {
   },
 
   fromPartial<I extends Exact<DeepPartial<RoomParticipantIdentity>, I>>(
-    object: I
+    object: I,
   ): RoomParticipantIdentity {
     const message = createBaseRoomParticipantIdentity();
-    message.room = object.room ?? "";
-    message.identity = object.identity ?? "";
+    message.room = object.room ?? '';
+    message.identity = object.identity ?? '';
     return message;
   },
 };
@@ -630,17 +569,11 @@ function createBaseRemoveParticipantResponse(): RemoveParticipantResponse {
 }
 
 export const RemoveParticipantResponse = {
-  encode(
-    _: RemoveParticipantResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(_: RemoveParticipantResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): RemoveParticipantResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): RemoveParticipantResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRemoveParticipantResponse();
@@ -665,7 +598,7 @@ export const RemoveParticipantResponse = {
   },
 
   fromPartial<I extends Exact<DeepPartial<RemoveParticipantResponse>, I>>(
-    _: I
+    _: I,
   ): RemoveParticipantResponse {
     const message = createBaseRemoveParticipantResponse();
     return message;
@@ -673,21 +606,18 @@ export const RemoveParticipantResponse = {
 };
 
 function createBaseMuteRoomTrackRequest(): MuteRoomTrackRequest {
-  return { room: "", identity: "", trackSid: "", muted: false };
+  return { room: '', identity: '', trackSid: '', muted: false };
 }
 
 export const MuteRoomTrackRequest = {
-  encode(
-    message: MuteRoomTrackRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: MuteRoomTrackRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== "") {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    if (message.trackSid !== "") {
+    if (message.trackSid !== '') {
       writer.uint32(26).string(message.trackSid);
     }
     if (message.muted === true) {
@@ -696,10 +626,7 @@ export const MuteRoomTrackRequest = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MuteRoomTrackRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MuteRoomTrackRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMuteRoomTrackRequest();
@@ -728,9 +655,9 @@ export const MuteRoomTrackRequest = {
 
   fromJSON(object: any): MuteRoomTrackRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
-      trackSid: isSet(object.trackSid) ? String(object.trackSid) : "",
+      room: isSet(object.room) ? String(object.room) : '',
+      identity: isSet(object.identity) ? String(object.identity) : '',
+      trackSid: isSet(object.trackSid) ? String(object.trackSid) : '',
       muted: isSet(object.muted) ? Boolean(object.muted) : false,
     };
   },
@@ -745,12 +672,12 @@ export const MuteRoomTrackRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<MuteRoomTrackRequest>, I>>(
-    object: I
+    object: I,
   ): MuteRoomTrackRequest {
     const message = createBaseMuteRoomTrackRequest();
-    message.room = object.room ?? "";
-    message.identity = object.identity ?? "";
-    message.trackSid = object.trackSid ?? "";
+    message.room = object.room ?? '';
+    message.identity = object.identity ?? '';
+    message.trackSid = object.trackSid ?? '';
     message.muted = object.muted ?? false;
     return message;
   },
@@ -761,20 +688,14 @@ function createBaseMuteRoomTrackResponse(): MuteRoomTrackResponse {
 }
 
 export const MuteRoomTrackResponse = {
-  encode(
-    message: MuteRoomTrackResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: MuteRoomTrackResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.track !== undefined) {
       TrackInfo.encode(message.track, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MuteRoomTrackResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MuteRoomTrackResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMuteRoomTrackResponse();
@@ -806,7 +727,7 @@ export const MuteRoomTrackResponse = {
   },
 
   fromPartial<I extends Exact<DeepPartial<MuteRoomTrackResponse>, I>>(
-    object: I
+    object: I,
   ): MuteRoomTrackResponse {
     const message = createBaseMuteRoomTrackResponse();
     message.track =
@@ -818,36 +739,27 @@ export const MuteRoomTrackResponse = {
 };
 
 function createBaseUpdateParticipantRequest(): UpdateParticipantRequest {
-  return { room: "", identity: "", metadata: "", permission: undefined };
+  return { room: '', identity: '', metadata: '', permission: undefined };
 }
 
 export const UpdateParticipantRequest = {
-  encode(
-    message: UpdateParticipantRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: UpdateParticipantRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== "") {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    if (message.metadata !== "") {
+    if (message.metadata !== '') {
       writer.uint32(26).string(message.metadata);
     }
     if (message.permission !== undefined) {
-      ParticipantPermission.encode(
-        message.permission,
-        writer.uint32(34).fork()
-      ).ldelim();
+      ParticipantPermission.encode(message.permission, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): UpdateParticipantRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateParticipantRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateParticipantRequest();
@@ -864,10 +776,7 @@ export const UpdateParticipantRequest = {
           message.metadata = reader.string();
           break;
         case 4:
-          message.permission = ParticipantPermission.decode(
-            reader,
-            reader.uint32()
-          );
+          message.permission = ParticipantPermission.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -879,9 +788,9 @@ export const UpdateParticipantRequest = {
 
   fromJSON(object: any): UpdateParticipantRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      room: isSet(object.room) ? String(object.room) : '',
+      identity: isSet(object.identity) ? String(object.identity) : '',
+      metadata: isSet(object.metadata) ? String(object.metadata) : '',
       permission: isSet(object.permission)
         ? ParticipantPermission.fromJSON(object.permission)
         : undefined,
@@ -901,12 +810,12 @@ export const UpdateParticipantRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateParticipantRequest>, I>>(
-    object: I
+    object: I,
   ): UpdateParticipantRequest {
     const message = createBaseUpdateParticipantRequest();
-    message.room = object.room ?? "";
-    message.identity = object.identity ?? "";
-    message.metadata = object.metadata ?? "";
+    message.room = object.room ?? '';
+    message.identity = object.identity ?? '';
+    message.metadata = object.metadata ?? '';
     message.permission =
       object.permission !== undefined && object.permission !== null
         ? ParticipantPermission.fromPartial(object.permission)
@@ -916,24 +825,18 @@ export const UpdateParticipantRequest = {
 };
 
 function createBaseUpdateSubscriptionsRequest(): UpdateSubscriptionsRequest {
-  return {
-    room: "",
-    identity: "",
-    trackSids: [],
-    subscribe: false,
-    participantTracks: [],
-  };
+  return { room: '', identity: '', trackSids: [], subscribe: false, participantTracks: [] };
 }
 
 export const UpdateSubscriptionsRequest = {
   encode(
     message: UpdateSubscriptionsRequest,
-    writer: _m0.Writer = _m0.Writer.create()
+    writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.room !== "") {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== "") {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
     for (const v of message.trackSids) {
@@ -948,10 +851,7 @@ export const UpdateSubscriptionsRequest = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): UpdateSubscriptionsRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateSubscriptionsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateSubscriptionsRequest();
@@ -971,9 +871,7 @@ export const UpdateSubscriptionsRequest = {
           message.subscribe = reader.bool();
           break;
         case 5:
-          message.participantTracks.push(
-            ParticipantTracks.decode(reader, reader.uint32())
-          );
+          message.participantTracks.push(ParticipantTracks.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -985,16 +883,14 @@ export const UpdateSubscriptionsRequest = {
 
   fromJSON(object: any): UpdateSubscriptionsRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
+      room: isSet(object.room) ? String(object.room) : '',
+      identity: isSet(object.identity) ? String(object.identity) : '',
       trackSids: Array.isArray(object?.trackSids)
         ? object.trackSids.map((e: any) => String(e))
         : [],
       subscribe: isSet(object.subscribe) ? Boolean(object.subscribe) : false,
       participantTracks: Array.isArray(object?.participantTracks)
-        ? object.participantTracks.map((e: any) =>
-            ParticipantTracks.fromJSON(e)
-          )
+        ? object.participantTracks.map((e: any) => ParticipantTracks.fromJSON(e))
         : [],
     };
   },
@@ -1011,7 +907,7 @@ export const UpdateSubscriptionsRequest = {
     message.subscribe !== undefined && (obj.subscribe = message.subscribe);
     if (message.participantTracks) {
       obj.participantTracks = message.participantTracks.map((e) =>
-        e ? ParticipantTracks.toJSON(e) : undefined
+        e ? ParticipantTracks.toJSON(e) : undefined,
       );
     } else {
       obj.participantTracks = [];
@@ -1020,16 +916,15 @@ export const UpdateSubscriptionsRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateSubscriptionsRequest>, I>>(
-    object: I
+    object: I,
   ): UpdateSubscriptionsRequest {
     const message = createBaseUpdateSubscriptionsRequest();
-    message.room = object.room ?? "";
-    message.identity = object.identity ?? "";
+    message.room = object.room ?? '';
+    message.identity = object.identity ?? '';
     message.trackSids = object.trackSids?.map((e) => e) || [];
     message.subscribe = object.subscribe ?? false;
     message.participantTracks =
-      object.participantTracks?.map((e) => ParticipantTracks.fromPartial(e)) ||
-      [];
+      object.participantTracks?.map((e) => ParticipantTracks.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1039,17 +934,11 @@ function createBaseUpdateSubscriptionsResponse(): UpdateSubscriptionsResponse {
 }
 
 export const UpdateSubscriptionsResponse = {
-  encode(
-    _: UpdateSubscriptionsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(_: UpdateSubscriptionsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): UpdateSubscriptionsResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateSubscriptionsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateSubscriptionsResponse();
@@ -1074,7 +963,7 @@ export const UpdateSubscriptionsResponse = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateSubscriptionsResponse>, I>>(
-    _: I
+    _: I,
   ): UpdateSubscriptionsResponse {
     const message = createBaseUpdateSubscriptionsResponse();
     return message;
@@ -1082,15 +971,12 @@ export const UpdateSubscriptionsResponse = {
 };
 
 function createBaseSendDataRequest(): SendDataRequest {
-  return { room: "", data: new Uint8Array(), kind: 0, destinationSids: [] };
+  return { room: '', data: new Uint8Array(), kind: 0, destinationSids: [] };
 }
 
 export const SendDataRequest = {
-  encode(
-    message: SendDataRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: SendDataRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
     if (message.data.length !== 0) {
@@ -1134,10 +1020,8 @@ export const SendDataRequest = {
 
   fromJSON(object: any): SendDataRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      data: isSet(object.data)
-        ? bytesFromBase64(object.data)
-        : new Uint8Array(),
+      room: isSet(object.room) ? String(object.room) : '',
+      data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(),
       kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
       destinationSids: Array.isArray(object?.destinationSids)
         ? object.destinationSids.map((e: any) => String(e))
@@ -1149,11 +1033,8 @@ export const SendDataRequest = {
     const obj: any = {};
     message.room !== undefined && (obj.room = message.room);
     message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ));
-    message.kind !== undefined &&
-      (obj.kind = dataPacket_KindToJSON(message.kind));
+      (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
+    message.kind !== undefined && (obj.kind = dataPacket_KindToJSON(message.kind));
     if (message.destinationSids) {
       obj.destinationSids = message.destinationSids.map((e) => e);
     } else {
@@ -1162,11 +1043,9 @@ export const SendDataRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<SendDataRequest>, I>>(
-    object: I
-  ): SendDataRequest {
+  fromPartial<I extends Exact<DeepPartial<SendDataRequest>, I>>(object: I): SendDataRequest {
     const message = createBaseSendDataRequest();
-    message.room = object.room ?? "";
+    message.room = object.room ?? '';
     message.data = object.data ?? new Uint8Array();
     message.kind = object.kind ?? 0;
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
@@ -1179,10 +1058,7 @@ function createBaseSendDataResponse(): SendDataResponse {
 }
 
 export const SendDataResponse = {
-  encode(
-    _: SendDataResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(_: SendDataResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
 
@@ -1210,36 +1086,28 @@ export const SendDataResponse = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<SendDataResponse>, I>>(
-    _: I
-  ): SendDataResponse {
+  fromPartial<I extends Exact<DeepPartial<SendDataResponse>, I>>(_: I): SendDataResponse {
     const message = createBaseSendDataResponse();
     return message;
   },
 };
 
 function createBaseUpdateRoomMetadataRequest(): UpdateRoomMetadataRequest {
-  return { room: "", metadata: "" };
+  return { room: '', metadata: '' };
 }
 
 export const UpdateRoomMetadataRequest = {
-  encode(
-    message: UpdateRoomMetadataRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.room !== "") {
+  encode(message: UpdateRoomMetadataRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.metadata !== "") {
+    if (message.metadata !== '') {
       writer.uint32(18).string(message.metadata);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): UpdateRoomMetadataRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateRoomMetadataRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateRoomMetadataRequest();
@@ -1262,8 +1130,8 @@ export const UpdateRoomMetadataRequest = {
 
   fromJSON(object: any): UpdateRoomMetadataRequest {
     return {
-      room: isSet(object.room) ? String(object.room) : "",
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      room: isSet(object.room) ? String(object.room) : '',
+      metadata: isSet(object.metadata) ? String(object.metadata) : '',
     };
   },
 
@@ -1275,11 +1143,11 @@ export const UpdateRoomMetadataRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateRoomMetadataRequest>, I>>(
-    object: I
+    object: I,
   ): UpdateRoomMetadataRequest {
     const message = createBaseUpdateRoomMetadataRequest();
-    message.room = object.room ?? "";
-    message.metadata = object.metadata ?? "";
+    message.room = object.room ?? '';
+    message.metadata = object.metadata ?? '';
     return message;
   },
 };
@@ -1302,27 +1170,17 @@ export interface RoomService {
    */
   DeleteRoom(request: DeleteRoomRequest): Promise<DeleteRoomResponse>;
   /** Lists participants in a room, Requires `roomAdmin` */
-  ListParticipants(
-    request: ListParticipantsRequest
-  ): Promise<ListParticipantsResponse>;
+  ListParticipants(request: ListParticipantsRequest): Promise<ListParticipantsResponse>;
   /** Get information on a specific participant, Requires `roomAdmin` */
   GetParticipant(request: RoomParticipantIdentity): Promise<ParticipantInfo>;
   /** Removes a participant from room. Requires `roomAdmin` */
-  RemoveParticipant(
-    request: RoomParticipantIdentity
-  ): Promise<RemoveParticipantResponse>;
+  RemoveParticipant(request: RoomParticipantIdentity): Promise<RemoveParticipantResponse>;
   /** Mute/unmute a participant's track, Requires `roomAdmin` */
-  MutePublishedTrack(
-    request: MuteRoomTrackRequest
-  ): Promise<MuteRoomTrackResponse>;
+  MutePublishedTrack(request: MuteRoomTrackRequest): Promise<MuteRoomTrackResponse>;
   /** Update participant metadata, will cause updates to be broadcasted to everyone in the room. Requires `roomAdmin` */
-  UpdateParticipant(
-    request: UpdateParticipantRequest
-  ): Promise<ParticipantInfo>;
+  UpdateParticipant(request: UpdateParticipantRequest): Promise<ParticipantInfo>;
   /** Subscribes or unsubscribe a participant from tracks. Requires `roomAdmin` */
-  UpdateSubscriptions(
-    request: UpdateSubscriptionsRequest
-  ): Promise<UpdateSubscriptionsResponse>;
+  UpdateSubscriptions(request: UpdateSubscriptionsRequest): Promise<UpdateSubscriptionsResponse>;
   /** Send data over data channel to participants in a room, Requires `roomAdmin` */
   SendData(request: SendDataRequest): Promise<SendDataResponse>;
   /** Update room metadata, will cause updates to be broadcasted to everyone in the room, Requires `roomAdmin` */
@@ -1333,16 +1191,15 @@ declare var self: any | undefined;
 declare var window: any | undefined;
 declare var global: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
+  globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64);
   const arr = new Uint8Array(bin.length);
@@ -1353,24 +1210,16 @@ function bytesFromBase64(b64: string): Uint8Array {
 }
 
 const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
+  globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
   for (const byte of arr) {
     bin.push(String.fromCharCode(byte));
   }
-  return btoa(bin.join(""));
+  return btoa(bin.join(''));
 }
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -1385,10 +1234,7 @@ export type DeepPartial<T> = T extends Builtin
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin
   ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
-        Exclude<keyof I, KeysOfUnion<P>>,
-        never
-      >;
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<Exclude<keyof I, KeysOfUnion<P>>, never>;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

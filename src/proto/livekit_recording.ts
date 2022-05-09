@@ -1,9 +1,9 @@
 /* eslint-disable */
-import Long from "long";
-import * as _m0 from "protobufjs/minimal";
-import { Empty } from "./google/protobuf/empty";
+import Long from 'long';
+import * as _m0 from 'protobufjs/minimal';
+import { Empty } from './google/protobuf/empty';
 
-export const protobufPackage = "livekit";
+export const protobufPackage = 'livekit';
 
 export enum RecordingPreset {
   /** NONE - All presets use 44100 Hz, 128k bitrate for audio and a color depth of 24 */
@@ -22,22 +22,22 @@ export enum RecordingPreset {
 export function recordingPresetFromJSON(object: any): RecordingPreset {
   switch (object) {
     case 0:
-    case "NONE":
+    case 'NONE':
       return RecordingPreset.NONE;
     case 1:
-    case "HD_30":
+    case 'HD_30':
       return RecordingPreset.HD_30;
     case 2:
-    case "HD_60":
+    case 'HD_60':
       return RecordingPreset.HD_60;
     case 3:
-    case "FULL_HD_30":
+    case 'FULL_HD_30':
       return RecordingPreset.FULL_HD_30;
     case 4:
-    case "FULL_HD_60":
+    case 'FULL_HD_60':
       return RecordingPreset.FULL_HD_60;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return RecordingPreset.UNRECOGNIZED;
   }
@@ -46,17 +46,17 @@ export function recordingPresetFromJSON(object: any): RecordingPreset {
 export function recordingPresetToJSON(object: RecordingPreset): string {
   switch (object) {
     case RecordingPreset.NONE:
-      return "NONE";
+      return 'NONE';
     case RecordingPreset.HD_30:
-      return "HD_30";
+      return 'HD_30';
     case RecordingPreset.HD_60:
-      return "HD_60";
+      return 'HD_60';
     case RecordingPreset.FULL_HD_30:
-      return "FULL_HD_30";
+      return 'FULL_HD_30';
     case RecordingPreset.FULL_HD_60:
-      return "FULL_HD_60";
+      return 'FULL_HD_60';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -147,18 +147,12 @@ function createBaseStartRecordingRequest(): StartRecordingRequest {
 }
 
 export const StartRecordingRequest = {
-  encode(
-    message: StartRecordingRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: StartRecordingRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.url !== undefined) {
       writer.uint32(10).string(message.url);
     }
     if (message.template !== undefined) {
-      RecordingTemplate.encode(
-        message.template,
-        writer.uint32(18).fork()
-      ).ldelim();
+      RecordingTemplate.encode(message.template, writer.uint32(18).fork()).ldelim();
     }
     if (message.rtmp !== undefined) {
       RtmpOutput.encode(message.rtmp, writer.uint32(26).fork()).ldelim();
@@ -167,18 +161,12 @@ export const StartRecordingRequest = {
       writer.uint32(34).string(message.filepath);
     }
     if (message.options !== undefined) {
-      RecordingOptions.encode(
-        message.options,
-        writer.uint32(42).fork()
-      ).ldelim();
+      RecordingOptions.encode(message.options, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): StartRecordingRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): StartRecordingRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStartRecordingRequest();
@@ -211,14 +199,10 @@ export const StartRecordingRequest = {
   fromJSON(object: any): StartRecordingRequest {
     return {
       url: isSet(object.url) ? String(object.url) : undefined,
-      template: isSet(object.template)
-        ? RecordingTemplate.fromJSON(object.template)
-        : undefined,
+      template: isSet(object.template) ? RecordingTemplate.fromJSON(object.template) : undefined,
       rtmp: isSet(object.rtmp) ? RtmpOutput.fromJSON(object.rtmp) : undefined,
       filepath: isSet(object.filepath) ? String(object.filepath) : undefined,
-      options: isSet(object.options)
-        ? RecordingOptions.fromJSON(object.options)
-        : undefined,
+      options: isSet(object.options) ? RecordingOptions.fromJSON(object.options) : undefined,
     };
   },
 
@@ -226,21 +210,17 @@ export const StartRecordingRequest = {
     const obj: any = {};
     message.url !== undefined && (obj.url = message.url);
     message.template !== undefined &&
-      (obj.template = message.template
-        ? RecordingTemplate.toJSON(message.template)
-        : undefined);
+      (obj.template = message.template ? RecordingTemplate.toJSON(message.template) : undefined);
     message.rtmp !== undefined &&
       (obj.rtmp = message.rtmp ? RtmpOutput.toJSON(message.rtmp) : undefined);
     message.filepath !== undefined && (obj.filepath = message.filepath);
     message.options !== undefined &&
-      (obj.options = message.options
-        ? RecordingOptions.toJSON(message.options)
-        : undefined);
+      (obj.options = message.options ? RecordingOptions.toJSON(message.options) : undefined);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<StartRecordingRequest>, I>>(
-    object: I
+    object: I,
   ): StartRecordingRequest {
     const message = createBaseStartRecordingRequest();
     message.url = object.url ?? undefined;
@@ -262,21 +242,18 @@ export const StartRecordingRequest = {
 };
 
 function createBaseRecordingTemplate(): RecordingTemplate {
-  return { layout: "", roomName: "", baseUrl: "" };
+  return { layout: '', roomName: '', baseUrl: '' };
 }
 
 export const RecordingTemplate = {
-  encode(
-    message: RecordingTemplate,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.layout !== "") {
+  encode(message: RecordingTemplate, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.layout !== '') {
       writer.uint32(10).string(message.layout);
     }
-    if (message.roomName !== "") {
+    if (message.roomName !== '') {
       writer.uint32(18).string(message.roomName);
     }
-    if (message.baseUrl !== "") {
+    if (message.baseUrl !== '') {
       writer.uint32(26).string(message.baseUrl);
     }
     return writer;
@@ -308,9 +285,9 @@ export const RecordingTemplate = {
 
   fromJSON(object: any): RecordingTemplate {
     return {
-      layout: isSet(object.layout) ? String(object.layout) : "",
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      baseUrl: isSet(object.baseUrl) ? String(object.baseUrl) : "",
+      layout: isSet(object.layout) ? String(object.layout) : '',
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
+      baseUrl: isSet(object.baseUrl) ? String(object.baseUrl) : '',
     };
   },
 
@@ -322,13 +299,11 @@ export const RecordingTemplate = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RecordingTemplate>, I>>(
-    object: I
-  ): RecordingTemplate {
+  fromPartial<I extends Exact<DeepPartial<RecordingTemplate>, I>>(object: I): RecordingTemplate {
     const message = createBaseRecordingTemplate();
-    message.layout = object.layout ?? "";
-    message.roomName = object.roomName ?? "";
-    message.baseUrl = object.baseUrl ?? "";
+    message.layout = object.layout ?? '';
+    message.roomName = object.roomName ?? '';
+    message.baseUrl = object.baseUrl ?? '';
     return message;
   },
 };
@@ -338,10 +313,7 @@ function createBaseRtmpOutput(): RtmpOutput {
 }
 
 export const RtmpOutput = {
-  encode(
-    message: RtmpOutput,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: RtmpOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.urls) {
       writer.uint32(10).string(v!);
     }
@@ -368,9 +340,7 @@ export const RtmpOutput = {
 
   fromJSON(object: any): RtmpOutput {
     return {
-      urls: Array.isArray(object?.urls)
-        ? object.urls.map((e: any) => String(e))
-        : [],
+      urls: Array.isArray(object?.urls) ? object.urls.map((e: any) => String(e)) : [],
     };
   },
 
@@ -384,9 +354,7 @@ export const RtmpOutput = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RtmpOutput>, I>>(
-    object: I
-  ): RtmpOutput {
+  fromPartial<I extends Exact<DeepPartial<RtmpOutput>, I>>(object: I): RtmpOutput {
     const message = createBaseRtmpOutput();
     message.urls = object.urls?.map((e) => e) || [];
     return message;
@@ -403,15 +371,12 @@ function createBaseRecordingOptions(): RecordingOptions {
     audioBitrate: 0,
     audioFrequency: 0,
     videoBitrate: 0,
-    profile: "",
+    profile: '',
   };
 }
 
 export const RecordingOptions = {
-  encode(
-    message: RecordingOptions,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: RecordingOptions, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.preset !== 0) {
       writer.uint32(8).int32(message.preset);
     }
@@ -436,7 +401,7 @@ export const RecordingOptions = {
     if (message.videoBitrate !== 0) {
       writer.uint32(64).int32(message.videoBitrate);
     }
-    if (message.profile !== "") {
+    if (message.profile !== '') {
       writer.uint32(74).string(message.profile);
     }
     return writer;
@@ -491,41 +456,29 @@ export const RecordingOptions = {
       height: isSet(object.height) ? Number(object.height) : 0,
       depth: isSet(object.depth) ? Number(object.depth) : 0,
       framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
-      audioBitrate: isSet(object.audioBitrate)
-        ? Number(object.audioBitrate)
-        : 0,
-      audioFrequency: isSet(object.audioFrequency)
-        ? Number(object.audioFrequency)
-        : 0,
-      videoBitrate: isSet(object.videoBitrate)
-        ? Number(object.videoBitrate)
-        : 0,
-      profile: isSet(object.profile) ? String(object.profile) : "",
+      audioBitrate: isSet(object.audioBitrate) ? Number(object.audioBitrate) : 0,
+      audioFrequency: isSet(object.audioFrequency) ? Number(object.audioFrequency) : 0,
+      videoBitrate: isSet(object.videoBitrate) ? Number(object.videoBitrate) : 0,
+      profile: isSet(object.profile) ? String(object.profile) : '',
     };
   },
 
   toJSON(message: RecordingOptions): unknown {
     const obj: any = {};
-    message.preset !== undefined &&
-      (obj.preset = recordingPresetToJSON(message.preset));
+    message.preset !== undefined && (obj.preset = recordingPresetToJSON(message.preset));
     message.width !== undefined && (obj.width = Math.round(message.width));
     message.height !== undefined && (obj.height = Math.round(message.height));
     message.depth !== undefined && (obj.depth = Math.round(message.depth));
-    message.framerate !== undefined &&
-      (obj.framerate = Math.round(message.framerate));
-    message.audioBitrate !== undefined &&
-      (obj.audioBitrate = Math.round(message.audioBitrate));
+    message.framerate !== undefined && (obj.framerate = Math.round(message.framerate));
+    message.audioBitrate !== undefined && (obj.audioBitrate = Math.round(message.audioBitrate));
     message.audioFrequency !== undefined &&
       (obj.audioFrequency = Math.round(message.audioFrequency));
-    message.videoBitrate !== undefined &&
-      (obj.videoBitrate = Math.round(message.videoBitrate));
+    message.videoBitrate !== undefined && (obj.videoBitrate = Math.round(message.videoBitrate));
     message.profile !== undefined && (obj.profile = message.profile);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RecordingOptions>, I>>(
-    object: I
-  ): RecordingOptions {
+  fromPartial<I extends Exact<DeepPartial<RecordingOptions>, I>>(object: I): RecordingOptions {
     const message = createBaseRecordingOptions();
     message.preset = object.preset ?? 0;
     message.width = object.width ?? 0;
@@ -535,30 +488,24 @@ export const RecordingOptions = {
     message.audioBitrate = object.audioBitrate ?? 0;
     message.audioFrequency = object.audioFrequency ?? 0;
     message.videoBitrate = object.videoBitrate ?? 0;
-    message.profile = object.profile ?? "";
+    message.profile = object.profile ?? '';
     return message;
   },
 };
 
 function createBaseStartRecordingResponse(): StartRecordingResponse {
-  return { recordingId: "" };
+  return { recordingId: '' };
 }
 
 export const StartRecordingResponse = {
-  encode(
-    message: StartRecordingResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== "") {
+  encode(message: StartRecordingResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.recordingId !== '') {
       writer.uint32(10).string(message.recordingId);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): StartRecordingResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): StartRecordingResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStartRecordingResponse();
@@ -578,39 +525,35 @@ export const StartRecordingResponse = {
 
   fromJSON(object: any): StartRecordingResponse {
     return {
-      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : '',
     };
   },
 
   toJSON(message: StartRecordingResponse): unknown {
     const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
+    message.recordingId !== undefined && (obj.recordingId = message.recordingId);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<StartRecordingResponse>, I>>(
-    object: I
+    object: I,
   ): StartRecordingResponse {
     const message = createBaseStartRecordingResponse();
-    message.recordingId = object.recordingId ?? "";
+    message.recordingId = object.recordingId ?? '';
     return message;
   },
 };
 
 function createBaseAddOutputRequest(): AddOutputRequest {
-  return { recordingId: "", rtmpUrl: "" };
+  return { recordingId: '', rtmpUrl: '' };
 }
 
 export const AddOutputRequest = {
-  encode(
-    message: AddOutputRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== "") {
+  encode(message: AddOutputRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.recordingId !== '') {
       writer.uint32(10).string(message.recordingId);
     }
-    if (message.rtmpUrl !== "") {
+    if (message.rtmpUrl !== '') {
       writer.uint32(18).string(message.rtmpUrl);
     }
     return writer;
@@ -639,42 +582,36 @@ export const AddOutputRequest = {
 
   fromJSON(object: any): AddOutputRequest {
     return {
-      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
-      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : "",
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : '',
+      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : '',
     };
   },
 
   toJSON(message: AddOutputRequest): unknown {
     const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
+    message.recordingId !== undefined && (obj.recordingId = message.recordingId);
     message.rtmpUrl !== undefined && (obj.rtmpUrl = message.rtmpUrl);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<AddOutputRequest>, I>>(
-    object: I
-  ): AddOutputRequest {
+  fromPartial<I extends Exact<DeepPartial<AddOutputRequest>, I>>(object: I): AddOutputRequest {
     const message = createBaseAddOutputRequest();
-    message.recordingId = object.recordingId ?? "";
-    message.rtmpUrl = object.rtmpUrl ?? "";
+    message.recordingId = object.recordingId ?? '';
+    message.rtmpUrl = object.rtmpUrl ?? '';
     return message;
   },
 };
 
 function createBaseRemoveOutputRequest(): RemoveOutputRequest {
-  return { recordingId: "", rtmpUrl: "" };
+  return { recordingId: '', rtmpUrl: '' };
 }
 
 export const RemoveOutputRequest = {
-  encode(
-    message: RemoveOutputRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== "") {
+  encode(message: RemoveOutputRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.recordingId !== '') {
       writer.uint32(10).string(message.recordingId);
     }
-    if (message.rtmpUrl !== "") {
+    if (message.rtmpUrl !== '') {
       writer.uint32(18).string(message.rtmpUrl);
     }
     return writer;
@@ -703,39 +640,35 @@ export const RemoveOutputRequest = {
 
   fromJSON(object: any): RemoveOutputRequest {
     return {
-      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
-      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : "",
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : '',
+      rtmpUrl: isSet(object.rtmpUrl) ? String(object.rtmpUrl) : '',
     };
   },
 
   toJSON(message: RemoveOutputRequest): unknown {
     const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
+    message.recordingId !== undefined && (obj.recordingId = message.recordingId);
     message.rtmpUrl !== undefined && (obj.rtmpUrl = message.rtmpUrl);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<RemoveOutputRequest>, I>>(
-    object: I
+    object: I,
   ): RemoveOutputRequest {
     const message = createBaseRemoveOutputRequest();
-    message.recordingId = object.recordingId ?? "";
-    message.rtmpUrl = object.rtmpUrl ?? "";
+    message.recordingId = object.recordingId ?? '';
+    message.rtmpUrl = object.rtmpUrl ?? '';
     return message;
   },
 };
 
 function createBaseEndRecordingRequest(): EndRecordingRequest {
-  return { recordingId: "" };
+  return { recordingId: '' };
 }
 
 export const EndRecordingRequest = {
-  encode(
-    message: EndRecordingRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.recordingId !== "") {
+  encode(message: EndRecordingRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.recordingId !== '') {
       writer.uint32(10).string(message.recordingId);
     }
     return writer;
@@ -761,52 +694,41 @@ export const EndRecordingRequest = {
 
   fromJSON(object: any): EndRecordingRequest {
     return {
-      recordingId: isSet(object.recordingId) ? String(object.recordingId) : "",
+      recordingId: isSet(object.recordingId) ? String(object.recordingId) : '',
     };
   },
 
   toJSON(message: EndRecordingRequest): unknown {
     const obj: any = {};
-    message.recordingId !== undefined &&
-      (obj.recordingId = message.recordingId);
+    message.recordingId !== undefined && (obj.recordingId = message.recordingId);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<EndRecordingRequest>, I>>(
-    object: I
+    object: I,
   ): EndRecordingRequest {
     const message = createBaseEndRecordingRequest();
-    message.recordingId = object.recordingId ?? "";
+    message.recordingId = object.recordingId ?? '';
     return message;
   },
 };
 
 function createBaseRecordingInfo(): RecordingInfo {
-  return {
-    id: "",
-    roomName: "",
-    active: false,
-    error: "",
-    file: undefined,
-    rtmp: [],
-  };
+  return { id: '', roomName: '', active: false, error: '', file: undefined, rtmp: [] };
 }
 
 export const RecordingInfo = {
-  encode(
-    message: RecordingInfo,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.id !== "") {
+  encode(message: RecordingInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.roomName !== "") {
+    if (message.roomName !== '') {
       writer.uint32(18).string(message.roomName);
     }
     if (message.active === true) {
       writer.uint32(24).bool(message.active);
     }
-    if (message.error !== "") {
+    if (message.error !== '') {
       writer.uint32(34).string(message.error);
     }
     if (message.file !== undefined) {
@@ -853,14 +775,12 @@ export const RecordingInfo = {
 
   fromJSON(object: any): RecordingInfo {
     return {
-      id: isSet(object.id) ? String(object.id) : "",
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      id: isSet(object.id) ? String(object.id) : '',
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
       active: isSet(object.active) ? Boolean(object.active) : false,
-      error: isSet(object.error) ? String(object.error) : "",
+      error: isSet(object.error) ? String(object.error) : '',
       file: isSet(object.file) ? FileResult.fromJSON(object.file) : undefined,
-      rtmp: Array.isArray(object?.rtmp)
-        ? object.rtmp.map((e: any) => RtmpResult.fromJSON(e))
-        : [],
+      rtmp: Array.isArray(object?.rtmp) ? object.rtmp.map((e: any) => RtmpResult.fromJSON(e)) : [],
     };
   },
 
@@ -873,23 +793,19 @@ export const RecordingInfo = {
     message.file !== undefined &&
       (obj.file = message.file ? FileResult.toJSON(message.file) : undefined);
     if (message.rtmp) {
-      obj.rtmp = message.rtmp.map((e) =>
-        e ? RtmpResult.toJSON(e) : undefined
-      );
+      obj.rtmp = message.rtmp.map((e) => (e ? RtmpResult.toJSON(e) : undefined));
     } else {
       obj.rtmp = [];
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RecordingInfo>, I>>(
-    object: I
-  ): RecordingInfo {
+  fromPartial<I extends Exact<DeepPartial<RecordingInfo>, I>>(object: I): RecordingInfo {
     const message = createBaseRecordingInfo();
-    message.id = object.id ?? "";
-    message.roomName = object.roomName ?? "";
+    message.id = object.id ?? '';
+    message.roomName = object.roomName ?? '';
     message.active = object.active ?? false;
-    message.error = object.error ?? "";
+    message.error = object.error ?? '';
     message.file =
       object.file !== undefined && object.file !== null
         ? FileResult.fromPartial(object.file)
@@ -900,15 +816,12 @@ export const RecordingInfo = {
 };
 
 function createBaseFileResult(): FileResult {
-  return { downloadUrl: "", duration: 0 };
+  return { downloadUrl: '', duration: 0 };
 }
 
 export const FileResult = {
-  encode(
-    message: FileResult,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.downloadUrl !== "") {
+  encode(message: FileResult, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.downloadUrl !== '') {
       writer.uint32(10).string(message.downloadUrl);
     }
     if (message.duration !== 0) {
@@ -940,40 +853,33 @@ export const FileResult = {
 
   fromJSON(object: any): FileResult {
     return {
-      downloadUrl: isSet(object.downloadUrl) ? String(object.downloadUrl) : "",
+      downloadUrl: isSet(object.downloadUrl) ? String(object.downloadUrl) : '',
       duration: isSet(object.duration) ? Number(object.duration) : 0,
     };
   },
 
   toJSON(message: FileResult): unknown {
     const obj: any = {};
-    message.downloadUrl !== undefined &&
-      (obj.downloadUrl = message.downloadUrl);
-    message.duration !== undefined &&
-      (obj.duration = Math.round(message.duration));
+    message.downloadUrl !== undefined && (obj.downloadUrl = message.downloadUrl);
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<FileResult>, I>>(
-    object: I
-  ): FileResult {
+  fromPartial<I extends Exact<DeepPartial<FileResult>, I>>(object: I): FileResult {
     const message = createBaseFileResult();
-    message.downloadUrl = object.downloadUrl ?? "";
+    message.downloadUrl = object.downloadUrl ?? '';
     message.duration = object.duration ?? 0;
     return message;
   },
 };
 
 function createBaseRtmpResult(): RtmpResult {
-  return { streamUrl: "", duration: 0 };
+  return { streamUrl: '', duration: 0 };
 }
 
 export const RtmpResult = {
-  encode(
-    message: RtmpResult,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.streamUrl !== "") {
+  encode(message: RtmpResult, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.streamUrl !== '') {
       writer.uint32(10).string(message.streamUrl);
     }
     if (message.duration !== 0) {
@@ -1005,7 +911,7 @@ export const RtmpResult = {
 
   fromJSON(object: any): RtmpResult {
     return {
-      streamUrl: isSet(object.streamUrl) ? String(object.streamUrl) : "",
+      streamUrl: isSet(object.streamUrl) ? String(object.streamUrl) : '',
       duration: isSet(object.duration) ? Number(object.duration) : 0,
     };
   },
@@ -1013,16 +919,13 @@ export const RtmpResult = {
   toJSON(message: RtmpResult): unknown {
     const obj: any = {};
     message.streamUrl !== undefined && (obj.streamUrl = message.streamUrl);
-    message.duration !== undefined &&
-      (obj.duration = Math.round(message.duration));
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RtmpResult>, I>>(
-    object: I
-  ): RtmpResult {
+  fromPartial<I extends Exact<DeepPartial<RtmpResult>, I>>(object: I): RtmpResult {
     const message = createBaseRtmpResult();
-    message.streamUrl = object.streamUrl ?? "";
+    message.streamUrl = object.streamUrl ?? '';
     message.duration = object.duration ?? 0;
     return message;
   },
@@ -1038,9 +941,7 @@ export interface RecordingService {
    *
    * @deprecated
    */
-  StartRecording(
-    request: StartRecordingRequest
-  ): Promise<StartRecordingResponse>;
+  StartRecording(request: StartRecordingRequest): Promise<StartRecordingResponse>;
   /**
    * Adds an rtmp output to a live recording
    *
@@ -1065,21 +966,14 @@ declare var self: any | undefined;
 declare var window: any | undefined;
 declare var global: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
 })();
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -1094,14 +988,11 @@ export type DeepPartial<T> = T extends Builtin
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin
   ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
-        Exclude<keyof I, KeysOfUnion<P>>,
-        never
-      >;
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<Exclude<keyof I, KeysOfUnion<P>>, never>;
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   return long.toNumber();
 }

@@ -1,26 +1,30 @@
 /* eslint-disable */
-import Long from "long";
-import * as _m0 from "protobufjs/minimal";
+import Long from 'long';
+import * as _m0 from 'protobufjs/minimal';
 
-export const protobufPackage = "livekit";
+export const protobufPackage = 'livekit';
 
 export enum EncodedFileType {
-  MP4 = 0,
-  /** OGG - WEBM = 2; coming soon */
-  OGG = 1,
+  /** DEFAULT_FILETYPE - file type chosen based on codecs */
+  DEFAULT_FILETYPE = 0,
+  MP4 = 1,
+  OGG = 2,
   UNRECOGNIZED = -1,
 }
 
 export function encodedFileTypeFromJSON(object: any): EncodedFileType {
   switch (object) {
     case 0:
-    case "MP4":
-      return EncodedFileType.MP4;
+    case 'DEFAULT_FILETYPE':
+      return EncodedFileType.DEFAULT_FILETYPE;
     case 1:
-    case "OGG":
+    case 'MP4':
+      return EncodedFileType.MP4;
+    case 2:
+    case 'OGG':
       return EncodedFileType.OGG;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return EncodedFileType.UNRECOGNIZED;
   }
@@ -28,28 +32,34 @@ export function encodedFileTypeFromJSON(object: any): EncodedFileType {
 
 export function encodedFileTypeToJSON(object: EncodedFileType): string {
   switch (object) {
+    case EncodedFileType.DEFAULT_FILETYPE:
+      return 'DEFAULT_FILETYPE';
     case EncodedFileType.MP4:
-      return "MP4";
+      return 'MP4';
     case EncodedFileType.OGG:
-      return "OGG";
+      return 'OGG';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
 export enum StreamProtocol {
-  /** RTMP - SRT  = 1; coming soon */
-  RTMP = 0,
+  /** DEFAULT_PROTOCOL - protocol chosen based on urls */
+  DEFAULT_PROTOCOL = 0,
+  RTMP = 1,
   UNRECOGNIZED = -1,
 }
 
 export function streamProtocolFromJSON(object: any): StreamProtocol {
   switch (object) {
     case 0:
-    case "RTMP":
+    case 'DEFAULT_PROTOCOL':
+      return StreamProtocol.DEFAULT_PROTOCOL;
+    case 1:
+    case 'RTMP':
       return StreamProtocol.RTMP;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return StreamProtocol.UNRECOGNIZED;
   }
@@ -57,10 +67,12 @@ export function streamProtocolFromJSON(object: any): StreamProtocol {
 
 export function streamProtocolToJSON(object: StreamProtocol): string {
   switch (object) {
+    case StreamProtocol.DEFAULT_PROTOCOL:
+      return 'DEFAULT_PROTOCOL';
     case StreamProtocol.RTMP:
-      return "RTMP";
+      return 'RTMP';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -74,16 +86,16 @@ export enum AudioCodec {
 export function audioCodecFromJSON(object: any): AudioCodec {
   switch (object) {
     case 0:
-    case "DEFAULT_AC":
+    case 'DEFAULT_AC':
       return AudioCodec.DEFAULT_AC;
     case 1:
-    case "OPUS":
+    case 'OPUS':
       return AudioCodec.OPUS;
     case 2:
-    case "AAC":
+    case 'AAC':
       return AudioCodec.AAC;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return AudioCodec.UNRECOGNIZED;
   }
@@ -92,13 +104,13 @@ export function audioCodecFromJSON(object: any): AudioCodec {
 export function audioCodecToJSON(object: AudioCodec): string {
   switch (object) {
     case AudioCodec.DEFAULT_AC:
-      return "DEFAULT_AC";
+      return 'DEFAULT_AC';
     case AudioCodec.OPUS:
-      return "OPUS";
+      return 'OPUS';
     case AudioCodec.AAC:
-      return "AAC";
+      return 'AAC';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -106,11 +118,6 @@ export enum VideoCodec {
   DEFAULT_VC = 0,
   H264_BASELINE = 1,
   H264_MAIN = 2,
-  /**
-   * H264_HIGH - HEVC = 4; coming soon
-   *  VP8 = 5;  coming soon
-   *  VP9 = 6;  coming soon
-   */
   H264_HIGH = 3,
   UNRECOGNIZED = -1,
 }
@@ -118,19 +125,19 @@ export enum VideoCodec {
 export function videoCodecFromJSON(object: any): VideoCodec {
   switch (object) {
     case 0:
-    case "DEFAULT_VC":
+    case 'DEFAULT_VC':
       return VideoCodec.DEFAULT_VC;
     case 1:
-    case "H264_BASELINE":
+    case 'H264_BASELINE':
       return VideoCodec.H264_BASELINE;
     case 2:
-    case "H264_MAIN":
+    case 'H264_MAIN':
       return VideoCodec.H264_MAIN;
     case 3:
-    case "H264_HIGH":
+    case 'H264_HIGH':
       return VideoCodec.H264_HIGH;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return VideoCodec.UNRECOGNIZED;
   }
@@ -139,15 +146,15 @@ export function videoCodecFromJSON(object: any): VideoCodec {
 export function videoCodecToJSON(object: VideoCodec): string {
   switch (object) {
     case VideoCodec.DEFAULT_VC:
-      return "DEFAULT_VC";
+      return 'DEFAULT_VC';
     case VideoCodec.H264_BASELINE:
-      return "H264_BASELINE";
+      return 'H264_BASELINE';
     case VideoCodec.H264_MAIN:
-      return "H264_MAIN";
+      return 'H264_MAIN';
     case VideoCodec.H264_HIGH:
-      return "H264_HIGH";
+      return 'H264_HIGH';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -163,43 +170,39 @@ export enum EncodingOptionsPreset {
   UNRECOGNIZED = -1,
 }
 
-export function encodingOptionsPresetFromJSON(
-  object: any
-): EncodingOptionsPreset {
+export function encodingOptionsPresetFromJSON(object: any): EncodingOptionsPreset {
   switch (object) {
     case 0:
-    case "H264_720P_30":
+    case 'H264_720P_30':
       return EncodingOptionsPreset.H264_720P_30;
     case 1:
-    case "H264_720P_60":
+    case 'H264_720P_60':
       return EncodingOptionsPreset.H264_720P_60;
     case 2:
-    case "H264_1080P_30":
+    case 'H264_1080P_30':
       return EncodingOptionsPreset.H264_1080P_30;
     case 3:
-    case "H264_1080P_60":
+    case 'H264_1080P_60':
       return EncodingOptionsPreset.H264_1080P_60;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return EncodingOptionsPreset.UNRECOGNIZED;
   }
 }
 
-export function encodingOptionsPresetToJSON(
-  object: EncodingOptionsPreset
-): string {
+export function encodingOptionsPresetToJSON(object: EncodingOptionsPreset): string {
   switch (object) {
     case EncodingOptionsPreset.H264_720P_30:
-      return "H264_720P_30";
+      return 'H264_720P_30';
     case EncodingOptionsPreset.H264_720P_60:
-      return "H264_720P_60";
+      return 'H264_720P_60';
     case EncodingOptionsPreset.H264_1080P_30:
-      return "H264_1080P_30";
+      return 'H264_1080P_30';
     case EncodingOptionsPreset.H264_1080P_60:
-      return "H264_1080P_60";
+      return 'H264_1080P_60';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -214,19 +217,19 @@ export enum EgressStatus {
 export function egressStatusFromJSON(object: any): EgressStatus {
   switch (object) {
     case 0:
-    case "EGRESS_STARTING":
+    case 'EGRESS_STARTING':
       return EgressStatus.EGRESS_STARTING;
     case 1:
-    case "EGRESS_ACTIVE":
+    case 'EGRESS_ACTIVE':
       return EgressStatus.EGRESS_ACTIVE;
     case 2:
-    case "EGRESS_ENDING":
+    case 'EGRESS_ENDING':
       return EgressStatus.EGRESS_ENDING;
     case 3:
-    case "EGRESS_COMPLETE":
+    case 'EGRESS_COMPLETE':
       return EgressStatus.EGRESS_COMPLETE;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return EgressStatus.UNRECOGNIZED;
   }
@@ -235,15 +238,15 @@ export function egressStatusFromJSON(object: any): EgressStatus {
 export function egressStatusToJSON(object: EgressStatus): string {
   switch (object) {
     case EgressStatus.EGRESS_STARTING:
-      return "EGRESS_STARTING";
+      return 'EGRESS_STARTING';
     case EgressStatus.EGRESS_ACTIVE:
-      return "EGRESS_ACTIVE";
+      return 'EGRESS_ACTIVE';
     case EgressStatus.EGRESS_ENDING:
-      return "EGRESS_ENDING";
+      return 'EGRESS_ENDING';
     case EgressStatus.EGRESS_COMPLETE:
-      return "EGRESS_COMPLETE";
+      return 'EGRESS_COMPLETE';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }
 
@@ -261,23 +264,23 @@ export interface RoomCompositeEgressRequest {
   customBaseUrl: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
-  /** (default none) */
+  /** (default H264_720P_30) */
   preset: EncodingOptionsPreset | undefined;
-  /** (default none) */
+  /** (optional) */
   advanced?: EncodingOptions | undefined;
 }
 
-/** composite a single audio and video track */
+/** containerize up to one audio and one video track */
 export interface TrackCompositeEgressRequest {
   /** required */
   roomName: string;
-  /** required */
+  /** (optional) */
   audioTrackId: string;
-  /** required */
+  /** (optional) */
   videoTrackId: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
-  /** (optional) */
+  /** (default H264_720P_30) */
   preset: EncodingOptionsPreset | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
@@ -289,13 +292,22 @@ export interface TrackEgressRequest {
   roomName: string;
   /** required */
   trackId: string;
-  httpUrl: string | undefined;
+  file?: DirectFileOutput | undefined;
   websocketUrl: string | undefined;
 }
 
 export interface EncodedFileOutput {
-  /** required, must be compatible with codec selection */
+  /** (optional) */
   fileType: EncodedFileType;
+  /** (optional) */
+  filepath: string;
+  s3?: S3Upload | undefined;
+  gcp?: GCPUpload | undefined;
+  azure?: AzureBlobUpload | undefined;
+}
+
+export interface DirectFileOutput {
+  /** (optional) */
   filepath: string;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
@@ -361,7 +373,7 @@ export interface UpdateStreamRequest {
 }
 
 export interface ListEgressRequest {
-  /** optional, when empty lists all egresses */
+  /** (optional, used to filter results) */
   roomName: string;
 }
 
@@ -377,12 +389,14 @@ export interface EgressInfo {
   egressId: string;
   roomId: string;
   status: EgressStatus;
+  startedAt: number;
+  endedAt: number;
+  error: string;
   roomComposite?: RoomCompositeEgressRequest | undefined;
   trackComposite?: TrackCompositeEgressRequest | undefined;
   track?: TrackEgressRequest | undefined;
   stream?: StreamInfoList | undefined;
   file?: FileInfo | undefined;
-  error: string;
 }
 
 export interface StreamInfoList {
@@ -391,25 +405,23 @@ export interface StreamInfoList {
 
 export interface StreamInfo {
   url: string;
-  startedAt: number;
-  endedAt: number;
+  duration: number;
 }
 
 export interface FileInfo {
   filename: string;
-  startedAt: number;
-  endedAt: number;
+  duration: number;
   size: number;
   location: string;
 }
 
 function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
   return {
-    roomName: "",
-    layout: "",
+    roomName: '',
+    layout: '',
     audioOnly: false,
     videoOnly: false,
-    customBaseUrl: "",
+    customBaseUrl: '',
     file: undefined,
     stream: undefined,
     preset: undefined,
@@ -420,12 +432,12 @@ function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
 export const RoomCompositeEgressRequest = {
   encode(
     message: RoomCompositeEgressRequest,
-    writer: _m0.Writer = _m0.Writer.create()
+    writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.roomName !== "") {
+    if (message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.layout !== "") {
+    if (message.layout !== '') {
       writer.uint32(18).string(message.layout);
     }
     if (message.audioOnly === true) {
@@ -434,7 +446,7 @@ export const RoomCompositeEgressRequest = {
     if (message.videoOnly === true) {
       writer.uint32(32).bool(message.videoOnly);
     }
-    if (message.customBaseUrl !== "") {
+    if (message.customBaseUrl !== '') {
       writer.uint32(42).string(message.customBaseUrl);
     }
     if (message.file !== undefined) {
@@ -447,18 +459,12 @@ export const RoomCompositeEgressRequest = {
       writer.uint32(64).int32(message.preset);
     }
     if (message.advanced !== undefined) {
-      EncodingOptions.encode(
-        message.advanced,
-        writer.uint32(74).fork()
-      ).ldelim();
+      EncodingOptions.encode(message.advanced, writer.uint32(74).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): RoomCompositeEgressRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): RoomCompositeEgressRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRoomCompositeEgressRequest();
@@ -502,25 +508,15 @@ export const RoomCompositeEgressRequest = {
 
   fromJSON(object: any): RoomCompositeEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      layout: isSet(object.layout) ? String(object.layout) : "",
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
+      layout: isSet(object.layout) ? String(object.layout) : '',
       audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
       videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
-      customBaseUrl: isSet(object.customBaseUrl)
-        ? String(object.customBaseUrl)
-        : "",
-      file: isSet(object.file)
-        ? EncodedFileOutput.fromJSON(object.file)
-        : undefined,
-      stream: isSet(object.stream)
-        ? StreamOutput.fromJSON(object.stream)
-        : undefined,
-      preset: isSet(object.preset)
-        ? encodingOptionsPresetFromJSON(object.preset)
-        : undefined,
-      advanced: isSet(object.advanced)
-        ? EncodingOptions.fromJSON(object.advanced)
-        : undefined,
+      customBaseUrl: isSet(object.customBaseUrl) ? String(object.customBaseUrl) : '',
+      file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
+      stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
+      preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
+      advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
     };
   },
 
@@ -530,37 +526,28 @@ export const RoomCompositeEgressRequest = {
     message.layout !== undefined && (obj.layout = message.layout);
     message.audioOnly !== undefined && (obj.audioOnly = message.audioOnly);
     message.videoOnly !== undefined && (obj.videoOnly = message.videoOnly);
-    message.customBaseUrl !== undefined &&
-      (obj.customBaseUrl = message.customBaseUrl);
+    message.customBaseUrl !== undefined && (obj.customBaseUrl = message.customBaseUrl);
     message.file !== undefined &&
-      (obj.file = message.file
-        ? EncodedFileOutput.toJSON(message.file)
-        : undefined);
+      (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
-      (obj.stream = message.stream
-        ? StreamOutput.toJSON(message.stream)
-        : undefined);
+      (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
     message.preset !== undefined &&
       (obj.preset =
-        message.preset !== undefined
-          ? encodingOptionsPresetToJSON(message.preset)
-          : undefined);
+        message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
     message.advanced !== undefined &&
-      (obj.advanced = message.advanced
-        ? EncodingOptions.toJSON(message.advanced)
-        : undefined);
+      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<RoomCompositeEgressRequest>, I>>(
-    object: I
+    object: I,
   ): RoomCompositeEgressRequest {
     const message = createBaseRoomCompositeEgressRequest();
-    message.roomName = object.roomName ?? "";
-    message.layout = object.layout ?? "";
+    message.roomName = object.roomName ?? '';
+    message.layout = object.layout ?? '';
     message.audioOnly = object.audioOnly ?? false;
     message.videoOnly = object.videoOnly ?? false;
-    message.customBaseUrl = object.customBaseUrl ?? "";
+    message.customBaseUrl = object.customBaseUrl ?? '';
     message.file =
       object.file !== undefined && object.file !== null
         ? EncodedFileOutput.fromPartial(object.file)
@@ -580,9 +567,9 @@ export const RoomCompositeEgressRequest = {
 
 function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
   return {
-    roomName: "",
-    audioTrackId: "",
-    videoTrackId: "",
+    roomName: '',
+    audioTrackId: '',
+    videoTrackId: '',
     file: undefined,
     stream: undefined,
     preset: undefined,
@@ -593,15 +580,15 @@ function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
 export const TrackCompositeEgressRequest = {
   encode(
     message: TrackCompositeEgressRequest,
-    writer: _m0.Writer = _m0.Writer.create()
+    writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.roomName !== "") {
+    if (message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.audioTrackId !== "") {
+    if (message.audioTrackId !== '') {
       writer.uint32(18).string(message.audioTrackId);
     }
-    if (message.videoTrackId !== "") {
+    if (message.videoTrackId !== '') {
       writer.uint32(26).string(message.videoTrackId);
     }
     if (message.file !== undefined) {
@@ -614,18 +601,12 @@ export const TrackCompositeEgressRequest = {
       writer.uint32(48).int32(message.preset);
     }
     if (message.advanced !== undefined) {
-      EncodingOptions.encode(
-        message.advanced,
-        writer.uint32(58).fork()
-      ).ldelim();
+      EncodingOptions.encode(message.advanced, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): TrackCompositeEgressRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): TrackCompositeEgressRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTrackCompositeEgressRequest();
@@ -663,62 +644,40 @@ export const TrackCompositeEgressRequest = {
 
   fromJSON(object: any): TrackCompositeEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      audioTrackId: isSet(object.audioTrackId)
-        ? String(object.audioTrackId)
-        : "",
-      videoTrackId: isSet(object.videoTrackId)
-        ? String(object.videoTrackId)
-        : "",
-      file: isSet(object.file)
-        ? EncodedFileOutput.fromJSON(object.file)
-        : undefined,
-      stream: isSet(object.stream)
-        ? StreamOutput.fromJSON(object.stream)
-        : undefined,
-      preset: isSet(object.preset)
-        ? encodingOptionsPresetFromJSON(object.preset)
-        : undefined,
-      advanced: isSet(object.advanced)
-        ? EncodingOptions.fromJSON(object.advanced)
-        : undefined,
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
+      audioTrackId: isSet(object.audioTrackId) ? String(object.audioTrackId) : '',
+      videoTrackId: isSet(object.videoTrackId) ? String(object.videoTrackId) : '',
+      file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
+      stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
+      preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
+      advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
     };
   },
 
   toJSON(message: TrackCompositeEgressRequest): unknown {
     const obj: any = {};
     message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.audioTrackId !== undefined &&
-      (obj.audioTrackId = message.audioTrackId);
-    message.videoTrackId !== undefined &&
-      (obj.videoTrackId = message.videoTrackId);
+    message.audioTrackId !== undefined && (obj.audioTrackId = message.audioTrackId);
+    message.videoTrackId !== undefined && (obj.videoTrackId = message.videoTrackId);
     message.file !== undefined &&
-      (obj.file = message.file
-        ? EncodedFileOutput.toJSON(message.file)
-        : undefined);
+      (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
-      (obj.stream = message.stream
-        ? StreamOutput.toJSON(message.stream)
-        : undefined);
+      (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
     message.preset !== undefined &&
       (obj.preset =
-        message.preset !== undefined
-          ? encodingOptionsPresetToJSON(message.preset)
-          : undefined);
+        message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
     message.advanced !== undefined &&
-      (obj.advanced = message.advanced
-        ? EncodingOptions.toJSON(message.advanced)
-        : undefined);
+      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<TrackCompositeEgressRequest>, I>>(
-    object: I
+    object: I,
   ): TrackCompositeEgressRequest {
     const message = createBaseTrackCompositeEgressRequest();
-    message.roomName = object.roomName ?? "";
-    message.audioTrackId = object.audioTrackId ?? "";
-    message.videoTrackId = object.videoTrackId ?? "";
+    message.roomName = object.roomName ?? '';
+    message.audioTrackId = object.audioTrackId ?? '';
+    message.videoTrackId = object.videoTrackId ?? '';
     message.file =
       object.file !== undefined && object.file !== null
         ? EncodedFileOutput.fromPartial(object.file)
@@ -737,27 +696,19 @@ export const TrackCompositeEgressRequest = {
 };
 
 function createBaseTrackEgressRequest(): TrackEgressRequest {
-  return {
-    roomName: "",
-    trackId: "",
-    httpUrl: undefined,
-    websocketUrl: undefined,
-  };
+  return { roomName: '', trackId: '', file: undefined, websocketUrl: undefined };
 }
 
 export const TrackEgressRequest = {
-  encode(
-    message: TrackEgressRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.roomName !== "") {
+  encode(message: TrackEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.trackId !== "") {
+    if (message.trackId !== '') {
       writer.uint32(18).string(message.trackId);
     }
-    if (message.httpUrl !== undefined) {
-      writer.uint32(26).string(message.httpUrl);
+    if (message.file !== undefined) {
+      DirectFileOutput.encode(message.file, writer.uint32(26).fork()).ldelim();
     }
     if (message.websocketUrl !== undefined) {
       writer.uint32(34).string(message.websocketUrl);
@@ -779,7 +730,7 @@ export const TrackEgressRequest = {
           message.trackId = reader.string();
           break;
         case 3:
-          message.httpUrl = reader.string();
+          message.file = DirectFileOutput.decode(reader, reader.uint32());
           break;
         case 4:
           message.websocketUrl = reader.string();
@@ -794,12 +745,10 @@ export const TrackEgressRequest = {
 
   fromJSON(object: any): TrackEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      trackId: isSet(object.trackId) ? String(object.trackId) : "",
-      httpUrl: isSet(object.httpUrl) ? String(object.httpUrl) : undefined,
-      websocketUrl: isSet(object.websocketUrl)
-        ? String(object.websocketUrl)
-        : undefined,
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
+      trackId: isSet(object.trackId) ? String(object.trackId) : '',
+      file: isSet(object.file) ? DirectFileOutput.fromJSON(object.file) : undefined,
+      websocketUrl: isSet(object.websocketUrl) ? String(object.websocketUrl) : undefined,
     };
   },
 
@@ -807,43 +756,35 @@ export const TrackEgressRequest = {
     const obj: any = {};
     message.roomName !== undefined && (obj.roomName = message.roomName);
     message.trackId !== undefined && (obj.trackId = message.trackId);
-    message.httpUrl !== undefined && (obj.httpUrl = message.httpUrl);
-    message.websocketUrl !== undefined &&
-      (obj.websocketUrl = message.websocketUrl);
+    message.file !== undefined &&
+      (obj.file = message.file ? DirectFileOutput.toJSON(message.file) : undefined);
+    message.websocketUrl !== undefined && (obj.websocketUrl = message.websocketUrl);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<TrackEgressRequest>, I>>(
-    object: I
-  ): TrackEgressRequest {
+  fromPartial<I extends Exact<DeepPartial<TrackEgressRequest>, I>>(object: I): TrackEgressRequest {
     const message = createBaseTrackEgressRequest();
-    message.roomName = object.roomName ?? "";
-    message.trackId = object.trackId ?? "";
-    message.httpUrl = object.httpUrl ?? undefined;
+    message.roomName = object.roomName ?? '';
+    message.trackId = object.trackId ?? '';
+    message.file =
+      object.file !== undefined && object.file !== null
+        ? DirectFileOutput.fromPartial(object.file)
+        : undefined;
     message.websocketUrl = object.websocketUrl ?? undefined;
     return message;
   },
 };
 
 function createBaseEncodedFileOutput(): EncodedFileOutput {
-  return {
-    fileType: 0,
-    filepath: "",
-    s3: undefined,
-    gcp: undefined,
-    azure: undefined,
-  };
+  return { fileType: 0, filepath: '', s3: undefined, gcp: undefined, azure: undefined };
 }
 
 export const EncodedFileOutput = {
-  encode(
-    message: EncodedFileOutput,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: EncodedFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.fileType !== 0) {
       writer.uint32(8).int32(message.fileType);
     }
-    if (message.filepath !== "") {
+    if (message.filepath !== '') {
       writer.uint32(18).string(message.filepath);
     }
     if (message.s3 !== undefined) {
@@ -890,44 +831,117 @@ export const EncodedFileOutput = {
 
   fromJSON(object: any): EncodedFileOutput {
     return {
-      fileType: isSet(object.fileType)
-        ? encodedFileTypeFromJSON(object.fileType)
-        : 0,
-      filepath: isSet(object.filepath) ? String(object.filepath) : "",
+      fileType: isSet(object.fileType) ? encodedFileTypeFromJSON(object.fileType) : 0,
+      filepath: isSet(object.filepath) ? String(object.filepath) : '',
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
-      azure: isSet(object.azure)
-        ? AzureBlobUpload.fromJSON(object.azure)
-        : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
     };
   },
 
   toJSON(message: EncodedFileOutput): unknown {
     const obj: any = {};
-    message.fileType !== undefined &&
-      (obj.fileType = encodedFileTypeToJSON(message.fileType));
+    message.fileType !== undefined && (obj.fileType = encodedFileTypeToJSON(message.fileType));
     message.filepath !== undefined && (obj.filepath = message.filepath);
-    message.s3 !== undefined &&
-      (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
     message.gcp !== undefined &&
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
     message.azure !== undefined &&
-      (obj.azure = message.azure
-        ? AzureBlobUpload.toJSON(message.azure)
-        : undefined);
+      (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<EncodedFileOutput>, I>>(
-    object: I
-  ): EncodedFileOutput {
+  fromPartial<I extends Exact<DeepPartial<EncodedFileOutput>, I>>(object: I): EncodedFileOutput {
     const message = createBaseEncodedFileOutput();
     message.fileType = object.fileType ?? 0;
-    message.filepath = object.filepath ?? "";
+    message.filepath = object.filepath ?? '';
     message.s3 =
-      object.s3 !== undefined && object.s3 !== null
-        ? S3Upload.fromPartial(object.s3)
+      object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
+    message.gcp =
+      object.gcp !== undefined && object.gcp !== null
+        ? GCPUpload.fromPartial(object.gcp)
         : undefined;
+    message.azure =
+      object.azure !== undefined && object.azure !== null
+        ? AzureBlobUpload.fromPartial(object.azure)
+        : undefined;
+    return message;
+  },
+};
+
+function createBaseDirectFileOutput(): DirectFileOutput {
+  return { filepath: '', s3: undefined, gcp: undefined, azure: undefined };
+}
+
+export const DirectFileOutput = {
+  encode(message: DirectFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.filepath !== '') {
+      writer.uint32(10).string(message.filepath);
+    }
+    if (message.s3 !== undefined) {
+      S3Upload.encode(message.s3, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.gcp !== undefined) {
+      GCPUpload.encode(message.gcp, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.azure !== undefined) {
+      AzureBlobUpload.encode(message.azure, writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): DirectFileOutput {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDirectFileOutput();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.filepath = reader.string();
+          break;
+        case 2:
+          message.s3 = S3Upload.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.gcp = GCPUpload.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.azure = AzureBlobUpload.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DirectFileOutput {
+    return {
+      filepath: isSet(object.filepath) ? String(object.filepath) : '',
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+    };
+  },
+
+  toJSON(message: DirectFileOutput): unknown {
+    const obj: any = {};
+    message.filepath !== undefined && (obj.filepath = message.filepath);
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.gcp !== undefined &&
+      (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
+    message.azure !== undefined &&
+      (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<DirectFileOutput>, I>>(object: I): DirectFileOutput {
+    const message = createBaseDirectFileOutput();
+    message.filepath = object.filepath ?? '';
+    message.s3 =
+      object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp =
       object.gcp !== undefined && object.gcp !== null
         ? GCPUpload.fromPartial(object.gcp)
@@ -941,27 +955,24 @@ export const EncodedFileOutput = {
 };
 
 function createBaseS3Upload(): S3Upload {
-  return { accessKey: "", secret: "", region: "", endpoint: "", bucket: "" };
+  return { accessKey: '', secret: '', region: '', endpoint: '', bucket: '' };
 }
 
 export const S3Upload = {
-  encode(
-    message: S3Upload,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.accessKey !== "") {
+  encode(message: S3Upload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.accessKey !== '') {
       writer.uint32(10).string(message.accessKey);
     }
-    if (message.secret !== "") {
+    if (message.secret !== '') {
       writer.uint32(18).string(message.secret);
     }
-    if (message.region !== "") {
+    if (message.region !== '') {
       writer.uint32(26).string(message.region);
     }
-    if (message.endpoint !== "") {
+    if (message.endpoint !== '') {
       writer.uint32(34).string(message.endpoint);
     }
-    if (message.bucket !== "") {
+    if (message.bucket !== '') {
       writer.uint32(42).string(message.bucket);
     }
     return writer;
@@ -999,11 +1010,11 @@ export const S3Upload = {
 
   fromJSON(object: any): S3Upload {
     return {
-      accessKey: isSet(object.accessKey) ? String(object.accessKey) : "",
-      secret: isSet(object.secret) ? String(object.secret) : "",
-      region: isSet(object.region) ? String(object.region) : "",
-      endpoint: isSet(object.endpoint) ? String(object.endpoint) : "",
-      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+      accessKey: isSet(object.accessKey) ? String(object.accessKey) : '',
+      secret: isSet(object.secret) ? String(object.secret) : '',
+      region: isSet(object.region) ? String(object.region) : '',
+      endpoint: isSet(object.endpoint) ? String(object.endpoint) : '',
+      bucket: isSet(object.bucket) ? String(object.bucket) : '',
     };
   },
 
@@ -1019,28 +1030,25 @@ export const S3Upload = {
 
   fromPartial<I extends Exact<DeepPartial<S3Upload>, I>>(object: I): S3Upload {
     const message = createBaseS3Upload();
-    message.accessKey = object.accessKey ?? "";
-    message.secret = object.secret ?? "";
-    message.region = object.region ?? "";
-    message.endpoint = object.endpoint ?? "";
-    message.bucket = object.bucket ?? "";
+    message.accessKey = object.accessKey ?? '';
+    message.secret = object.secret ?? '';
+    message.region = object.region ?? '';
+    message.endpoint = object.endpoint ?? '';
+    message.bucket = object.bucket ?? '';
     return message;
   },
 };
 
 function createBaseGCPUpload(): GCPUpload {
-  return { credentials: new Uint8Array(), bucket: "" };
+  return { credentials: new Uint8Array(), bucket: '' };
 }
 
 export const GCPUpload = {
-  encode(
-    message: GCPUpload,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: GCPUpload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.credentials.length !== 0) {
       writer.uint32(10).bytes(message.credentials);
     }
-    if (message.bucket !== "") {
+    if (message.bucket !== '') {
       writer.uint32(18).string(message.bucket);
     }
     return writer;
@@ -1072,7 +1080,7 @@ export const GCPUpload = {
       credentials: isSet(object.credentials)
         ? bytesFromBase64(object.credentials)
         : new Uint8Array(),
-      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+      bucket: isSet(object.bucket) ? String(object.bucket) : '',
     };
   },
 
@@ -1080,40 +1088,33 @@ export const GCPUpload = {
     const obj: any = {};
     message.credentials !== undefined &&
       (obj.credentials = base64FromBytes(
-        message.credentials !== undefined
-          ? message.credentials
-          : new Uint8Array()
+        message.credentials !== undefined ? message.credentials : new Uint8Array(),
       ));
     message.bucket !== undefined && (obj.bucket = message.bucket);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<GCPUpload>, I>>(
-    object: I
-  ): GCPUpload {
+  fromPartial<I extends Exact<DeepPartial<GCPUpload>, I>>(object: I): GCPUpload {
     const message = createBaseGCPUpload();
     message.credentials = object.credentials ?? new Uint8Array();
-    message.bucket = object.bucket ?? "";
+    message.bucket = object.bucket ?? '';
     return message;
   },
 };
 
 function createBaseAzureBlobUpload(): AzureBlobUpload {
-  return { accountName: "", accountKey: "", containerName: "" };
+  return { accountName: '', accountKey: '', containerName: '' };
 }
 
 export const AzureBlobUpload = {
-  encode(
-    message: AzureBlobUpload,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.accountName !== "") {
+  encode(message: AzureBlobUpload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.accountName !== '') {
       writer.uint32(10).string(message.accountName);
     }
-    if (message.accountKey !== "") {
+    if (message.accountKey !== '') {
       writer.uint32(18).string(message.accountKey);
     }
-    if (message.containerName !== "") {
+    if (message.containerName !== '') {
       writer.uint32(26).string(message.containerName);
     }
     return writer;
@@ -1145,31 +1146,25 @@ export const AzureBlobUpload = {
 
   fromJSON(object: any): AzureBlobUpload {
     return {
-      accountName: isSet(object.accountName) ? String(object.accountName) : "",
-      accountKey: isSet(object.accountKey) ? String(object.accountKey) : "",
-      containerName: isSet(object.containerName)
-        ? String(object.containerName)
-        : "",
+      accountName: isSet(object.accountName) ? String(object.accountName) : '',
+      accountKey: isSet(object.accountKey) ? String(object.accountKey) : '',
+      containerName: isSet(object.containerName) ? String(object.containerName) : '',
     };
   },
 
   toJSON(message: AzureBlobUpload): unknown {
     const obj: any = {};
-    message.accountName !== undefined &&
-      (obj.accountName = message.accountName);
+    message.accountName !== undefined && (obj.accountName = message.accountName);
     message.accountKey !== undefined && (obj.accountKey = message.accountKey);
-    message.containerName !== undefined &&
-      (obj.containerName = message.containerName);
+    message.containerName !== undefined && (obj.containerName = message.containerName);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<AzureBlobUpload>, I>>(
-    object: I
-  ): AzureBlobUpload {
+  fromPartial<I extends Exact<DeepPartial<AzureBlobUpload>, I>>(object: I): AzureBlobUpload {
     const message = createBaseAzureBlobUpload();
-    message.accountName = object.accountName ?? "";
-    message.accountKey = object.accountKey ?? "";
-    message.containerName = object.containerName ?? "";
+    message.accountName = object.accountName ?? '';
+    message.accountKey = object.accountKey ?? '';
+    message.containerName = object.containerName ?? '';
     return message;
   },
 };
@@ -1179,10 +1174,7 @@ function createBaseStreamOutput(): StreamOutput {
 }
 
 export const StreamOutput = {
-  encode(
-    message: StreamOutput,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: StreamOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.protocol !== 0) {
       writer.uint32(8).int32(message.protocol);
     }
@@ -1215,19 +1207,14 @@ export const StreamOutput = {
 
   fromJSON(object: any): StreamOutput {
     return {
-      protocol: isSet(object.protocol)
-        ? streamProtocolFromJSON(object.protocol)
-        : 0,
-      urls: Array.isArray(object?.urls)
-        ? object.urls.map((e: any) => String(e))
-        : [],
+      protocol: isSet(object.protocol) ? streamProtocolFromJSON(object.protocol) : 0,
+      urls: Array.isArray(object?.urls) ? object.urls.map((e: any) => String(e)) : [],
     };
   },
 
   toJSON(message: StreamOutput): unknown {
     const obj: any = {};
-    message.protocol !== undefined &&
-      (obj.protocol = streamProtocolToJSON(message.protocol));
+    message.protocol !== undefined && (obj.protocol = streamProtocolToJSON(message.protocol));
     if (message.urls) {
       obj.urls = message.urls.map((e) => e);
     } else {
@@ -1236,9 +1223,7 @@ export const StreamOutput = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<StreamOutput>, I>>(
-    object: I
-  ): StreamOutput {
+  fromPartial<I extends Exact<DeepPartial<StreamOutput>, I>>(object: I): StreamOutput {
     const message = createBaseStreamOutput();
     message.protocol = object.protocol ?? 0;
     message.urls = object.urls?.map((e) => e) || [];
@@ -1261,10 +1246,7 @@ function createBaseEncodingOptions(): EncodingOptions {
 }
 
 export const EncodingOptions = {
-  encode(
-    message: EncodingOptions,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: EncodingOptions, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.width !== 0) {
       writer.uint32(8).int32(message.width);
     }
@@ -1343,21 +1325,11 @@ export const EncodingOptions = {
       height: isSet(object.height) ? Number(object.height) : 0,
       depth: isSet(object.depth) ? Number(object.depth) : 0,
       framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
-      audioCodec: isSet(object.audioCodec)
-        ? audioCodecFromJSON(object.audioCodec)
-        : 0,
-      audioBitrate: isSet(object.audioBitrate)
-        ? Number(object.audioBitrate)
-        : 0,
-      audioFrequency: isSet(object.audioFrequency)
-        ? Number(object.audioFrequency)
-        : 0,
-      videoCodec: isSet(object.videoCodec)
-        ? videoCodecFromJSON(object.videoCodec)
-        : 0,
-      videoBitrate: isSet(object.videoBitrate)
-        ? Number(object.videoBitrate)
-        : 0,
+      audioCodec: isSet(object.audioCodec) ? audioCodecFromJSON(object.audioCodec) : 0,
+      audioBitrate: isSet(object.audioBitrate) ? Number(object.audioBitrate) : 0,
+      audioFrequency: isSet(object.audioFrequency) ? Number(object.audioFrequency) : 0,
+      videoCodec: isSet(object.videoCodec) ? videoCodecFromJSON(object.videoCodec) : 0,
+      videoBitrate: isSet(object.videoBitrate) ? Number(object.videoBitrate) : 0,
     };
   },
 
@@ -1366,24 +1338,17 @@ export const EncodingOptions = {
     message.width !== undefined && (obj.width = Math.round(message.width));
     message.height !== undefined && (obj.height = Math.round(message.height));
     message.depth !== undefined && (obj.depth = Math.round(message.depth));
-    message.framerate !== undefined &&
-      (obj.framerate = Math.round(message.framerate));
-    message.audioCodec !== undefined &&
-      (obj.audioCodec = audioCodecToJSON(message.audioCodec));
-    message.audioBitrate !== undefined &&
-      (obj.audioBitrate = Math.round(message.audioBitrate));
+    message.framerate !== undefined && (obj.framerate = Math.round(message.framerate));
+    message.audioCodec !== undefined && (obj.audioCodec = audioCodecToJSON(message.audioCodec));
+    message.audioBitrate !== undefined && (obj.audioBitrate = Math.round(message.audioBitrate));
     message.audioFrequency !== undefined &&
       (obj.audioFrequency = Math.round(message.audioFrequency));
-    message.videoCodec !== undefined &&
-      (obj.videoCodec = videoCodecToJSON(message.videoCodec));
-    message.videoBitrate !== undefined &&
-      (obj.videoBitrate = Math.round(message.videoBitrate));
+    message.videoCodec !== undefined && (obj.videoCodec = videoCodecToJSON(message.videoCodec));
+    message.videoBitrate !== undefined && (obj.videoBitrate = Math.round(message.videoBitrate));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<EncodingOptions>, I>>(
-    object: I
-  ): EncodingOptions {
+  fromPartial<I extends Exact<DeepPartial<EncodingOptions>, I>>(object: I): EncodingOptions {
     const message = createBaseEncodingOptions();
     message.width = object.width ?? 0;
     message.height = object.height ?? 0;
@@ -1399,18 +1364,15 @@ export const EncodingOptions = {
 };
 
 function createBaseUpdateLayoutRequest(): UpdateLayoutRequest {
-  return { egressId: "", layout: "" };
+  return { egressId: '', layout: '' };
 }
 
 export const UpdateLayoutRequest = {
-  encode(
-    message: UpdateLayoutRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.egressId !== "") {
+  encode(message: UpdateLayoutRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
-    if (message.layout !== "") {
+    if (message.layout !== '') {
       writer.uint32(18).string(message.layout);
     }
     return writer;
@@ -1439,8 +1401,8 @@ export const UpdateLayoutRequest = {
 
   fromJSON(object: any): UpdateLayoutRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      layout: isSet(object.layout) ? String(object.layout) : "",
+      egressId: isSet(object.egressId) ? String(object.egressId) : '',
+      layout: isSet(object.layout) ? String(object.layout) : '',
     };
   },
 
@@ -1452,25 +1414,22 @@ export const UpdateLayoutRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateLayoutRequest>, I>>(
-    object: I
+    object: I,
   ): UpdateLayoutRequest {
     const message = createBaseUpdateLayoutRequest();
-    message.egressId = object.egressId ?? "";
-    message.layout = object.layout ?? "";
+    message.egressId = object.egressId ?? '';
+    message.layout = object.layout ?? '';
     return message;
   },
 };
 
 function createBaseUpdateStreamRequest(): UpdateStreamRequest {
-  return { egressId: "", addOutputUrls: [], removeOutputUrls: [] };
+  return { egressId: '', addOutputUrls: [], removeOutputUrls: [] };
 }
 
 export const UpdateStreamRequest = {
-  encode(
-    message: UpdateStreamRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.egressId !== "") {
+  encode(message: UpdateStreamRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
     for (const v of message.addOutputUrls) {
@@ -1508,7 +1467,7 @@ export const UpdateStreamRequest = {
 
   fromJSON(object: any): UpdateStreamRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      egressId: isSet(object.egressId) ? String(object.egressId) : '',
       addOutputUrls: Array.isArray(object?.addOutputUrls)
         ? object.addOutputUrls.map((e: any) => String(e))
         : [],
@@ -1535,10 +1494,10 @@ export const UpdateStreamRequest = {
   },
 
   fromPartial<I extends Exact<DeepPartial<UpdateStreamRequest>, I>>(
-    object: I
+    object: I,
   ): UpdateStreamRequest {
     const message = createBaseUpdateStreamRequest();
-    message.egressId = object.egressId ?? "";
+    message.egressId = object.egressId ?? '';
     message.addOutputUrls = object.addOutputUrls?.map((e) => e) || [];
     message.removeOutputUrls = object.removeOutputUrls?.map((e) => e) || [];
     return message;
@@ -1546,15 +1505,12 @@ export const UpdateStreamRequest = {
 };
 
 function createBaseListEgressRequest(): ListEgressRequest {
-  return { roomName: "" };
+  return { roomName: '' };
 }
 
 export const ListEgressRequest = {
-  encode(
-    message: ListEgressRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.roomName !== "") {
+  encode(message: ListEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
     return writer;
@@ -1580,7 +1536,7 @@ export const ListEgressRequest = {
 
   fromJSON(object: any): ListEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
     };
   },
 
@@ -1590,11 +1546,9 @@ export const ListEgressRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ListEgressRequest>, I>>(
-    object: I
-  ): ListEgressRequest {
+  fromPartial<I extends Exact<DeepPartial<ListEgressRequest>, I>>(object: I): ListEgressRequest {
     const message = createBaseListEgressRequest();
-    message.roomName = object.roomName ?? "";
+    message.roomName = object.roomName ?? '';
     return message;
   },
 };
@@ -1604,10 +1558,7 @@ function createBaseListEgressResponse(): ListEgressResponse {
 }
 
 export const ListEgressResponse = {
-  encode(
-    message: ListEgressResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: ListEgressResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.items) {
       EgressInfo.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -1643,18 +1594,14 @@ export const ListEgressResponse = {
   toJSON(message: ListEgressResponse): unknown {
     const obj: any = {};
     if (message.items) {
-      obj.items = message.items.map((e) =>
-        e ? EgressInfo.toJSON(e) : undefined
-      );
+      obj.items = message.items.map((e) => (e ? EgressInfo.toJSON(e) : undefined));
     } else {
       obj.items = [];
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ListEgressResponse>, I>>(
-    object: I
-  ): ListEgressResponse {
+  fromPartial<I extends Exact<DeepPartial<ListEgressResponse>, I>>(object: I): ListEgressResponse {
     const message = createBaseListEgressResponse();
     message.items = object.items?.map((e) => EgressInfo.fromPartial(e)) || [];
     return message;
@@ -1662,15 +1609,12 @@ export const ListEgressResponse = {
 };
 
 function createBaseStopEgressRequest(): StopEgressRequest {
-  return { egressId: "" };
+  return { egressId: '' };
 }
 
 export const StopEgressRequest = {
-  encode(
-    message: StopEgressRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.egressId !== "") {
+  encode(message: StopEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
     return writer;
@@ -1696,7 +1640,7 @@ export const StopEgressRequest = {
 
   fromJSON(object: any): StopEgressRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      egressId: isSet(object.egressId) ? String(object.egressId) : '',
     };
   },
 
@@ -1706,69 +1650,63 @@ export const StopEgressRequest = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<StopEgressRequest>, I>>(
-    object: I
-  ): StopEgressRequest {
+  fromPartial<I extends Exact<DeepPartial<StopEgressRequest>, I>>(object: I): StopEgressRequest {
     const message = createBaseStopEgressRequest();
-    message.egressId = object.egressId ?? "";
+    message.egressId = object.egressId ?? '';
     return message;
   },
 };
 
 function createBaseEgressInfo(): EgressInfo {
   return {
-    egressId: "",
-    roomId: "",
+    egressId: '',
+    roomId: '',
     status: 0,
+    startedAt: 0,
+    endedAt: 0,
+    error: '',
     roomComposite: undefined,
     trackComposite: undefined,
     track: undefined,
     stream: undefined,
     file: undefined,
-    error: "",
   };
 }
 
 export const EgressInfo = {
-  encode(
-    message: EgressInfo,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.egressId !== "") {
+  encode(message: EgressInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
-    if (message.roomId !== "") {
+    if (message.roomId !== '') {
       writer.uint32(18).string(message.roomId);
     }
     if (message.status !== 0) {
       writer.uint32(24).int32(message.status);
     }
+    if (message.startedAt !== 0) {
+      writer.uint32(80).int64(message.startedAt);
+    }
+    if (message.endedAt !== 0) {
+      writer.uint32(88).int64(message.endedAt);
+    }
+    if (message.error !== '') {
+      writer.uint32(74).string(message.error);
+    }
     if (message.roomComposite !== undefined) {
-      RoomCompositeEgressRequest.encode(
-        message.roomComposite,
-        writer.uint32(34).fork()
-      ).ldelim();
+      RoomCompositeEgressRequest.encode(message.roomComposite, writer.uint32(34).fork()).ldelim();
     }
     if (message.trackComposite !== undefined) {
-      TrackCompositeEgressRequest.encode(
-        message.trackComposite,
-        writer.uint32(42).fork()
-      ).ldelim();
+      TrackCompositeEgressRequest.encode(message.trackComposite, writer.uint32(42).fork()).ldelim();
     }
     if (message.track !== undefined) {
-      TrackEgressRequest.encode(
-        message.track,
-        writer.uint32(50).fork()
-      ).ldelim();
+      TrackEgressRequest.encode(message.track, writer.uint32(50).fork()).ldelim();
     }
     if (message.stream !== undefined) {
       StreamInfoList.encode(message.stream, writer.uint32(58).fork()).ldelim();
     }
     if (message.file !== undefined) {
       FileInfo.encode(message.file, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.error !== "") {
-      writer.uint32(74).string(message.error);
     }
     return writer;
   },
@@ -1789,17 +1727,20 @@ export const EgressInfo = {
         case 3:
           message.status = reader.int32() as any;
           break;
+        case 10:
+          message.startedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 11:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 9:
+          message.error = reader.string();
+          break;
         case 4:
-          message.roomComposite = RoomCompositeEgressRequest.decode(
-            reader,
-            reader.uint32()
-          );
+          message.roomComposite = RoomCompositeEgressRequest.decode(reader, reader.uint32());
           break;
         case 5:
-          message.trackComposite = TrackCompositeEgressRequest.decode(
-            reader,
-            reader.uint32()
-          );
+          message.trackComposite = TrackCompositeEgressRequest.decode(reader, reader.uint32());
           break;
         case 6:
           message.track = TrackEgressRequest.decode(reader, reader.uint32());
@@ -1809,9 +1750,6 @@ export const EgressInfo = {
           break;
         case 8:
           message.file = FileInfo.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.error = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1823,23 +1761,21 @@ export const EgressInfo = {
 
   fromJSON(object: any): EgressInfo {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      roomId: isSet(object.roomId) ? String(object.roomId) : "",
+      egressId: isSet(object.egressId) ? String(object.egressId) : '',
+      roomId: isSet(object.roomId) ? String(object.roomId) : '',
       status: isSet(object.status) ? egressStatusFromJSON(object.status) : 0,
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      error: isSet(object.error) ? String(object.error) : '',
       roomComposite: isSet(object.roomComposite)
         ? RoomCompositeEgressRequest.fromJSON(object.roomComposite)
         : undefined,
       trackComposite: isSet(object.trackComposite)
         ? TrackCompositeEgressRequest.fromJSON(object.trackComposite)
         : undefined,
-      track: isSet(object.track)
-        ? TrackEgressRequest.fromJSON(object.track)
-        : undefined,
-      stream: isSet(object.stream)
-        ? StreamInfoList.fromJSON(object.stream)
-        : undefined,
+      track: isSet(object.track) ? TrackEgressRequest.fromJSON(object.track) : undefined,
+      stream: isSet(object.stream) ? StreamInfoList.fromJSON(object.stream) : undefined,
       file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
-      error: isSet(object.error) ? String(object.error) : "",
     };
   },
 
@@ -1847,8 +1783,10 @@ export const EgressInfo = {
     const obj: any = {};
     message.egressId !== undefined && (obj.egressId = message.egressId);
     message.roomId !== undefined && (obj.roomId = message.roomId);
-    message.status !== undefined &&
-      (obj.status = egressStatusToJSON(message.status));
+    message.status !== undefined && (obj.status = egressStatusToJSON(message.status));
+    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
+    message.error !== undefined && (obj.error = message.error);
     message.roomComposite !== undefined &&
       (obj.roomComposite = message.roomComposite
         ? RoomCompositeEgressRequest.toJSON(message.roomComposite)
@@ -1858,26 +1796,22 @@ export const EgressInfo = {
         ? TrackCompositeEgressRequest.toJSON(message.trackComposite)
         : undefined);
     message.track !== undefined &&
-      (obj.track = message.track
-        ? TrackEgressRequest.toJSON(message.track)
-        : undefined);
+      (obj.track = message.track ? TrackEgressRequest.toJSON(message.track) : undefined);
     message.stream !== undefined &&
-      (obj.stream = message.stream
-        ? StreamInfoList.toJSON(message.stream)
-        : undefined);
+      (obj.stream = message.stream ? StreamInfoList.toJSON(message.stream) : undefined);
     message.file !== undefined &&
       (obj.file = message.file ? FileInfo.toJSON(message.file) : undefined);
-    message.error !== undefined && (obj.error = message.error);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<EgressInfo>, I>>(
-    object: I
-  ): EgressInfo {
+  fromPartial<I extends Exact<DeepPartial<EgressInfo>, I>>(object: I): EgressInfo {
     const message = createBaseEgressInfo();
-    message.egressId = object.egressId ?? "";
-    message.roomId = object.roomId ?? "";
+    message.egressId = object.egressId ?? '';
+    message.roomId = object.roomId ?? '';
     message.status = object.status ?? 0;
+    message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
+    message.error = object.error ?? '';
     message.roomComposite =
       object.roomComposite !== undefined && object.roomComposite !== null
         ? RoomCompositeEgressRequest.fromPartial(object.roomComposite)
@@ -1898,7 +1832,6 @@ export const EgressInfo = {
       object.file !== undefined && object.file !== null
         ? FileInfo.fromPartial(object.file)
         : undefined;
-    message.error = object.error ?? "";
     return message;
   },
 };
@@ -1908,10 +1841,7 @@ function createBaseStreamInfoList(): StreamInfoList {
 }
 
 export const StreamInfoList = {
-  encode(
-    message: StreamInfoList,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: StreamInfoList, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.info) {
       StreamInfo.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -1938,27 +1868,21 @@ export const StreamInfoList = {
 
   fromJSON(object: any): StreamInfoList {
     return {
-      info: Array.isArray(object?.info)
-        ? object.info.map((e: any) => StreamInfo.fromJSON(e))
-        : [],
+      info: Array.isArray(object?.info) ? object.info.map((e: any) => StreamInfo.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: StreamInfoList): unknown {
     const obj: any = {};
     if (message.info) {
-      obj.info = message.info.map((e) =>
-        e ? StreamInfo.toJSON(e) : undefined
-      );
+      obj.info = message.info.map((e) => (e ? StreamInfo.toJSON(e) : undefined));
     } else {
       obj.info = [];
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<StreamInfoList>, I>>(
-    object: I
-  ): StreamInfoList {
+  fromPartial<I extends Exact<DeepPartial<StreamInfoList>, I>>(object: I): StreamInfoList {
     const message = createBaseStreamInfoList();
     message.info = object.info?.map((e) => StreamInfo.fromPartial(e)) || [];
     return message;
@@ -1966,22 +1890,16 @@ export const StreamInfoList = {
 };
 
 function createBaseStreamInfo(): StreamInfo {
-  return { url: "", startedAt: 0, endedAt: 0 };
+  return { url: '', duration: 0 };
 }
 
 export const StreamInfo = {
-  encode(
-    message: StreamInfo,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.url !== "") {
+  encode(message: StreamInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.url !== '') {
       writer.uint32(10).string(message.url);
     }
-    if (message.startedAt !== 0) {
-      writer.uint32(16).int64(message.startedAt);
-    }
-    if (message.endedAt !== 0) {
-      writer.uint32(24).int64(message.endedAt);
+    if (message.duration !== 0) {
+      writer.uint32(32).int64(message.duration);
     }
     return writer;
   },
@@ -1996,11 +1914,8 @@ export const StreamInfo = {
         case 1:
           message.url = reader.string();
           break;
-        case 2:
-          message.startedAt = longToNumber(reader.int64() as Long);
-          break;
-        case 3:
-          message.endedAt = longToNumber(reader.int64() as Long);
+        case 4:
+          message.duration = longToNumber(reader.int64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -2012,55 +1927,42 @@ export const StreamInfo = {
 
   fromJSON(object: any): StreamInfo {
     return {
-      url: isSet(object.url) ? String(object.url) : "",
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      url: isSet(object.url) ? String(object.url) : '',
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
     };
   },
 
   toJSON(message: StreamInfo): unknown {
     const obj: any = {};
     message.url !== undefined && (obj.url = message.url);
-    message.startedAt !== undefined &&
-      (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined &&
-      (obj.endedAt = Math.round(message.endedAt));
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<StreamInfo>, I>>(
-    object: I
-  ): StreamInfo {
+  fromPartial<I extends Exact<DeepPartial<StreamInfo>, I>>(object: I): StreamInfo {
     const message = createBaseStreamInfo();
-    message.url = object.url ?? "";
-    message.startedAt = object.startedAt ?? 0;
-    message.endedAt = object.endedAt ?? 0;
+    message.url = object.url ?? '';
+    message.duration = object.duration ?? 0;
     return message;
   },
 };
 
 function createBaseFileInfo(): FileInfo {
-  return { filename: "", startedAt: 0, endedAt: 0, size: 0, location: "" };
+  return { filename: '', duration: 0, size: 0, location: '' };
 }
 
 export const FileInfo = {
-  encode(
-    message: FileInfo,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.filename !== "") {
+  encode(message: FileInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.filename !== '') {
       writer.uint32(10).string(message.filename);
     }
-    if (message.startedAt !== 0) {
-      writer.uint32(16).int64(message.startedAt);
-    }
-    if (message.endedAt !== 0) {
-      writer.uint32(24).int64(message.endedAt);
+    if (message.duration !== 0) {
+      writer.uint32(48).int64(message.duration);
     }
     if (message.size !== 0) {
       writer.uint32(32).int64(message.size);
     }
-    if (message.location !== "") {
+    if (message.location !== '') {
       writer.uint32(42).string(message.location);
     }
     return writer;
@@ -2076,11 +1978,8 @@ export const FileInfo = {
         case 1:
           message.filename = reader.string();
           break;
-        case 2:
-          message.startedAt = longToNumber(reader.int64() as Long);
-          break;
-        case 3:
-          message.endedAt = longToNumber(reader.int64() as Long);
+        case 6:
+          message.duration = longToNumber(reader.int64() as Long);
           break;
         case 4:
           message.size = longToNumber(reader.int64() as Long);
@@ -2098,21 +1997,17 @@ export const FileInfo = {
 
   fromJSON(object: any): FileInfo {
     return {
-      filename: isSet(object.filename) ? String(object.filename) : "",
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      filename: isSet(object.filename) ? String(object.filename) : '',
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
       size: isSet(object.size) ? Number(object.size) : 0,
-      location: isSet(object.location) ? String(object.location) : "",
+      location: isSet(object.location) ? String(object.location) : '',
     };
   },
 
   toJSON(message: FileInfo): unknown {
     const obj: any = {};
     message.filename !== undefined && (obj.filename = message.filename);
-    message.startedAt !== undefined &&
-      (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined &&
-      (obj.endedAt = Math.round(message.endedAt));
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     message.size !== undefined && (obj.size = Math.round(message.size));
     message.location !== undefined && (obj.location = message.location);
     return obj;
@@ -2120,20 +2015,19 @@ export const FileInfo = {
 
   fromPartial<I extends Exact<DeepPartial<FileInfo>, I>>(object: I): FileInfo {
     const message = createBaseFileInfo();
-    message.filename = object.filename ?? "";
-    message.startedAt = object.startedAt ?? 0;
-    message.endedAt = object.endedAt ?? 0;
+    message.filename = object.filename ?? '';
+    message.duration = object.duration ?? 0;
     message.size = object.size ?? 0;
-    message.location = object.location ?? "";
+    message.location = object.location ?? '';
     return message;
   },
 };
 
 export interface Egress {
   /** start recording or streaming a room, participant, or tracks */
-  StartRoomCompositeEgress(
-    request: RoomCompositeEgressRequest
-  ): Promise<EgressInfo>;
+  StartRoomCompositeEgress(request: RoomCompositeEgressRequest): Promise<EgressInfo>;
+  StartTrackCompositeEgress(request: TrackCompositeEgressRequest): Promise<EgressInfo>;
+  StartTrackEgress(request: TrackEgressRequest): Promise<EgressInfo>;
   /** update web composite layout */
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;
   /** add or remove stream endpoints */
@@ -2148,16 +2042,15 @@ declare var self: any | undefined;
 declare var window: any | undefined;
 declare var global: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
+  globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64);
   const arr = new Uint8Array(bin.length);
@@ -2168,24 +2061,16 @@ function bytesFromBase64(b64: string): Uint8Array {
 }
 
 const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
+  globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
   for (const byte of arr) {
     bin.push(String.fromCharCode(byte));
   }
-  return btoa(bin.join(""));
+  return btoa(bin.join(''));
 }
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -2200,14 +2085,11 @@ export type DeepPartial<T> = T extends Builtin
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin
   ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
-        Exclude<keyof I, KeysOfUnion<P>>,
-        never
-      >;
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<Exclude<keyof I, KeysOfUnion<P>>, never>;
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   return long.toNumber();
 }

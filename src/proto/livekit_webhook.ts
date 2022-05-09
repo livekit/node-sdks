@@ -1,11 +1,11 @@
 /* eslint-disable */
-import Long from "long";
-import * as _m0 from "protobufjs/minimal";
-import { Room, ParticipantInfo, TrackInfo } from "./livekit_models";
-import { RecordingInfo } from "./livekit_recording";
-import { EgressInfo } from "./livekit_egress";
+import Long from 'long';
+import * as _m0 from 'protobufjs/minimal';
+import { Room, ParticipantInfo, TrackInfo } from './livekit_models';
+import { RecordingInfo } from './livekit_recording';
+import { EgressInfo } from './livekit_egress';
 
-export const protobufPackage = "livekit";
+export const protobufPackage = 'livekit';
 
 export interface WebhookEvent {
   /**
@@ -30,39 +30,30 @@ export interface WebhookEvent {
 
 function createBaseWebhookEvent(): WebhookEvent {
   return {
-    event: "",
+    event: '',
     room: undefined,
     participant: undefined,
     recordingInfo: undefined,
     egressInfo: undefined,
     track: undefined,
-    id: "",
+    id: '',
     createdAt: 0,
   };
 }
 
 export const WebhookEvent = {
-  encode(
-    message: WebhookEvent,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.event !== "") {
+  encode(message: WebhookEvent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.event !== '') {
       writer.uint32(10).string(message.event);
     }
     if (message.room !== undefined) {
       Room.encode(message.room, writer.uint32(18).fork()).ldelim();
     }
     if (message.participant !== undefined) {
-      ParticipantInfo.encode(
-        message.participant,
-        writer.uint32(26).fork()
-      ).ldelim();
+      ParticipantInfo.encode(message.participant, writer.uint32(26).fork()).ldelim();
     }
     if (message.recordingInfo !== undefined) {
-      RecordingInfo.encode(
-        message.recordingInfo,
-        writer.uint32(42).fork()
-      ).ldelim();
+      RecordingInfo.encode(message.recordingInfo, writer.uint32(42).fork()).ldelim();
     }
     if (message.egressInfo !== undefined) {
       EgressInfo.encode(message.egressInfo, writer.uint32(74).fork()).ldelim();
@@ -70,7 +61,7 @@ export const WebhookEvent = {
     if (message.track !== undefined) {
       TrackInfo.encode(message.track, writer.uint32(66).fork()).ldelim();
     }
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(50).string(message.id);
     }
     if (message.createdAt !== 0) {
@@ -120,7 +111,7 @@ export const WebhookEvent = {
 
   fromJSON(object: any): WebhookEvent {
     return {
-      event: isSet(object.event) ? String(object.event) : "",
+      event: isSet(object.event) ? String(object.event) : '',
       room: isSet(object.room) ? Room.fromJSON(object.room) : undefined,
       participant: isSet(object.participant)
         ? ParticipantInfo.fromJSON(object.participant)
@@ -128,11 +119,9 @@ export const WebhookEvent = {
       recordingInfo: isSet(object.recordingInfo)
         ? RecordingInfo.fromJSON(object.recordingInfo)
         : undefined,
-      egressInfo: isSet(object.egressInfo)
-        ? EgressInfo.fromJSON(object.egressInfo)
-        : undefined,
+      egressInfo: isSet(object.egressInfo) ? EgressInfo.fromJSON(object.egressInfo) : undefined,
       track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
-      id: isSet(object.id) ? String(object.id) : "",
+      id: isSet(object.id) ? String(object.id) : '',
       createdAt: isSet(object.createdAt) ? Number(object.createdAt) : 0,
     };
   },
@@ -140,8 +129,7 @@ export const WebhookEvent = {
   toJSON(message: WebhookEvent): unknown {
     const obj: any = {};
     message.event !== undefined && (obj.event = message.event);
-    message.room !== undefined &&
-      (obj.room = message.room ? Room.toJSON(message.room) : undefined);
+    message.room !== undefined && (obj.room = message.room ? Room.toJSON(message.room) : undefined);
     message.participant !== undefined &&
       (obj.participant = message.participant
         ? ParticipantInfo.toJSON(message.participant)
@@ -151,26 +139,19 @@ export const WebhookEvent = {
         ? RecordingInfo.toJSON(message.recordingInfo)
         : undefined);
     message.egressInfo !== undefined &&
-      (obj.egressInfo = message.egressInfo
-        ? EgressInfo.toJSON(message.egressInfo)
-        : undefined);
+      (obj.egressInfo = message.egressInfo ? EgressInfo.toJSON(message.egressInfo) : undefined);
     message.track !== undefined &&
       (obj.track = message.track ? TrackInfo.toJSON(message.track) : undefined);
     message.id !== undefined && (obj.id = message.id);
-    message.createdAt !== undefined &&
-      (obj.createdAt = Math.round(message.createdAt));
+    message.createdAt !== undefined && (obj.createdAt = Math.round(message.createdAt));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<WebhookEvent>, I>>(
-    object: I
-  ): WebhookEvent {
+  fromPartial<I extends Exact<DeepPartial<WebhookEvent>, I>>(object: I): WebhookEvent {
     const message = createBaseWebhookEvent();
-    message.event = object.event ?? "";
+    message.event = object.event ?? '';
     message.room =
-      object.room !== undefined && object.room !== null
-        ? Room.fromPartial(object.room)
-        : undefined;
+      object.room !== undefined && object.room !== null ? Room.fromPartial(object.room) : undefined;
     message.participant =
       object.participant !== undefined && object.participant !== null
         ? ParticipantInfo.fromPartial(object.participant)
@@ -187,7 +168,7 @@ export const WebhookEvent = {
       object.track !== undefined && object.track !== null
         ? TrackInfo.fromPartial(object.track)
         : undefined;
-    message.id = object.id ?? "";
+    message.id = object.id ?? '';
     message.createdAt = object.createdAt ?? 0;
     return message;
   },
@@ -197,21 +178,14 @@ declare var self: any | undefined;
 declare var window: any | undefined;
 declare var global: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
 })();
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -226,14 +200,11 @@ export type DeepPartial<T> = T extends Builtin
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin
   ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
-        Exclude<keyof I, KeysOfUnion<P>>,
-        never
-      >;
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<Exclude<keyof I, KeysOfUnion<P>>, never>;
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   return long.toNumber();
 }

@@ -1,6 +1,7 @@
 import { AccessToken } from './AccessToken';
 import { VideoGrant } from './grants';
 import {
+  DirectFileOutput,
   EgressInfo,
   EncodedFileOutput,
   EncodingOptions,
@@ -9,6 +10,8 @@ import {
   RoomCompositeEgressRequest,
   StopEgressRequest,
   StreamOutput,
+  TrackCompositeEgressRequest,
+  TrackEgressRequest,
   UpdateLayoutRequest,
   UpdateStreamRequest,
 } from './proto/livekit_egress';
@@ -40,8 +43,8 @@ export default class EgressClient {
   /**
    * @param roomName room name
    * @param layout egress layout
-   * @param output output filepath or RtmpOutput
-   * @param options egress options or preset
+   * @param output file or stream output
+   * @param options encoding options or preset
    * @param audioOnly record audio only
    * @param videoOnly record video only
    * @param customBaseUrl custom template url
@@ -55,11 +58,6 @@ export default class EgressClient {
     videoOnly?: boolean,
     customBaseUrl?: string,
   ): Promise<EgressInfo> {
-    let file: EncodedFileOutput | undefined;
-    let stream: StreamOutput | undefined;
-    let preset: EncodingOptionsPreset | undefined;
-    let advanced: EncodingOptions | undefined;
-
     if (!audioOnly) {
       audioOnly = false;
     }
@@ -69,6 +67,78 @@ export default class EgressClient {
     if (!customBaseUrl) {
       customBaseUrl = '';
     }
+
+    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
+    const req = RoomCompositeEgressRequest.toJSON({
+      roomName,
+      layout,
+      audioOnly,
+      videoOnly,
+      customBaseUrl,
+      file,
+      stream,
+      preset,
+      advanced,
+    });
+
+    const data = await this.rpc.request(
+      svc,
+      'StartRoomCompositeEgress',
+      req,
+      this.authHeader({ roomRecord: true }),
+    );
+    return EgressInfo.fromJSON(data);
+  }
+
+  /**
+   * @param roomName room name
+   * @param output file or stream output
+   * @param audioTrackId audio track Id
+   * @param videoTrackId video track Id
+   * @param options encoding options or preset
+   */
+  async startTrackCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | StreamOutput,
+    audioTrackId?: string,
+    videoTrackId?: string,
+    options?: EncodingOptionsPreset | EncodingOptions,
+  ): Promise<EgressInfo> {
+    if (!audioTrackId) {
+      audioTrackId = '';
+    }
+    if (!videoTrackId) {
+      videoTrackId = '';
+    }
+
+    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
+    const req = TrackCompositeEgressRequest.toJSON({
+      roomName,
+      audioTrackId,
+      videoTrackId,
+      file,
+      stream,
+      preset,
+      advanced,
+    });
+
+    const data = await this.rpc.request(
+      svc,
+      'StartTrackCompositeEgress',
+      req,
+      this.authHeader({ roomRecord: true }),
+    );
+    return EgressInfo.fromJSON(data);
+  }
+
+  private getOutputParams(
+    output: EncodedFileOutput | StreamOutput,
+    options?: EncodingOptionsPreset | EncodingOptions,
+  ) {
+    let file: EncodedFileOutput | undefined;
+    let stream: StreamOutput | undefined;
+    let preset: EncodingOptionsPreset | undefined;
+    let advanced: EncodingOptions | undefined;
 
     if ((<EncodedFileOutput>output).filepath !== undefined) {
       file = <EncodedFileOutput>output;
@@ -84,21 +154,38 @@ export default class EgressClient {
       }
     }
 
-    const req = RoomCompositeEgressRequest.toJSON({
+    return { file, stream, preset, advanced };
+  }
+
+  /**
+   * @param roomName room name
+   * @param output file or websocket output
+   * @param trackId track Id
+   */
+  async startTrackEgress(
+    roomName: string,
+    output: DirectFileOutput | string,
+    trackId: string,
+  ): Promise<EgressInfo> {
+    let file: DirectFileOutput | undefined;
+    let websocketUrl: string | undefined;
+
+    if ((<DirectFileOutput>output).filepath !== undefined) {
+      file = <DirectFileOutput>output;
+    } else {
+      websocketUrl = <string>output;
+    }
+
+    const req = TrackEgressRequest.toJSON({
       roomName,
-      layout,
-      audioOnly,
-      videoOnly,
+      trackId,
       file,
-      stream,
-      preset,
-      advanced,
-      customBaseUrl,
+      websocketUrl,
     });
 
     const data = await this.rpc.request(
       svc,
-      'StartRoomCompositeEgress',
+      'StartTrackEgress',
       req,
       this.authHeader({ roomRecord: true }),
     );

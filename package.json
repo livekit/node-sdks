@@ -1,6 +1,6 @@
 {
   "name": "livekit-server-sdk",
-  "version": "0.5.12",
+  "version": "1.0.0",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,8 +13,8 @@
     "build-docs": "typedoc",
     "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_out=./src/proto --ts_proto_opt=useOptionals=true --ts_proto_opt=outputClientImpl=false -I./protocol ./protocol/livekit_egress.proto ./protocol/livekit_room.proto ./protocol/livekit_recording.proto ./protocol/livekit_webhook.proto",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "test": "jest"
   },
   "dependencies": {

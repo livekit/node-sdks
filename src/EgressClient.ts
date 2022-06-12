@@ -58,15 +58,9 @@ export default class EgressClient {
     videoOnly?: boolean,
     customBaseUrl?: string,
   ): Promise<EgressInfo> {
-    if (!audioOnly) {
-      audioOnly = false;
-    }
-    if (!videoOnly) {
-      videoOnly = false;
-    }
-    if (!customBaseUrl) {
-      customBaseUrl = '';
-    }
+    audioOnly ??= false;
+    videoOnly ??= false;
+    customBaseUrl ??= '';
 
     const { file, stream, preset, advanced } = this.getOutputParams(output, options);
     layout ??= '';

@@ -42,8 +42,8 @@ export default class EgressClient {
 
   /**
    * @param roomName room name
-   * @param layout egress layout
    * @param output file or stream output
+   * @param layout egress layout
    * @param options encoding options or preset
    * @param audioOnly record audio only
    * @param videoOnly record video only
@@ -51,24 +51,19 @@ export default class EgressClient {
    */
   async startRoomCompositeEgress(
     roomName: string,
-    layout: string,
     output: EncodedFileOutput | StreamOutput,
+    layout?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
     audioOnly?: boolean,
     videoOnly?: boolean,
     customBaseUrl?: string,
   ): Promise<EgressInfo> {
-    if (!audioOnly) {
-      audioOnly = false;
-    }
-    if (!videoOnly) {
-      videoOnly = false;
-    }
-    if (!customBaseUrl) {
-      customBaseUrl = '';
-    }
+    audioOnly ??= false;
+    videoOnly ??= false;
+    customBaseUrl ??= '';
 
     const { file, stream, preset, advanced } = this.getOutputParams(output, options);
+    layout ??= '';
     const req = RoomCompositeEgressRequest.toJSON({
       roomName,
       layout,

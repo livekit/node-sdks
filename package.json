@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "repository": "git@github.com:livekit/server-sdk-js.git",
   "author": "David Zhao <david@davidzhao.com>",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",

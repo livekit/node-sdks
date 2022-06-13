@@ -76,6 +76,38 @@ export function streamProtocolToJSON(object: StreamProtocol): string {
   }
 }
 
+export enum SegmentedFileProtocol {
+  DEFAULT_SEGMENTED_FILE_PROTOCOL = 0,
+  HLS_PROTOCOL = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function segmentedFileProtocolFromJSON(object: any): SegmentedFileProtocol {
+  switch (object) {
+    case 0:
+    case 'DEFAULT_SEGMENTED_FILE_PROTOCOL':
+      return SegmentedFileProtocol.DEFAULT_SEGMENTED_FILE_PROTOCOL;
+    case 1:
+    case 'HLS_PROTOCOL':
+      return SegmentedFileProtocol.HLS_PROTOCOL;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return SegmentedFileProtocol.UNRECOGNIZED;
+  }
+}
+
+export function segmentedFileProtocolToJSON(object: SegmentedFileProtocol): string {
+  switch (object) {
+    case SegmentedFileProtocol.DEFAULT_SEGMENTED_FILE_PROTOCOL:
+      return 'DEFAULT_SEGMENTED_FILE_PROTOCOL';
+    case SegmentedFileProtocol.HLS_PROTOCOL:
+      return 'HLS_PROTOCOL';
+    default:
+      return 'UNKNOWN';
+  }
+}
+
 export enum AudioCodec {
   DEFAULT_AC = 0,
   OPUS = 1,
@@ -211,6 +243,8 @@ export enum EgressStatus {
   EGRESS_ACTIVE = 1,
   EGRESS_ENDING = 2,
   EGRESS_COMPLETE = 3,
+  EGRESS_FAILED = 4,
+  EGRESS_ABORTED = 5,
   UNRECOGNIZED = -1,
 }
 
@@ -228,6 +262,12 @@ export function egressStatusFromJSON(object: any): EgressStatus {
     case 3:
     case 'EGRESS_COMPLETE':
       return EgressStatus.EGRESS_COMPLETE;
+    case 4:
+    case 'EGRESS_FAILED':
+      return EgressStatus.EGRESS_FAILED;
+    case 5:
+    case 'EGRESS_ABORTED':
+      return EgressStatus.EGRESS_ABORTED;
     case -1:
     case 'UNRECOGNIZED':
     default:
@@ -245,6 +285,10 @@ export function egressStatusToJSON(object: EgressStatus): string {
       return 'EGRESS_ENDING';
     case EgressStatus.EGRESS_COMPLETE:
       return 'EGRESS_COMPLETE';
+    case EgressStatus.EGRESS_FAILED:
+      return 'EGRESS_FAILED';
+    case EgressStatus.EGRESS_ABORTED:
+      return 'EGRESS_ABORTED';
     default:
       return 'UNKNOWN';
   }
@@ -264,6 +308,7 @@ export interface RoomCompositeEgressRequest {
   customBaseUrl: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
+  segments?: SegmentedFileOutput | undefined;
   /** (default H264_720P_30) */
   preset: EncodingOptionsPreset | undefined;
   /** (optional) */
@@ -280,6 +325,7 @@ export interface TrackCompositeEgressRequest {
   videoTrackId: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
+  segments?: SegmentedFileOutput | undefined;
   /** (default H264_720P_30) */
   preset: EncodingOptionsPreset | undefined;
   /** (optional) */
@@ -301,6 +347,21 @@ export interface EncodedFileOutput {
   fileType: EncodedFileType;
   /** (optional) */
   filepath: string;
+  s3?: S3Upload | undefined;
+  gcp?: GCPUpload | undefined;
+  azure?: AzureBlobUpload | undefined;
+}
+
+/** Used to generate HLS segments or other kind of segmented output */
+export interface SegmentedFileOutput {
+  /** (optional) */
+  protocol: SegmentedFileProtocol;
+  /** (optional) */
+  filenamePrefix: string;
+  /** (optional) */
+  playlistName: string;
+  /** (optional) */
+  segmentDuration: number;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -397,6 +458,7 @@ export interface EgressInfo {
   track?: TrackEgressRequest | undefined;
   stream?: StreamInfoList | undefined;
   file?: FileInfo | undefined;
+  segments?: SegmentsInfo | undefined;
 }
 
 export interface StreamInfoList {
@@ -415,6 +477,14 @@ export interface FileInfo {
   location: string;
 }
 
+export interface SegmentsInfo {
+  playlistName: string;
+  duration: number;
+  size: number;
+  playlistLocation: string;
+  segmentCount: number;
+}
+
 function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
   return {
     roomName: '',
@@ -424,6 +494,7 @@ function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
     customBaseUrl: '',
     file: undefined,
     stream: undefined,
+    segments: undefined,
     preset: undefined,
     advanced: undefined,
   };
@@ -454,6 +525,9 @@ export const RoomCompositeEgressRequest = {
     }
     if (message.stream !== undefined) {
       StreamOutput.encode(message.stream, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.segments !== undefined) {
+      SegmentedFileOutput.encode(message.segments, writer.uint32(82).fork()).ldelim();
     }
     if (message.preset !== undefined) {
       writer.uint32(64).int32(message.preset);
@@ -492,6 +566,9 @@ export const RoomCompositeEgressRequest = {
         case 7:
           message.stream = StreamOutput.decode(reader, reader.uint32());
           break;
+        case 10:
+          message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
+          break;
         case 8:
           message.preset = reader.int32() as any;
           break;
@@ -515,6 +592,7 @@ export const RoomCompositeEgressRequest = {
       customBaseUrl: isSet(object.customBaseUrl) ? String(object.customBaseUrl) : '',
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
+      segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
     };
@@ -531,6 +609,8 @@ export const RoomCompositeEgressRequest = {
       (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
       (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
+    message.segments !== undefined &&
+      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
     message.preset !== undefined &&
       (obj.preset =
         message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
@@ -556,6 +636,10 @@ export const RoomCompositeEgressRequest = {
       object.stream !== undefined && object.stream !== null
         ? StreamOutput.fromPartial(object.stream)
         : undefined;
+    message.segments =
+      object.segments !== undefined && object.segments !== null
+        ? SegmentedFileOutput.fromPartial(object.segments)
+        : undefined;
     message.preset = object.preset ?? undefined;
     message.advanced =
       object.advanced !== undefined && object.advanced !== null
@@ -572,6 +656,7 @@ function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
     videoTrackId: '',
     file: undefined,
     stream: undefined,
+    segments: undefined,
     preset: undefined,
     advanced: undefined,
   };
@@ -596,6 +681,9 @@ export const TrackCompositeEgressRequest = {
     }
     if (message.stream !== undefined) {
       StreamOutput.encode(message.stream, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.segments !== undefined) {
+      SegmentedFileOutput.encode(message.segments, writer.uint32(66).fork()).ldelim();
     }
     if (message.preset !== undefined) {
       writer.uint32(48).int32(message.preset);
@@ -628,6 +716,9 @@ export const TrackCompositeEgressRequest = {
         case 5:
           message.stream = StreamOutput.decode(reader, reader.uint32());
           break;
+        case 8:
+          message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
+          break;
         case 6:
           message.preset = reader.int32() as any;
           break;
@@ -649,6 +740,7 @@ export const TrackCompositeEgressRequest = {
       videoTrackId: isSet(object.videoTrackId) ? String(object.videoTrackId) : '',
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
+      segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
     };
@@ -663,6 +755,8 @@ export const TrackCompositeEgressRequest = {
       (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
       (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
+    message.segments !== undefined &&
+      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
     message.preset !== undefined &&
       (obj.preset =
         message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
@@ -685,6 +779,10 @@ export const TrackCompositeEgressRequest = {
     message.stream =
       object.stream !== undefined && object.stream !== null
         ? StreamOutput.fromPartial(object.stream)
+        : undefined;
+    message.segments =
+      object.segments !== undefined && object.segments !== null
+        ? SegmentedFileOutput.fromPartial(object.segments)
         : undefined;
     message.preset = object.preset ?? undefined;
     message.advanced =
@@ -855,6 +953,130 @@ export const EncodedFileOutput = {
     const message = createBaseEncodedFileOutput();
     message.fileType = object.fileType ?? 0;
     message.filepath = object.filepath ?? '';
+    message.s3 =
+      object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
+    message.gcp =
+      object.gcp !== undefined && object.gcp !== null
+        ? GCPUpload.fromPartial(object.gcp)
+        : undefined;
+    message.azure =
+      object.azure !== undefined && object.azure !== null
+        ? AzureBlobUpload.fromPartial(object.azure)
+        : undefined;
+    return message;
+  },
+};
+
+function createBaseSegmentedFileOutput(): SegmentedFileOutput {
+  return {
+    protocol: 0,
+    filenamePrefix: '',
+    playlistName: '',
+    segmentDuration: 0,
+    s3: undefined,
+    gcp: undefined,
+    azure: undefined,
+  };
+}
+
+export const SegmentedFileOutput = {
+  encode(message: SegmentedFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.protocol !== 0) {
+      writer.uint32(8).int32(message.protocol);
+    }
+    if (message.filenamePrefix !== '') {
+      writer.uint32(18).string(message.filenamePrefix);
+    }
+    if (message.playlistName !== '') {
+      writer.uint32(26).string(message.playlistName);
+    }
+    if (message.segmentDuration !== 0) {
+      writer.uint32(32).uint32(message.segmentDuration);
+    }
+    if (message.s3 !== undefined) {
+      S3Upload.encode(message.s3, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.gcp !== undefined) {
+      GCPUpload.encode(message.gcp, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.azure !== undefined) {
+      AzureBlobUpload.encode(message.azure, writer.uint32(58).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SegmentedFileOutput {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSegmentedFileOutput();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.protocol = reader.int32() as any;
+          break;
+        case 2:
+          message.filenamePrefix = reader.string();
+          break;
+        case 3:
+          message.playlistName = reader.string();
+          break;
+        case 4:
+          message.segmentDuration = reader.uint32();
+          break;
+        case 5:
+          message.s3 = S3Upload.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.gcp = GCPUpload.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.azure = AzureBlobUpload.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SegmentedFileOutput {
+    return {
+      protocol: isSet(object.protocol) ? segmentedFileProtocolFromJSON(object.protocol) : 0,
+      filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : '',
+      playlistName: isSet(object.playlistName) ? String(object.playlistName) : '',
+      segmentDuration: isSet(object.segmentDuration) ? Number(object.segmentDuration) : 0,
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+    };
+  },
+
+  toJSON(message: SegmentedFileOutput): unknown {
+    const obj: any = {};
+    message.protocol !== undefined &&
+      (obj.protocol = segmentedFileProtocolToJSON(message.protocol));
+    message.filenamePrefix !== undefined && (obj.filenamePrefix = message.filenamePrefix);
+    message.playlistName !== undefined && (obj.playlistName = message.playlistName);
+    message.segmentDuration !== undefined &&
+      (obj.segmentDuration = Math.round(message.segmentDuration));
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.gcp !== undefined &&
+      (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
+    message.azure !== undefined &&
+      (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<SegmentedFileOutput>, I>>(
+    object: I,
+  ): SegmentedFileOutput {
+    const message = createBaseSegmentedFileOutput();
+    message.protocol = object.protocol ?? 0;
+    message.filenamePrefix = object.filenamePrefix ?? '';
+    message.playlistName = object.playlistName ?? '';
+    message.segmentDuration = object.segmentDuration ?? 0;
     message.s3 =
       object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp =
@@ -1670,6 +1892,7 @@ function createBaseEgressInfo(): EgressInfo {
     track: undefined,
     stream: undefined,
     file: undefined,
+    segments: undefined,
   };
 }
 
@@ -1707,6 +1930,9 @@ export const EgressInfo = {
     }
     if (message.file !== undefined) {
       FileInfo.encode(message.file, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.segments !== undefined) {
+      SegmentsInfo.encode(message.segments, writer.uint32(98).fork()).ldelim();
     }
     return writer;
   },
@@ -1751,6 +1977,9 @@ export const EgressInfo = {
         case 8:
           message.file = FileInfo.decode(reader, reader.uint32());
           break;
+        case 12:
+          message.segments = SegmentsInfo.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1776,6 +2005,7 @@ export const EgressInfo = {
       track: isSet(object.track) ? TrackEgressRequest.fromJSON(object.track) : undefined,
       stream: isSet(object.stream) ? StreamInfoList.fromJSON(object.stream) : undefined,
       file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
+      segments: isSet(object.segments) ? SegmentsInfo.fromJSON(object.segments) : undefined,
     };
   },
 
@@ -1801,6 +2031,8 @@ export const EgressInfo = {
       (obj.stream = message.stream ? StreamInfoList.toJSON(message.stream) : undefined);
     message.file !== undefined &&
       (obj.file = message.file ? FileInfo.toJSON(message.file) : undefined);
+    message.segments !== undefined &&
+      (obj.segments = message.segments ? SegmentsInfo.toJSON(message.segments) : undefined);
     return obj;
   },
 
@@ -1831,6 +2063,10 @@ export const EgressInfo = {
     message.file =
       object.file !== undefined && object.file !== null
         ? FileInfo.fromPartial(object.file)
+        : undefined;
+    message.segments =
+      object.segments !== undefined && object.segments !== null
+        ? SegmentsInfo.fromPartial(object.segments)
         : undefined;
     return message;
   },
@@ -2019,6 +2255,91 @@ export const FileInfo = {
     message.duration = object.duration ?? 0;
     message.size = object.size ?? 0;
     message.location = object.location ?? '';
+    return message;
+  },
+};
+
+function createBaseSegmentsInfo(): SegmentsInfo {
+  return { playlistName: '', duration: 0, size: 0, playlistLocation: '', segmentCount: 0 };
+}
+
+export const SegmentsInfo = {
+  encode(message: SegmentsInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.playlistName !== '') {
+      writer.uint32(10).string(message.playlistName);
+    }
+    if (message.duration !== 0) {
+      writer.uint32(16).int64(message.duration);
+    }
+    if (message.size !== 0) {
+      writer.uint32(24).int64(message.size);
+    }
+    if (message.playlistLocation !== '') {
+      writer.uint32(34).string(message.playlistLocation);
+    }
+    if (message.segmentCount !== 0) {
+      writer.uint32(40).int64(message.segmentCount);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SegmentsInfo {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSegmentsInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.playlistName = reader.string();
+          break;
+        case 2:
+          message.duration = longToNumber(reader.int64() as Long);
+          break;
+        case 3:
+          message.size = longToNumber(reader.int64() as Long);
+          break;
+        case 4:
+          message.playlistLocation = reader.string();
+          break;
+        case 5:
+          message.segmentCount = longToNumber(reader.int64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SegmentsInfo {
+    return {
+      playlistName: isSet(object.playlistName) ? String(object.playlistName) : '',
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
+      size: isSet(object.size) ? Number(object.size) : 0,
+      playlistLocation: isSet(object.playlistLocation) ? String(object.playlistLocation) : '',
+      segmentCount: isSet(object.segmentCount) ? Number(object.segmentCount) : 0,
+    };
+  },
+
+  toJSON(message: SegmentsInfo): unknown {
+    const obj: any = {};
+    message.playlistName !== undefined && (obj.playlistName = message.playlistName);
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
+    message.size !== undefined && (obj.size = Math.round(message.size));
+    message.playlistLocation !== undefined && (obj.playlistLocation = message.playlistLocation);
+    message.segmentCount !== undefined && (obj.segmentCount = Math.round(message.segmentCount));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<SegmentsInfo>, I>>(object: I): SegmentsInfo {
+    const message = createBaseSegmentsInfo();
+    message.playlistName = object.playlistName ?? '';
+    message.duration = object.duration ?? 0;
+    message.size = object.size ?? 0;
+    message.playlistLocation = object.playlistLocation ?? '';
+    message.segmentCount = object.segmentCount ?? 0;
     return message;
   },
 };

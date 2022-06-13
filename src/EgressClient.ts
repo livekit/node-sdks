@@ -6,7 +6,7 @@ import {
   EncodedFileOutput,
   EncodingOptions,
   EncodingOptionsPreset,
-  ListEgressRequest,
+  ListEgressRequest, ListEgressResponse,
   RoomCompositeEgressRequest,
   StopEgressRequest,
   StreamOutput,
@@ -58,12 +58,13 @@ export default class EgressClient {
     videoOnly?: boolean,
     customBaseUrl?: string,
   ): Promise<EgressInfo> {
+
+    layout ??= '';
     audioOnly ??= false;
     videoOnly ??= false;
     customBaseUrl ??= '';
 
     const { file, stream, preset, advanced } = this.getOutputParams(output, options);
-    layout ??= '';
     const req = RoomCompositeEgressRequest.toJSON({
       roomName,
       layout,
@@ -99,12 +100,9 @@ export default class EgressClient {
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
   ): Promise<EgressInfo> {
-    if (!audioTrackId) {
-      audioTrackId = '';
-    }
-    if (!videoTrackId) {
-      videoTrackId = '';
-    }
+
+    audioTrackId ??= '';
+    videoTrackId ??= '';
 
     const { file, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = TrackCompositeEgressRequest.toJSON({
@@ -211,12 +209,9 @@ export default class EgressClient {
     addOutputUrls?: string[],
     removeOutputUrls?: string[],
   ): Promise<EgressInfo> {
-    if (!addOutputUrls) {
-      addOutputUrls = [];
-    }
-    if (!removeOutputUrls) {
-      removeOutputUrls = [];
-    }
+
+    addOutputUrls ??= [];
+    removeOutputUrls ??= [];
 
     const data = await this.rpc.request(
       svc,
@@ -231,9 +226,7 @@ export default class EgressClient {
    * @param roomName list egress for one room only
    */
   async listEgress(roomName?: string): Promise<Array<EgressInfo>> {
-    if (!roomName) {
-      roomName = '';
-    }
+    roomName ??= '';
 
     const data = await this.rpc.request(
       svc,
@@ -241,7 +234,7 @@ export default class EgressClient {
       ListEgressRequest.toJSON({ roomName }),
       this.authHeader({ roomRecord: true }),
     );
-    return <EgressInfo[]>JSON.parse(data);
+    return ListEgressResponse.fromJSON(data).items;
   }
 
   /**

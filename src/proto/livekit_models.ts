@@ -311,6 +311,13 @@ export function participantInfo_StateToJSON(object: ParticipantInfo_State): stri
   }
 }
 
+export interface SimulcastCodecInfo {
+  mimeType: string;
+  mid: string;
+  cid: string;
+  layers: VideoLayer[];
+}
+
 export interface TrackInfo {
   sid: string;
   type: TrackType;
@@ -333,6 +340,7 @@ export interface TrackInfo {
   /** mime type of codec */
   mimeType: string;
   mid: string;
+  codecs: SimulcastCodecInfo[];
 }
 
 /** provide information about available spatial layers */
@@ -492,10 +500,15 @@ export interface ClientConfiguration {
   video?: VideoConfiguration;
   screen?: VideoConfiguration;
   resumeConnection: ClientConfigSetting;
+  disabledCodecs?: DisabledCodecs;
 }
 
 export interface VideoConfiguration {
   hardwareEncoder: ClientConfigSetting;
+}
+
+export interface DisabledCodecs {
+  codecs: Codec[];
 }
 
 export interface RTPStats {
@@ -1009,6 +1022,88 @@ export const ParticipantInfo = {
   },
 };
 
+function createBaseSimulcastCodecInfo(): SimulcastCodecInfo {
+  return { mimeType: '', mid: '', cid: '', layers: [] };
+}
+
+export const SimulcastCodecInfo = {
+  encode(message: SimulcastCodecInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.mimeType !== '') {
+      writer.uint32(10).string(message.mimeType);
+    }
+    if (message.mid !== '') {
+      writer.uint32(18).string(message.mid);
+    }
+    if (message.cid !== '') {
+      writer.uint32(26).string(message.cid);
+    }
+    for (const v of message.layers) {
+      VideoLayer.encode(v!, writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SimulcastCodecInfo {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSimulcastCodecInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.mimeType = reader.string();
+          break;
+        case 2:
+          message.mid = reader.string();
+          break;
+        case 3:
+          message.cid = reader.string();
+          break;
+        case 4:
+          message.layers.push(VideoLayer.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SimulcastCodecInfo {
+    return {
+      mimeType: isSet(object.mimeType) ? String(object.mimeType) : '',
+      mid: isSet(object.mid) ? String(object.mid) : '',
+      cid: isSet(object.cid) ? String(object.cid) : '',
+      layers: Array.isArray(object?.layers)
+        ? object.layers.map((e: any) => VideoLayer.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: SimulcastCodecInfo): unknown {
+    const obj: any = {};
+    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
+    message.mid !== undefined && (obj.mid = message.mid);
+    message.cid !== undefined && (obj.cid = message.cid);
+    if (message.layers) {
+      obj.layers = message.layers.map((e) => (e ? VideoLayer.toJSON(e) : undefined));
+    } else {
+      obj.layers = [];
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<SimulcastCodecInfo>, I>>(object: I): SimulcastCodecInfo {
+    const message = createBaseSimulcastCodecInfo();
+    message.mimeType = object.mimeType ?? '';
+    message.mid = object.mid ?? '';
+    message.cid = object.cid ?? '';
+    message.layers = object.layers?.map((e) => VideoLayer.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseTrackInfo(): TrackInfo {
   return {
     sid: '',
@@ -1023,6 +1118,7 @@ function createBaseTrackInfo(): TrackInfo {
     layers: [],
     mimeType: '',
     mid: '',
+    codecs: [],
   };
 }
 
@@ -1063,6 +1159,9 @@ export const TrackInfo = {
     }
     if (message.mid !== '') {
       writer.uint32(98).string(message.mid);
+    }
+    for (const v of message.codecs) {
+      SimulcastCodecInfo.encode(v!, writer.uint32(106).fork()).ldelim();
     }
     return writer;
   },
@@ -1110,6 +1209,9 @@ export const TrackInfo = {
         case 12:
           message.mid = reader.string();
           break;
+        case 13:
+          message.codecs.push(SimulcastCodecInfo.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1134,6 +1236,9 @@ export const TrackInfo = {
         : [],
       mimeType: isSet(object.mimeType) ? String(object.mimeType) : '',
       mid: isSet(object.mid) ? String(object.mid) : '',
+      codecs: Array.isArray(object?.codecs)
+        ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e))
+        : [],
     };
   },
 
@@ -1155,6 +1260,11 @@ export const TrackInfo = {
     }
     message.mimeType !== undefined && (obj.mimeType = message.mimeType);
     message.mid !== undefined && (obj.mid = message.mid);
+    if (message.codecs) {
+      obj.codecs = message.codecs.map((e) => (e ? SimulcastCodecInfo.toJSON(e) : undefined));
+    } else {
+      obj.codecs = [];
+    }
     return obj;
   },
 
@@ -1172,6 +1282,7 @@ export const TrackInfo = {
     message.layers = object.layers?.map((e) => VideoLayer.fromPartial(e)) || [];
     message.mimeType = object.mimeType ?? '';
     message.mid = object.mid ?? '';
+    message.codecs = object.codecs?.map((e) => SimulcastCodecInfo.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1732,7 +1843,7 @@ export const ClientInfo = {
 };
 
 function createBaseClientConfiguration(): ClientConfiguration {
-  return { video: undefined, screen: undefined, resumeConnection: 0 };
+  return { video: undefined, screen: undefined, resumeConnection: 0, disabledCodecs: undefined };
 }
 
 export const ClientConfiguration = {
@@ -1745,6 +1856,9 @@ export const ClientConfiguration = {
     }
     if (message.resumeConnection !== 0) {
       writer.uint32(24).int32(message.resumeConnection);
+    }
+    if (message.disabledCodecs !== undefined) {
+      DisabledCodecs.encode(message.disabledCodecs, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -1765,6 +1879,9 @@ export const ClientConfiguration = {
         case 3:
           message.resumeConnection = reader.int32() as any;
           break;
+        case 4:
+          message.disabledCodecs = DisabledCodecs.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1780,6 +1897,9 @@ export const ClientConfiguration = {
       resumeConnection: isSet(object.resumeConnection)
         ? clientConfigSettingFromJSON(object.resumeConnection)
         : 0,
+      disabledCodecs: isSet(object.disabledCodecs)
+        ? DisabledCodecs.fromJSON(object.disabledCodecs)
+        : undefined,
     };
   },
 
@@ -1791,6 +1911,10 @@ export const ClientConfiguration = {
       (obj.screen = message.screen ? VideoConfiguration.toJSON(message.screen) : undefined);
     message.resumeConnection !== undefined &&
       (obj.resumeConnection = clientConfigSettingToJSON(message.resumeConnection));
+    message.disabledCodecs !== undefined &&
+      (obj.disabledCodecs = message.disabledCodecs
+        ? DisabledCodecs.toJSON(message.disabledCodecs)
+        : undefined);
     return obj;
   },
 
@@ -1807,6 +1931,10 @@ export const ClientConfiguration = {
         ? VideoConfiguration.fromPartial(object.screen)
         : undefined;
     message.resumeConnection = object.resumeConnection ?? 0;
+    message.disabledCodecs =
+      object.disabledCodecs !== undefined && object.disabledCodecs !== null
+        ? DisabledCodecs.fromPartial(object.disabledCodecs)
+        : undefined;
     return message;
   },
 };
@@ -1859,6 +1987,59 @@ export const VideoConfiguration = {
   fromPartial<I extends Exact<DeepPartial<VideoConfiguration>, I>>(object: I): VideoConfiguration {
     const message = createBaseVideoConfiguration();
     message.hardwareEncoder = object.hardwareEncoder ?? 0;
+    return message;
+  },
+};
+
+function createBaseDisabledCodecs(): DisabledCodecs {
+  return { codecs: [] };
+}
+
+export const DisabledCodecs = {
+  encode(message: DisabledCodecs, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    for (const v of message.codecs) {
+      Codec.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): DisabledCodecs {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDisabledCodecs();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.codecs.push(Codec.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DisabledCodecs {
+    return {
+      codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => Codec.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: DisabledCodecs): unknown {
+    const obj: any = {};
+    if (message.codecs) {
+      obj.codecs = message.codecs.map((e) => (e ? Codec.toJSON(e) : undefined));
+    } else {
+      obj.codecs = [];
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<DisabledCodecs>, I>>(object: I): DisabledCodecs {
+    const message = createBaseDisabledCodecs();
+    message.codecs = object.codecs?.map((e) => Codec.fromPartial(e)) || [];
     return message;
   },
 };

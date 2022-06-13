@@ -6,7 +6,8 @@ import {
   EncodedFileOutput,
   EncodingOptions,
   EncodingOptionsPreset,
-  ListEgressRequest, ListEgressResponse,
+  ListEgressRequest,
+  ListEgressResponse,
   RoomCompositeEgressRequest,
   StopEgressRequest,
   StreamOutput,
@@ -58,7 +59,6 @@ export default class EgressClient {
     videoOnly?: boolean,
     customBaseUrl?: string,
   ): Promise<EgressInfo> {
-
     layout ??= '';
     audioOnly ??= false;
     videoOnly ??= false;
@@ -100,7 +100,6 @@ export default class EgressClient {
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
   ): Promise<EgressInfo> {
-
     audioTrackId ??= '';
     videoTrackId ??= '';
 
@@ -209,7 +208,6 @@ export default class EgressClient {
     addOutputUrls?: string[],
     removeOutputUrls?: string[],
   ): Promise<EgressInfo> {
-
     addOutputUrls ??= [];
     removeOutputUrls ??= [];
 

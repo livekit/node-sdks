@@ -2,6 +2,14 @@ export * from './AccessToken';
 export { default as EgressClient } from './EgressClient';
 export * from './grants';
 export {
+  DirectFileOutput,
+  EgressInfo,
+  EncodedFileOutput,
+  EncodingOptions,
+  EncodingOptionsPreset,
+  StreamOutput,
+} from './proto/livekit_egress';
+export {
   DataPacket_Kind,
   ParticipantInfo,
   ParticipantInfo_State,

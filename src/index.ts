@@ -1,5 +1,4 @@
 export * from './AccessToken';
-export { default as EgressClient } from './EgressClient';
 export * from './grants';
 export {
   DirectFileOutput,
@@ -18,6 +17,8 @@ export {
   TrackInfo,
   TrackType,
 } from './proto/livekit_models';
-export { default as RecordingServiceClient } from './RecordingServiceClient';
 export * from './RoomServiceClient';
 export * from './WebhookReceiver';
+export { EgressClient, RecordingServiceClient };
+import EgressClient from './EgressClient';
+import RecordingServiceClient from './RecordingServiceClient';

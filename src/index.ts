@@ -7,6 +7,7 @@ export {
   EncodedFileOutput,
   EncodingOptions,
   EncodingOptionsPreset,
+  SegmentedFileOutput,
   StreamOutput,
 } from './proto/livekit_egress';
 export {

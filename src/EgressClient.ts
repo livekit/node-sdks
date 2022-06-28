@@ -138,7 +138,7 @@ export default class EgressClient {
 
     if ((<EncodedFileOutput>output).filepath !== undefined) {
       file = <EncodedFileOutput>output;
-    } else if ((<SegmentedFileOutput>output).filenamePrefix !== undefined) { 
+    } else if ((<SegmentedFileOutput>output).filenamePrefix !== undefined) {
       segments = <SegmentedFileOutput>output;
     } else {
       stream = <StreamOutput>output;

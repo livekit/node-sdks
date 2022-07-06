@@ -5,6 +5,7 @@ export {
   DirectFileOutput,
   EgressInfo,
   EncodedFileOutput,
+  EncodedFileType,
   EncodingOptions,
   EncodingOptionsPreset,
   SegmentedFileOutput,

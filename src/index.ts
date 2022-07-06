@@ -5,8 +5,11 @@ export {
   DirectFileOutput,
   EgressInfo,
   EncodedFileOutput,
+  EncodedFileType,
   EncodingOptions,
   EncodingOptionsPreset,
+  SegmentedFileOutput,
+  SegmentedFileProtocol,
   StreamOutput,
 } from './proto/livekit_egress';
 export {

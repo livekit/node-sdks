@@ -9,6 +9,7 @@ import {
   ListEgressRequest,
   ListEgressResponse,
   RoomCompositeEgressRequest,
+  SegmentedFileOutput,
   StopEgressRequest,
   StreamOutput,
   TrackCompositeEgressRequest,
@@ -52,7 +53,7 @@ export default class EgressClient {
    */
   async startRoomCompositeEgress(
     roomName: string,
-    output: EncodedFileOutput | StreamOutput,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
     layout?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
     audioOnly?: boolean,
@@ -64,7 +65,7 @@ export default class EgressClient {
     videoOnly ??= false;
     customBaseUrl ??= '';
 
-    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
+    const { file, segments, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = RoomCompositeEgressRequest.toJSON({
       roomName,
       layout,
@@ -73,6 +74,7 @@ export default class EgressClient {
       customBaseUrl,
       file,
       stream,
+      segments,
       preset,
       advanced,
     });
@@ -95,7 +97,7 @@ export default class EgressClient {
    */
   async startTrackCompositeEgress(
     roomName: string,
-    output: EncodedFileOutput | StreamOutput,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
     audioTrackId?: string,
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
@@ -103,13 +105,14 @@ export default class EgressClient {
     audioTrackId ??= '';
     videoTrackId ??= '';
 
-    const { file, stream, preset, advanced } = this.getOutputParams(output, options);
+    const { file, segments, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = TrackCompositeEgressRequest.toJSON({
       roomName,
       audioTrackId,
       videoTrackId,
       file,
       stream,
+      segments,
       preset,
       advanced,
     });
@@ -124,16 +127,19 @@ export default class EgressClient {
   }
 
   private getOutputParams(
-    output: EncodedFileOutput | StreamOutput,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
     options?: EncodingOptionsPreset | EncodingOptions,
   ) {
     let file: EncodedFileOutput | undefined;
     let stream: StreamOutput | undefined;
+    let segments: SegmentedFileOutput | undefined;
     let preset: EncodingOptionsPreset | undefined;
     let advanced: EncodingOptions | undefined;
 
     if ((<EncodedFileOutput>output).filepath !== undefined) {
       file = <EncodedFileOutput>output;
+    } else if ((<SegmentedFileOutput>output).filenamePrefix !== undefined) {
+      segments = <SegmentedFileOutput>output;
     } else {
       stream = <StreamOutput>output;
     }
@@ -146,7 +152,7 @@ export default class EgressClient {
       }
     }
 
-    return { file, stream, preset, advanced };
+    return { file, segments, stream, preset, advanced };
   }
 
   /**

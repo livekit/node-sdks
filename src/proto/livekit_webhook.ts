@@ -2,22 +2,19 @@
 import Long from 'long';
 import * as _m0 from 'protobufjs/minimal';
 import { Room, ParticipantInfo, TrackInfo } from './livekit_models';
-import { RecordingInfo } from './livekit_recording';
 import { EgressInfo } from './livekit_egress';
 
 export const protobufPackage = 'livekit';
 
 export interface WebhookEvent {
   /**
-   * one of room_started, room_finished, participant_joined, participant_left, recording_started, recording_finished,
+   * one of room_started, room_finished, participant_joined, participant_left,
    * track_published, track_unpublished, egress_started, egress_ended
    */
   event: string;
   room?: Room;
   /** set when event is participant_* or track_* */
   participant?: ParticipantInfo;
-  /** set when event is recording_* */
-  recordingInfo?: RecordingInfo;
   /** set when event is egress_* */
   egressInfo?: EgressInfo;
   /** set when event is track_* */
@@ -33,7 +30,6 @@ function createBaseWebhookEvent(): WebhookEvent {
     event: '',
     room: undefined,
     participant: undefined,
-    recordingInfo: undefined,
     egressInfo: undefined,
     track: undefined,
     id: '',
@@ -51,9 +47,6 @@ export const WebhookEvent = {
     }
     if (message.participant !== undefined) {
       ParticipantInfo.encode(message.participant, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.recordingInfo !== undefined) {
-      RecordingInfo.encode(message.recordingInfo, writer.uint32(42).fork()).ldelim();
     }
     if (message.egressInfo !== undefined) {
       EgressInfo.encode(message.egressInfo, writer.uint32(74).fork()).ldelim();
@@ -86,9 +79,6 @@ export const WebhookEvent = {
         case 3:
           message.participant = ParticipantInfo.decode(reader, reader.uint32());
           break;
-        case 5:
-          message.recordingInfo = RecordingInfo.decode(reader, reader.uint32());
-          break;
         case 9:
           message.egressInfo = EgressInfo.decode(reader, reader.uint32());
           break;
@@ -116,9 +106,6 @@ export const WebhookEvent = {
       participant: isSet(object.participant)
         ? ParticipantInfo.fromJSON(object.participant)
         : undefined,
-      recordingInfo: isSet(object.recordingInfo)
-        ? RecordingInfo.fromJSON(object.recordingInfo)
-        : undefined,
       egressInfo: isSet(object.egressInfo) ? EgressInfo.fromJSON(object.egressInfo) : undefined,
       track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
       id: isSet(object.id) ? String(object.id) : '',
@@ -133,10 +120,6 @@ export const WebhookEvent = {
     message.participant !== undefined &&
       (obj.participant = message.participant
         ? ParticipantInfo.toJSON(message.participant)
-        : undefined);
-    message.recordingInfo !== undefined &&
-      (obj.recordingInfo = message.recordingInfo
-        ? RecordingInfo.toJSON(message.recordingInfo)
         : undefined);
     message.egressInfo !== undefined &&
       (obj.egressInfo = message.egressInfo ? EgressInfo.toJSON(message.egressInfo) : undefined);
@@ -155,10 +138,6 @@ export const WebhookEvent = {
     message.participant =
       object.participant !== undefined && object.participant !== null
         ? ParticipantInfo.fromPartial(object.participant)
-        : undefined;
-    message.recordingInfo =
-      object.recordingInfo !== undefined && object.recordingInfo !== null
-        ? RecordingInfo.fromPartial(object.recordingInfo)
         : undefined;
     message.egressInfo =
       object.egressInfo !== undefined && object.egressInfo !== null

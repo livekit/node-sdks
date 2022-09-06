@@ -303,20 +303,20 @@ export function egressStatusToJSON(object: EgressStatus): string {
 /** composite using a web browser */
 export interface RoomCompositeEgressRequest {
   /** required */
-  roomName: string;
+  roomName?: string;
   /** (optional) */
-  layout: string;
+  layout?: string;
   /** (default false) */
-  audioOnly: boolean;
+  audioOnly?: boolean;
   /** (default false) */
-  videoOnly: boolean;
+  videoOnly?: boolean;
   /** (default https://recorder.livekit.io) */
-  customBaseUrl: string;
+  customBaseUrl?: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
   segments?: SegmentedFileOutput | undefined;
   /** (default H264_720P_30) */
-  preset: EncodingOptionsPreset | undefined;
+  preset?: EncodingOptionsPreset | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
 }
@@ -324,16 +324,16 @@ export interface RoomCompositeEgressRequest {
 /** containerize up to one audio and one video track */
 export interface TrackCompositeEgressRequest {
   /** required */
-  roomName: string;
+  roomName?: string;
   /** (optional) */
-  audioTrackId: string;
+  audioTrackId?: string;
   /** (optional) */
-  videoTrackId: string;
+  videoTrackId?: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
   segments?: SegmentedFileOutput | undefined;
   /** (default H264_720P_30) */
-  preset: EncodingOptionsPreset | undefined;
+  preset?: EncodingOptionsPreset | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
 }
@@ -341,18 +341,18 @@ export interface TrackCompositeEgressRequest {
 /** record tracks individually, without transcoding */
 export interface TrackEgressRequest {
   /** required */
-  roomName: string;
+  roomName?: string;
   /** required */
-  trackId: string;
+  trackId?: string;
   file?: DirectFileOutput | undefined;
-  websocketUrl: string | undefined;
+  websocketUrl?: string | undefined;
 }
 
 export interface EncodedFileOutput {
   /** (optional) */
-  fileType: EncodedFileType;
+  fileType?: EncodedFileType;
   /** (optional) */
-  filepath: string;
+  filepath?: string;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -361,13 +361,13 @@ export interface EncodedFileOutput {
 /** Used to generate HLS segments or other kind of segmented output */
 export interface SegmentedFileOutput {
   /** (optional) */
-  protocol: SegmentedFileProtocol;
+  protocol?: SegmentedFileProtocol;
   /** (optional) */
-  filenamePrefix: string;
+  filenamePrefix?: string;
   /** (optional) */
-  playlistName: string;
+  playlistName?: string;
   /** (optional) */
-  segmentDuration: number;
+  segmentDuration?: number;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -375,91 +375,91 @@ export interface SegmentedFileOutput {
 
 export interface DirectFileOutput {
   /** (optional) */
-  filepath: string;
+  filepath?: string;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
 }
 
 export interface S3Upload {
-  accessKey: string;
-  secret: string;
-  region: string;
-  endpoint: string;
-  bucket: string;
+  accessKey?: string;
+  secret?: string;
+  region?: string;
+  endpoint?: string;
+  bucket?: string;
 }
 
 export interface GCPUpload {
-  credentials: Uint8Array;
-  bucket: string;
+  credentials?: Uint8Array;
+  bucket?: string;
 }
 
 export interface AzureBlobUpload {
-  accountName: string;
-  accountKey: string;
-  containerName: string;
+  accountName?: string;
+  accountKey?: string;
+  containerName?: string;
 }
 
 export interface StreamOutput {
   /** required */
-  protocol: StreamProtocol;
+  protocol?: StreamProtocol;
   /** required */
-  urls: string[];
+  urls?: string[];
 }
 
 export interface EncodingOptions {
   /** (default 1920) */
-  width: number;
+  width?: number;
   /** (default 1080) */
-  height: number;
+  height?: number;
   /** (default 24) */
-  depth: number;
+  depth?: number;
   /** (default 30) */
-  framerate: number;
+  framerate?: number;
   /** (default OPUS) */
-  audioCodec: AudioCodec;
+  audioCodec?: AudioCodec;
   /** (default 128) */
-  audioBitrate: number;
+  audioBitrate?: number;
   /** (default 44100) */
-  audioFrequency: number;
+  audioFrequency?: number;
   /** (default H264_MAIN) */
-  videoCodec: VideoCodec;
+  videoCodec?: VideoCodec;
   /** (default 4500) */
-  videoBitrate: number;
+  videoBitrate?: number;
 }
 
 export interface UpdateLayoutRequest {
-  egressId: string;
-  layout: string;
+  egressId?: string;
+  layout?: string;
 }
 
 export interface UpdateStreamRequest {
-  egressId: string;
-  addOutputUrls: string[];
-  removeOutputUrls: string[];
+  egressId?: string;
+  addOutputUrls?: string[];
+  removeOutputUrls?: string[];
 }
 
 export interface ListEgressRequest {
   /** (optional, used to filter results) */
-  roomName: string;
+  roomName?: string;
 }
 
 export interface ListEgressResponse {
-  items: EgressInfo[];
+  items?: EgressInfo[];
 }
 
 export interface StopEgressRequest {
-  egressId: string;
+  egressId?: string;
 }
 
 export interface EgressInfo {
-  egressId: string;
-  roomId: string;
-  roomName: string;
-  status: EgressStatus;
-  startedAt: number;
-  endedAt: number;
-  error: string;
+  egressId?: string;
+  roomId?: string;
+  roomName?: string;
+  status?: EgressStatus;
+  startedAt?: number;
+  endedAt?: number;
+  error?: string;
   roomComposite?: RoomCompositeEgressRequest | undefined;
   trackComposite?: TrackCompositeEgressRequest | undefined;
   track?: TrackEgressRequest | undefined;
@@ -469,15 +469,15 @@ export interface EgressInfo {
 }
 
 export interface StreamInfoList {
-  info: StreamInfo[];
+  info?: StreamInfo[];
 }
 
 export interface StreamInfo {
-  url: string;
-  startedAt: number;
-  endedAt: number;
-  duration: number;
-  status: StreamInfo_Status;
+  url?: string;
+  startedAt?: number;
+  endedAt?: number;
+  duration?: number;
+  status?: StreamInfo_Status;
 }
 
 export enum StreamInfo_Status {
@@ -519,18 +519,18 @@ export function streamInfo_StatusToJSON(object: StreamInfo_Status): string {
 }
 
 export interface FileInfo {
-  filename: string;
-  duration: number;
-  size: number;
-  location: string;
+  filename?: string;
+  duration?: number;
+  size?: number;
+  location?: string;
 }
 
 export interface SegmentsInfo {
-  playlistName: string;
-  duration: number;
-  size: number;
-  playlistLocation: string;
-  segmentCount: number;
+  playlistName?: string;
+  duration?: number;
+  size?: number;
+  playlistLocation?: string;
+  segmentCount?: number;
 }
 
 function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
@@ -553,10 +553,10 @@ export const RoomCompositeEgressRequest = {
     message: RoomCompositeEgressRequest,
     writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.roomName !== '') {
+    if (message.roomName !== undefined && message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.layout !== '') {
+    if (message.layout !== undefined && message.layout !== '') {
       writer.uint32(18).string(message.layout);
     }
     if (message.audioOnly === true) {
@@ -565,7 +565,7 @@ export const RoomCompositeEgressRequest = {
     if (message.videoOnly === true) {
       writer.uint32(32).bool(message.videoOnly);
     }
-    if (message.customBaseUrl !== '') {
+    if (message.customBaseUrl !== undefined && message.customBaseUrl !== '') {
       writer.uint32(42).string(message.customBaseUrl);
     }
     if (message.file !== undefined) {
@@ -715,13 +715,13 @@ export const TrackCompositeEgressRequest = {
     message: TrackCompositeEgressRequest,
     writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.roomName !== '') {
+    if (message.roomName !== undefined && message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.audioTrackId !== '') {
+    if (message.audioTrackId !== undefined && message.audioTrackId !== '') {
       writer.uint32(18).string(message.audioTrackId);
     }
-    if (message.videoTrackId !== '') {
+    if (message.videoTrackId !== undefined && message.videoTrackId !== '') {
       writer.uint32(26).string(message.videoTrackId);
     }
     if (message.file !== undefined) {
@@ -847,10 +847,10 @@ function createBaseTrackEgressRequest(): TrackEgressRequest {
 
 export const TrackEgressRequest = {
   encode(message: TrackEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.roomName !== '') {
+    if (message.roomName !== undefined && message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
-    if (message.trackId !== '') {
+    if (message.trackId !== undefined && message.trackId !== '') {
       writer.uint32(18).string(message.trackId);
     }
     if (message.file !== undefined) {
@@ -927,10 +927,10 @@ function createBaseEncodedFileOutput(): EncodedFileOutput {
 
 export const EncodedFileOutput = {
   encode(message: EncodedFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.fileType !== 0) {
+    if (message.fileType !== undefined && message.fileType !== 0) {
       writer.uint32(8).int32(message.fileType);
     }
-    if (message.filepath !== '') {
+    if (message.filepath !== undefined && message.filepath !== '') {
       writer.uint32(18).string(message.filepath);
     }
     if (message.s3 !== undefined) {
@@ -1029,16 +1029,16 @@ function createBaseSegmentedFileOutput(): SegmentedFileOutput {
 
 export const SegmentedFileOutput = {
   encode(message: SegmentedFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.protocol !== 0) {
+    if (message.protocol !== undefined && message.protocol !== 0) {
       writer.uint32(8).int32(message.protocol);
     }
-    if (message.filenamePrefix !== '') {
+    if (message.filenamePrefix !== undefined && message.filenamePrefix !== '') {
       writer.uint32(18).string(message.filenamePrefix);
     }
-    if (message.playlistName !== '') {
+    if (message.playlistName !== undefined && message.playlistName !== '') {
       writer.uint32(26).string(message.playlistName);
     }
-    if (message.segmentDuration !== 0) {
+    if (message.segmentDuration !== undefined && message.segmentDuration !== 0) {
       writer.uint32(32).uint32(message.segmentDuration);
     }
     if (message.s3 !== undefined) {
@@ -1145,7 +1145,7 @@ function createBaseDirectFileOutput(): DirectFileOutput {
 
 export const DirectFileOutput = {
   encode(message: DirectFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.filepath !== '') {
+    if (message.filepath !== undefined && message.filepath !== '') {
       writer.uint32(10).string(message.filepath);
     }
     if (message.s3 !== undefined) {
@@ -1230,19 +1230,19 @@ function createBaseS3Upload(): S3Upload {
 
 export const S3Upload = {
   encode(message: S3Upload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.accessKey !== '') {
+    if (message.accessKey !== undefined && message.accessKey !== '') {
       writer.uint32(10).string(message.accessKey);
     }
-    if (message.secret !== '') {
+    if (message.secret !== undefined && message.secret !== '') {
       writer.uint32(18).string(message.secret);
     }
-    if (message.region !== '') {
+    if (message.region !== undefined && message.region !== '') {
       writer.uint32(26).string(message.region);
     }
-    if (message.endpoint !== '') {
+    if (message.endpoint !== undefined && message.endpoint !== '') {
       writer.uint32(34).string(message.endpoint);
     }
-    if (message.bucket !== '') {
+    if (message.bucket !== undefined && message.bucket !== '') {
       writer.uint32(42).string(message.bucket);
     }
     return writer;
@@ -1315,10 +1315,10 @@ function createBaseGCPUpload(): GCPUpload {
 
 export const GCPUpload = {
   encode(message: GCPUpload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.credentials.length !== 0) {
+    if (message.credentials !== undefined && message.credentials.length !== 0) {
       writer.uint32(10).bytes(message.credentials);
     }
-    if (message.bucket !== '') {
+    if (message.bucket !== undefined && message.bucket !== '') {
       writer.uint32(18).string(message.bucket);
     }
     return writer;
@@ -1378,13 +1378,13 @@ function createBaseAzureBlobUpload(): AzureBlobUpload {
 
 export const AzureBlobUpload = {
   encode(message: AzureBlobUpload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.accountName !== '') {
+    if (message.accountName !== undefined && message.accountName !== '') {
       writer.uint32(10).string(message.accountName);
     }
-    if (message.accountKey !== '') {
+    if (message.accountKey !== undefined && message.accountKey !== '') {
       writer.uint32(18).string(message.accountKey);
     }
-    if (message.containerName !== '') {
+    if (message.containerName !== undefined && message.containerName !== '') {
       writer.uint32(26).string(message.containerName);
     }
     return writer;
@@ -1445,11 +1445,13 @@ function createBaseStreamOutput(): StreamOutput {
 
 export const StreamOutput = {
   encode(message: StreamOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.protocol !== 0) {
+    if (message.protocol !== undefined && message.protocol !== 0) {
       writer.uint32(8).int32(message.protocol);
     }
-    for (const v of message.urls) {
-      writer.uint32(18).string(v!);
+    if (message.urls !== undefined && message.urls.length !== 0) {
+      for (const v of message.urls) {
+        writer.uint32(18).string(v!);
+      }
     }
     return writer;
   },
@@ -1465,7 +1467,7 @@ export const StreamOutput = {
           message.protocol = reader.int32() as any;
           break;
         case 2:
-          message.urls.push(reader.string());
+          message.urls!.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1517,31 +1519,31 @@ function createBaseEncodingOptions(): EncodingOptions {
 
 export const EncodingOptions = {
   encode(message: EncodingOptions, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.width !== 0) {
+    if (message.width !== undefined && message.width !== 0) {
       writer.uint32(8).int32(message.width);
     }
-    if (message.height !== 0) {
+    if (message.height !== undefined && message.height !== 0) {
       writer.uint32(16).int32(message.height);
     }
-    if (message.depth !== 0) {
+    if (message.depth !== undefined && message.depth !== 0) {
       writer.uint32(24).int32(message.depth);
     }
-    if (message.framerate !== 0) {
+    if (message.framerate !== undefined && message.framerate !== 0) {
       writer.uint32(32).int32(message.framerate);
     }
-    if (message.audioCodec !== 0) {
+    if (message.audioCodec !== undefined && message.audioCodec !== 0) {
       writer.uint32(40).int32(message.audioCodec);
     }
-    if (message.audioBitrate !== 0) {
+    if (message.audioBitrate !== undefined && message.audioBitrate !== 0) {
       writer.uint32(48).int32(message.audioBitrate);
     }
-    if (message.audioFrequency !== 0) {
+    if (message.audioFrequency !== undefined && message.audioFrequency !== 0) {
       writer.uint32(56).int32(message.audioFrequency);
     }
-    if (message.videoCodec !== 0) {
+    if (message.videoCodec !== undefined && message.videoCodec !== 0) {
       writer.uint32(64).int32(message.videoCodec);
     }
-    if (message.videoBitrate !== 0) {
+    if (message.videoBitrate !== undefined && message.videoBitrate !== 0) {
       writer.uint32(72).int32(message.videoBitrate);
     }
     return writer;
@@ -1639,10 +1641,10 @@ function createBaseUpdateLayoutRequest(): UpdateLayoutRequest {
 
 export const UpdateLayoutRequest = {
   encode(message: UpdateLayoutRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.egressId !== '') {
+    if (message.egressId !== undefined && message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
-    if (message.layout !== '') {
+    if (message.layout !== undefined && message.layout !== '') {
       writer.uint32(18).string(message.layout);
     }
     return writer;
@@ -1699,14 +1701,18 @@ function createBaseUpdateStreamRequest(): UpdateStreamRequest {
 
 export const UpdateStreamRequest = {
   encode(message: UpdateStreamRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.egressId !== '') {
+    if (message.egressId !== undefined && message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
-    for (const v of message.addOutputUrls) {
-      writer.uint32(18).string(v!);
+    if (message.addOutputUrls !== undefined && message.addOutputUrls.length !== 0) {
+      for (const v of message.addOutputUrls) {
+        writer.uint32(18).string(v!);
+      }
     }
-    for (const v of message.removeOutputUrls) {
-      writer.uint32(26).string(v!);
+    if (message.removeOutputUrls !== undefined && message.removeOutputUrls.length !== 0) {
+      for (const v of message.removeOutputUrls) {
+        writer.uint32(26).string(v!);
+      }
     }
     return writer;
   },
@@ -1722,10 +1728,10 @@ export const UpdateStreamRequest = {
           message.egressId = reader.string();
           break;
         case 2:
-          message.addOutputUrls.push(reader.string());
+          message.addOutputUrls!.push(reader.string());
           break;
         case 3:
-          message.removeOutputUrls.push(reader.string());
+          message.removeOutputUrls!.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1780,7 +1786,7 @@ function createBaseListEgressRequest(): ListEgressRequest {
 
 export const ListEgressRequest = {
   encode(message: ListEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.roomName !== '') {
+    if (message.roomName !== undefined && message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
     return writer;
@@ -1829,8 +1835,10 @@ function createBaseListEgressResponse(): ListEgressResponse {
 
 export const ListEgressResponse = {
   encode(message: ListEgressResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.items) {
-      EgressInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+    if (message.items !== undefined && message.items.length !== 0) {
+      for (const v of message.items) {
+        EgressInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+      }
     }
     return writer;
   },
@@ -1843,7 +1851,7 @@ export const ListEgressResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.items.push(EgressInfo.decode(reader, reader.uint32()));
+          message.items!.push(EgressInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1884,7 +1892,7 @@ function createBaseStopEgressRequest(): StopEgressRequest {
 
 export const StopEgressRequest = {
   encode(message: StopEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.egressId !== '') {
+    if (message.egressId !== undefined && message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
     return writer;
@@ -1947,25 +1955,25 @@ function createBaseEgressInfo(): EgressInfo {
 
 export const EgressInfo = {
   encode(message: EgressInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.egressId !== '') {
+    if (message.egressId !== undefined && message.egressId !== '') {
       writer.uint32(10).string(message.egressId);
     }
-    if (message.roomId !== '') {
+    if (message.roomId !== undefined && message.roomId !== '') {
       writer.uint32(18).string(message.roomId);
     }
-    if (message.roomName !== '') {
+    if (message.roomName !== undefined && message.roomName !== '') {
       writer.uint32(106).string(message.roomName);
     }
-    if (message.status !== 0) {
+    if (message.status !== undefined && message.status !== 0) {
       writer.uint32(24).int32(message.status);
     }
-    if (message.startedAt !== 0) {
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
       writer.uint32(80).int64(message.startedAt);
     }
-    if (message.endedAt !== 0) {
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
       writer.uint32(88).int64(message.endedAt);
     }
-    if (message.error !== '') {
+    if (message.error !== undefined && message.error !== '') {
       writer.uint32(74).string(message.error);
     }
     if (message.roomComposite !== undefined) {
@@ -2136,8 +2144,10 @@ function createBaseStreamInfoList(): StreamInfoList {
 
 export const StreamInfoList = {
   encode(message: StreamInfoList, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.info) {
-      StreamInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+    if (message.info !== undefined && message.info.length !== 0) {
+      for (const v of message.info) {
+        StreamInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+      }
     }
     return writer;
   },
@@ -2150,7 +2160,7 @@ export const StreamInfoList = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.info.push(StreamInfo.decode(reader, reader.uint32()));
+          message.info!.push(StreamInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -2189,19 +2199,19 @@ function createBaseStreamInfo(): StreamInfo {
 
 export const StreamInfo = {
   encode(message: StreamInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.url !== '') {
+    if (message.url !== undefined && message.url !== '') {
       writer.uint32(10).string(message.url);
     }
-    if (message.startedAt !== 0) {
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
       writer.uint32(16).int64(message.startedAt);
     }
-    if (message.endedAt !== 0) {
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
       writer.uint32(24).int64(message.endedAt);
     }
-    if (message.duration !== 0) {
+    if (message.duration !== undefined && message.duration !== 0) {
       writer.uint32(32).int64(message.duration);
     }
-    if (message.status !== 0) {
+    if (message.status !== undefined && message.status !== 0) {
       writer.uint32(40).int32(message.status);
     }
     return writer;
@@ -2274,16 +2284,16 @@ function createBaseFileInfo(): FileInfo {
 
 export const FileInfo = {
   encode(message: FileInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.filename !== '') {
+    if (message.filename !== undefined && message.filename !== '') {
       writer.uint32(10).string(message.filename);
     }
-    if (message.duration !== 0) {
+    if (message.duration !== undefined && message.duration !== 0) {
       writer.uint32(48).int64(message.duration);
     }
-    if (message.size !== 0) {
+    if (message.size !== undefined && message.size !== 0) {
       writer.uint32(32).int64(message.size);
     }
-    if (message.location !== '') {
+    if (message.location !== undefined && message.location !== '') {
       writer.uint32(42).string(message.location);
     }
     return writer;
@@ -2350,19 +2360,19 @@ function createBaseSegmentsInfo(): SegmentsInfo {
 
 export const SegmentsInfo = {
   encode(message: SegmentsInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.playlistName !== '') {
+    if (message.playlistName !== undefined && message.playlistName !== '') {
       writer.uint32(10).string(message.playlistName);
     }
-    if (message.duration !== 0) {
+    if (message.duration !== undefined && message.duration !== 0) {
       writer.uint32(16).int64(message.duration);
     }
-    if (message.size !== 0) {
+    if (message.size !== undefined && message.size !== 0) {
       writer.uint32(24).int64(message.size);
     }
-    if (message.playlistLocation !== '') {
+    if (message.playlistLocation !== undefined && message.playlistLocation !== '') {
       writer.uint32(34).string(message.playlistLocation);
     }
-    if (message.segmentCount !== 0) {
+    if (message.segmentCount !== undefined && message.segmentCount !== 0) {
       writer.uint32(40).int64(message.segmentCount);
     }
     return writer;

@@ -238,7 +238,7 @@ export default class EgressClient {
       ListEgressRequest.toJSON({ roomName }),
       this.authHeader({ roomRecord: true }),
     );
-    return ListEgressResponse.fromJSON(data).items;
+    return ListEgressResponse.fromJSON(data).items ?? [];
   }
 
   /**

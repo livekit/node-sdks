@@ -16,59 +16,59 @@ export const protobufPackage = 'livekit';
 
 export interface CreateRoomRequest {
   /** name of the room */
-  name: string;
+  name?: string;
   /** number of seconds to keep the room open if no one joins */
-  emptyTimeout: number;
+  emptyTimeout?: number;
   /** limit number of participants that can be in a room */
-  maxParticipants: number;
+  maxParticipants?: number;
   /** override the node room is allocated to, for debugging */
-  nodeId: string;
+  nodeId?: string;
   /** metadata of room */
-  metadata: string;
+  metadata?: string;
 }
 
 export interface ListRoomsRequest {
   /** when set, will only return rooms with name match */
-  names: string[];
+  names?: string[];
 }
 
 export interface ListRoomsResponse {
-  rooms: Room[];
+  rooms?: Room[];
 }
 
 export interface DeleteRoomRequest {
   /** name of the room */
-  room: string;
+  room?: string;
 }
 
 export interface DeleteRoomResponse {}
 
 export interface ListParticipantsRequest {
   /** name of the room */
-  room: string;
+  room?: string;
 }
 
 export interface ListParticipantsResponse {
-  participants: ParticipantInfo[];
+  participants?: ParticipantInfo[];
 }
 
 export interface RoomParticipantIdentity {
   /** name of the room */
-  room: string;
+  room?: string;
   /** identity of the participant */
-  identity: string;
+  identity?: string;
 }
 
 export interface RemoveParticipantResponse {}
 
 export interface MuteRoomTrackRequest {
   /** name of the room */
-  room: string;
-  identity: string;
+  room?: string;
+  identity?: string;
   /** sid of the track to mute */
-  trackSid: string;
+  trackSid?: string;
   /** set to true to mute, false to unmute */
-  muted: boolean;
+  muted?: boolean;
 }
 
 export interface MuteRoomTrackResponse {
@@ -76,42 +76,42 @@ export interface MuteRoomTrackResponse {
 }
 
 export interface UpdateParticipantRequest {
-  room: string;
-  identity: string;
+  room?: string;
+  identity?: string;
   /** metadata to update. skipping updates if left empty */
-  metadata: string;
+  metadata?: string;
   /** set to update the participant's permissions */
   permission?: ParticipantPermission;
 }
 
 export interface UpdateSubscriptionsRequest {
-  room: string;
-  identity: string;
+  room?: string;
+  identity?: string;
   /** list of sids of tracks */
-  trackSids: string[];
+  trackSids?: string[];
   /** set to true to subscribe, false to unsubscribe from tracks */
-  subscribe: boolean;
+  subscribe?: boolean;
   /** list of participants and their tracks */
-  participantTracks: ParticipantTracks[];
+  participantTracks?: ParticipantTracks[];
 }
 
 /** empty for now */
 export interface UpdateSubscriptionsResponse {}
 
 export interface SendDataRequest {
-  room: string;
-  data: Uint8Array;
-  kind: DataPacket_Kind;
-  destinationSids: string[];
+  room?: string;
+  data?: Uint8Array;
+  kind?: DataPacket_Kind;
+  destinationSids?: string[];
 }
 
 /**  */
 export interface SendDataResponse {}
 
 export interface UpdateRoomMetadataRequest {
-  room: string;
+  room?: string;
   /** metadata to update. skipping updates if left empty */
-  metadata: string;
+  metadata?: string;
 }
 
 function createBaseCreateRoomRequest(): CreateRoomRequest {
@@ -120,19 +120,19 @@ function createBaseCreateRoomRequest(): CreateRoomRequest {
 
 export const CreateRoomRequest = {
   encode(message: CreateRoomRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.name !== '') {
+    if (message.name !== undefined && message.name !== '') {
       writer.uint32(10).string(message.name);
     }
-    if (message.emptyTimeout !== 0) {
+    if (message.emptyTimeout !== undefined && message.emptyTimeout !== 0) {
       writer.uint32(16).uint32(message.emptyTimeout);
     }
-    if (message.maxParticipants !== 0) {
+    if (message.maxParticipants !== undefined && message.maxParticipants !== 0) {
       writer.uint32(24).uint32(message.maxParticipants);
     }
-    if (message.nodeId !== '') {
+    if (message.nodeId !== undefined && message.nodeId !== '') {
       writer.uint32(34).string(message.nodeId);
     }
-    if (message.metadata !== '') {
+    if (message.metadata !== undefined && message.metadata !== '') {
       writer.uint32(42).string(message.metadata);
     }
     return writer;
@@ -206,8 +206,10 @@ function createBaseListRoomsRequest(): ListRoomsRequest {
 
 export const ListRoomsRequest = {
   encode(message: ListRoomsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.names) {
-      writer.uint32(10).string(v!);
+    if (message.names !== undefined && message.names.length !== 0) {
+      for (const v of message.names) {
+        writer.uint32(10).string(v!);
+      }
     }
     return writer;
   },
@@ -220,7 +222,7 @@ export const ListRoomsRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.names.push(reader.string());
+          message.names!.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -259,8 +261,10 @@ function createBaseListRoomsResponse(): ListRoomsResponse {
 
 export const ListRoomsResponse = {
   encode(message: ListRoomsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.rooms) {
-      Room.encode(v!, writer.uint32(10).fork()).ldelim();
+    if (message.rooms !== undefined && message.rooms.length !== 0) {
+      for (const v of message.rooms) {
+        Room.encode(v!, writer.uint32(10).fork()).ldelim();
+      }
     }
     return writer;
   },
@@ -273,7 +277,7 @@ export const ListRoomsResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.rooms.push(Room.decode(reader, reader.uint32()));
+          message.rooms!.push(Room.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -312,7 +316,7 @@ function createBaseDeleteRoomRequest(): DeleteRoomRequest {
 
 export const DeleteRoomRequest = {
   encode(message: DeleteRoomRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
     return writer;
@@ -400,7 +404,7 @@ function createBaseListParticipantsRequest(): ListParticipantsRequest {
 
 export const ListParticipantsRequest = {
   encode(message: ListParticipantsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
     return writer;
@@ -451,8 +455,10 @@ function createBaseListParticipantsResponse(): ListParticipantsResponse {
 
 export const ListParticipantsResponse = {
   encode(message: ListParticipantsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.participants) {
-      ParticipantInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+    if (message.participants !== undefined && message.participants.length !== 0) {
+      for (const v of message.participants) {
+        ParticipantInfo.encode(v!, writer.uint32(10).fork()).ldelim();
+      }
     }
     return writer;
   },
@@ -465,7 +471,7 @@ export const ListParticipantsResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.participants.push(ParticipantInfo.decode(reader, reader.uint32()));
+          message.participants!.push(ParticipantInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -510,10 +516,10 @@ function createBaseRoomParticipantIdentity(): RoomParticipantIdentity {
 
 export const RoomParticipantIdentity = {
   encode(message: RoomParticipantIdentity, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== undefined && message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
     return writer;
@@ -611,13 +617,13 @@ function createBaseMuteRoomTrackRequest(): MuteRoomTrackRequest {
 
 export const MuteRoomTrackRequest = {
   encode(message: MuteRoomTrackRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== undefined && message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    if (message.trackSid !== '') {
+    if (message.trackSid !== undefined && message.trackSid !== '') {
       writer.uint32(26).string(message.trackSid);
     }
     if (message.muted === true) {
@@ -744,13 +750,13 @@ function createBaseUpdateParticipantRequest(): UpdateParticipantRequest {
 
 export const UpdateParticipantRequest = {
   encode(message: UpdateParticipantRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== undefined && message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    if (message.metadata !== '') {
+    if (message.metadata !== undefined && message.metadata !== '') {
       writer.uint32(26).string(message.metadata);
     }
     if (message.permission !== undefined) {
@@ -833,20 +839,24 @@ export const UpdateSubscriptionsRequest = {
     message: UpdateSubscriptionsRequest,
     writer: _m0.Writer = _m0.Writer.create(),
   ): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.identity !== '') {
+    if (message.identity !== undefined && message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    for (const v of message.trackSids) {
-      writer.uint32(26).string(v!);
+    if (message.trackSids !== undefined && message.trackSids.length !== 0) {
+      for (const v of message.trackSids) {
+        writer.uint32(26).string(v!);
+      }
     }
     if (message.subscribe === true) {
       writer.uint32(32).bool(message.subscribe);
     }
-    for (const v of message.participantTracks) {
-      ParticipantTracks.encode(v!, writer.uint32(42).fork()).ldelim();
+    if (message.participantTracks !== undefined && message.participantTracks.length !== 0) {
+      for (const v of message.participantTracks) {
+        ParticipantTracks.encode(v!, writer.uint32(42).fork()).ldelim();
+      }
     }
     return writer;
   },
@@ -865,13 +875,13 @@ export const UpdateSubscriptionsRequest = {
           message.identity = reader.string();
           break;
         case 3:
-          message.trackSids.push(reader.string());
+          message.trackSids!.push(reader.string());
           break;
         case 4:
           message.subscribe = reader.bool();
           break;
         case 5:
-          message.participantTracks.push(ParticipantTracks.decode(reader, reader.uint32()));
+          message.participantTracks!.push(ParticipantTracks.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -976,17 +986,19 @@ function createBaseSendDataRequest(): SendDataRequest {
 
 export const SendDataRequest = {
   encode(message: SendDataRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.data.length !== 0) {
+    if (message.data !== undefined && message.data.length !== 0) {
       writer.uint32(18).bytes(message.data);
     }
-    if (message.kind !== 0) {
+    if (message.kind !== undefined && message.kind !== 0) {
       writer.uint32(24).int32(message.kind);
     }
-    for (const v of message.destinationSids) {
-      writer.uint32(34).string(v!);
+    if (message.destinationSids !== undefined && message.destinationSids.length !== 0) {
+      for (const v of message.destinationSids) {
+        writer.uint32(34).string(v!);
+      }
     }
     return writer;
   },
@@ -1008,7 +1020,7 @@ export const SendDataRequest = {
           message.kind = reader.int32() as any;
           break;
         case 4:
-          message.destinationSids.push(reader.string());
+          message.destinationSids!.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1098,10 +1110,10 @@ function createBaseUpdateRoomMetadataRequest(): UpdateRoomMetadataRequest {
 
 export const UpdateRoomMetadataRequest = {
   encode(message: UpdateRoomMetadataRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.room !== '') {
+    if (message.room !== undefined && message.room !== '') {
       writer.uint32(10).string(message.room);
     }
-    if (message.metadata !== '') {
+    if (message.metadata !== undefined && message.metadata !== '') {
       writer.uint32(18).string(message.metadata);
     }
     return writer;

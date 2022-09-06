@@ -43,72 +43,72 @@ export function ingressInputToJSON(object: IngressInput): string {
 }
 
 export interface CreateIngressRequest {
-  inputType?: IngressInput;
+  inputType: IngressInput;
   /** User provided identifier for the ingress */
-  name?: string;
+  name: string;
   /** room to publish to */
-  roomName?: string;
+  roomName: string;
   /** publish as participant */
-  participantIdentity?: string;
+  participantIdentity: string;
   /** name of publishing participant (used for display only) */
-  participantName?: string;
+  participantName: string;
   audio?: IngressAudioOptions;
   video?: IngressVideoOptions;
 }
 
 export interface IngressAudioOptions {
-  name?: string;
-  source?: TrackSource;
+  name: string;
+  source: TrackSource;
   /** desired mime_type to publish to room */
-  mimeType?: string;
-  bitrate?: number;
-  disableDtx?: boolean;
-  channels?: number;
+  mimeType: string;
+  bitrate: number;
+  disableDtx: boolean;
+  channels: number;
 }
 
 export interface IngressVideoOptions {
-  name?: string;
-  source?: TrackSource;
+  name: string;
+  source: TrackSource;
   /** desired mime_type to publish to room */
-  mimeType?: string;
+  mimeType: string;
   /**
    * simulcast layers to publish, when empty, it'll pick default simulcast
    * layers at 1/2 and 1/4 of the dimensions
    */
-  layers?: VideoLayer[];
+  layers: VideoLayer[];
 }
 
 export interface IngressInfo {
-  ingressId?: string;
-  name?: string;
-  streamKey?: string;
-  url?: string;
+  ingressId: string;
+  name: string;
+  streamKey: string;
+  url: string;
   /**
    * for RTMP input, it'll be a rtmp:// URL
    * for FILE input, it'll be a http:// URL
    * for SRT input, it'll be a srt:// URL
    */
-  inputType?: IngressInput;
+  inputType: IngressInput;
   audio?: IngressAudioOptions;
   video?: IngressVideoOptions;
-  roomName?: string;
-  participantIdentity?: string;
-  participantName?: string;
-  reusable?: boolean;
+  roomName: string;
+  participantIdentity: string;
+  participantName: string;
+  reusable: boolean;
   /** Description of error/stream non compliance and debug info for publisher otherwise (received bitrate, resolution, bandwidth) */
   state?: IngressState;
 }
 
 export interface IngressState {
-  status?: IngressState_Status;
+  status: IngressState_Status;
   /** Error/non compliance description if any */
-  error?: string;
+  error: string;
   video?: InputVideoState;
   audio?: InputAudioState;
   /** ID of the current/previous room published to */
-  roomId?: string;
-  startedAt?: number;
-  tracks?: TrackInfo[];
+  roomId: string;
+  startedAt: number;
+  tracks: TrackInfo[];
 }
 
 export enum IngressState_Status {
@@ -156,41 +156,41 @@ export function ingressState_StatusToJSON(object: IngressState_Status): string {
 }
 
 export interface InputVideoState {
-  mimeType?: number;
+  mimeType: number;
   /** uint32 bitrate = 2; */
-  width?: number;
-  height?: number;
-  framerate?: number;
+  width: number;
+  height: number;
+  framerate: number;
 }
 
 export interface InputAudioState {
-  mimeType?: number;
+  mimeType: number;
   /** uint32 bitrate = 2; */
-  channels?: number;
-  sampleRate?: number;
+  channels: number;
+  sampleRate: number;
 }
 
 export interface UpdateIngressRequest {
-  ingressId?: string;
-  name?: string;
-  roomName?: string;
-  participantIdentity?: string;
-  participantName?: string;
+  ingressId: string;
+  name: string;
+  roomName: string;
+  participantIdentity: string;
+  participantName: string;
   audio?: IngressAudioOptions;
   video?: IngressVideoOptions;
 }
 
 export interface ListIngressRequest {
   /** when blank, lists all ingress endpoints */
-  roomName?: string;
+  roomName: string;
 }
 
 export interface ListIngressResponse {
-  items?: IngressInfo[];
+  items: IngressInfo[];
 }
 
 export interface DeleteIngressRequest {
-  ingressId?: string;
+  ingressId: string;
 }
 
 function createBaseCreateIngressRequest(): CreateIngressRequest {
@@ -207,19 +207,19 @@ function createBaseCreateIngressRequest(): CreateIngressRequest {
 
 export const CreateIngressRequest = {
   encode(message: CreateIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.inputType !== undefined && message.inputType !== 0) {
+    if (message.inputType !== 0) {
       writer.uint32(8).int32(message.inputType);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
-    if (message.roomName !== undefined && message.roomName !== '') {
+    if (message.roomName !== '') {
       writer.uint32(26).string(message.roomName);
     }
-    if (message.participantIdentity !== undefined && message.participantIdentity !== '') {
+    if (message.participantIdentity !== '') {
       writer.uint32(34).string(message.participantIdentity);
     }
-    if (message.participantName !== undefined && message.participantName !== '') {
+    if (message.participantName !== '') {
       writer.uint32(42).string(message.participantName);
     }
     if (message.audio !== undefined) {
@@ -323,22 +323,22 @@ function createBaseIngressAudioOptions(): IngressAudioOptions {
 
 export const IngressAudioOptions = {
   encode(message: IngressAudioOptions, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
-    if (message.source !== undefined && message.source !== 0) {
+    if (message.source !== 0) {
       writer.uint32(16).int32(message.source);
     }
-    if (message.mimeType !== undefined && message.mimeType !== '') {
+    if (message.mimeType !== '') {
       writer.uint32(26).string(message.mimeType);
     }
-    if (message.bitrate !== undefined && message.bitrate !== 0) {
+    if (message.bitrate !== 0) {
       writer.uint32(32).uint32(message.bitrate);
     }
     if (message.disableDtx === true) {
       writer.uint32(40).bool(message.disableDtx);
     }
-    if (message.channels !== undefined && message.channels !== 0) {
+    if (message.channels !== 0) {
       writer.uint32(48).uint32(message.channels);
     }
     return writer;
@@ -419,19 +419,17 @@ function createBaseIngressVideoOptions(): IngressVideoOptions {
 
 export const IngressVideoOptions = {
   encode(message: IngressVideoOptions, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
-    if (message.source !== undefined && message.source !== 0) {
+    if (message.source !== 0) {
       writer.uint32(16).int32(message.source);
     }
-    if (message.mimeType !== undefined && message.mimeType !== '') {
+    if (message.mimeType !== '') {
       writer.uint32(26).string(message.mimeType);
     }
-    if (message.layers !== undefined && message.layers.length !== 0) {
-      for (const v of message.layers) {
-        VideoLayer.encode(v!, writer.uint32(34).fork()).ldelim();
-      }
+    for (const v of message.layers) {
+      VideoLayer.encode(v!, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -453,7 +451,7 @@ export const IngressVideoOptions = {
           message.mimeType = reader.string();
           break;
         case 4:
-          message.layers!.push(VideoLayer.decode(reader, reader.uint32()));
+          message.layers.push(VideoLayer.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -518,19 +516,19 @@ function createBaseIngressInfo(): IngressInfo {
 
 export const IngressInfo = {
   encode(message: IngressInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.ingressId !== undefined && message.ingressId !== '') {
+    if (message.ingressId !== '') {
       writer.uint32(10).string(message.ingressId);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
-    if (message.streamKey !== undefined && message.streamKey !== '') {
+    if (message.streamKey !== '') {
       writer.uint32(26).string(message.streamKey);
     }
-    if (message.url !== undefined && message.url !== '') {
+    if (message.url !== '') {
       writer.uint32(34).string(message.url);
     }
-    if (message.inputType !== undefined && message.inputType !== 0) {
+    if (message.inputType !== 0) {
       writer.uint32(40).int32(message.inputType);
     }
     if (message.audio !== undefined) {
@@ -539,13 +537,13 @@ export const IngressInfo = {
     if (message.video !== undefined) {
       IngressVideoOptions.encode(message.video, writer.uint32(58).fork()).ldelim();
     }
-    if (message.roomName !== undefined && message.roomName !== '') {
+    if (message.roomName !== '') {
       writer.uint32(66).string(message.roomName);
     }
-    if (message.participantIdentity !== undefined && message.participantIdentity !== '') {
+    if (message.participantIdentity !== '') {
       writer.uint32(74).string(message.participantIdentity);
     }
-    if (message.participantName !== undefined && message.participantName !== '') {
+    if (message.participantName !== '') {
       writer.uint32(82).string(message.participantName);
     }
     if (message.reusable === true) {
@@ -689,10 +687,10 @@ function createBaseIngressState(): IngressState {
 
 export const IngressState = {
   encode(message: IngressState, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.status !== undefined && message.status !== 0) {
+    if (message.status !== 0) {
       writer.uint32(8).int32(message.status);
     }
-    if (message.error !== undefined && message.error !== '') {
+    if (message.error !== '') {
       writer.uint32(18).string(message.error);
     }
     if (message.video !== undefined) {
@@ -701,16 +699,14 @@ export const IngressState = {
     if (message.audio !== undefined) {
       InputAudioState.encode(message.audio, writer.uint32(34).fork()).ldelim();
     }
-    if (message.roomId !== undefined && message.roomId !== '') {
+    if (message.roomId !== '') {
       writer.uint32(42).string(message.roomId);
     }
-    if (message.startedAt !== undefined && message.startedAt !== 0) {
+    if (message.startedAt !== 0) {
       writer.uint32(56).int64(message.startedAt);
     }
-    if (message.tracks !== undefined && message.tracks.length !== 0) {
-      for (const v of message.tracks) {
-        TrackInfo.encode(v!, writer.uint32(50).fork()).ldelim();
-      }
+    for (const v of message.tracks) {
+      TrackInfo.encode(v!, writer.uint32(50).fork()).ldelim();
     }
     return writer;
   },
@@ -741,7 +737,7 @@ export const IngressState = {
           message.startedAt = longToNumber(reader.int64() as Long);
           break;
         case 6:
-          message.tracks!.push(TrackInfo.decode(reader, reader.uint32()));
+          message.tracks.push(TrackInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -808,16 +804,16 @@ function createBaseInputVideoState(): InputVideoState {
 
 export const InputVideoState = {
   encode(message: InputVideoState, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mimeType !== undefined && message.mimeType !== 0) {
+    if (message.mimeType !== 0) {
       writer.uint32(8).uint32(message.mimeType);
     }
-    if (message.width !== undefined && message.width !== 0) {
+    if (message.width !== 0) {
       writer.uint32(24).uint32(message.width);
     }
-    if (message.height !== undefined && message.height !== 0) {
+    if (message.height !== 0) {
       writer.uint32(32).uint32(message.height);
     }
-    if (message.framerate !== undefined && message.framerate !== 0) {
+    if (message.framerate !== 0) {
       writer.uint32(40).uint32(message.framerate);
     }
     return writer;
@@ -884,13 +880,13 @@ function createBaseInputAudioState(): InputAudioState {
 
 export const InputAudioState = {
   encode(message: InputAudioState, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mimeType !== undefined && message.mimeType !== 0) {
+    if (message.mimeType !== 0) {
       writer.uint32(8).uint32(message.mimeType);
     }
-    if (message.channels !== undefined && message.channels !== 0) {
+    if (message.channels !== 0) {
       writer.uint32(24).uint32(message.channels);
     }
-    if (message.sampleRate !== undefined && message.sampleRate !== 0) {
+    if (message.sampleRate !== 0) {
       writer.uint32(32).uint32(message.sampleRate);
     }
     return writer;
@@ -959,19 +955,19 @@ function createBaseUpdateIngressRequest(): UpdateIngressRequest {
 
 export const UpdateIngressRequest = {
   encode(message: UpdateIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.ingressId !== undefined && message.ingressId !== '') {
+    if (message.ingressId !== '') {
       writer.uint32(10).string(message.ingressId);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
-    if (message.roomName !== undefined && message.roomName !== '') {
+    if (message.roomName !== '') {
       writer.uint32(26).string(message.roomName);
     }
-    if (message.participantIdentity !== undefined && message.participantIdentity !== '') {
+    if (message.participantIdentity !== '') {
       writer.uint32(34).string(message.participantIdentity);
     }
-    if (message.participantName !== undefined && message.participantName !== '') {
+    if (message.participantName !== '') {
       writer.uint32(42).string(message.participantName);
     }
     if (message.audio !== undefined) {
@@ -1075,7 +1071,7 @@ function createBaseListIngressRequest(): ListIngressRequest {
 
 export const ListIngressRequest = {
   encode(message: ListIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.roomName !== undefined && message.roomName !== '') {
+    if (message.roomName !== '') {
       writer.uint32(10).string(message.roomName);
     }
     return writer;
@@ -1124,10 +1120,8 @@ function createBaseListIngressResponse(): ListIngressResponse {
 
 export const ListIngressResponse = {
   encode(message: ListIngressResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.items !== undefined && message.items.length !== 0) {
-      for (const v of message.items) {
-        IngressInfo.encode(v!, writer.uint32(10).fork()).ldelim();
-      }
+    for (const v of message.items) {
+      IngressInfo.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -1140,7 +1134,7 @@ export const ListIngressResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.items!.push(IngressInfo.decode(reader, reader.uint32()));
+          message.items.push(IngressInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1183,7 +1177,7 @@ function createBaseDeleteIngressRequest(): DeleteIngressRequest {
 
 export const DeleteIngressRequest = {
   encode(message: DeleteIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.ingressId !== undefined && message.ingressId !== '') {
+    if (message.ingressId !== '') {
       writer.uint32(10).string(message.ingressId);
     }
     return writer;

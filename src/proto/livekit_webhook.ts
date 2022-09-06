@@ -12,7 +12,7 @@ export interface WebhookEvent {
    * one of room_started, room_finished, participant_joined, participant_left,
    * track_published, track_unpublished, egress_started, egress_updated, egress_ended, ingress_started, ingress_ended
    */
-  event?: string;
+  event: string;
   room?: Room;
   /** set when event is participant_* or track_* */
   participant?: ParticipantInfo;
@@ -23,9 +23,9 @@ export interface WebhookEvent {
   /** set when event is track_* */
   track?: TrackInfo;
   /** unique event uuid */
-  id?: string;
+  id: string;
   /** timestamp in seconds */
-  createdAt?: number;
+  createdAt: number;
 }
 
 function createBaseWebhookEvent(): WebhookEvent {
@@ -43,7 +43,7 @@ function createBaseWebhookEvent(): WebhookEvent {
 
 export const WebhookEvent = {
   encode(message: WebhookEvent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.event !== undefined && message.event !== '') {
+    if (message.event !== '') {
       writer.uint32(10).string(message.event);
     }
     if (message.room !== undefined) {
@@ -61,10 +61,10 @@ export const WebhookEvent = {
     if (message.track !== undefined) {
       TrackInfo.encode(message.track, writer.uint32(66).fork()).ldelim();
     }
-    if (message.id !== undefined && message.id !== '') {
+    if (message.id !== '') {
       writer.uint32(50).string(message.id);
     }
-    if (message.createdAt !== undefined && message.createdAt !== 0) {
+    if (message.createdAt !== 0) {
       writer.uint32(56).int64(message.createdAt);
     }
     return writer;

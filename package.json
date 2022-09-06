@@ -11,7 +11,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
-    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true,useOptionals=all,outputClientImpl=false --ts_proto_out=./src/proto -I./protocol ./protocol/livekit_egress.proto ./protocol/livekit_room.proto ./protocol/livekit_webhook.proto",
+    "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true,useOptionals=messages,outputClientImpl=false --ts_proto_out=./src/proto -I./protocol ./protocol/livekit_egress.proto ./protocol/livekit_room.proto ./protocol/livekit_webhook.proto",
     "lint": "eslint .",
     "format": "prettier --write src",
     "format:check": "prettier --check src",

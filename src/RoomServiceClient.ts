@@ -103,7 +103,7 @@ export class RoomServiceClient {
       this.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
-    return res.rooms ?? [];
+    return res.rooms;
   }
 
   async deleteRoom(room: string): Promise<void> {
@@ -142,7 +142,7 @@ export class RoomServiceClient {
       this.authHeader({ roomAdmin: true, room }),
     );
     const res = ListParticipantsResponse.fromJSON(data);
-    return res.participants ?? [];
+    return res.participants;
   }
 
   /**

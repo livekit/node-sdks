@@ -282,53 +282,53 @@ export function disconnectReasonToJSON(object: DisconnectReason): string {
 }
 
 export interface Room {
-  sid?: string;
-  name?: string;
-  emptyTimeout?: number;
-  maxParticipants?: number;
-  creationTime?: number;
-  turnPassword?: string;
-  enabledCodecs?: Codec[];
-  metadata?: string;
-  numParticipants?: number;
-  activeRecording?: boolean;
+  sid: string;
+  name: string;
+  emptyTimeout: number;
+  maxParticipants: number;
+  creationTime: number;
+  turnPassword: string;
+  enabledCodecs: Codec[];
+  metadata: string;
+  numParticipants: number;
+  activeRecording: boolean;
 }
 
 export interface Codec {
-  mime?: string;
-  fmtpLine?: string;
+  mime: string;
+  fmtpLine: string;
 }
 
 export interface ParticipantPermission {
   /** allow participant to subscribe to other tracks in the room */
-  canSubscribe?: boolean;
+  canSubscribe: boolean;
   /** allow participant to publish new tracks to room */
-  canPublish?: boolean;
+  canPublish: boolean;
   /** allow participant to publish data */
-  canPublishData?: boolean;
+  canPublishData: boolean;
   /** indicates that it's hidden to others */
-  hidden?: boolean;
+  hidden: boolean;
   /** indicates it's a recorder instance */
-  recorder?: boolean;
+  recorder: boolean;
 }
 
 export interface ParticipantInfo {
-  sid?: string;
-  identity?: string;
-  state?: ParticipantInfo_State;
-  tracks?: TrackInfo[];
-  metadata?: string;
+  sid: string;
+  identity: string;
+  state: ParticipantInfo_State;
+  tracks: TrackInfo[];
+  metadata: string;
   /** timestamp when participant joined room, in seconds */
-  joinedAt?: number;
-  name?: string;
-  version?: number;
+  joinedAt: number;
+  name: string;
+  version: number;
   permission?: ParticipantPermission;
-  region?: string;
+  region: string;
   /**
    * indicates the participant has an active publisher connection
    * and can publish to the server
    */
-  isPublisher?: boolean;
+  isPublisher: boolean;
 }
 
 export enum ParticipantInfo_State {
@@ -380,51 +380,51 @@ export function participantInfo_StateToJSON(object: ParticipantInfo_State): stri
 }
 
 export interface SimulcastCodecInfo {
-  mimeType?: string;
-  mid?: string;
-  cid?: string;
-  layers?: VideoLayer[];
+  mimeType: string;
+  mid: string;
+  cid: string;
+  layers: VideoLayer[];
 }
 
 export interface TrackInfo {
-  sid?: string;
-  type?: TrackType;
-  name?: string;
-  muted?: boolean;
+  sid: string;
+  type: TrackType;
+  name: string;
+  muted: boolean;
   /**
    * original width of video (unset for audio)
    * clients may receive a lower resolution version with simulcast
    */
-  width?: number;
+  width: number;
   /** original height of video (unset for audio) */
-  height?: number;
+  height: number;
   /** true if track is simulcasted */
-  simulcast?: boolean;
+  simulcast: boolean;
   /** true if DTX (Discontinuous Transmission) is disabled for audio */
-  disableDtx?: boolean;
+  disableDtx: boolean;
   /** source of media */
-  source?: TrackSource;
-  layers?: VideoLayer[];
+  source: TrackSource;
+  layers: VideoLayer[];
   /** mime type of codec */
-  mimeType?: string;
-  mid?: string;
-  codecs?: SimulcastCodecInfo[];
+  mimeType: string;
+  mid: string;
+  codecs: SimulcastCodecInfo[];
 }
 
 /** provide information about available spatial layers */
 export interface VideoLayer {
   /** for tracks with a single layer, this should be HIGH */
-  quality?: VideoQuality;
-  width?: number;
-  height?: number;
+  quality: VideoQuality;
+  width: number;
+  height: number;
   /** target bitrate, server will measure actual */
-  bitrate?: number;
-  ssrc?: number;
+  bitrate: number;
+  ssrc: number;
 }
 
 /** new DataPacket API */
 export interface DataPacket {
-  kind?: DataPacket_Kind;
+  kind: DataPacket_Kind;
   user?: UserPacket | undefined;
   speaker?: ActiveSpeakerUpdate | undefined;
 }
@@ -462,41 +462,41 @@ export function dataPacket_KindToJSON(object: DataPacket_Kind): string {
 }
 
 export interface ActiveSpeakerUpdate {
-  speakers?: SpeakerInfo[];
+  speakers: SpeakerInfo[];
 }
 
 export interface SpeakerInfo {
-  sid?: string;
+  sid: string;
   /** audio level, 0-1.0, 1 is loudest */
-  level?: number;
+  level: number;
   /** true if speaker is currently active */
-  active?: boolean;
+  active: boolean;
 }
 
 export interface UserPacket {
   /** participant ID of user that sent the message */
-  participantSid?: string;
+  participantSid: string;
   /** user defined payload */
-  payload?: Uint8Array;
+  payload: Uint8Array;
   /** the ID of the participants who will receive the message (the message will be sent to all the people in the room if this variable is empty) */
-  destinationSids?: string[];
+  destinationSids: string[];
 }
 
 export interface ParticipantTracks {
   /** participant ID of participant to whom the tracks belong */
-  participantSid?: string;
-  trackSids?: string[];
+  participantSid: string;
+  trackSids: string[];
 }
 
 /** details about the server */
 export interface ServerInfo {
-  edition?: ServerInfo_Edition;
-  version?: string;
-  protocol?: number;
-  region?: string;
-  nodeId?: string;
+  edition: ServerInfo_Edition;
+  version: string;
+  protocol: number;
+  region: string;
+  nodeId: string;
   /** additional debugging information. sent only if server is in development mode */
-  debugInfo?: string;
+  debugInfo: string;
 }
 
 export enum ServerInfo_Edition {
@@ -533,17 +533,17 @@ export function serverInfo_EditionToJSON(object: ServerInfo_Edition): string {
 
 /** details about the client */
 export interface ClientInfo {
-  sdk?: ClientInfo_SDK;
-  version?: string;
-  protocol?: number;
-  os?: string;
-  osVersion?: string;
-  deviceModel?: string;
-  browser?: string;
-  browserVersion?: string;
-  address?: string;
+  sdk: ClientInfo_SDK;
+  version: string;
+  protocol: number;
+  os: string;
+  osVersion: string;
+  deviceModel: string;
+  browser: string;
+  browserVersion: string;
+  address: string;
   /** wifi, wired, cellular, vpn, empty if not known */
-  network?: string;
+  network: string;
 }
 
 export enum ClientInfo_SDK {
@@ -612,60 +612,60 @@ export function clientInfo_SDKToJSON(object: ClientInfo_SDK): string {
 export interface ClientConfiguration {
   video?: VideoConfiguration;
   screen?: VideoConfiguration;
-  resumeConnection?: ClientConfigSetting;
+  resumeConnection: ClientConfigSetting;
   disabledCodecs?: DisabledCodecs;
-  forceRelay?: ClientConfigSetting;
+  forceRelay: ClientConfigSetting;
 }
 
 export interface VideoConfiguration {
-  hardwareEncoder?: ClientConfigSetting;
+  hardwareEncoder: ClientConfigSetting;
 }
 
 export interface DisabledCodecs {
-  codecs?: Codec[];
+  codecs: Codec[];
 }
 
 export interface RTPStats {
   startTime?: Date;
   endTime?: Date;
-  duration?: number;
-  packets?: number;
-  packetRate?: number;
-  bytes?: number;
-  headerBytes?: number;
-  bitrate?: number;
-  packetsLost?: number;
-  packetLossRate?: number;
-  packetLossPercentage?: number;
-  packetsDuplicate?: number;
-  packetDuplicateRate?: number;
-  bytesDuplicate?: number;
-  headerBytesDuplicate?: number;
-  bitrateDuplicate?: number;
-  packetsPadding?: number;
-  packetPaddingRate?: number;
-  bytesPadding?: number;
-  headerBytesPadding?: number;
-  bitratePadding?: number;
-  packetsOutOfOrder?: number;
-  frames?: number;
-  frameRate?: number;
-  jitterCurrent?: number;
-  jitterMax?: number;
-  gapHistogram?: { [key: number]: number };
-  nacks?: number;
-  nackAcks?: number;
-  nackMisses?: number;
-  nackRepeated?: number;
-  plis?: number;
+  duration: number;
+  packets: number;
+  packetRate: number;
+  bytes: number;
+  headerBytes: number;
+  bitrate: number;
+  packetsLost: number;
+  packetLossRate: number;
+  packetLossPercentage: number;
+  packetsDuplicate: number;
+  packetDuplicateRate: number;
+  bytesDuplicate: number;
+  headerBytesDuplicate: number;
+  bitrateDuplicate: number;
+  packetsPadding: number;
+  packetPaddingRate: number;
+  bytesPadding: number;
+  headerBytesPadding: number;
+  bitratePadding: number;
+  packetsOutOfOrder: number;
+  frames: number;
+  frameRate: number;
+  jitterCurrent: number;
+  jitterMax: number;
+  gapHistogram: { [key: number]: number };
+  nacks: number;
+  nackAcks: number;
+  nackMisses: number;
+  nackRepeated: number;
+  plis: number;
   lastPli?: Date;
-  firs?: number;
+  firs: number;
   lastFir?: Date;
-  rttCurrent?: number;
-  rttMax?: number;
-  keyFrames?: number;
+  rttCurrent: number;
+  rttMax: number;
+  keyFrames: number;
   lastKeyFrame?: Date;
-  layerLockPlis?: number;
+  layerLockPlis: number;
   lastLayerLockPli?: Date;
 }
 
@@ -675,8 +675,8 @@ export interface RTPStats_GapHistogramEntry {
 }
 
 export interface TimedVersion {
-  unixMicro?: number;
-  ticks?: number;
+  unixMicro: number;
+  ticks: number;
 }
 
 function createBaseRoom(): Room {
@@ -696,33 +696,31 @@ function createBaseRoom(): Room {
 
 export const Room = {
   encode(message: Room, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== undefined && message.sid !== '') {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
-    if (message.emptyTimeout !== undefined && message.emptyTimeout !== 0) {
+    if (message.emptyTimeout !== 0) {
       writer.uint32(24).uint32(message.emptyTimeout);
     }
-    if (message.maxParticipants !== undefined && message.maxParticipants !== 0) {
+    if (message.maxParticipants !== 0) {
       writer.uint32(32).uint32(message.maxParticipants);
     }
-    if (message.creationTime !== undefined && message.creationTime !== 0) {
+    if (message.creationTime !== 0) {
       writer.uint32(40).int64(message.creationTime);
     }
-    if (message.turnPassword !== undefined && message.turnPassword !== '') {
+    if (message.turnPassword !== '') {
       writer.uint32(50).string(message.turnPassword);
     }
-    if (message.enabledCodecs !== undefined && message.enabledCodecs.length !== 0) {
-      for (const v of message.enabledCodecs) {
-        Codec.encode(v!, writer.uint32(58).fork()).ldelim();
-      }
+    for (const v of message.enabledCodecs) {
+      Codec.encode(v!, writer.uint32(58).fork()).ldelim();
     }
-    if (message.metadata !== undefined && message.metadata !== '') {
+    if (message.metadata !== '') {
       writer.uint32(66).string(message.metadata);
     }
-    if (message.numParticipants !== undefined && message.numParticipants !== 0) {
+    if (message.numParticipants !== 0) {
       writer.uint32(72).uint32(message.numParticipants);
     }
     if (message.activeRecording === true) {
@@ -757,7 +755,7 @@ export const Room = {
           message.turnPassword = reader.string();
           break;
         case 7:
-          message.enabledCodecs!.push(Codec.decode(reader, reader.uint32()));
+          message.enabledCodecs.push(Codec.decode(reader, reader.uint32()));
           break;
         case 8:
           message.metadata = reader.string();
@@ -836,10 +834,10 @@ function createBaseCodec(): Codec {
 
 export const Codec = {
   encode(message: Codec, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mime !== undefined && message.mime !== '') {
+    if (message.mime !== '') {
       writer.uint32(10).string(message.mime);
     }
-    if (message.fmtpLine !== undefined && message.fmtpLine !== '') {
+    if (message.fmtpLine !== '') {
       writer.uint32(18).string(message.fmtpLine);
     }
     return writer;
@@ -999,36 +997,34 @@ function createBaseParticipantInfo(): ParticipantInfo {
 
 export const ParticipantInfo = {
   encode(message: ParticipantInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== undefined && message.sid !== '') {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.identity !== undefined && message.identity !== '') {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
-    if (message.state !== undefined && message.state !== 0) {
+    if (message.state !== 0) {
       writer.uint32(24).int32(message.state);
     }
-    if (message.tracks !== undefined && message.tracks.length !== 0) {
-      for (const v of message.tracks) {
-        TrackInfo.encode(v!, writer.uint32(34).fork()).ldelim();
-      }
+    for (const v of message.tracks) {
+      TrackInfo.encode(v!, writer.uint32(34).fork()).ldelim();
     }
-    if (message.metadata !== undefined && message.metadata !== '') {
+    if (message.metadata !== '') {
       writer.uint32(42).string(message.metadata);
     }
-    if (message.joinedAt !== undefined && message.joinedAt !== 0) {
+    if (message.joinedAt !== 0) {
       writer.uint32(48).int64(message.joinedAt);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(74).string(message.name);
     }
-    if (message.version !== undefined && message.version !== 0) {
+    if (message.version !== 0) {
       writer.uint32(80).uint32(message.version);
     }
     if (message.permission !== undefined) {
       ParticipantPermission.encode(message.permission, writer.uint32(90).fork()).ldelim();
     }
-    if (message.region !== undefined && message.region !== '') {
+    if (message.region !== '') {
       writer.uint32(98).string(message.region);
     }
     if (message.isPublisher === true) {
@@ -1054,7 +1050,7 @@ export const ParticipantInfo = {
           message.state = reader.int32() as any;
           break;
         case 4:
-          message.tracks!.push(TrackInfo.decode(reader, reader.uint32()));
+          message.tracks.push(TrackInfo.decode(reader, reader.uint32()));
           break;
         case 5:
           message.metadata = reader.string();
@@ -1154,19 +1150,17 @@ function createBaseSimulcastCodecInfo(): SimulcastCodecInfo {
 
 export const SimulcastCodecInfo = {
   encode(message: SimulcastCodecInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mimeType !== undefined && message.mimeType !== '') {
+    if (message.mimeType !== '') {
       writer.uint32(10).string(message.mimeType);
     }
-    if (message.mid !== undefined && message.mid !== '') {
+    if (message.mid !== '') {
       writer.uint32(18).string(message.mid);
     }
-    if (message.cid !== undefined && message.cid !== '') {
+    if (message.cid !== '') {
       writer.uint32(26).string(message.cid);
     }
-    if (message.layers !== undefined && message.layers.length !== 0) {
-      for (const v of message.layers) {
-        VideoLayer.encode(v!, writer.uint32(34).fork()).ldelim();
-      }
+    for (const v of message.layers) {
+      VideoLayer.encode(v!, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -1188,7 +1182,7 @@ export const SimulcastCodecInfo = {
           message.cid = reader.string();
           break;
         case 4:
-          message.layers!.push(VideoLayer.decode(reader, reader.uint32()));
+          message.layers.push(VideoLayer.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1252,22 +1246,22 @@ function createBaseTrackInfo(): TrackInfo {
 
 export const TrackInfo = {
   encode(message: TrackInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== undefined && message.sid !== '') {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.type !== undefined && message.type !== 0) {
+    if (message.type !== 0) {
       writer.uint32(16).int32(message.type);
     }
-    if (message.name !== undefined && message.name !== '') {
+    if (message.name !== '') {
       writer.uint32(26).string(message.name);
     }
     if (message.muted === true) {
       writer.uint32(32).bool(message.muted);
     }
-    if (message.width !== undefined && message.width !== 0) {
+    if (message.width !== 0) {
       writer.uint32(40).uint32(message.width);
     }
-    if (message.height !== undefined && message.height !== 0) {
+    if (message.height !== 0) {
       writer.uint32(48).uint32(message.height);
     }
     if (message.simulcast === true) {
@@ -1276,24 +1270,20 @@ export const TrackInfo = {
     if (message.disableDtx === true) {
       writer.uint32(64).bool(message.disableDtx);
     }
-    if (message.source !== undefined && message.source !== 0) {
+    if (message.source !== 0) {
       writer.uint32(72).int32(message.source);
     }
-    if (message.layers !== undefined && message.layers.length !== 0) {
-      for (const v of message.layers) {
-        VideoLayer.encode(v!, writer.uint32(82).fork()).ldelim();
-      }
+    for (const v of message.layers) {
+      VideoLayer.encode(v!, writer.uint32(82).fork()).ldelim();
     }
-    if (message.mimeType !== undefined && message.mimeType !== '') {
+    if (message.mimeType !== '') {
       writer.uint32(90).string(message.mimeType);
     }
-    if (message.mid !== undefined && message.mid !== '') {
+    if (message.mid !== '') {
       writer.uint32(98).string(message.mid);
     }
-    if (message.codecs !== undefined && message.codecs.length !== 0) {
-      for (const v of message.codecs) {
-        SimulcastCodecInfo.encode(v!, writer.uint32(106).fork()).ldelim();
-      }
+    for (const v of message.codecs) {
+      SimulcastCodecInfo.encode(v!, writer.uint32(106).fork()).ldelim();
     }
     return writer;
   },
@@ -1333,7 +1323,7 @@ export const TrackInfo = {
           message.source = reader.int32() as any;
           break;
         case 10:
-          message.layers!.push(VideoLayer.decode(reader, reader.uint32()));
+          message.layers.push(VideoLayer.decode(reader, reader.uint32()));
           break;
         case 11:
           message.mimeType = reader.string();
@@ -1342,7 +1332,7 @@ export const TrackInfo = {
           message.mid = reader.string();
           break;
         case 13:
-          message.codecs!.push(SimulcastCodecInfo.decode(reader, reader.uint32()));
+          message.codecs.push(SimulcastCodecInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1425,19 +1415,19 @@ function createBaseVideoLayer(): VideoLayer {
 
 export const VideoLayer = {
   encode(message: VideoLayer, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.quality !== undefined && message.quality !== 0) {
+    if (message.quality !== 0) {
       writer.uint32(8).int32(message.quality);
     }
-    if (message.width !== undefined && message.width !== 0) {
+    if (message.width !== 0) {
       writer.uint32(16).uint32(message.width);
     }
-    if (message.height !== undefined && message.height !== 0) {
+    if (message.height !== 0) {
       writer.uint32(24).uint32(message.height);
     }
-    if (message.bitrate !== undefined && message.bitrate !== 0) {
+    if (message.bitrate !== 0) {
       writer.uint32(32).uint32(message.bitrate);
     }
-    if (message.ssrc !== undefined && message.ssrc !== 0) {
+    if (message.ssrc !== 0) {
       writer.uint32(40).uint32(message.ssrc);
     }
     return writer;
@@ -1510,7 +1500,7 @@ function createBaseDataPacket(): DataPacket {
 
 export const DataPacket = {
   encode(message: DataPacket, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.kind !== undefined && message.kind !== 0) {
+    if (message.kind !== 0) {
       writer.uint32(8).int32(message.kind);
     }
     if (message.user !== undefined) {
@@ -1585,10 +1575,8 @@ function createBaseActiveSpeakerUpdate(): ActiveSpeakerUpdate {
 
 export const ActiveSpeakerUpdate = {
   encode(message: ActiveSpeakerUpdate, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.speakers !== undefined && message.speakers.length !== 0) {
-      for (const v of message.speakers) {
-        SpeakerInfo.encode(v!, writer.uint32(10).fork()).ldelim();
-      }
+    for (const v of message.speakers) {
+      SpeakerInfo.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -1601,7 +1589,7 @@ export const ActiveSpeakerUpdate = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.speakers!.push(SpeakerInfo.decode(reader, reader.uint32()));
+          message.speakers.push(SpeakerInfo.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1644,10 +1632,10 @@ function createBaseSpeakerInfo(): SpeakerInfo {
 
 export const SpeakerInfo = {
   encode(message: SpeakerInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== undefined && message.sid !== '') {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.level !== undefined && message.level !== 0) {
+    if (message.level !== 0) {
       writer.uint32(21).float(message.level);
     }
     if (message.active === true) {
@@ -1711,16 +1699,14 @@ function createBaseUserPacket(): UserPacket {
 
 export const UserPacket = {
   encode(message: UserPacket, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.participantSid !== undefined && message.participantSid !== '') {
+    if (message.participantSid !== '') {
       writer.uint32(10).string(message.participantSid);
     }
-    if (message.payload !== undefined && message.payload.length !== 0) {
+    if (message.payload.length !== 0) {
       writer.uint32(18).bytes(message.payload);
     }
-    if (message.destinationSids !== undefined && message.destinationSids.length !== 0) {
-      for (const v of message.destinationSids) {
-        writer.uint32(26).string(v!);
-      }
+    for (const v of message.destinationSids) {
+      writer.uint32(26).string(v!);
     }
     return writer;
   },
@@ -1739,7 +1725,7 @@ export const UserPacket = {
           message.payload = reader.bytes();
           break;
         case 3:
-          message.destinationSids!.push(reader.string());
+          message.destinationSids.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1789,13 +1775,11 @@ function createBaseParticipantTracks(): ParticipantTracks {
 
 export const ParticipantTracks = {
   encode(message: ParticipantTracks, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.participantSid !== undefined && message.participantSid !== '') {
+    if (message.participantSid !== '') {
       writer.uint32(10).string(message.participantSid);
     }
-    if (message.trackSids !== undefined && message.trackSids.length !== 0) {
-      for (const v of message.trackSids) {
-        writer.uint32(18).string(v!);
-      }
+    for (const v of message.trackSids) {
+      writer.uint32(18).string(v!);
     }
     return writer;
   },
@@ -1811,7 +1795,7 @@ export const ParticipantTracks = {
           message.participantSid = reader.string();
           break;
         case 2:
-          message.trackSids!.push(reader.string());
+          message.trackSids.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1855,22 +1839,22 @@ function createBaseServerInfo(): ServerInfo {
 
 export const ServerInfo = {
   encode(message: ServerInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.edition !== undefined && message.edition !== 0) {
+    if (message.edition !== 0) {
       writer.uint32(8).int32(message.edition);
     }
-    if (message.version !== undefined && message.version !== '') {
+    if (message.version !== '') {
       writer.uint32(18).string(message.version);
     }
-    if (message.protocol !== undefined && message.protocol !== 0) {
+    if (message.protocol !== 0) {
       writer.uint32(24).int32(message.protocol);
     }
-    if (message.region !== undefined && message.region !== '') {
+    if (message.region !== '') {
       writer.uint32(34).string(message.region);
     }
-    if (message.nodeId !== undefined && message.nodeId !== '') {
+    if (message.nodeId !== '') {
       writer.uint32(42).string(message.nodeId);
     }
-    if (message.debugInfo !== undefined && message.debugInfo !== '') {
+    if (message.debugInfo !== '') {
       writer.uint32(50).string(message.debugInfo);
     }
     return writer;
@@ -1960,34 +1944,34 @@ function createBaseClientInfo(): ClientInfo {
 
 export const ClientInfo = {
   encode(message: ClientInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sdk !== undefined && message.sdk !== 0) {
+    if (message.sdk !== 0) {
       writer.uint32(8).int32(message.sdk);
     }
-    if (message.version !== undefined && message.version !== '') {
+    if (message.version !== '') {
       writer.uint32(18).string(message.version);
     }
-    if (message.protocol !== undefined && message.protocol !== 0) {
+    if (message.protocol !== 0) {
       writer.uint32(24).int32(message.protocol);
     }
-    if (message.os !== undefined && message.os !== '') {
+    if (message.os !== '') {
       writer.uint32(34).string(message.os);
     }
-    if (message.osVersion !== undefined && message.osVersion !== '') {
+    if (message.osVersion !== '') {
       writer.uint32(42).string(message.osVersion);
     }
-    if (message.deviceModel !== undefined && message.deviceModel !== '') {
+    if (message.deviceModel !== '') {
       writer.uint32(50).string(message.deviceModel);
     }
-    if (message.browser !== undefined && message.browser !== '') {
+    if (message.browser !== '') {
       writer.uint32(58).string(message.browser);
     }
-    if (message.browserVersion !== undefined && message.browserVersion !== '') {
+    if (message.browserVersion !== '') {
       writer.uint32(66).string(message.browserVersion);
     }
-    if (message.address !== undefined && message.address !== '') {
+    if (message.address !== '') {
       writer.uint32(74).string(message.address);
     }
-    if (message.network !== undefined && message.network !== '') {
+    if (message.network !== '') {
       writer.uint32(82).string(message.network);
     }
     return writer;
@@ -2102,13 +2086,13 @@ export const ClientConfiguration = {
     if (message.screen !== undefined) {
       VideoConfiguration.encode(message.screen, writer.uint32(18).fork()).ldelim();
     }
-    if (message.resumeConnection !== undefined && message.resumeConnection !== 0) {
+    if (message.resumeConnection !== 0) {
       writer.uint32(24).int32(message.resumeConnection);
     }
     if (message.disabledCodecs !== undefined) {
       DisabledCodecs.encode(message.disabledCodecs, writer.uint32(34).fork()).ldelim();
     }
-    if (message.forceRelay !== undefined && message.forceRelay !== 0) {
+    if (message.forceRelay !== 0) {
       writer.uint32(40).int32(message.forceRelay);
     }
     return writer;
@@ -2203,7 +2187,7 @@ function createBaseVideoConfiguration(): VideoConfiguration {
 
 export const VideoConfiguration = {
   encode(message: VideoConfiguration, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.hardwareEncoder !== undefined && message.hardwareEncoder !== 0) {
+    if (message.hardwareEncoder !== 0) {
       writer.uint32(8).int32(message.hardwareEncoder);
     }
     return writer;
@@ -2255,10 +2239,8 @@ function createBaseDisabledCodecs(): DisabledCodecs {
 
 export const DisabledCodecs = {
   encode(message: DisabledCodecs, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.codecs !== undefined && message.codecs.length !== 0) {
-      for (const v of message.codecs) {
-        Codec.encode(v!, writer.uint32(10).fork()).ldelim();
-      }
+    for (const v of message.codecs) {
+      Codec.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -2271,7 +2253,7 @@ export const DisabledCodecs = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.codecs!.push(Codec.decode(reader, reader.uint32()));
+          message.codecs.push(Codec.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -2358,121 +2340,121 @@ export const RTPStats = {
     if (message.endTime !== undefined) {
       Timestamp.encode(toTimestamp(message.endTime), writer.uint32(18).fork()).ldelim();
     }
-    if (message.duration !== undefined && message.duration !== 0) {
+    if (message.duration !== 0) {
       writer.uint32(25).double(message.duration);
     }
-    if (message.packets !== undefined && message.packets !== 0) {
+    if (message.packets !== 0) {
       writer.uint32(32).uint32(message.packets);
     }
-    if (message.packetRate !== undefined && message.packetRate !== 0) {
+    if (message.packetRate !== 0) {
       writer.uint32(41).double(message.packetRate);
     }
-    if (message.bytes !== undefined && message.bytes !== 0) {
+    if (message.bytes !== 0) {
       writer.uint32(48).uint64(message.bytes);
     }
-    if (message.headerBytes !== undefined && message.headerBytes !== 0) {
+    if (message.headerBytes !== 0) {
       writer.uint32(312).uint64(message.headerBytes);
     }
-    if (message.bitrate !== undefined && message.bitrate !== 0) {
+    if (message.bitrate !== 0) {
       writer.uint32(57).double(message.bitrate);
     }
-    if (message.packetsLost !== undefined && message.packetsLost !== 0) {
+    if (message.packetsLost !== 0) {
       writer.uint32(64).uint32(message.packetsLost);
     }
-    if (message.packetLossRate !== undefined && message.packetLossRate !== 0) {
+    if (message.packetLossRate !== 0) {
       writer.uint32(73).double(message.packetLossRate);
     }
-    if (message.packetLossPercentage !== undefined && message.packetLossPercentage !== 0) {
+    if (message.packetLossPercentage !== 0) {
       writer.uint32(85).float(message.packetLossPercentage);
     }
-    if (message.packetsDuplicate !== undefined && message.packetsDuplicate !== 0) {
+    if (message.packetsDuplicate !== 0) {
       writer.uint32(88).uint32(message.packetsDuplicate);
     }
-    if (message.packetDuplicateRate !== undefined && message.packetDuplicateRate !== 0) {
+    if (message.packetDuplicateRate !== 0) {
       writer.uint32(97).double(message.packetDuplicateRate);
     }
-    if (message.bytesDuplicate !== undefined && message.bytesDuplicate !== 0) {
+    if (message.bytesDuplicate !== 0) {
       writer.uint32(104).uint64(message.bytesDuplicate);
     }
-    if (message.headerBytesDuplicate !== undefined && message.headerBytesDuplicate !== 0) {
+    if (message.headerBytesDuplicate !== 0) {
       writer.uint32(320).uint64(message.headerBytesDuplicate);
     }
-    if (message.bitrateDuplicate !== undefined && message.bitrateDuplicate !== 0) {
+    if (message.bitrateDuplicate !== 0) {
       writer.uint32(113).double(message.bitrateDuplicate);
     }
-    if (message.packetsPadding !== undefined && message.packetsPadding !== 0) {
+    if (message.packetsPadding !== 0) {
       writer.uint32(120).uint32(message.packetsPadding);
     }
-    if (message.packetPaddingRate !== undefined && message.packetPaddingRate !== 0) {
+    if (message.packetPaddingRate !== 0) {
       writer.uint32(129).double(message.packetPaddingRate);
     }
-    if (message.bytesPadding !== undefined && message.bytesPadding !== 0) {
+    if (message.bytesPadding !== 0) {
       writer.uint32(136).uint64(message.bytesPadding);
     }
-    if (message.headerBytesPadding !== undefined && message.headerBytesPadding !== 0) {
+    if (message.headerBytesPadding !== 0) {
       writer.uint32(328).uint64(message.headerBytesPadding);
     }
-    if (message.bitratePadding !== undefined && message.bitratePadding !== 0) {
+    if (message.bitratePadding !== 0) {
       writer.uint32(145).double(message.bitratePadding);
     }
-    if (message.packetsOutOfOrder !== undefined && message.packetsOutOfOrder !== 0) {
+    if (message.packetsOutOfOrder !== 0) {
       writer.uint32(152).uint32(message.packetsOutOfOrder);
     }
-    if (message.frames !== undefined && message.frames !== 0) {
+    if (message.frames !== 0) {
       writer.uint32(160).uint32(message.frames);
     }
-    if (message.frameRate !== undefined && message.frameRate !== 0) {
+    if (message.frameRate !== 0) {
       writer.uint32(169).double(message.frameRate);
     }
-    if (message.jitterCurrent !== undefined && message.jitterCurrent !== 0) {
+    if (message.jitterCurrent !== 0) {
       writer.uint32(177).double(message.jitterCurrent);
     }
-    if (message.jitterMax !== undefined && message.jitterMax !== 0) {
+    if (message.jitterMax !== 0) {
       writer.uint32(185).double(message.jitterMax);
     }
-    Object.entries(message.gapHistogram || {}).forEach(([key, value]) => {
+    Object.entries(message.gapHistogram).forEach(([key, value]) => {
       RTPStats_GapHistogramEntry.encode(
         { key: key as any, value },
         writer.uint32(194).fork(),
       ).ldelim();
     });
-    if (message.nacks !== undefined && message.nacks !== 0) {
+    if (message.nacks !== 0) {
       writer.uint32(200).uint32(message.nacks);
     }
-    if (message.nackAcks !== undefined && message.nackAcks !== 0) {
+    if (message.nackAcks !== 0) {
       writer.uint32(296).uint32(message.nackAcks);
     }
-    if (message.nackMisses !== undefined && message.nackMisses !== 0) {
+    if (message.nackMisses !== 0) {
       writer.uint32(208).uint32(message.nackMisses);
     }
-    if (message.nackRepeated !== undefined && message.nackRepeated !== 0) {
+    if (message.nackRepeated !== 0) {
       writer.uint32(304).uint32(message.nackRepeated);
     }
-    if (message.plis !== undefined && message.plis !== 0) {
+    if (message.plis !== 0) {
       writer.uint32(216).uint32(message.plis);
     }
     if (message.lastPli !== undefined) {
       Timestamp.encode(toTimestamp(message.lastPli), writer.uint32(226).fork()).ldelim();
     }
-    if (message.firs !== undefined && message.firs !== 0) {
+    if (message.firs !== 0) {
       writer.uint32(232).uint32(message.firs);
     }
     if (message.lastFir !== undefined) {
       Timestamp.encode(toTimestamp(message.lastFir), writer.uint32(242).fork()).ldelim();
     }
-    if (message.rttCurrent !== undefined && message.rttCurrent !== 0) {
+    if (message.rttCurrent !== 0) {
       writer.uint32(248).uint32(message.rttCurrent);
     }
-    if (message.rttMax !== undefined && message.rttMax !== 0) {
+    if (message.rttMax !== 0) {
       writer.uint32(256).uint32(message.rttMax);
     }
-    if (message.keyFrames !== undefined && message.keyFrames !== 0) {
+    if (message.keyFrames !== 0) {
       writer.uint32(264).uint32(message.keyFrames);
     }
     if (message.lastKeyFrame !== undefined) {
       Timestamp.encode(toTimestamp(message.lastKeyFrame), writer.uint32(274).fork()).ldelim();
     }
-    if (message.layerLockPlis !== undefined && message.layerLockPlis !== 0) {
+    if (message.layerLockPlis !== 0) {
       writer.uint32(280).uint32(message.layerLockPlis);
     }
     if (message.lastLayerLockPli !== undefined) {
@@ -2569,7 +2551,7 @@ export const RTPStats = {
         case 24:
           const entry24 = RTPStats_GapHistogramEntry.decode(reader, reader.uint32());
           if (entry24.value !== undefined) {
-            message.gapHistogram![entry24.key] = entry24.value;
+            message.gapHistogram[entry24.key] = entry24.value;
           }
           break;
         case 25:
@@ -2867,10 +2849,10 @@ function createBaseTimedVersion(): TimedVersion {
 
 export const TimedVersion = {
   encode(message: TimedVersion, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.unixMicro !== undefined && message.unixMicro !== 0) {
+    if (message.unixMicro !== 0) {
       writer.uint32(8).int64(message.unixMicro);
     }
-    if (message.ticks !== undefined && message.ticks !== 0) {
+    if (message.ticks !== 0) {
       writer.uint32(16).int32(message.ticks);
     }
     return writer;

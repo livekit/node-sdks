@@ -11,6 +11,7 @@ export {
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StreamOutput,
+  StreamProtocol,
 } from './proto/livekit_egress';
 export {
   DataPacket_Kind,

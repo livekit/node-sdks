@@ -245,6 +245,7 @@ export enum EgressStatus {
   EGRESS_COMPLETE = 3,
   EGRESS_FAILED = 4,
   EGRESS_ABORTED = 5,
+  EGRESS_LIMIT_REACHED = 6,
   UNRECOGNIZED = -1,
 }
 
@@ -268,6 +269,9 @@ export function egressStatusFromJSON(object: any): EgressStatus {
     case 5:
     case 'EGRESS_ABORTED':
       return EgressStatus.EGRESS_ABORTED;
+    case 6:
+    case 'EGRESS_LIMIT_REACHED':
+      return EgressStatus.EGRESS_LIMIT_REACHED;
     case -1:
     case 'UNRECOGNIZED':
     default:
@@ -289,6 +293,8 @@ export function egressStatusToJSON(object: EgressStatus): string {
       return 'EGRESS_FAILED';
     case EgressStatus.EGRESS_ABORTED:
       return 'EGRESS_ABORTED';
+    case EgressStatus.EGRESS_LIMIT_REACHED:
+      return 'EGRESS_LIMIT_REACHED';
     default:
       return 'UNKNOWN';
   }
@@ -449,6 +455,7 @@ export interface StopEgressRequest {
 export interface EgressInfo {
   egressId: string;
   roomId: string;
+  roomName: string;
   status: EgressStatus;
   startedAt: number;
   endedAt: number;
@@ -467,7 +474,48 @@ export interface StreamInfoList {
 
 export interface StreamInfo {
   url: string;
+  startedAt: number;
+  endedAt: number;
   duration: number;
+  status: StreamInfo_Status;
+}
+
+export enum StreamInfo_Status {
+  ACTIVE = 0,
+  FINISHED = 1,
+  FAILED = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function streamInfo_StatusFromJSON(object: any): StreamInfo_Status {
+  switch (object) {
+    case 0:
+    case 'ACTIVE':
+      return StreamInfo_Status.ACTIVE;
+    case 1:
+    case 'FINISHED':
+      return StreamInfo_Status.FINISHED;
+    case 2:
+    case 'FAILED':
+      return StreamInfo_Status.FAILED;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return StreamInfo_Status.UNRECOGNIZED;
+  }
+}
+
+export function streamInfo_StatusToJSON(object: StreamInfo_Status): string {
+  switch (object) {
+    case StreamInfo_Status.ACTIVE:
+      return 'ACTIVE';
+    case StreamInfo_Status.FINISHED:
+      return 'FINISHED';
+    case StreamInfo_Status.FAILED:
+      return 'FAILED';
+    default:
+      return 'UNKNOWN';
+  }
 }
 
 export interface FileInfo {
@@ -1883,6 +1931,7 @@ function createBaseEgressInfo(): EgressInfo {
   return {
     egressId: '',
     roomId: '',
+    roomName: '',
     status: 0,
     startedAt: 0,
     endedAt: 0,
@@ -1903,6 +1952,9 @@ export const EgressInfo = {
     }
     if (message.roomId !== '') {
       writer.uint32(18).string(message.roomId);
+    }
+    if (message.roomName !== '') {
+      writer.uint32(106).string(message.roomName);
     }
     if (message.status !== 0) {
       writer.uint32(24).int32(message.status);
@@ -1950,6 +2002,9 @@ export const EgressInfo = {
         case 2:
           message.roomId = reader.string();
           break;
+        case 13:
+          message.roomName = reader.string();
+          break;
         case 3:
           message.status = reader.int32() as any;
           break;
@@ -1992,6 +2047,7 @@ export const EgressInfo = {
     return {
       egressId: isSet(object.egressId) ? String(object.egressId) : '',
       roomId: isSet(object.roomId) ? String(object.roomId) : '',
+      roomName: isSet(object.roomName) ? String(object.roomName) : '',
       status: isSet(object.status) ? egressStatusFromJSON(object.status) : 0,
       startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
       endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
@@ -2013,6 +2069,7 @@ export const EgressInfo = {
     const obj: any = {};
     message.egressId !== undefined && (obj.egressId = message.egressId);
     message.roomId !== undefined && (obj.roomId = message.roomId);
+    message.roomName !== undefined && (obj.roomName = message.roomName);
     message.status !== undefined && (obj.status = egressStatusToJSON(message.status));
     message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
     message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
@@ -2040,6 +2097,7 @@ export const EgressInfo = {
     const message = createBaseEgressInfo();
     message.egressId = object.egressId ?? '';
     message.roomId = object.roomId ?? '';
+    message.roomName = object.roomName ?? '';
     message.status = object.status ?? 0;
     message.startedAt = object.startedAt ?? 0;
     message.endedAt = object.endedAt ?? 0;
@@ -2126,7 +2184,7 @@ export const StreamInfoList = {
 };
 
 function createBaseStreamInfo(): StreamInfo {
-  return { url: '', duration: 0 };
+  return { url: '', startedAt: 0, endedAt: 0, duration: 0, status: 0 };
 }
 
 export const StreamInfo = {
@@ -2134,8 +2192,17 @@ export const StreamInfo = {
     if (message.url !== '') {
       writer.uint32(10).string(message.url);
     }
+    if (message.startedAt !== 0) {
+      writer.uint32(16).int64(message.startedAt);
+    }
+    if (message.endedAt !== 0) {
+      writer.uint32(24).int64(message.endedAt);
+    }
     if (message.duration !== 0) {
       writer.uint32(32).int64(message.duration);
+    }
+    if (message.status !== 0) {
+      writer.uint32(40).int32(message.status);
     }
     return writer;
   },
@@ -2150,8 +2217,17 @@ export const StreamInfo = {
         case 1:
           message.url = reader.string();
           break;
+        case 2:
+          message.startedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 3:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
         case 4:
           message.duration = longToNumber(reader.int64() as Long);
+          break;
+        case 5:
+          message.status = reader.int32() as any;
           break;
         default:
           reader.skipType(tag & 7);
@@ -2164,21 +2240,30 @@ export const StreamInfo = {
   fromJSON(object: any): StreamInfo {
     return {
       url: isSet(object.url) ? String(object.url) : '',
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
       duration: isSet(object.duration) ? Number(object.duration) : 0,
+      status: isSet(object.status) ? streamInfo_StatusFromJSON(object.status) : 0,
     };
   },
 
   toJSON(message: StreamInfo): unknown {
     const obj: any = {};
     message.url !== undefined && (obj.url = message.url);
+    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
     message.duration !== undefined && (obj.duration = Math.round(message.duration));
+    message.status !== undefined && (obj.status = streamInfo_StatusToJSON(message.status));
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<StreamInfo>, I>>(object: I): StreamInfo {
     const message = createBaseStreamInfo();
     message.url = object.url ?? '';
+    message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
     message.duration = object.duration ?? 0;
+    message.status = object.status ?? 0;
     return message;
   },
 };

@@ -3,7 +3,7 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.eslint.json',
   },
-  ignorePatterns: ['src/proto', 'docs/', 'dist/'],
+  ignorePatterns: ['src/proto', 'docs/', 'dist/', 'examples'],
   rules: {
     'import/export': 'off',
     'max-classes-per-file': 'off',

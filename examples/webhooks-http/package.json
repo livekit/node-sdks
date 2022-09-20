@@ -1,0 +1,12 @@
+{
+  "name": "webhooks-http",
+  "version": "1.0.0",
+  "description": "example using livekit-server-sdk to handle webhooks with Node HTTP",
+  "main": "webhook.js",
+  "author": "David Zhao",
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "livekit-server-sdk": "^1.0.2"
+  }
+}

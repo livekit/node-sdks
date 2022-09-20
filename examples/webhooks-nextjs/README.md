@@ -1,4 +1,4 @@
-# Using Webhooks with an Next.JS app
+# Using Webhooks with a Next.JS app
 
 This example was generated using [create-next-app](https://nextjs.org/docs/api-reference/create-next-app).
 

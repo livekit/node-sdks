@@ -114,6 +114,8 @@ svc.deleteRoom('myroom').then(() => {
 
 The JS SDK also provides helper functions to decode and verify webhook callbacks. While verification is optional, it ensures the authenticity of the message. See [webhooks guide](https://docs.livekit.io/guides/webhooks) for details.
 
+Check out [example projects](examples) for full examples of webhooks integration.
+
 ```typescript
 import { WebhookReceiver } from 'livekit-server-sdk';
 

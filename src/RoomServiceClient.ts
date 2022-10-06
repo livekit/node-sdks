@@ -16,6 +16,7 @@ import {
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
+  RoomEgress,
   RoomParticipantIdentity,
   SendDataRequest,
   UpdateParticipantRequest,
@@ -34,7 +35,7 @@ export interface CreateOptions {
   name: string;
 
   /**
-   * number of seconds the room should cleanup after being empty
+   * number of seconds the room should clean up after being empty
    */
   emptyTimeout?: number;
 
@@ -47,6 +48,11 @@ export interface CreateOptions {
    * override the node room is allocated to, for debugging
    */
   nodeId?: string;
+
+  /**
+   * add egress options
+   */
+  egress?: RoomEgress;
 }
 
 const svc = 'RoomService';

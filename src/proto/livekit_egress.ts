@@ -191,14 +191,22 @@ export function videoCodecToJSON(object: VideoCodec): string {
 }
 
 export enum EncodingOptionsPreset {
-  /** H264_720P_30 - 720p, 30fps, 3000kpbs, H.264_MAIN / OPUS */
+  /** H264_720P_30 - 1280x720, 30fps, 3000kpbs, H.264_MAIN / OPUS */
   H264_720P_30 = 0,
-  /** H264_720P_60 - 720p, 60fps, 4500kbps, H.264_MAIN / OPUS */
+  /** H264_720P_60 - 1280x720, 60fps, 4500kbps, H.264_MAIN / OPUS */
   H264_720P_60 = 1,
-  /** H264_1080P_30 - 1080p, 30fps, 4500kbps, H.264_MAIN / OPUS */
+  /** H264_1080P_30 - 1920x1080, 30fps, 4500kbps, H.264_MAIN / OPUS */
   H264_1080P_30 = 2,
-  /** H264_1080P_60 - 1080p, 60fps, 6000kbps, H.264_MAIN / OPUS */
+  /** H264_1080P_60 - 1920x1080, 60fps, 6000kbps, H.264_MAIN / OPUS */
   H264_1080P_60 = 3,
+  /** PORTRAIT_H264_720P_30 - 720x1280, 30fps, 3000kpbs, H.264_MAIN / OPUS */
+  PORTRAIT_H264_720P_30 = 4,
+  /** PORTRAIT_H264_720P_60 - 720x1280, 60fps, 4500kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_720P_60 = 5,
+  /** PORTRAIT_H264_1080P_30 - 1080x1920, 30fps, 4500kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_1080P_30 = 6,
+  /** PORTRAIT_H264_1080P_60 - 1080x1920, 60fps, 6000kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_1080P_60 = 7,
   UNRECOGNIZED = -1,
 }
 
@@ -216,6 +224,18 @@ export function encodingOptionsPresetFromJSON(object: any): EncodingOptionsPrese
     case 3:
     case 'H264_1080P_60':
       return EncodingOptionsPreset.H264_1080P_60;
+    case 4:
+    case 'PORTRAIT_H264_720P_30':
+      return EncodingOptionsPreset.PORTRAIT_H264_720P_30;
+    case 5:
+    case 'PORTRAIT_H264_720P_60':
+      return EncodingOptionsPreset.PORTRAIT_H264_720P_60;
+    case 6:
+    case 'PORTRAIT_H264_1080P_30':
+      return EncodingOptionsPreset.PORTRAIT_H264_1080P_30;
+    case 7:
+    case 'PORTRAIT_H264_1080P_60':
+      return EncodingOptionsPreset.PORTRAIT_H264_1080P_60;
     case -1:
     case 'UNRECOGNIZED':
     default:
@@ -233,6 +253,14 @@ export function encodingOptionsPresetToJSON(object: EncodingOptionsPreset): stri
       return 'H264_1080P_30';
     case EncodingOptionsPreset.H264_1080P_60:
       return 'H264_1080P_60';
+    case EncodingOptionsPreset.PORTRAIT_H264_720P_30:
+      return 'PORTRAIT_H264_720P_30';
+    case EncodingOptionsPreset.PORTRAIT_H264_720P_60:
+      return 'PORTRAIT_H264_720P_60';
+    case EncodingOptionsPreset.PORTRAIT_H264_1080P_30:
+      return 'PORTRAIT_H264_1080P_30';
+    case EncodingOptionsPreset.PORTRAIT_H264_1080P_60:
+      return 'PORTRAIT_H264_1080P_60';
     default:
       return 'UNKNOWN';
   }
@@ -310,8 +338,10 @@ export interface RoomCompositeEgressRequest {
   audioOnly: boolean;
   /** (default false) */
   videoOnly: boolean;
-  /** (default https://recorder.livekit.io) */
+  /** template base url (default https://recorder.livekit.io) */
   customBaseUrl: string;
+  /** disable upload of json manifest file (default false) */
+  disableManifest: boolean;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
   segments?: SegmentedFileOutput | undefined;
@@ -329,6 +359,8 @@ export interface TrackCompositeEgressRequest {
   audioTrackId: string;
   /** (optional) */
   videoTrackId: string;
+  /** disable upload of json manifest file (default false) */
+  disableManifest: boolean;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
   segments?: SegmentedFileOutput | undefined;
@@ -344,6 +376,8 @@ export interface TrackEgressRequest {
   roomName: string;
   /** required */
   trackId: string;
+  /** disable upload of json manifest file (default false) */
+  disableManifest: boolean;
   file?: DirectFileOutput | undefined;
   websocketUrl: string | undefined;
 }
@@ -533,6 +567,15 @@ export interface SegmentsInfo {
   segmentCount: number;
 }
 
+export interface AutoTrackEgress {
+  filepath: string;
+  /** disables upload of json manifest file (default false) */
+  disableManifest: boolean;
+  s3?: S3Upload | undefined;
+  gcp?: GCPUpload | undefined;
+  azure?: AzureBlobUpload | undefined;
+}
+
 function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
   return {
     roomName: '',
@@ -540,6 +583,7 @@ function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
     audioOnly: false,
     videoOnly: false,
     customBaseUrl: '',
+    disableManifest: false,
     file: undefined,
     stream: undefined,
     segments: undefined,
@@ -567,6 +611,9 @@ export const RoomCompositeEgressRequest = {
     }
     if (message.customBaseUrl !== '') {
       writer.uint32(42).string(message.customBaseUrl);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(88).bool(message.disableManifest);
     }
     if (message.file !== undefined) {
       EncodedFileOutput.encode(message.file, writer.uint32(50).fork()).ldelim();
@@ -608,6 +655,9 @@ export const RoomCompositeEgressRequest = {
         case 5:
           message.customBaseUrl = reader.string();
           break;
+        case 11:
+          message.disableManifest = reader.bool();
+          break;
         case 6:
           message.file = EncodedFileOutput.decode(reader, reader.uint32());
           break;
@@ -638,6 +688,7 @@ export const RoomCompositeEgressRequest = {
       audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
       videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
       customBaseUrl: isSet(object.customBaseUrl) ? String(object.customBaseUrl) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
       segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
@@ -653,6 +704,7 @@ export const RoomCompositeEgressRequest = {
     message.audioOnly !== undefined && (obj.audioOnly = message.audioOnly);
     message.videoOnly !== undefined && (obj.videoOnly = message.videoOnly);
     message.customBaseUrl !== undefined && (obj.customBaseUrl = message.customBaseUrl);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.file !== undefined &&
       (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
@@ -676,6 +728,7 @@ export const RoomCompositeEgressRequest = {
     message.audioOnly = object.audioOnly ?? false;
     message.videoOnly = object.videoOnly ?? false;
     message.customBaseUrl = object.customBaseUrl ?? '';
+    message.disableManifest = object.disableManifest ?? false;
     message.file =
       object.file !== undefined && object.file !== null
         ? EncodedFileOutput.fromPartial(object.file)
@@ -702,6 +755,7 @@ function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
     roomName: '',
     audioTrackId: '',
     videoTrackId: '',
+    disableManifest: false,
     file: undefined,
     stream: undefined,
     segments: undefined,
@@ -723,6 +777,9 @@ export const TrackCompositeEgressRequest = {
     }
     if (message.videoTrackId !== '') {
       writer.uint32(26).string(message.videoTrackId);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(72).bool(message.disableManifest);
     }
     if (message.file !== undefined) {
       EncodedFileOutput.encode(message.file, writer.uint32(34).fork()).ldelim();
@@ -758,6 +815,9 @@ export const TrackCompositeEgressRequest = {
         case 3:
           message.videoTrackId = reader.string();
           break;
+        case 9:
+          message.disableManifest = reader.bool();
+          break;
         case 4:
           message.file = EncodedFileOutput.decode(reader, reader.uint32());
           break;
@@ -786,6 +846,7 @@ export const TrackCompositeEgressRequest = {
       roomName: isSet(object.roomName) ? String(object.roomName) : '',
       audioTrackId: isSet(object.audioTrackId) ? String(object.audioTrackId) : '',
       videoTrackId: isSet(object.videoTrackId) ? String(object.videoTrackId) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
       segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
@@ -799,6 +860,7 @@ export const TrackCompositeEgressRequest = {
     message.roomName !== undefined && (obj.roomName = message.roomName);
     message.audioTrackId !== undefined && (obj.audioTrackId = message.audioTrackId);
     message.videoTrackId !== undefined && (obj.videoTrackId = message.videoTrackId);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.file !== undefined &&
       (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
     message.stream !== undefined &&
@@ -820,6 +882,7 @@ export const TrackCompositeEgressRequest = {
     message.roomName = object.roomName ?? '';
     message.audioTrackId = object.audioTrackId ?? '';
     message.videoTrackId = object.videoTrackId ?? '';
+    message.disableManifest = object.disableManifest ?? false;
     message.file =
       object.file !== undefined && object.file !== null
         ? EncodedFileOutput.fromPartial(object.file)
@@ -842,7 +905,13 @@ export const TrackCompositeEgressRequest = {
 };
 
 function createBaseTrackEgressRequest(): TrackEgressRequest {
-  return { roomName: '', trackId: '', file: undefined, websocketUrl: undefined };
+  return {
+    roomName: '',
+    trackId: '',
+    disableManifest: false,
+    file: undefined,
+    websocketUrl: undefined,
+  };
 }
 
 export const TrackEgressRequest = {
@@ -852,6 +921,9 @@ export const TrackEgressRequest = {
     }
     if (message.trackId !== '') {
       writer.uint32(18).string(message.trackId);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(40).bool(message.disableManifest);
     }
     if (message.file !== undefined) {
       DirectFileOutput.encode(message.file, writer.uint32(26).fork()).ldelim();
@@ -875,6 +947,9 @@ export const TrackEgressRequest = {
         case 2:
           message.trackId = reader.string();
           break;
+        case 5:
+          message.disableManifest = reader.bool();
+          break;
         case 3:
           message.file = DirectFileOutput.decode(reader, reader.uint32());
           break;
@@ -893,6 +968,7 @@ export const TrackEgressRequest = {
     return {
       roomName: isSet(object.roomName) ? String(object.roomName) : '',
       trackId: isSet(object.trackId) ? String(object.trackId) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       file: isSet(object.file) ? DirectFileOutput.fromJSON(object.file) : undefined,
       websocketUrl: isSet(object.websocketUrl) ? String(object.websocketUrl) : undefined,
     };
@@ -902,6 +978,7 @@ export const TrackEgressRequest = {
     const obj: any = {};
     message.roomName !== undefined && (obj.roomName = message.roomName);
     message.trackId !== undefined && (obj.trackId = message.trackId);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.file !== undefined &&
       (obj.file = message.file ? DirectFileOutput.toJSON(message.file) : undefined);
     message.websocketUrl !== undefined && (obj.websocketUrl = message.websocketUrl);
@@ -912,6 +989,7 @@ export const TrackEgressRequest = {
     const message = createBaseTrackEgressRequest();
     message.roomName = object.roomName ?? '';
     message.trackId = object.trackId ?? '';
+    message.disableManifest = object.disableManifest ?? false;
     message.file =
       object.file !== undefined && object.file !== null
         ? DirectFileOutput.fromPartial(object.file)
@@ -2425,6 +2503,100 @@ export const SegmentsInfo = {
     message.size = object.size ?? 0;
     message.playlistLocation = object.playlistLocation ?? '';
     message.segmentCount = object.segmentCount ?? 0;
+    return message;
+  },
+};
+
+function createBaseAutoTrackEgress(): AutoTrackEgress {
+  return { filepath: '', disableManifest: false, s3: undefined, gcp: undefined, azure: undefined };
+}
+
+export const AutoTrackEgress = {
+  encode(message: AutoTrackEgress, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.filepath !== '') {
+      writer.uint32(10).string(message.filepath);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(40).bool(message.disableManifest);
+    }
+    if (message.s3 !== undefined) {
+      S3Upload.encode(message.s3, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.gcp !== undefined) {
+      GCPUpload.encode(message.gcp, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.azure !== undefined) {
+      AzureBlobUpload.encode(message.azure, writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AutoTrackEgress {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAutoTrackEgress();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.filepath = reader.string();
+          break;
+        case 5:
+          message.disableManifest = reader.bool();
+          break;
+        case 2:
+          message.s3 = S3Upload.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.gcp = GCPUpload.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.azure = AzureBlobUpload.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AutoTrackEgress {
+    return {
+      filepath: isSet(object.filepath) ? String(object.filepath) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+    };
+  },
+
+  toJSON(message: AutoTrackEgress): unknown {
+    const obj: any = {};
+    message.filepath !== undefined && (obj.filepath = message.filepath);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.gcp !== undefined &&
+      (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
+    message.azure !== undefined &&
+      (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<AutoTrackEgress>, I>>(object: I): AutoTrackEgress {
+    const message = createBaseAutoTrackEgress();
+    message.filepath = object.filepath ?? '';
+    message.disableManifest = object.disableManifest ?? false;
+    message.s3 =
+      object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
+    message.gcp =
+      object.gcp !== undefined && object.gcp !== null
+        ? GCPUpload.fromPartial(object.gcp)
+        : undefined;
+    message.azure =
+      object.azure !== undefined && object.azure !== null
+        ? AzureBlobUpload.fromPartial(object.azure)
+        : undefined;
     return message;
   },
 };

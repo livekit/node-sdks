@@ -50,6 +50,7 @@ export default class EgressClient {
    * @param audioOnly record audio only
    * @param videoOnly record video only
    * @param customBaseUrl custom template url
+   * @param disableManifest disable upload of json manifest file
    */
   async startRoomCompositeEgress(
     roomName: string,
@@ -59,11 +60,13 @@ export default class EgressClient {
     audioOnly?: boolean,
     videoOnly?: boolean,
     customBaseUrl?: string,
+    disableManifest?: boolean,
   ): Promise<EgressInfo> {
     layout ??= '';
     audioOnly ??= false;
     videoOnly ??= false;
     customBaseUrl ??= '';
+    disableManifest ??= false;
 
     const { file, segments, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = RoomCompositeEgressRequest.toJSON({
@@ -72,6 +75,7 @@ export default class EgressClient {
       audioOnly,
       videoOnly,
       customBaseUrl,
+      disableManifest,
       file,
       stream,
       segments,
@@ -94,6 +98,7 @@ export default class EgressClient {
    * @param audioTrackId audio track Id
    * @param videoTrackId video track Id
    * @param options encoding options or preset
+   * @param disableManifest disable upload of json manifest file
    */
   async startTrackCompositeEgress(
     roomName: string,
@@ -101,15 +106,18 @@ export default class EgressClient {
     audioTrackId?: string,
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
+    disableManifest?: boolean,
   ): Promise<EgressInfo> {
     audioTrackId ??= '';
     videoTrackId ??= '';
+    disableManifest ??= false;
 
     const { file, segments, stream, preset, advanced } = this.getOutputParams(output, options);
     const req = TrackCompositeEgressRequest.toJSON({
       roomName,
       audioTrackId,
       videoTrackId,
+      disableManifest,
       file,
       stream,
       segments,
@@ -159,14 +167,17 @@ export default class EgressClient {
    * @param roomName room name
    * @param output file or websocket output
    * @param trackId track Id
+   * @param disableManifest disable upload of json manifest file
    */
   async startTrackEgress(
     roomName: string,
     output: DirectFileOutput | string,
     trackId: string,
+    disableManifest?: boolean,
   ): Promise<EgressInfo> {
     let file: DirectFileOutput | undefined;
     let websocketUrl: string | undefined;
+    disableManifest ??= false;
 
     if ((<DirectFileOutput>output).filepath !== undefined) {
       file = <DirectFileOutput>output;
@@ -177,6 +188,7 @@ export default class EgressClient {
     const req = TrackEgressRequest.toJSON({
       roomName,
       trackId,
+      disableManifest,
       file,
       websocketUrl,
     });

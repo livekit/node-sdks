@@ -1,5 +1,5 @@
 export * from './AccessToken';
-export { default as EgressClient } from './EgressClient';
+export * from './EgressClient';
 export * from './grants';
 export {
   DirectFileOutput,

@@ -219,18 +219,21 @@ export class RoomServiceClient {
    * @param identity
    * @param metadata optional, metadata to update
    * @param permission optional, new permissions to assign to participant
+   * @param name optional, new name for participant
    */
   async updateParticipant(
     room: string,
     identity: string,
     metadata?: string,
     permission?: ParticipantPermission,
+    name?: string,
   ): Promise<ParticipantInfo> {
     const req: UpdateParticipantRequest = {
       room,
       identity,
       metadata: metadata || '',
       permission,
+      name: name || '',
     };
     const data = await this.rpc.request(
       svc,

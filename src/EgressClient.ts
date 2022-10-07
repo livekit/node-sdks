@@ -121,7 +121,7 @@ export default class EgressClient {
     if (typeof optsOrLayout === 'string') {
       layout = optsOrLayout
     } else {
-      let opts = <RoomCompositeOptions>optsOrLayout
+      const opts = <RoomCompositeOptions>optsOrLayout
       options = opts.encodingOptions
       audioOnly = opts.audioOnly
       videoOnly = opts.videoOnly
@@ -190,7 +190,7 @@ export default class EgressClient {
     if (typeof optsOrAudioTrackId === 'string') {
       audioTrackId = optsOrAudioTrackId
     } else {
-      let opts = <TrackCompositeOptions>optsOrAudioTrackId
+      const opts = <TrackCompositeOptions>optsOrAudioTrackId
       options = opts.encodingOptions
       disableManifest = opts.disableManifest
     }
@@ -274,10 +274,10 @@ export default class EgressClient {
     optsOrDisableManifest?: TrackOptions | boolean,
   ): Promise<EgressInfo> {
     let disableManifest: boolean | undefined
-    if (typeof optsOrDisableManifest == 'boolean') {
+    if (typeof optsOrDisableManifest === 'boolean') {
       disableManifest = optsOrDisableManifest
     } else {
-      let opts = <TrackOptions>optsOrDisableManifest
+      const opts = <TrackOptions>optsOrDisableManifest
       disableManifest = opts.disableManifest
     }
 

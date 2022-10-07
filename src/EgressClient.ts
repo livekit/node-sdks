@@ -25,45 +25,45 @@ export interface RoomCompositeOptions {
   /**
    * egress layout. optional
    */
-  layout?: string,
+  layout?: string;
   /**
    * encoding options or preset. optional
    */
-  encodingOptions?: EncodingOptionsPreset | EncodingOptions,
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
   /**
    * record audio only. optional
    */
-  audioOnly?: boolean,
+  audioOnly?: boolean;
   /**
    * record video only. optional
    */
-  videoOnly?: boolean,
+  videoOnly?: boolean;
   /**
    * custom template url. optional
    */
-  customBaseUrl?: string,
+  customBaseUrl?: string;
   /**
    * disable upload of json manifest file. optional
    */
-  disableManifest?: boolean,
+  disableManifest?: boolean;
 }
 
 export interface TrackCompositeOptions {
   /**
    * encoding options or preset. optional
    */
-  encodingOptions?: EncodingOptionsPreset | EncodingOptions,
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
   /**
    * disable upload of json manifest file. optional
    */
-  disableManifest?: boolean,
+  disableManifest?: boolean;
 }
 
 export interface TrackOptions {
   /**
    * disable upload of json manifest file. optional
    */
-  disableManifest?: boolean,
+  disableManifest?: boolean;
 }
 
 /**
@@ -117,16 +117,16 @@ export default class EgressClient {
     customBaseUrl?: string,
     disableManifest?: boolean,
   ): Promise<EgressInfo> {
-    let layout: string
+    let layout: string;
     if (typeof optsOrLayout === 'string') {
-      layout = optsOrLayout
+      layout = optsOrLayout;
     } else {
-      const opts = <RoomCompositeOptions>optsOrLayout
-      options = opts.encodingOptions
-      audioOnly = opts.audioOnly
-      videoOnly = opts.videoOnly
-      customBaseUrl = opts.customBaseUrl
-      disableManifest = opts.disableManifest
+      const opts = <RoomCompositeOptions>optsOrLayout;
+      options = opts.encodingOptions;
+      audioOnly = opts.audioOnly;
+      videoOnly = opts.videoOnly;
+      customBaseUrl = opts.customBaseUrl;
+      disableManifest = opts.disableManifest;
     }
 
     layout ??= '';
@@ -185,14 +185,13 @@ export default class EgressClient {
     options?: EncodingOptionsPreset | EncodingOptions,
     disableManifest?: boolean,
   ): Promise<EgressInfo> {
-
-    let audioTrackId: string
+    let audioTrackId: string;
     if (typeof optsOrAudioTrackId === 'string') {
-      audioTrackId = optsOrAudioTrackId
+      audioTrackId = optsOrAudioTrackId;
     } else {
-      const opts = <TrackCompositeOptions>optsOrAudioTrackId
-      options = opts.encodingOptions
-      disableManifest = opts.disableManifest
+      const opts = <TrackCompositeOptions>optsOrAudioTrackId;
+      options = opts.encodingOptions;
+      disableManifest = opts.disableManifest;
     }
     audioTrackId ??= '';
     videoTrackId ??= '';
@@ -273,12 +272,12 @@ export default class EgressClient {
     trackId: string,
     optsOrDisableManifest?: TrackOptions | boolean,
   ): Promise<EgressInfo> {
-    let disableManifest: boolean | undefined
+    let disableManifest: boolean | undefined;
     if (typeof optsOrDisableManifest === 'boolean') {
-      disableManifest = optsOrDisableManifest
+      disableManifest = optsOrDisableManifest;
     } else {
-      const opts = <TrackOptions>optsOrDisableManifest
-      disableManifest = opts.disableManifest
+      const opts = <TrackOptions>optsOrDisableManifest;
+      disableManifest = opts.disableManifest;
     }
 
     let file: DirectFileOutput | undefined;

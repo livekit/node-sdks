@@ -90,6 +90,8 @@ export interface UpdateParticipantRequest {
   metadata: string;
   /** set to update the participant's permissions */
   permission?: ParticipantPermission;
+  /** display name to update */
+  name: string;
 }
 
 export interface UpdateSubscriptionsRequest {
@@ -833,7 +835,7 @@ export const MuteRoomTrackResponse = {
 };
 
 function createBaseUpdateParticipantRequest(): UpdateParticipantRequest {
-  return { room: '', identity: '', metadata: '', permission: undefined };
+  return { room: '', identity: '', metadata: '', permission: undefined, name: '' };
 }
 
 export const UpdateParticipantRequest = {
@@ -849,6 +851,9 @@ export const UpdateParticipantRequest = {
     }
     if (message.permission !== undefined) {
       ParticipantPermission.encode(message.permission, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.name !== '') {
+      writer.uint32(42).string(message.name);
     }
     return writer;
   },
@@ -872,6 +877,9 @@ export const UpdateParticipantRequest = {
         case 4:
           message.permission = ParticipantPermission.decode(reader, reader.uint32());
           break;
+        case 5:
+          message.name = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -888,6 +896,7 @@ export const UpdateParticipantRequest = {
       permission: isSet(object.permission)
         ? ParticipantPermission.fromJSON(object.permission)
         : undefined,
+      name: isSet(object.name) ? String(object.name) : '',
     };
   },
 
@@ -900,6 +909,7 @@ export const UpdateParticipantRequest = {
       (obj.permission = message.permission
         ? ParticipantPermission.toJSON(message.permission)
         : undefined);
+    message.name !== undefined && (obj.name = message.name);
     return obj;
   },
 
@@ -914,6 +924,7 @@ export const UpdateParticipantRequest = {
       object.permission !== undefined && object.permission !== null
         ? ParticipantPermission.fromPartial(object.permission)
         : undefined;
+    message.name = object.name ?? '';
     return message;
   },
 };

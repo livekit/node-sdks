@@ -21,6 +21,51 @@ import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
 const svc = 'Egress';
 
+export interface RoomCompositeOptions {
+  /**
+   * egress layout. optional
+   */
+  layout?: string,
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions,
+  /**
+   * record audio only. optional
+   */
+  audioOnly?: boolean,
+  /**
+   * record video only. optional
+   */
+  videoOnly?: boolean,
+  /**
+   * custom template url. optional
+   */
+  customBaseUrl?: string,
+  /**
+   * disable upload of json manifest file. optional
+   */
+  disableManifest?: boolean,
+}
+
+export interface TrackCompositeOptions {
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions,
+  /**
+   * disable upload of json manifest file. optional
+   */
+  disableManifest?: boolean,
+}
+
+export interface TrackOptions {
+  /**
+   * disable upload of json manifest file. optional
+   */
+  disableManifest?: boolean,
+}
+
 /**
  * Client to access Egress APIs
  */
@@ -45,13 +90,13 @@ export default class EgressClient {
   /**
    * @param roomName room name
    * @param output file or stream output
-   * @param layout egress layout
-   * @param options encoding options or preset
-   * @param audioOnly record audio only
-   * @param videoOnly record video only
-   * @param customBaseUrl custom template url
-   * @param disableManifest disable upload of json manifest file
+   * @param opts RoomCompositeOptions
    */
+  async startRoomCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    opts?: RoomCompositeOptions,
+  ): Promise<EgressInfo>;
   async startRoomCompositeEgress(
     roomName: string,
     output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
@@ -61,7 +106,29 @@ export default class EgressClient {
     videoOnly?: boolean,
     customBaseUrl?: string,
     disableManifest?: boolean,
+  ): Promise<EgressInfo>;
+  async startRoomCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    optsOrLayout?: RoomCompositeOptions | string,
+    options?: EncodingOptionsPreset | EncodingOptions,
+    audioOnly?: boolean,
+    videoOnly?: boolean,
+    customBaseUrl?: string,
+    disableManifest?: boolean,
   ): Promise<EgressInfo> {
+    let layout: string
+    if (typeof optsOrLayout === 'string') {
+      layout = optsOrLayout
+    } else {
+      let opts = <RoomCompositeOptions>optsOrLayout
+      options = opts.encodingOptions
+      audioOnly = opts.audioOnly
+      videoOnly = opts.videoOnly
+      customBaseUrl = opts.customBaseUrl
+      disableManifest = opts.disableManifest
+    }
+
     layout ??= '';
     audioOnly ??= false;
     videoOnly ??= false;
@@ -95,11 +162,13 @@ export default class EgressClient {
   /**
    * @param roomName room name
    * @param output file or stream output
-   * @param audioTrackId audio track Id
-   * @param videoTrackId video track Id
-   * @param options encoding options or preset
-   * @param disableManifest disable upload of json manifest file
+   * @param opts TrackCompositeOptions
    */
+  async startTrackCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    opts?: TrackCompositeOptions,
+  ): Promise<EgressInfo>;
   async startTrackCompositeEgress(
     roomName: string,
     output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
@@ -107,7 +176,24 @@ export default class EgressClient {
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
     disableManifest?: boolean,
+  ): Promise<EgressInfo>;
+  async startTrackCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    optsOrAudioTrackId?: TrackCompositeOptions | string,
+    videoTrackId?: string,
+    options?: EncodingOptionsPreset | EncodingOptions,
+    disableManifest?: boolean,
   ): Promise<EgressInfo> {
+
+    let audioTrackId: string
+    if (typeof optsOrAudioTrackId === 'string') {
+      audioTrackId = optsOrAudioTrackId
+    } else {
+      let opts = <TrackCompositeOptions>optsOrAudioTrackId
+      options = opts.encodingOptions
+      disableManifest = opts.disableManifest
+    }
     audioTrackId ??= '';
     videoTrackId ??= '';
     disableManifest ??= false;
@@ -167,14 +253,34 @@ export default class EgressClient {
    * @param roomName room name
    * @param output file or websocket output
    * @param trackId track Id
-   * @param disableManifest disable upload of json manifest file
+   * @param opts TrackOptions
    */
   async startTrackEgress(
     roomName: string,
     output: DirectFileOutput | string,
     trackId: string,
+    opts?: TrackOptions,
+  ): Promise<EgressInfo>;
+  async startTrackEgress(
+    roomName: string,
+    output: DirectFileOutput | string,
+    trackId: string,
     disableManifest?: boolean,
+  ): Promise<EgressInfo>;
+  async startTrackEgress(
+    roomName: string,
+    output: DirectFileOutput | string,
+    trackId: string,
+    optsOrDisableManifest?: TrackOptions | boolean,
   ): Promise<EgressInfo> {
+    let disableManifest: boolean | undefined
+    if (typeof optsOrDisableManifest == 'boolean') {
+      disableManifest = optsOrDisableManifest
+    } else {
+      let opts = <TrackOptions>optsOrDisableManifest
+      disableManifest = opts.disableManifest
+    }
+
     let file: DirectFileOutput | undefined;
     let websocketUrl: string | undefined;
     disableManifest ??= false;

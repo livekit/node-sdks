@@ -21,10 +21,48 @@ import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
 const svc = 'Egress';
 
+export interface RoomCompositeOptions {
+  /**
+   * egress layout. optional
+   */
+  layout?: string;
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
+  /**
+   * record audio only. optional
+   */
+  audioOnly?: boolean;
+  /**
+   * record video only. optional
+   */
+  videoOnly?: boolean;
+  /**
+   * custom template url. optional
+   */
+  customBaseUrl?: string;
+}
+
+export interface TrackCompositeOptions {
+  /**
+   * audio track ID
+   */
+  audioTrackId?: string;
+  /**
+   * video track ID
+   */
+  videoTrackId?: string;
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
+}
+
 /**
  * Client to access Egress APIs
  */
-export default class EgressClient {
+export class EgressClient {
   private readonly rpc: Rpc;
 
   private readonly apiKey?: string;
@@ -45,11 +83,15 @@ export default class EgressClient {
   /**
    * @param roomName room name
    * @param output file or stream output
-   * @param layout egress layout
-   * @param options encoding options or preset
-   * @param audioOnly record audio only
-   * @param videoOnly record video only
-   * @param customBaseUrl custom template url
+   * @param opts RoomCompositeOptions
+   */
+  async startRoomCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    opts?: RoomCompositeOptions,
+  ): Promise<EgressInfo>;
+  /**
+   * @deprecated use RoomCompositeOptions instead
    */
   async startRoomCompositeEgress(
     roomName: string,
@@ -59,7 +101,30 @@ export default class EgressClient {
     audioOnly?: boolean,
     videoOnly?: boolean,
     customBaseUrl?: string,
+  ): Promise<EgressInfo>;
+  async startRoomCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    optsOrLayout?: RoomCompositeOptions | string,
+    options?: EncodingOptionsPreset | EncodingOptions,
+    audioOnly?: boolean,
+    videoOnly?: boolean,
+    customBaseUrl?: string,
   ): Promise<EgressInfo> {
+    let layout: string | undefined;
+    if (optsOrLayout !== undefined) {
+      if (typeof optsOrLayout === 'string') {
+        layout = optsOrLayout;
+      } else {
+        const opts = <RoomCompositeOptions>optsOrLayout;
+        layout = opts.layout;
+        options = opts.encodingOptions;
+        audioOnly = opts.audioOnly;
+        videoOnly = opts.videoOnly;
+        customBaseUrl = opts.customBaseUrl;
+      }
+    }
+
     layout ??= '';
     audioOnly ??= false;
     videoOnly ??= false;
@@ -91,9 +156,15 @@ export default class EgressClient {
   /**
    * @param roomName room name
    * @param output file or stream output
-   * @param audioTrackId audio track Id
-   * @param videoTrackId video track Id
-   * @param options encoding options or preset
+   * @param opts TrackCompositeOptions
+   */
+  async startTrackCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    opts?: TrackCompositeOptions,
+  ): Promise<EgressInfo>;
+  /**
+   * @deprecated use TrackCompositeOptions instead
    */
   async startTrackCompositeEgress(
     roomName: string,
@@ -101,7 +172,26 @@ export default class EgressClient {
     audioTrackId?: string,
     videoTrackId?: string,
     options?: EncodingOptionsPreset | EncodingOptions,
+  ): Promise<EgressInfo>;
+  async startTrackCompositeEgress(
+    roomName: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    optsOrAudioTrackId?: TrackCompositeOptions | string,
+    videoTrackId?: string,
+    options?: EncodingOptionsPreset | EncodingOptions,
   ): Promise<EgressInfo> {
+    let audioTrackId: string | undefined;
+    if (optsOrAudioTrackId !== undefined) {
+      if (typeof optsOrAudioTrackId === 'string') {
+        audioTrackId = optsOrAudioTrackId;
+      } else {
+        const opts = <TrackCompositeOptions>optsOrAudioTrackId;
+        audioTrackId = opts.audioTrackId;
+        videoTrackId = opts.videoTrackId;
+        options = opts.encodingOptions;
+      }
+    }
+
     audioTrackId ??= '';
     videoTrackId ??= '';
 

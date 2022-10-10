@@ -1,6 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
 import * as _m0 from 'protobufjs/minimal';
+import { RoomCompositeEgressRequest, AutoTrackEgress } from './livekit_egress';
 import {
   TrackInfo,
   ParticipantPermission,
@@ -25,6 +26,13 @@ export interface CreateRoomRequest {
   nodeId: string;
   /** metadata of room */
   metadata: string;
+  /** egress */
+  egress?: RoomEgress;
+}
+
+export interface RoomEgress {
+  room?: RoomCompositeEgressRequest;
+  tracks?: AutoTrackEgress;
 }
 
 export interface ListRoomsRequest {
@@ -82,6 +90,8 @@ export interface UpdateParticipantRequest {
   metadata: string;
   /** set to update the participant's permissions */
   permission?: ParticipantPermission;
+  /** display name to update */
+  name: string;
 }
 
 export interface UpdateSubscriptionsRequest {
@@ -115,7 +125,14 @@ export interface UpdateRoomMetadataRequest {
 }
 
 function createBaseCreateRoomRequest(): CreateRoomRequest {
-  return { name: '', emptyTimeout: 0, maxParticipants: 0, nodeId: '', metadata: '' };
+  return {
+    name: '',
+    emptyTimeout: 0,
+    maxParticipants: 0,
+    nodeId: '',
+    metadata: '',
+    egress: undefined,
+  };
 }
 
 export const CreateRoomRequest = {
@@ -134,6 +151,9 @@ export const CreateRoomRequest = {
     }
     if (message.metadata !== '') {
       writer.uint32(42).string(message.metadata);
+    }
+    if (message.egress !== undefined) {
+      RoomEgress.encode(message.egress, writer.uint32(50).fork()).ldelim();
     }
     return writer;
   },
@@ -160,6 +180,9 @@ export const CreateRoomRequest = {
         case 5:
           message.metadata = reader.string();
           break;
+        case 6:
+          message.egress = RoomEgress.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -175,6 +198,7 @@ export const CreateRoomRequest = {
       maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
       nodeId: isSet(object.nodeId) ? String(object.nodeId) : '',
       metadata: isSet(object.metadata) ? String(object.metadata) : '',
+      egress: isSet(object.egress) ? RoomEgress.fromJSON(object.egress) : undefined,
     };
   },
 
@@ -186,6 +210,8 @@ export const CreateRoomRequest = {
       (obj.maxParticipants = Math.round(message.maxParticipants));
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
     message.metadata !== undefined && (obj.metadata = message.metadata);
+    message.egress !== undefined &&
+      (obj.egress = message.egress ? RoomEgress.toJSON(message.egress) : undefined);
     return obj;
   },
 
@@ -196,6 +222,76 @@ export const CreateRoomRequest = {
     message.maxParticipants = object.maxParticipants ?? 0;
     message.nodeId = object.nodeId ?? '';
     message.metadata = object.metadata ?? '';
+    message.egress =
+      object.egress !== undefined && object.egress !== null
+        ? RoomEgress.fromPartial(object.egress)
+        : undefined;
+    return message;
+  },
+};
+
+function createBaseRoomEgress(): RoomEgress {
+  return { room: undefined, tracks: undefined };
+}
+
+export const RoomEgress = {
+  encode(message: RoomEgress, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.room !== undefined) {
+      RoomCompositeEgressRequest.encode(message.room, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.tracks !== undefined) {
+      AutoTrackEgress.encode(message.tracks, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RoomEgress {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRoomEgress();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.room = RoomCompositeEgressRequest.decode(reader, reader.uint32());
+          break;
+        case 2:
+          message.tracks = AutoTrackEgress.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RoomEgress {
+    return {
+      room: isSet(object.room) ? RoomCompositeEgressRequest.fromJSON(object.room) : undefined,
+      tracks: isSet(object.tracks) ? AutoTrackEgress.fromJSON(object.tracks) : undefined,
+    };
+  },
+
+  toJSON(message: RoomEgress): unknown {
+    const obj: any = {};
+    message.room !== undefined &&
+      (obj.room = message.room ? RoomCompositeEgressRequest.toJSON(message.room) : undefined);
+    message.tracks !== undefined &&
+      (obj.tracks = message.tracks ? AutoTrackEgress.toJSON(message.tracks) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<RoomEgress>, I>>(object: I): RoomEgress {
+    const message = createBaseRoomEgress();
+    message.room =
+      object.room !== undefined && object.room !== null
+        ? RoomCompositeEgressRequest.fromPartial(object.room)
+        : undefined;
+    message.tracks =
+      object.tracks !== undefined && object.tracks !== null
+        ? AutoTrackEgress.fromPartial(object.tracks)
+        : undefined;
     return message;
   },
 };
@@ -739,7 +835,7 @@ export const MuteRoomTrackResponse = {
 };
 
 function createBaseUpdateParticipantRequest(): UpdateParticipantRequest {
-  return { room: '', identity: '', metadata: '', permission: undefined };
+  return { room: '', identity: '', metadata: '', permission: undefined, name: '' };
 }
 
 export const UpdateParticipantRequest = {
@@ -755,6 +851,9 @@ export const UpdateParticipantRequest = {
     }
     if (message.permission !== undefined) {
       ParticipantPermission.encode(message.permission, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.name !== '') {
+      writer.uint32(42).string(message.name);
     }
     return writer;
   },
@@ -778,6 +877,9 @@ export const UpdateParticipantRequest = {
         case 4:
           message.permission = ParticipantPermission.decode(reader, reader.uint32());
           break;
+        case 5:
+          message.name = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -794,6 +896,7 @@ export const UpdateParticipantRequest = {
       permission: isSet(object.permission)
         ? ParticipantPermission.fromJSON(object.permission)
         : undefined,
+      name: isSet(object.name) ? String(object.name) : '',
     };
   },
 
@@ -806,6 +909,7 @@ export const UpdateParticipantRequest = {
       (obj.permission = message.permission
         ? ParticipantPermission.toJSON(message.permission)
         : undefined);
+    message.name !== undefined && (obj.name = message.name);
     return obj;
   },
 
@@ -820,6 +924,7 @@ export const UpdateParticipantRequest = {
       object.permission !== undefined && object.permission !== null
         ? ParticipantPermission.fromPartial(object.permission)
         : undefined;
+    message.name = object.name ?? '';
     return message;
   },
 };

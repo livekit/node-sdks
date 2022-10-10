@@ -191,14 +191,22 @@ export function videoCodecToJSON(object: VideoCodec): string {
 }
 
 export enum EncodingOptionsPreset {
-  /** H264_720P_30 - 720p, 30fps, 3000kpbs, H.264_MAIN / OPUS */
+  /** H264_720P_30 - 1280x720, 30fps, 3000kpbs, H.264_MAIN / OPUS */
   H264_720P_30 = 0,
-  /** H264_720P_60 - 720p, 60fps, 4500kbps, H.264_MAIN / OPUS */
+  /** H264_720P_60 - 1280x720, 60fps, 4500kbps, H.264_MAIN / OPUS */
   H264_720P_60 = 1,
-  /** H264_1080P_30 - 1080p, 30fps, 4500kbps, H.264_MAIN / OPUS */
+  /** H264_1080P_30 - 1920x1080, 30fps, 4500kbps, H.264_MAIN / OPUS */
   H264_1080P_30 = 2,
-  /** H264_1080P_60 - 1080p, 60fps, 6000kbps, H.264_MAIN / OPUS */
+  /** H264_1080P_60 - 1920x1080, 60fps, 6000kbps, H.264_MAIN / OPUS */
   H264_1080P_60 = 3,
+  /** PORTRAIT_H264_720P_30 - 720x1280, 30fps, 3000kpbs, H.264_MAIN / OPUS */
+  PORTRAIT_H264_720P_30 = 4,
+  /** PORTRAIT_H264_720P_60 - 720x1280, 60fps, 4500kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_720P_60 = 5,
+  /** PORTRAIT_H264_1080P_30 - 1080x1920, 30fps, 4500kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_1080P_30 = 6,
+  /** PORTRAIT_H264_1080P_60 - 1080x1920, 60fps, 6000kbps, H.264_MAIN / OPUS */
+  PORTRAIT_H264_1080P_60 = 7,
   UNRECOGNIZED = -1,
 }
 
@@ -216,6 +224,18 @@ export function encodingOptionsPresetFromJSON(object: any): EncodingOptionsPrese
     case 3:
     case 'H264_1080P_60':
       return EncodingOptionsPreset.H264_1080P_60;
+    case 4:
+    case 'PORTRAIT_H264_720P_30':
+      return EncodingOptionsPreset.PORTRAIT_H264_720P_30;
+    case 5:
+    case 'PORTRAIT_H264_720P_60':
+      return EncodingOptionsPreset.PORTRAIT_H264_720P_60;
+    case 6:
+    case 'PORTRAIT_H264_1080P_30':
+      return EncodingOptionsPreset.PORTRAIT_H264_1080P_30;
+    case 7:
+    case 'PORTRAIT_H264_1080P_60':
+      return EncodingOptionsPreset.PORTRAIT_H264_1080P_60;
     case -1:
     case 'UNRECOGNIZED':
     default:
@@ -233,6 +253,14 @@ export function encodingOptionsPresetToJSON(object: EncodingOptionsPreset): stri
       return 'H264_1080P_30';
     case EncodingOptionsPreset.H264_1080P_60:
       return 'H264_1080P_60';
+    case EncodingOptionsPreset.PORTRAIT_H264_720P_30:
+      return 'PORTRAIT_H264_720P_30';
+    case EncodingOptionsPreset.PORTRAIT_H264_720P_60:
+      return 'PORTRAIT_H264_720P_60';
+    case EncodingOptionsPreset.PORTRAIT_H264_1080P_30:
+      return 'PORTRAIT_H264_1080P_30';
+    case EncodingOptionsPreset.PORTRAIT_H264_1080P_60:
+      return 'PORTRAIT_H264_1080P_60';
     default:
       return 'UNKNOWN';
   }
@@ -310,7 +338,7 @@ export interface RoomCompositeEgressRequest {
   audioOnly: boolean;
   /** (default false) */
   videoOnly: boolean;
-  /** (default https://recorder.livekit.io) */
+  /** template base url (default https://recorder.livekit.io) */
   customBaseUrl: string;
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
@@ -351,8 +379,10 @@ export interface TrackEgressRequest {
 export interface EncodedFileOutput {
   /** (optional) */
   fileType: EncodedFileType;
-  /** (optional) */
+  /** see egress docs for templating (default {room_name}-{time}) */
   filepath: string;
+  /** disable upload of manifest file (default false) */
+  disableManifest: boolean;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -368,14 +398,18 @@ export interface SegmentedFileOutput {
   playlistName: string;
   /** (optional) */
   segmentDuration: number;
+  /** disable upload of manifest file (default false) */
+  disableManifest: boolean;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
 }
 
 export interface DirectFileOutput {
-  /** (optional) */
+  /** see egress docs for templating (default {room_name}-{time}) */
   filepath: string;
+  /** disable upload of manifest file (default false) */
+  disableManifest: boolean;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -531,6 +565,16 @@ export interface SegmentsInfo {
   size: number;
   playlistLocation: string;
   segmentCount: number;
+}
+
+export interface AutoTrackEgress {
+  /** see docs for templating (default {room_name}-{time}) */
+  filepath: string;
+  /** disables upload of json manifest file (default false) */
+  disableManifest: boolean;
+  s3?: S3Upload | undefined;
+  gcp?: GCPUpload | undefined;
+  azure?: AzureBlobUpload | undefined;
 }
 
 function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
@@ -922,7 +966,14 @@ export const TrackEgressRequest = {
 };
 
 function createBaseEncodedFileOutput(): EncodedFileOutput {
-  return { fileType: 0, filepath: '', s3: undefined, gcp: undefined, azure: undefined };
+  return {
+    fileType: 0,
+    filepath: '',
+    disableManifest: false,
+    s3: undefined,
+    gcp: undefined,
+    azure: undefined,
+  };
 }
 
 export const EncodedFileOutput = {
@@ -932,6 +983,9 @@ export const EncodedFileOutput = {
     }
     if (message.filepath !== '') {
       writer.uint32(18).string(message.filepath);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(48).bool(message.disableManifest);
     }
     if (message.s3 !== undefined) {
       S3Upload.encode(message.s3, writer.uint32(26).fork()).ldelim();
@@ -958,6 +1012,9 @@ export const EncodedFileOutput = {
         case 2:
           message.filepath = reader.string();
           break;
+        case 6:
+          message.disableManifest = reader.bool();
+          break;
         case 3:
           message.s3 = S3Upload.decode(reader, reader.uint32());
           break;
@@ -979,6 +1036,7 @@ export const EncodedFileOutput = {
     return {
       fileType: isSet(object.fileType) ? encodedFileTypeFromJSON(object.fileType) : 0,
       filepath: isSet(object.filepath) ? String(object.filepath) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -989,6 +1047,7 @@ export const EncodedFileOutput = {
     const obj: any = {};
     message.fileType !== undefined && (obj.fileType = encodedFileTypeToJSON(message.fileType));
     message.filepath !== undefined && (obj.filepath = message.filepath);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
     message.gcp !== undefined &&
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
@@ -1001,6 +1060,7 @@ export const EncodedFileOutput = {
     const message = createBaseEncodedFileOutput();
     message.fileType = object.fileType ?? 0;
     message.filepath = object.filepath ?? '';
+    message.disableManifest = object.disableManifest ?? false;
     message.s3 =
       object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp =
@@ -1021,6 +1081,7 @@ function createBaseSegmentedFileOutput(): SegmentedFileOutput {
     filenamePrefix: '',
     playlistName: '',
     segmentDuration: 0,
+    disableManifest: false,
     s3: undefined,
     gcp: undefined,
     azure: undefined,
@@ -1040,6 +1101,9 @@ export const SegmentedFileOutput = {
     }
     if (message.segmentDuration !== 0) {
       writer.uint32(32).uint32(message.segmentDuration);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(64).bool(message.disableManifest);
     }
     if (message.s3 !== undefined) {
       S3Upload.encode(message.s3, writer.uint32(42).fork()).ldelim();
@@ -1072,6 +1136,9 @@ export const SegmentedFileOutput = {
         case 4:
           message.segmentDuration = reader.uint32();
           break;
+        case 8:
+          message.disableManifest = reader.bool();
+          break;
         case 5:
           message.s3 = S3Upload.decode(reader, reader.uint32());
           break;
@@ -1095,6 +1162,7 @@ export const SegmentedFileOutput = {
       filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : '',
       playlistName: isSet(object.playlistName) ? String(object.playlistName) : '',
       segmentDuration: isSet(object.segmentDuration) ? Number(object.segmentDuration) : 0,
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -1109,6 +1177,7 @@ export const SegmentedFileOutput = {
     message.playlistName !== undefined && (obj.playlistName = message.playlistName);
     message.segmentDuration !== undefined &&
       (obj.segmentDuration = Math.round(message.segmentDuration));
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
     message.gcp !== undefined &&
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
@@ -1125,6 +1194,7 @@ export const SegmentedFileOutput = {
     message.filenamePrefix = object.filenamePrefix ?? '';
     message.playlistName = object.playlistName ?? '';
     message.segmentDuration = object.segmentDuration ?? 0;
+    message.disableManifest = object.disableManifest ?? false;
     message.s3 =
       object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp =
@@ -1140,13 +1210,16 @@ export const SegmentedFileOutput = {
 };
 
 function createBaseDirectFileOutput(): DirectFileOutput {
-  return { filepath: '', s3: undefined, gcp: undefined, azure: undefined };
+  return { filepath: '', disableManifest: false, s3: undefined, gcp: undefined, azure: undefined };
 }
 
 export const DirectFileOutput = {
   encode(message: DirectFileOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.filepath !== '') {
       writer.uint32(10).string(message.filepath);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(40).bool(message.disableManifest);
     }
     if (message.s3 !== undefined) {
       S3Upload.encode(message.s3, writer.uint32(18).fork()).ldelim();
@@ -1170,6 +1243,9 @@ export const DirectFileOutput = {
         case 1:
           message.filepath = reader.string();
           break;
+        case 5:
+          message.disableManifest = reader.bool();
+          break;
         case 2:
           message.s3 = S3Upload.decode(reader, reader.uint32());
           break;
@@ -1190,6 +1266,7 @@ export const DirectFileOutput = {
   fromJSON(object: any): DirectFileOutput {
     return {
       filepath: isSet(object.filepath) ? String(object.filepath) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -1199,6 +1276,7 @@ export const DirectFileOutput = {
   toJSON(message: DirectFileOutput): unknown {
     const obj: any = {};
     message.filepath !== undefined && (obj.filepath = message.filepath);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
     message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
     message.gcp !== undefined &&
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
@@ -1210,6 +1288,7 @@ export const DirectFileOutput = {
   fromPartial<I extends Exact<DeepPartial<DirectFileOutput>, I>>(object: I): DirectFileOutput {
     const message = createBaseDirectFileOutput();
     message.filepath = object.filepath ?? '';
+    message.disableManifest = object.disableManifest ?? false;
     message.s3 =
       object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp =
@@ -2425,6 +2504,100 @@ export const SegmentsInfo = {
     message.size = object.size ?? 0;
     message.playlistLocation = object.playlistLocation ?? '';
     message.segmentCount = object.segmentCount ?? 0;
+    return message;
+  },
+};
+
+function createBaseAutoTrackEgress(): AutoTrackEgress {
+  return { filepath: '', disableManifest: false, s3: undefined, gcp: undefined, azure: undefined };
+}
+
+export const AutoTrackEgress = {
+  encode(message: AutoTrackEgress, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.filepath !== '') {
+      writer.uint32(10).string(message.filepath);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(40).bool(message.disableManifest);
+    }
+    if (message.s3 !== undefined) {
+      S3Upload.encode(message.s3, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.gcp !== undefined) {
+      GCPUpload.encode(message.gcp, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.azure !== undefined) {
+      AzureBlobUpload.encode(message.azure, writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AutoTrackEgress {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAutoTrackEgress();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.filepath = reader.string();
+          break;
+        case 5:
+          message.disableManifest = reader.bool();
+          break;
+        case 2:
+          message.s3 = S3Upload.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.gcp = GCPUpload.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.azure = AzureBlobUpload.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AutoTrackEgress {
+    return {
+      filepath: isSet(object.filepath) ? String(object.filepath) : '',
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+    };
+  },
+
+  toJSON(message: AutoTrackEgress): unknown {
+    const obj: any = {};
+    message.filepath !== undefined && (obj.filepath = message.filepath);
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.gcp !== undefined &&
+      (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
+    message.azure !== undefined &&
+      (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<AutoTrackEgress>, I>>(object: I): AutoTrackEgress {
+    const message = createBaseAutoTrackEgress();
+    message.filepath = object.filepath ?? '';
+    message.disableManifest = object.disableManifest ?? false;
+    message.s3 =
+      object.s3 !== undefined && object.s3 !== null ? S3Upload.fromPartial(object.s3) : undefined;
+    message.gcp =
+      object.gcp !== undefined && object.gcp !== null
+        ? GCPUpload.fromPartial(object.gcp)
+        : undefined;
+    message.azure =
+      object.azure !== undefined && object.azure !== null
+        ? AzureBlobUpload.fromPartial(object.azure)
+        : undefined;
     return message;
   },
 };

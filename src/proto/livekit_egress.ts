@@ -554,6 +554,8 @@ export function streamInfo_StatusToJSON(object: StreamInfo_Status): string {
 
 export interface FileInfo {
   filename: string;
+  startedAt: number;
+  endedAt: number;
   duration: number;
   size: number;
   location: string;
@@ -2348,13 +2350,19 @@ export const StreamInfo = {
 };
 
 function createBaseFileInfo(): FileInfo {
-  return { filename: '', duration: 0, size: 0, location: '' };
+  return { filename: '', startedAt: 0, endedAt: 0, duration: 0, size: 0, location: '' };
 }
 
 export const FileInfo = {
   encode(message: FileInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.filename !== '') {
       writer.uint32(10).string(message.filename);
+    }
+    if (message.startedAt !== 0) {
+      writer.uint32(16).int64(message.startedAt);
+    }
+    if (message.endedAt !== 0) {
+      writer.uint32(24).int64(message.endedAt);
     }
     if (message.duration !== 0) {
       writer.uint32(48).int64(message.duration);
@@ -2378,6 +2386,12 @@ export const FileInfo = {
         case 1:
           message.filename = reader.string();
           break;
+        case 2:
+          message.startedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 3:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
         case 6:
           message.duration = longToNumber(reader.int64() as Long);
           break;
@@ -2399,6 +2413,8 @@ export const FileInfo = {
     return {
       filename: isSet(object.filename) ? String(object.filename) : '',
       duration: isSet(object.duration) ? Number(object.duration) : 0,
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
       size: isSet(object.size) ? Number(object.size) : 0,
       location: isSet(object.location) ? String(object.location) : '',
     };
@@ -2408,6 +2424,8 @@ export const FileInfo = {
     const obj: any = {};
     message.filename !== undefined && (obj.filename = message.filename);
     message.duration !== undefined && (obj.duration = Math.round(message.duration));
+    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
     message.size !== undefined && (obj.size = Math.round(message.size));
     message.location !== undefined && (obj.location = message.location);
     return obj;
@@ -2417,6 +2435,8 @@ export const FileInfo = {
     const message = createBaseFileInfo();
     message.filename = object.filename ?? '';
     message.duration = object.duration ?? 0;
+    message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
     message.size = object.size ?? 0;
     message.location = object.location ?? '';
     return message;

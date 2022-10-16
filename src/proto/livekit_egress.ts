@@ -421,6 +421,7 @@ export interface S3Upload {
   region: string;
   endpoint: string;
   bucket: string;
+  forcePathStyle: boolean;
 }
 
 export interface GCPUpload {
@@ -567,6 +568,8 @@ export interface SegmentsInfo {
   size: number;
   playlistLocation: string;
   segmentCount: number;
+  startedAt: number;
+  endedAt: number;
 }
 
 export interface AutoTrackEgress {
@@ -1306,7 +1309,7 @@ export const DirectFileOutput = {
 };
 
 function createBaseS3Upload(): S3Upload {
-  return { accessKey: '', secret: '', region: '', endpoint: '', bucket: '' };
+  return { accessKey: '', secret: '', region: '', endpoint: '', bucket: '', forcePathStyle: false };
 }
 
 export const S3Upload = {
@@ -1325,6 +1328,9 @@ export const S3Upload = {
     }
     if (message.bucket !== '') {
       writer.uint32(42).string(message.bucket);
+    }
+    if (message.forcePathStyle === true) {
+      writer.uint32(48).bool(message.forcePathStyle);
     }
     return writer;
   },
@@ -1351,6 +1357,9 @@ export const S3Upload = {
         case 5:
           message.bucket = reader.string();
           break;
+        case 6:
+          message.forcePathStyle = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1366,6 +1375,7 @@ export const S3Upload = {
       region: isSet(object.region) ? String(object.region) : '',
       endpoint: isSet(object.endpoint) ? String(object.endpoint) : '',
       bucket: isSet(object.bucket) ? String(object.bucket) : '',
+      forcePathStyle: isSet(object.forcePathStyle) ? Boolean(object.forcePathStyle) : false,
     };
   },
 
@@ -1376,6 +1386,7 @@ export const S3Upload = {
     message.region !== undefined && (obj.region = message.region);
     message.endpoint !== undefined && (obj.endpoint = message.endpoint);
     message.bucket !== undefined && (obj.bucket = message.bucket);
+    message.forcePathStyle !== undefined && (obj.forcePathStyle = message.forcePathStyle);
     return obj;
   },
 
@@ -1386,6 +1397,7 @@ export const S3Upload = {
     message.region = object.region ?? '';
     message.endpoint = object.endpoint ?? '';
     message.bucket = object.bucket ?? '';
+    message.forcePathStyle = object.forcePathStyle ?? false;
     return message;
   },
 };
@@ -2412,9 +2424,9 @@ export const FileInfo = {
   fromJSON(object: any): FileInfo {
     return {
       filename: isSet(object.filename) ? String(object.filename) : '',
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
       startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
       endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
       size: isSet(object.size) ? Number(object.size) : 0,
       location: isSet(object.location) ? String(object.location) : '',
     };
@@ -2423,9 +2435,9 @@ export const FileInfo = {
   toJSON(message: FileInfo): unknown {
     const obj: any = {};
     message.filename !== undefined && (obj.filename = message.filename);
-    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
     message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
+    message.duration !== undefined && (obj.duration = Math.round(message.duration));
     message.size !== undefined && (obj.size = Math.round(message.size));
     message.location !== undefined && (obj.location = message.location);
     return obj;
@@ -2434,9 +2446,9 @@ export const FileInfo = {
   fromPartial<I extends Exact<DeepPartial<FileInfo>, I>>(object: I): FileInfo {
     const message = createBaseFileInfo();
     message.filename = object.filename ?? '';
-    message.duration = object.duration ?? 0;
     message.startedAt = object.startedAt ?? 0;
     message.endedAt = object.endedAt ?? 0;
+    message.duration = object.duration ?? 0;
     message.size = object.size ?? 0;
     message.location = object.location ?? '';
     return message;
@@ -2444,7 +2456,15 @@ export const FileInfo = {
 };
 
 function createBaseSegmentsInfo(): SegmentsInfo {
-  return { playlistName: '', duration: 0, size: 0, playlistLocation: '', segmentCount: 0 };
+  return {
+    playlistName: '',
+    duration: 0,
+    size: 0,
+    playlistLocation: '',
+    segmentCount: 0,
+    startedAt: 0,
+    endedAt: 0,
+  };
 }
 
 export const SegmentsInfo = {
@@ -2463,6 +2483,12 @@ export const SegmentsInfo = {
     }
     if (message.segmentCount !== 0) {
       writer.uint32(40).int64(message.segmentCount);
+    }
+    if (message.startedAt !== 0) {
+      writer.uint32(48).int64(message.startedAt);
+    }
+    if (message.endedAt !== 0) {
+      writer.uint32(56).int64(message.endedAt);
     }
     return writer;
   },
@@ -2489,6 +2515,12 @@ export const SegmentsInfo = {
         case 5:
           message.segmentCount = longToNumber(reader.int64() as Long);
           break;
+        case 6:
+          message.startedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 7:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -2504,6 +2536,8 @@ export const SegmentsInfo = {
       size: isSet(object.size) ? Number(object.size) : 0,
       playlistLocation: isSet(object.playlistLocation) ? String(object.playlistLocation) : '',
       segmentCount: isSet(object.segmentCount) ? Number(object.segmentCount) : 0,
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
     };
   },
 
@@ -2514,6 +2548,8 @@ export const SegmentsInfo = {
     message.size !== undefined && (obj.size = Math.round(message.size));
     message.playlistLocation !== undefined && (obj.playlistLocation = message.playlistLocation);
     message.segmentCount !== undefined && (obj.segmentCount = Math.round(message.segmentCount));
+    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
     return obj;
   },
 
@@ -2524,6 +2560,8 @@ export const SegmentsInfo = {
     message.size = object.size ?? 0;
     message.playlistLocation = object.playlistLocation ?? '';
     message.segmentCount = object.segmentCount ?? 0;
+    message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
     return message;
   },
 };

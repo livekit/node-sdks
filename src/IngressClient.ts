@@ -94,25 +94,25 @@ export class IngressClient {
    */
   async createIngress(
     inputType: IngressInput,
-	participantIdentity: string,
+    participantIdentity: string,
     opts?: CreateIngressOptions,
   ): Promise<IngressInfo> {
-	let name: string;
-	let roomName: string;
-	let participantName: string;
-	let audio: IngressAudioOptions | undefined
-	let video: IngressVideoOptions | undefined
+    let name: string;
+    let roomName: string;
+    let participantName: string;
+    let audio: IngressAudioOptions | undefined
+    let video: IngressVideoOptions | undefined
 
-	if (opts !== undefined) {
-		name = opts.name;
-		roomName = opts.roomName || '';
-		participantName = opts.participantName || '';
-		audio = opts.audioParams;
-		video = opts.videoParams;
-	}
+    if (opts !== undefined) {
+        name = opts.name;
+        roomName = opts.roomName || '';
+        participantName = opts.participantName || '';
+        audio = opts.audioParams;
+        video = opts.videoParams;
+    }
 
-	name ??= ''
-	roomName ??= ''
+    name ??= ''
+    roomName ??= ''
     participantName ??= ''
 
     const req = CreateIngressRequest.toJSON({

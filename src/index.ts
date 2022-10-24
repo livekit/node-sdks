@@ -15,8 +15,11 @@ export {
   StreamProtocol,
 } from './proto/livekit_egress';
 export {
+  IngressAudioOptions,
   IngressInfo,
   IngressInput,
+  IngressState,
+  IngressVideoOptions,
 } from './proto/livekit_ingress';
 export {
   DataPacket_Kind,

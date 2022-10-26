@@ -376,6 +376,18 @@ export interface TrackEgressRequest {
   websocketUrl: string | undefined;
 }
 
+/** record any website */
+export interface WebEgressRequest {
+  url: string;
+  audioOnly: boolean;
+  videoOnly: boolean;
+  file?: EncodedFileOutput | undefined;
+  stream?: StreamOutput | undefined;
+  segments?: SegmentedFileOutput | undefined;
+  preset: EncodingOptionsPreset | undefined;
+  advanced?: EncodingOptions | undefined;
+}
+
 export interface EncodedFileOutput {
   /** (optional) */
   fileType: EncodedFileType;
@@ -386,6 +398,7 @@ export interface EncodedFileOutput {
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
+  aliOSS?: AliOSSUpload | undefined;
 }
 
 /** Used to generate HLS segments or other kind of segmented output */
@@ -403,16 +416,18 @@ export interface SegmentedFileOutput {
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
+  aliOSS?: AliOSSUpload | undefined;
 }
 
 export interface DirectFileOutput {
-  /** see egress docs for templating (default {room_name}-{time}) */
+  /** see egress docs for templating (default {track_id}-{time}) */
   filepath: string;
   /** disable upload of manifest file (default false) */
   disableManifest: boolean;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
+  aliOSS?: AliOSSUpload | undefined;
 }
 
 export interface S3Upload {
@@ -422,6 +437,13 @@ export interface S3Upload {
   endpoint: string;
   bucket: string;
   forcePathStyle: boolean;
+  metadata: { [key: string]: string };
+  tagging: string;
+}
+
+export interface S3Upload_MetadataEntry {
+  key: string;
+  value: string;
 }
 
 export interface GCPUpload {
@@ -433,6 +455,14 @@ export interface AzureBlobUpload {
   accountName: string;
   accountKey: string;
   containerName: string;
+}
+
+export interface AliOSSUpload {
+  accessKey: string;
+  secret: string;
+  region: string;
+  endpoint: string;
+  bucket: string;
 }
 
 export interface StreamOutput {
@@ -498,6 +528,7 @@ export interface EgressInfo {
   roomComposite?: RoomCompositeEgressRequest | undefined;
   trackComposite?: TrackCompositeEgressRequest | undefined;
   track?: TrackEgressRequest | undefined;
+  web?: WebEgressRequest | undefined;
   stream?: StreamInfoList | undefined;
   file?: FileInfo | undefined;
   segments?: SegmentsInfo | undefined;
@@ -573,7 +604,7 @@ export interface SegmentsInfo {
 }
 
 export interface AutoTrackEgress {
-  /** see docs for templating (default {room_name}-{time}) */
+  /** see docs for templating (default {track_id}-{time}) */
   filepath: string;
   /** disables upload of json manifest file (default false) */
   disableManifest: boolean;
@@ -970,6 +1001,145 @@ export const TrackEgressRequest = {
   },
 };
 
+function createBaseWebEgressRequest(): WebEgressRequest {
+  return {
+    url: '',
+    audioOnly: false,
+    videoOnly: false,
+    file: undefined,
+    stream: undefined,
+    segments: undefined,
+    preset: undefined,
+    advanced: undefined,
+  };
+}
+
+export const WebEgressRequest = {
+  encode(message: WebEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.url !== '') {
+      writer.uint32(10).string(message.url);
+    }
+    if (message.audioOnly === true) {
+      writer.uint32(16).bool(message.audioOnly);
+    }
+    if (message.videoOnly === true) {
+      writer.uint32(24).bool(message.videoOnly);
+    }
+    if (message.file !== undefined) {
+      EncodedFileOutput.encode(message.file, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.stream !== undefined) {
+      StreamOutput.encode(message.stream, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.segments !== undefined) {
+      SegmentedFileOutput.encode(message.segments, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.preset !== undefined) {
+      writer.uint32(56).int32(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      EncodingOptions.encode(message.advanced, writer.uint32(66).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): WebEgressRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebEgressRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.url = reader.string();
+          break;
+        case 2:
+          message.audioOnly = reader.bool();
+          break;
+        case 3:
+          message.videoOnly = reader.bool();
+          break;
+        case 4:
+          message.file = EncodedFileOutput.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.stream = StreamOutput.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.preset = reader.int32() as any;
+          break;
+        case 8:
+          message.advanced = EncodingOptions.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebEgressRequest {
+    return {
+      url: isSet(object.url) ? String(object.url) : '',
+      audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
+      videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
+      file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
+      stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
+      segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
+      preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
+      advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
+    };
+  },
+
+  toJSON(message: WebEgressRequest): unknown {
+    const obj: any = {};
+    message.url !== undefined && (obj.url = message.url);
+    message.audioOnly !== undefined && (obj.audioOnly = message.audioOnly);
+    message.videoOnly !== undefined && (obj.videoOnly = message.videoOnly);
+    message.file !== undefined &&
+      (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
+    message.stream !== undefined &&
+      (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
+    message.segments !== undefined &&
+      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
+    message.preset !== undefined &&
+      (obj.preset =
+        message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
+    message.advanced !== undefined &&
+      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<WebEgressRequest>, I>>(object: I): WebEgressRequest {
+    const message = createBaseWebEgressRequest();
+    message.url = object.url ?? '';
+    message.audioOnly = object.audioOnly ?? false;
+    message.videoOnly = object.videoOnly ?? false;
+    message.file =
+      object.file !== undefined && object.file !== null
+        ? EncodedFileOutput.fromPartial(object.file)
+        : undefined;
+    message.stream =
+      object.stream !== undefined && object.stream !== null
+        ? StreamOutput.fromPartial(object.stream)
+        : undefined;
+    message.segments =
+      object.segments !== undefined && object.segments !== null
+        ? SegmentedFileOutput.fromPartial(object.segments)
+        : undefined;
+    message.preset = object.preset ?? undefined;
+    message.advanced =
+      object.advanced !== undefined && object.advanced !== null
+        ? EncodingOptions.fromPartial(object.advanced)
+        : undefined;
+    return message;
+  },
+};
+
 function createBaseEncodedFileOutput(): EncodedFileOutput {
   return {
     fileType: 0,
@@ -978,6 +1148,7 @@ function createBaseEncodedFileOutput(): EncodedFileOutput {
     s3: undefined,
     gcp: undefined,
     azure: undefined,
+    aliOSS: undefined,
   };
 }
 
@@ -1000,6 +1171,9 @@ export const EncodedFileOutput = {
     }
     if (message.azure !== undefined) {
       AzureBlobUpload.encode(message.azure, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.aliOSS !== undefined) {
+      AliOSSUpload.encode(message.aliOSS, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -1029,6 +1203,9 @@ export const EncodedFileOutput = {
         case 5:
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
           break;
+        case 7:
+          message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1045,6 +1222,7 @@ export const EncodedFileOutput = {
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+      aliOSS: isSet(object.aliOSS) ? AliOSSUpload.fromJSON(object.aliOSS) : undefined,
     };
   },
 
@@ -1058,6 +1236,8 @@ export const EncodedFileOutput = {
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
     message.azure !== undefined &&
       (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    message.aliOSS !== undefined &&
+      (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
     return obj;
   },
 
@@ -1076,6 +1256,10 @@ export const EncodedFileOutput = {
       object.azure !== undefined && object.azure !== null
         ? AzureBlobUpload.fromPartial(object.azure)
         : undefined;
+    message.aliOSS =
+      object.aliOSS !== undefined && object.aliOSS !== null
+        ? AliOSSUpload.fromPartial(object.aliOSS)
+        : undefined;
     return message;
   },
 };
@@ -1090,6 +1274,7 @@ function createBaseSegmentedFileOutput(): SegmentedFileOutput {
     s3: undefined,
     gcp: undefined,
     azure: undefined,
+    aliOSS: undefined,
   };
 }
 
@@ -1118,6 +1303,9 @@ export const SegmentedFileOutput = {
     }
     if (message.azure !== undefined) {
       AzureBlobUpload.encode(message.azure, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.aliOSS !== undefined) {
+      AliOSSUpload.encode(message.aliOSS, writer.uint32(74).fork()).ldelim();
     }
     return writer;
   },
@@ -1153,6 +1341,9 @@ export const SegmentedFileOutput = {
         case 7:
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
           break;
+        case 9:
+          message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1171,6 +1362,7 @@ export const SegmentedFileOutput = {
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+      aliOSS: isSet(object.aliOSS) ? AliOSSUpload.fromJSON(object.aliOSS) : undefined,
     };
   },
 
@@ -1188,6 +1380,8 @@ export const SegmentedFileOutput = {
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
     message.azure !== undefined &&
       (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    message.aliOSS !== undefined &&
+      (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
     return obj;
   },
 
@@ -1210,12 +1404,23 @@ export const SegmentedFileOutput = {
       object.azure !== undefined && object.azure !== null
         ? AzureBlobUpload.fromPartial(object.azure)
         : undefined;
+    message.aliOSS =
+      object.aliOSS !== undefined && object.aliOSS !== null
+        ? AliOSSUpload.fromPartial(object.aliOSS)
+        : undefined;
     return message;
   },
 };
 
 function createBaseDirectFileOutput(): DirectFileOutput {
-  return { filepath: '', disableManifest: false, s3: undefined, gcp: undefined, azure: undefined };
+  return {
+    filepath: '',
+    disableManifest: false,
+    s3: undefined,
+    gcp: undefined,
+    azure: undefined,
+    aliOSS: undefined,
+  };
 }
 
 export const DirectFileOutput = {
@@ -1234,6 +1439,9 @@ export const DirectFileOutput = {
     }
     if (message.azure !== undefined) {
       AzureBlobUpload.encode(message.azure, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.aliOSS !== undefined) {
+      AliOSSUpload.encode(message.aliOSS, writer.uint32(50).fork()).ldelim();
     }
     return writer;
   },
@@ -1260,6 +1468,9 @@ export const DirectFileOutput = {
         case 4:
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
           break;
+        case 6:
+          message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1275,6 +1486,7 @@ export const DirectFileOutput = {
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+      aliOSS: isSet(object.aliOSS) ? AliOSSUpload.fromJSON(object.aliOSS) : undefined,
     };
   },
 
@@ -1287,6 +1499,8 @@ export const DirectFileOutput = {
       (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
     message.azure !== undefined &&
       (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    message.aliOSS !== undefined &&
+      (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
     return obj;
   },
 
@@ -1304,12 +1518,25 @@ export const DirectFileOutput = {
       object.azure !== undefined && object.azure !== null
         ? AzureBlobUpload.fromPartial(object.azure)
         : undefined;
+    message.aliOSS =
+      object.aliOSS !== undefined && object.aliOSS !== null
+        ? AliOSSUpload.fromPartial(object.aliOSS)
+        : undefined;
     return message;
   },
 };
 
 function createBaseS3Upload(): S3Upload {
-  return { accessKey: '', secret: '', region: '', endpoint: '', bucket: '', forcePathStyle: false };
+  return {
+    accessKey: '',
+    secret: '',
+    region: '',
+    endpoint: '',
+    bucket: '',
+    forcePathStyle: false,
+    metadata: {},
+    tagging: '',
+  };
 }
 
 export const S3Upload = {
@@ -1331,6 +1558,12 @@ export const S3Upload = {
     }
     if (message.forcePathStyle === true) {
       writer.uint32(48).bool(message.forcePathStyle);
+    }
+    Object.entries(message.metadata).forEach(([key, value]) => {
+      S3Upload_MetadataEntry.encode({ key: key as any, value }, writer.uint32(58).fork()).ldelim();
+    });
+    if (message.tagging !== '') {
+      writer.uint32(66).string(message.tagging);
     }
     return writer;
   },
@@ -1360,6 +1593,15 @@ export const S3Upload = {
         case 6:
           message.forcePathStyle = reader.bool();
           break;
+        case 7:
+          const entry7 = S3Upload_MetadataEntry.decode(reader, reader.uint32());
+          if (entry7.value !== undefined) {
+            message.metadata[entry7.key] = entry7.value;
+          }
+          break;
+        case 8:
+          message.tagging = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1376,6 +1618,13 @@ export const S3Upload = {
       endpoint: isSet(object.endpoint) ? String(object.endpoint) : '',
       bucket: isSet(object.bucket) ? String(object.bucket) : '',
       forcePathStyle: isSet(object.forcePathStyle) ? Boolean(object.forcePathStyle) : false,
+      metadata: isObject(object.metadata)
+        ? Object.entries(object.metadata).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+            acc[key] = String(value);
+            return acc;
+          }, {})
+        : {},
+      tagging: isSet(object.tagging) ? String(object.tagging) : '',
     };
   },
 
@@ -1387,6 +1636,13 @@ export const S3Upload = {
     message.endpoint !== undefined && (obj.endpoint = message.endpoint);
     message.bucket !== undefined && (obj.bucket = message.bucket);
     message.forcePathStyle !== undefined && (obj.forcePathStyle = message.forcePathStyle);
+    obj.metadata = {};
+    if (message.metadata) {
+      Object.entries(message.metadata).forEach(([k, v]) => {
+        obj.metadata[k] = v;
+      });
+    }
+    message.tagging !== undefined && (obj.tagging = message.tagging);
     return obj;
   },
 
@@ -1398,6 +1654,76 @@ export const S3Upload = {
     message.endpoint = object.endpoint ?? '';
     message.bucket = object.bucket ?? '';
     message.forcePathStyle = object.forcePathStyle ?? false;
+    message.metadata = Object.entries(object.metadata ?? {}).reduce<{ [key: string]: string }>(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = String(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    message.tagging = object.tagging ?? '';
+    return message;
+  },
+};
+
+function createBaseS3Upload_MetadataEntry(): S3Upload_MetadataEntry {
+  return { key: '', value: '' };
+}
+
+export const S3Upload_MetadataEntry = {
+  encode(message: S3Upload_MetadataEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== '') {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): S3Upload_MetadataEntry {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseS3Upload_MetadataEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.key = reader.string();
+          break;
+        case 2:
+          message.value = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): S3Upload_MetadataEntry {
+    return {
+      key: isSet(object.key) ? String(object.key) : '',
+      value: isSet(object.value) ? String(object.value) : '',
+    };
+  },
+
+  toJSON(message: S3Upload_MetadataEntry): unknown {
+    const obj: any = {};
+    message.key !== undefined && (obj.key = message.key);
+    message.value !== undefined && (obj.value = message.value);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<S3Upload_MetadataEntry>, I>>(
+    object: I,
+  ): S3Upload_MetadataEntry {
+    const message = createBaseS3Upload_MetadataEntry();
+    message.key = object.key ?? '';
+    message.value = object.value ?? '';
     return message;
   },
 };
@@ -1528,6 +1854,91 @@ export const AzureBlobUpload = {
     message.accountName = object.accountName ?? '';
     message.accountKey = object.accountKey ?? '';
     message.containerName = object.containerName ?? '';
+    return message;
+  },
+};
+
+function createBaseAliOSSUpload(): AliOSSUpload {
+  return { accessKey: '', secret: '', region: '', endpoint: '', bucket: '' };
+}
+
+export const AliOSSUpload = {
+  encode(message: AliOSSUpload, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.accessKey !== '') {
+      writer.uint32(10).string(message.accessKey);
+    }
+    if (message.secret !== '') {
+      writer.uint32(18).string(message.secret);
+    }
+    if (message.region !== '') {
+      writer.uint32(26).string(message.region);
+    }
+    if (message.endpoint !== '') {
+      writer.uint32(34).string(message.endpoint);
+    }
+    if (message.bucket !== '') {
+      writer.uint32(42).string(message.bucket);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AliOSSUpload {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAliOSSUpload();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.accessKey = reader.string();
+          break;
+        case 2:
+          message.secret = reader.string();
+          break;
+        case 3:
+          message.region = reader.string();
+          break;
+        case 4:
+          message.endpoint = reader.string();
+          break;
+        case 5:
+          message.bucket = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AliOSSUpload {
+    return {
+      accessKey: isSet(object.accessKey) ? String(object.accessKey) : '',
+      secret: isSet(object.secret) ? String(object.secret) : '',
+      region: isSet(object.region) ? String(object.region) : '',
+      endpoint: isSet(object.endpoint) ? String(object.endpoint) : '',
+      bucket: isSet(object.bucket) ? String(object.bucket) : '',
+    };
+  },
+
+  toJSON(message: AliOSSUpload): unknown {
+    const obj: any = {};
+    message.accessKey !== undefined && (obj.accessKey = message.accessKey);
+    message.secret !== undefined && (obj.secret = message.secret);
+    message.region !== undefined && (obj.region = message.region);
+    message.endpoint !== undefined && (obj.endpoint = message.endpoint);
+    message.bucket !== undefined && (obj.bucket = message.bucket);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<AliOSSUpload>, I>>(object: I): AliOSSUpload {
+    const message = createBaseAliOSSUpload();
+    message.accessKey = object.accessKey ?? '';
+    message.secret = object.secret ?? '';
+    message.region = object.region ?? '';
+    message.endpoint = object.endpoint ?? '';
+    message.bucket = object.bucket ?? '';
     return message;
   },
 };
@@ -2032,6 +2443,7 @@ function createBaseEgressInfo(): EgressInfo {
     roomComposite: undefined,
     trackComposite: undefined,
     track: undefined,
+    web: undefined,
     stream: undefined,
     file: undefined,
     segments: undefined,
@@ -2069,6 +2481,9 @@ export const EgressInfo = {
     }
     if (message.track !== undefined) {
       TrackEgressRequest.encode(message.track, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.web !== undefined) {
+      WebEgressRequest.encode(message.web, writer.uint32(114).fork()).ldelim();
     }
     if (message.stream !== undefined) {
       StreamInfoList.encode(message.stream, writer.uint32(58).fork()).ldelim();
@@ -2119,6 +2534,9 @@ export const EgressInfo = {
         case 6:
           message.track = TrackEgressRequest.decode(reader, reader.uint32());
           break;
+        case 14:
+          message.web = WebEgressRequest.decode(reader, reader.uint32());
+          break;
         case 7:
           message.stream = StreamInfoList.decode(reader, reader.uint32());
           break;
@@ -2152,6 +2570,7 @@ export const EgressInfo = {
         ? TrackCompositeEgressRequest.fromJSON(object.trackComposite)
         : undefined,
       track: isSet(object.track) ? TrackEgressRequest.fromJSON(object.track) : undefined,
+      web: isSet(object.web) ? WebEgressRequest.fromJSON(object.web) : undefined,
       stream: isSet(object.stream) ? StreamInfoList.fromJSON(object.stream) : undefined,
       file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
       segments: isSet(object.segments) ? SegmentsInfo.fromJSON(object.segments) : undefined,
@@ -2177,6 +2596,8 @@ export const EgressInfo = {
         : undefined);
     message.track !== undefined &&
       (obj.track = message.track ? TrackEgressRequest.toJSON(message.track) : undefined);
+    message.web !== undefined &&
+      (obj.web = message.web ? WebEgressRequest.toJSON(message.web) : undefined);
     message.stream !== undefined &&
       (obj.stream = message.stream ? StreamInfoList.toJSON(message.stream) : undefined);
     message.file !== undefined &&
@@ -2206,6 +2627,10 @@ export const EgressInfo = {
     message.track =
       object.track !== undefined && object.track !== null
         ? TrackEgressRequest.fromPartial(object.track)
+        : undefined;
+    message.web =
+      object.web !== undefined && object.web !== null
+        ? WebEgressRequest.fromPartial(object.web)
         : undefined;
     message.stream =
       object.stream !== undefined && object.stream !== null
@@ -2665,6 +3090,7 @@ export interface Egress {
   StartRoomCompositeEgress(request: RoomCompositeEgressRequest): Promise<EgressInfo>;
   StartTrackCompositeEgress(request: TrackCompositeEgressRequest): Promise<EgressInfo>;
   StartTrackEgress(request: TrackEgressRequest): Promise<EgressInfo>;
+  StartWebEgress(request: WebEgressRequest): Promise<EgressInfo>;
   /** update web composite layout */
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;
   /** add or remove stream endpoints */
@@ -2734,6 +3160,10 @@ function longToNumber(long: Long): number {
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isObject(value: any): boolean {
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

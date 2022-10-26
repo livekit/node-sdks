@@ -16,6 +16,7 @@ import {
   TrackEgressRequest,
   UpdateLayoutRequest,
   UpdateStreamRequest,
+  WebEgressRequest,
 } from './proto/livekit_egress';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -42,6 +43,21 @@ export interface RoomCompositeOptions {
    * custom template url. optional
    */
   customBaseUrl?: string;
+}
+
+export interface WebOptions {
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
+  /**
+   * record audio only. optional
+   */
+  audioOnly?: boolean;
+  /**
+   * record video only. optional
+   */
+  videoOnly?: boolean;
 }
 
 export interface TrackCompositeOptions {
@@ -147,6 +163,42 @@ export class EgressClient {
     const data = await this.rpc.request(
       svc,
       'StartRoomCompositeEgress',
+      req,
+      this.authHeader({ roomRecord: true }),
+    );
+    return EgressInfo.fromJSON(data);
+  }
+
+  /**
+   * @param url url
+   * @param output file or stream output
+   * @param opts WebOptions
+   */
+  async startWebEgress(
+    url: string,
+    output: EncodedFileOutput | SegmentedFileOutput | StreamOutput,
+    opts?: WebOptions,
+  ): Promise<EgressInfo> {
+    const audioOnly = opts?.audioOnly || false;
+    const videoOnly = opts?.videoOnly || false;
+    const { file, segments, stream, preset, advanced } = this.getOutputParams(
+      output,
+      opts?.encodingOptions,
+    );
+    const req = WebEgressRequest.toJSON({
+      url,
+      audioOnly,
+      videoOnly,
+      file,
+      stream,
+      segments,
+      preset,
+      advanced,
+    });
+
+    const data = await this.rpc.request(
+      svc,
+      'StartWebEgress',
       req,
       this.authHeader({ roomRecord: true }),
     );

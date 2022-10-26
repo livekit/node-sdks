@@ -3,7 +3,6 @@ import {
   IngressAudioOptions,
   IngressInfo,
   IngressInput,
-  IngressState,
   IngressVideoOptions,
   ListIngressRequest,
   ListIngressResponse,
@@ -18,7 +17,7 @@ export interface CreateIngressOptions {
   /**
    * ingress name. optional
    */
-  name: string;
+  name?: string;
   /**
    * name of the room to send media to. optional
    */
@@ -97,7 +96,7 @@ export class IngressClient extends ServiceBase {
     let video: IngressVideoOptions | undefined;
 
     if (opts !== undefined) {
-      name = opts.name;
+      name = opts.name || '';
       roomName = opts.roomName || '';
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
@@ -119,6 +118,65 @@ export class IngressClient extends ServiceBase {
       svc,
       'CreateIngress',
       req,
+      this.authHeader({ ingressAdmin: true }),
+    );
+    return IngressInfo.fromJSON(data);
+  }
+
+  /**
+   * @param ingressId ID of the ingress to update
+   * @param opts UpdateIngressOptions
+   */
+  async updateIngress(ingressId: string, opts: UpdateIngressOptions): Promise<IngressInfo> {
+    const name: string = opts.name || '';
+    const roomName: string = opts.roomName || '';
+    const participantName: string = opts.participantName || '';
+    const participantIdentity: string = opts.participantIdentity || '';
+    const audio: IngressAudioOptions | undefined = opts.audioParams;
+    const video: IngressVideoOptions | undefined = opts.videoParams;
+
+    const req = UpdateIngressRequest.toJSON({
+      ingressId,
+      name,
+      roomName,
+      participantIdentity,
+      participantName,
+      audio,
+      video,
+    });
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateIngress',
+      req,
+      this.authHeader({ ingressAdmin: true }),
+    );
+    return IngressInfo.fromJSON(data);
+  }
+
+  /**
+   * @param roomName list ingress for one room only
+   */
+  async listIngress(roomName?: string): Promise<Array<EgressInfo>> {
+    roomName ??= '';
+
+    const data = await this.rpc.request(
+      svc,
+      'ListIngress',
+      ListIngressRequest.toJSON({ roomName }),
+      this.authHeader({ ingressAdmin: true }),
+    );
+    return ListIngressResponse.fromJSON(data).items;
+  }
+
+  /**
+   * @param ingressId ingress to delete
+   */
+  async deleteIngress(ingressId: string): Promise<Array<EgressInfo>> {
+    const data = await this.rpc.request(
+      svc,
+      'DeleteIngress',
+      DeleteIngressRequest.toJSON({ ingressId }),
       this.authHeader({ ingressAdmin: true }),
     );
     return IngressInfo.fromJSON(data);

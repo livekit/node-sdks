@@ -4,7 +4,7 @@ import { VideoGrant } from './grants';
 /**
  * Utilities to handle authentication
  */
-export class ServiceBase {
+export default class ServiceBase {
   private readonly apiKey?: string;
 
   private readonly secret?: string;

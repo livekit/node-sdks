@@ -1,4 +1,5 @@
 import { AccessToken } from './AccessToken';
+import { authUtils } from './authUtils';
 import { VideoGrant } from './grants';
 import {
   CreateIngressRequest,
@@ -25,6 +26,10 @@ export interface CreateIngressOptions {
    * name of the room to send media to. optional
    */
   roomName?: string;
+  /**
+   * unique identity of the participant. optional
+   */
+  participantIdentity?: string;
   /**
    * participant display name
    */
@@ -72,9 +77,7 @@ export interface UpdateIngressOptions {
 export class IngressClient {
   private readonly rpc: Rpc;
 
-  private readonly apiKey?: string;
-
-  private readonly secret?: string;
+  private readonly authUtils: authUtils;
 
   /**
    * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
@@ -83,23 +86,21 @@ export class IngressClient {
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     this.rpc = new TwirpRpc(host, livekitPackage);
-    this.apiKey = apiKey;
-    this.secret = secret;
+    this.authUtils = new authUtils(apiKey, secret)
   }
 
   /**
    * @param inputType protocol for the ingress
-   * @param participantIdentity identity to publish under 
    * @param opts CreateIngressOptions
    */
   async createIngress(
     inputType: IngressInput,
-    participantIdentity: string,
     opts?: CreateIngressOptions,
   ): Promise<IngressInfo> {
-    let name: string;
-    let roomName: string;
-    let participantName: string;
+    let name: string = '';
+    let roomName: string = '';
+    let participantName: string = '';
+    let participantIdentity: string = '';
     let audio: IngressAudioOptions | undefined
     let video: IngressVideoOptions | undefined
 
@@ -107,13 +108,10 @@ export class IngressClient {
         name = opts.name;
         roomName = opts.roomName || '';
         participantName = opts.participantName || '';
+        participantIdentity = opts.participantIdentity || '';
         audio = opts.audioParams;
         video = opts.videoParams;
     }
-
-    name ??= ''
-    roomName ??= ''
-    participantName ??= ''
 
     const req = CreateIngressRequest.toJSON({
       inputType,
@@ -129,16 +127,8 @@ export class IngressClient {
       svc,
       'CreateIngress',
       req,
-      this.authHeader(participantIdentity, { roomJoin: true, room: roomName }),
+      this.authUtils.authHeader({ ingressAdmin: true }),
     );
     return IngressInfo.fromJSON(data);
-  }
-
-  private authHeader(participantIdentity: string, grant: VideoGrant): any {
-    const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m', identity: participantIdentity });
-    at.addGrant(grant);
-    return {
-      Authorization: `Bearer ${at.toJwt()}`,
-    };
   }
 }

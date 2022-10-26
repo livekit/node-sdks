@@ -17,6 +17,9 @@ export interface VideoGrant {
   /** name of the room, must be set for admin or join permissions */
   room?: string;
 
+  /** permissions to control ingress, not specific to any room or ingress */
+  ingressAdmin?: boolean;
+
   /**
    * allow participant to publish. If neither canPublish or canSubscribe is set,
    * both publish and subscribe are enabled

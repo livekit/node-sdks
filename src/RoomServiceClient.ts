@@ -1,4 +1,5 @@
 import { AccessToken } from './AccessToken';
+import { authUtils } from './authUtils';
 import { VideoGrant } from './grants';
 import {
   DataPacket_Kind,
@@ -63,9 +64,7 @@ const svc = 'RoomService';
 export class RoomServiceClient {
   private readonly rpc: Rpc;
 
-  private readonly apiKey?: string;
-
-  private readonly secret?: string;
+  private readonly authUtils: authUtils;
 
   /**
    *
@@ -75,8 +74,7 @@ export class RoomServiceClient {
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     this.rpc = new TwirpRpc(host, livekitPackage);
-    this.apiKey = apiKey;
-    this.secret = secret;
+    this.authUtils = new authUtils(apiKey, secret)
   }
 
   /**
@@ -90,7 +88,7 @@ export class RoomServiceClient {
       svc,
       'CreateRoom',
       CreateRoomRequest.toJSON(CreateRoomRequest.fromPartial(options)),
-      this.authHeader({ roomCreate: true }),
+      this.authUtils.authHeader({ roomCreate: true }),
     );
     return Room.fromJSON(data);
   }
@@ -106,7 +104,7 @@ export class RoomServiceClient {
       svc,
       'ListRooms',
       ListRoomsRequest.toJSON({ names: names ?? [] }),
-      this.authHeader({ roomList: true }),
+      this.authUtils.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
     return res.rooms;
@@ -117,7 +115,7 @@ export class RoomServiceClient {
       svc,
       'DeleteRoom',
       DeleteRoomRequest.toJSON({ room }),
-      this.authHeader({ roomCreate: true }),
+      this.authUtils.authHeader({ roomCreate: true }),
     );
   }
 
@@ -131,7 +129,7 @@ export class RoomServiceClient {
       svc,
       'UpdateRoomMetadata',
       UpdateRoomMetadataRequest.toJSON({ room, metadata }),
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
     return Room.fromJSON(data);
   }
@@ -145,7 +143,7 @@ export class RoomServiceClient {
       svc,
       'ListParticipants',
       ListParticipantsRequest.toJSON({ room }),
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
     const res = ListParticipantsResponse.fromJSON(data);
     return res.participants;
@@ -162,7 +160,7 @@ export class RoomServiceClient {
       svc,
       'GetParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
 
     return ParticipantInfo.fromJSON(data);
@@ -180,7 +178,7 @@ export class RoomServiceClient {
       svc,
       'RemoveParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -207,7 +205,7 @@ export class RoomServiceClient {
       svc,
       'MutePublishedTrack',
       req,
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
     const res = MuteRoomTrackResponse.fromJSON(data);
     return res.track!;
@@ -239,7 +237,7 @@ export class RoomServiceClient {
       svc,
       'UpdateParticipant',
       UpdateParticipantRequest.toJSON(req),
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
     return ParticipantInfo.fromJSON(data);
   }
@@ -268,7 +266,7 @@ export class RoomServiceClient {
       svc,
       'UpdateSubscriptions',
       req,
-      this.authHeader({ roomAdmin: true, room }),
+      this.authUtils.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -291,14 +289,6 @@ export class RoomServiceClient {
       kind,
       destinationSids,
     });
-    await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
-  }
-
-  private authHeader(grant: VideoGrant): any {
-    const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m' });
-    at.addGrant(grant);
-    return {
-      Authorization: `Bearer ${at.toJwt()}`,
-    };
+    await this.rpc.request(svc, 'SendData', req, this.authUtils.authHeader({ roomAdmin: true, room }));
   }
 }

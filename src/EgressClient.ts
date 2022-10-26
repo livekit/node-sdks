@@ -1,4 +1,3 @@
-import { authUtils } from './authUtils';
 import {
   DirectFileOutput,
   EgressInfo,
@@ -17,6 +16,7 @@ import {
   UpdateStreamRequest,
 } from './proto/livekit_egress';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
+import { ServiceBase } from './ServiceBase';
 
 const svc = 'Egress';
 
@@ -61,10 +61,8 @@ export interface TrackCompositeOptions {
 /**
  * Client to access Egress APIs
  */
-export class EgressClient {
+export class EgressClient extends ServiceBase {
   private readonly rpc: Rpc;
-
-  private readonly authUtils: authUtils;
 
   /**
    * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
@@ -72,8 +70,8 @@ export class EgressClient {
    * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
+    super(apiKey, secret);
     this.rpc = new TwirpRpc(host, livekitPackage);
-    this.authUtils = new authUtils(apiKey, secret)
   }
 
   /**
@@ -144,7 +142,7 @@ export class EgressClient {
       svc,
       'StartRoomCompositeEgress',
       req,
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -207,7 +205,7 @@ export class EgressClient {
       svc,
       'StartTrackCompositeEgress',
       req,
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -271,7 +269,7 @@ export class EgressClient {
       svc,
       'StartTrackEgress',
       req,
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -285,7 +283,7 @@ export class EgressClient {
       svc,
       'UpdateLayout',
       UpdateLayoutRequest.toJSON({ egressId, layout }),
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -307,7 +305,7 @@ export class EgressClient {
       svc,
       'UpdateStream',
       UpdateStreamRequest.toJSON({ egressId, addOutputUrls, removeOutputUrls }),
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -322,7 +320,7 @@ export class EgressClient {
       svc,
       'ListEgress',
       ListEgressRequest.toJSON({ roomName }),
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return ListEgressResponse.fromJSON(data).items;
   }
@@ -335,7 +333,7 @@ export class EgressClient {
       svc,
       'StopEgress',
       StopEgressRequest.toJSON({ egressId }),
-      this.authUtils.authHeader({ roomRecord: true }),
+      this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }

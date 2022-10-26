@@ -4,7 +4,7 @@ import { VideoGrant } from './grants';
 /**
  * Utilities to handle authentication
  */
-export class authUtils {
+export class ServiceBase {
   private readonly apiKey?: string;
 
   private readonly secret?: string;
@@ -19,7 +19,7 @@ export class authUtils {
   constructor(apiKey?: string, secret?: string, ttl?: string) {
     this.apiKey = apiKey;
     this.secret = secret;
-	this.ttl = ttl || '10m';
+    this.ttl = ttl || '10m';
   }
 
   authHeader(grant: VideoGrant): any {

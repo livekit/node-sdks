@@ -1,6 +1,7 @@
 export * from './AccessToken';
 export * from './EgressClient';
 export * from './grants';
+export * from './IngressClient';
 export {
   DirectFileOutput,
   EgressInfo,
@@ -13,6 +14,13 @@ export {
   StreamOutput,
   StreamProtocol,
 } from './proto/livekit_egress';
+export {
+  IngressAudioOptions,
+  IngressInfo,
+  IngressInput,
+  IngressState,
+  IngressVideoOptions,
+} from './proto/livekit_ingress';
 export {
   DataPacket_Kind,
   ParticipantInfo,

@@ -1,5 +1,3 @@
-import { AccessToken } from './AccessToken';
-import { VideoGrant } from './grants';
 import {
   DataPacket_Kind,
   ParticipantInfo,
@@ -24,6 +22,7 @@ import {
   UpdateSubscriptionsRequest,
 } from './proto/livekit_room';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
+import { ServiceBase } from './ServiceBase';
 
 /**
  * Options for when creating a room
@@ -60,12 +59,8 @@ const svc = 'RoomService';
 /**
  * Client to access Room APIs
  */
-export class RoomServiceClient {
+export class RoomServiceClient extends ServiceBase {
   private readonly rpc: Rpc;
-
-  private readonly apiKey?: string;
-
-  private readonly secret?: string;
 
   /**
    *
@@ -74,9 +69,8 @@ export class RoomServiceClient {
    * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
+    super(apiKey, secret);
     this.rpc = new TwirpRpc(host, livekitPackage);
-    this.apiKey = apiKey;
-    this.secret = secret;
   }
 
   /**
@@ -292,13 +286,5 @@ export class RoomServiceClient {
       destinationSids,
     });
     await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
-  }
-
-  private authHeader(grant: VideoGrant): any {
-    const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m' });
-    at.addGrant(grant);
-    return {
-      Authorization: `Bearer ${at.toJwt()}`,
-    };
   }
 }

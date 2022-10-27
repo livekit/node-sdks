@@ -1,5 +1,3 @@
-import { AccessToken } from './AccessToken';
-import { VideoGrant } from './grants';
 import {
   DirectFileOutput,
   EgressInfo,
@@ -19,6 +17,7 @@ import {
   WebEgressRequest,
 } from './proto/livekit_egress';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
+import { ServiceBase } from './ServiceBase';
 
 const svc = 'Egress';
 
@@ -78,12 +77,8 @@ export interface TrackCompositeOptions {
 /**
  * Client to access Egress APIs
  */
-export class EgressClient {
+export class EgressClient extends ServiceBase {
   private readonly rpc: Rpc;
-
-  private readonly apiKey?: string;
-
-  private readonly secret?: string;
 
   /**
    * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
@@ -91,9 +86,8 @@ export class EgressClient {
    * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
+    super(apiKey, secret);
     this.rpc = new TwirpRpc(host, livekitPackage);
-    this.apiKey = apiKey;
-    this.secret = secret;
   }
 
   /**
@@ -394,13 +388,5 @@ export class EgressClient {
       this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
-  }
-
-  private authHeader(grant: VideoGrant): any {
-    const at = new AccessToken(this.apiKey, this.secret, { ttl: '10m' });
-    at.addGrant(grant);
-    return {
-      Authorization: `Bearer ${at.toJwt()}`,
-    };
   }
 }

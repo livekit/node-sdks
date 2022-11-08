@@ -21,8 +21,8 @@ import {
   UpdateRoomMetadataRequest,
   UpdateSubscriptionsRequest,
 } from './proto/livekit_room';
+import ServiceBase from './ServiceBase';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
-import { ServiceBase } from './ServiceBase';
 
 /**
  * Options for when creating a room
@@ -103,7 +103,7 @@ export class RoomServiceClient extends ServiceBase {
       this.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
-    return res.rooms;
+    return res.rooms ?? [];
   }
 
   async deleteRoom(room: string): Promise<void> {
@@ -142,7 +142,7 @@ export class RoomServiceClient extends ServiceBase {
       this.authHeader({ roomAdmin: true, room }),
     );
     const res = ListParticipantsResponse.fromJSON(data);
-    return res.participants;
+    return res.participants ?? [];
   }
 
   /**

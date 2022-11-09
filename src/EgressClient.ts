@@ -16,8 +16,8 @@ import {
   UpdateStreamRequest,
   WebEgressRequest,
 } from './proto/livekit_egress';
+import ServiceBase from './ServiceBase';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
-import { ServiceBase } from './ServiceBase';
 
 const svc = 'Egress';
 
@@ -374,7 +374,7 @@ export class EgressClient extends ServiceBase {
       ListEgressRequest.toJSON({ roomName }),
       this.authHeader({ roomRecord: true }),
     );
-    return ListEgressResponse.fromJSON(data).items;
+    return ListEgressResponse.fromJSON(data).items ?? [];
   }
 
   /**

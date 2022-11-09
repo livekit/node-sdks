@@ -1,5 +1,6 @@
 import {
   CreateIngressRequest,
+  DeleteIngressRequest,
   IngressAudioOptions,
   IngressInfo,
   IngressInput,
@@ -8,8 +9,8 @@ import {
   ListIngressResponse,
   UpdateIngressRequest,
 } from './proto/livekit_ingress';
+import ServiceBase from './ServiceBase';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
-import { ServiceBase } from './ServiceBase';
 
 const svc = 'Ingress';
 
@@ -157,7 +158,7 @@ export class IngressClient extends ServiceBase {
   /**
    * @param roomName list ingress for one room only
    */
-  async listIngress(roomName?: string): Promise<Array<EgressInfo>> {
+  async listIngress(roomName?: string): Promise<Array<IngressInfo>> {
     roomName ??= '';
 
     const data = await this.rpc.request(
@@ -166,13 +167,13 @@ export class IngressClient extends ServiceBase {
       ListIngressRequest.toJSON({ roomName }),
       this.authHeader({ ingressAdmin: true }),
     );
-    return ListIngressResponse.fromJSON(data).items;
+    return ListIngressResponse.fromJSON(data).items ?? [];
   }
 
   /**
    * @param ingressId ingress to delete
    */
-  async deleteIngress(ingressId: string): Promise<Array<EgressInfo>> {
+  async deleteIngress(ingressId: string): Promise<IngressInfo> {
     const data = await this.rpc.request(
       svc,
       'DeleteIngress',

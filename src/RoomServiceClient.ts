@@ -44,14 +44,20 @@ export interface CreateOptions {
   maxParticipants?: number;
 
   /**
-   * override the node room is allocated to, for debugging
+   * initial room metadata
    */
-  nodeId?: string;
+  metadata?: string;
 
   /**
    * add egress options
    */
   egress?: RoomEgress;
+
+  /**
+   * override the node room is allocated to, for debugging
+   * does not work with Cloud
+   */
+  nodeId?: string;
 }
 
 const svc = 'RoomService';

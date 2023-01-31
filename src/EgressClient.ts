@@ -158,7 +158,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartRoomCompositeEgress',
       req,
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -194,7 +194,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartWebEgress',
       req,
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -257,7 +257,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartTrackCompositeEgress',
       req,
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -321,7 +321,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartTrackEgress',
       req,
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -335,7 +335,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'UpdateLayout',
       UpdateLayoutRequest.toJSON({ egressId, layout }),
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -357,7 +357,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'UpdateStream',
       UpdateStreamRequest.toJSON({ egressId, addOutputUrls, removeOutputUrls }),
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }
@@ -372,7 +372,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'ListEgress',
       ListEgressRequest.toJSON({ roomName }),
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return ListEgressResponse.fromJSON(data).items ?? [];
   }
@@ -385,7 +385,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StopEgress',
       StopEgressRequest.toJSON({ egressId }),
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJSON(data);
   }

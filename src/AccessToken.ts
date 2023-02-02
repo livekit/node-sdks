@@ -122,8 +122,7 @@ export class AccessToken {
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
-    const signed = await jwt.sign(secret);
-    return signed;
+    return jwt.sign(secret);
   }
 }
 

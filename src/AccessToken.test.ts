@@ -13,25 +13,49 @@ describe('encoded tokens are valid', () => {
   t.addGrant({ room: 'myroom' });
   const EncodedTestSecret = new TextEncoder().encode(testSecret);
   it('can be decoded', async () => {
+<<<<<<< HEAD
     const { payload } = await jose.jwtVerify(await t.toJwt(), EncodedTestSecret, {
       issuer: testApiKey,
     });
+=======
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
+>>>>>>> f209c29 (Cleanup & Lint)
 
     expect(payload).not.toBe(undefined);
   });
 
   it('has name set', async () => {
+<<<<<<< HEAD
     const { payload } = await jose.jwtVerify(await t.toJwt(), EncodedTestSecret, {
       issuer: testApiKey,
     });
+=======
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
+>>>>>>> f209c29 (Cleanup & Lint)
 
     expect(payload.name).toBe('myname');
   });
 
   it('has video grants set', async () => {
+<<<<<<< HEAD
     const { payload } = await jose.jwtVerify(await t.toJwt(), EncodedTestSecret, {
       issuer: testApiKey,
     });
+=======
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
+>>>>>>> f209c29 (Cleanup & Lint)
 
     expect(payload.video).toBeTruthy();
     expect((payload as ClaimGrants).video?.room).toEqual('myroom');

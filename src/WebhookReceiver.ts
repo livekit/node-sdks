@@ -18,7 +18,11 @@ export class WebhookReceiver {
    * @param skipAuth true to skip auth validation
    * @returns
    */
-  async receive(body: string, authHeader?: string, skipAuth: boolean = false): Promise<WebhookEvent> {
+  async receive(
+    body: string,
+    authHeader?: string,
+    skipAuth: boolean = false,
+  ): Promise<WebhookEvent> {
     // verify token
     if (!skipAuth) {
       if (!authHeader) {

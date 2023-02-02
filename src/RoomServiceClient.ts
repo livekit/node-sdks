@@ -117,7 +117,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'DeleteRoom',
       DeleteRoomRequest.toJSON({ room }),
-      await  this.authHeader({ roomCreate: true }),
+      await this.authHeader({ roomCreate: true }),
     );
   }
 

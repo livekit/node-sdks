@@ -11,35 +11,45 @@ describe('encoded tokens are valid', () => {
     name: 'myname',
   });
   t.addGrant({ room: 'myroom' });
-  const EncodedTestSecret = new TextEncoder().encode(
-    testSecret,
-  )
+  const EncodedTestSecret = new TextEncoder().encode(testSecret);
   it('can be decoded', async () => {
-    const {payload}:  jose.JWTVerifyResult & {payload:ClaimGrants}  = await jose.jwtVerify(await t.toJwt(),EncodedTestSecret,{'issuer':testApiKey }) ;
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
 
     expect(payload).not.toBe(undefined);
   });
 
   it('has name set', async () => {
-    const {payload}:  jose.JWTVerifyResult & {payload:ClaimGrants}  = await jose.jwtVerify(await t.toJwt(),EncodedTestSecret,{'issuer':testApiKey }) ;
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
 
     expect(payload.name).toBe('myname');
   });
 
   it('has video grants set', async () => {
-    const {payload}:  jose.JWTVerifyResult & {payload:ClaimGrants}  = await jose.jwtVerify(await t.toJwt(),EncodedTestSecret,{'issuer':testApiKey }) ;
+    const { payload }: jose.JWTVerifyResult & { payload: ClaimGrants } = await jose.jwtVerify(
+      await t.toJwt(),
+      EncodedTestSecret,
+      { issuer: testApiKey },
+    );
 
     expect(payload.video).toBeTruthy();
     expect(payload.video?.room).toEqual('myroom');
   });
 });
 
-describe('identity is required for only join grants',  () => {
-  it('allows empty identity for create', async() => {
+describe('identity is required for only join grants', () => {
+  it('allows empty identity for create', async () => {
     const t = new AccessToken(testApiKey, testSecret);
     t.addGrant({ roomCreate: true });
 
-    expect(await  t.toJwt()).toBeTruthy();
+    expect(await t.toJwt()).toBeTruthy();
   });
   it('throws error when identity is not provided for join', async () => {
     const t = new AccessToken(testApiKey, testSecret);

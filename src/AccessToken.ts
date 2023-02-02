@@ -2,7 +2,7 @@ import * as jose from 'jose';
 import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
-const defaultTTL = 6 * 60 * 60+'s';
+const defaultTTL = `${6 * 60 * 60}s`;
 
 export interface AccessTokenOptions {
   /**
@@ -59,8 +59,8 @@ export class AccessToken {
     this.grants = {};
     this.identity = options?.identity;
     this.ttl = options?.ttl || defaultTTL;
-    if(typeof this.ttl === 'number'){
-      this.ttl = this.ttl+'s'
+    if (typeof this.ttl === 'number') {
+      this.ttl = `${this.ttl}s`;
     }
     if (options?.metadata) {
       this.metadata = options.metadata;
@@ -102,21 +102,20 @@ export class AccessToken {
    */
   async toJwt(): Promise<string> {
     // TODO: check for video grant validity
-    
-    const secret = new TextEncoder().encode(this.apiSecret)
-    const jwt =  new jose.SignJWT(this.grants as jose.JWTPayload)
-  .setProtectedHeader({ alg:'HS256' })
-  .setIssuer(this.apiKey)
-  .setExpirationTime(this.ttl)
-  .setNotBefore(0)
-  if (this.identity) {
-    jwt.setSubject(this.identity)
-    jwt.setJti(this.identity)
-    
-  } else if (this.grants.video?.roomJoin) {
-    throw Error('identity is required for join but not set');
-  }
-  return await  jwt.sign(secret);
+
+    const secret = new TextEncoder().encode(this.apiSecret);
+    const jwt = new jose.SignJWT(this.grants as jose.JWTPayload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuer(this.apiKey)
+      .setExpirationTime(this.ttl)
+      .setNotBefore(0);
+    if (this.identity) {
+      jwt.setSubject(this.identity);
+      jwt.setJti(this.identity);
+    } else if (this.grants.video?.roomJoin) {
+      throw Error('identity is required for join but not set');
+    }
+    return jwt.sign(secret);
   }
 }
 
@@ -131,10 +130,8 @@ export class TokenVerifier {
   }
 
   async verify(token: string): Promise<ClaimGrants> {
-    const secret = new TextEncoder().encode(
-      this.apiSecret,
-    )
-    const {payload} =await jose.jwtVerify(token,secret,{'issuer':this.apiKey});
+    const secret = new TextEncoder().encode(this.apiSecret);
+    const { payload } = await jose.jwtVerify(token, secret, { issuer: this.apiKey });
     if (!payload) {
       throw Error('invalid token');
     }

@@ -103,6 +103,7 @@ export interface IngressState {
   /** ID of the current/previous room published to */
   roomId?: string;
   startedAt?: number;
+  endedAt?: number;
   tracks?: TrackInfo[];
 }
 
@@ -648,7 +649,7 @@ export const IngressInfo = {
 };
 
 function createBaseIngressState(): IngressState {
-  return { status: 0, error: "", video: undefined, audio: undefined, roomId: "", startedAt: 0, tracks: [] };
+  return { status: 0, error: "", video: undefined, audio: undefined, roomId: "", startedAt: 0, endedAt: 0, tracks: [] };
 }
 
 export const IngressState = {
@@ -670,6 +671,9 @@ export const IngressState = {
     }
     if (message.startedAt !== undefined && message.startedAt !== 0) {
       writer.uint32(56).int64(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      writer.uint32(64).int64(message.endedAt);
     }
     if (message.tracks !== undefined && message.tracks.length !== 0) {
       for (const v of message.tracks) {
@@ -704,6 +708,9 @@ export const IngressState = {
         case 7:
           message.startedAt = longToNumber(reader.int64() as Long);
           break;
+        case 8:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
         case 6:
           message.tracks!.push(TrackInfo.decode(reader, reader.uint32()));
           break;
@@ -723,6 +730,7 @@ export const IngressState = {
       audio: isSet(object.audio) ? InputAudioState.fromJSON(object.audio) : undefined,
       roomId: isSet(object.roomId) ? String(object.roomId) : "",
       startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
       tracks: Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
     };
   },
@@ -735,6 +743,7 @@ export const IngressState = {
     message.audio !== undefined && (obj.audio = message.audio ? InputAudioState.toJSON(message.audio) : undefined);
     message.roomId !== undefined && (obj.roomId = message.roomId);
     message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
     if (message.tracks) {
       obj.tracks = message.tracks.map((e) => e ? TrackInfo.toJSON(e) : undefined);
     } else {
@@ -755,6 +764,7 @@ export const IngressState = {
       : undefined;
     message.roomId = object.roomId ?? "";
     message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
     message.tracks = object.tracks?.map((e) => TrackInfo.fromPartial(e)) || [];
     return message;
   },

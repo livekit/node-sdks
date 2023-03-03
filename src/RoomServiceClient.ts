@@ -277,20 +277,44 @@ export class RoomServiceClient extends ServiceBase {
    * @param room
    * @param data opaque payload to send
    * @param kind delivery reliability
+   * @param options optionally specify a topic and destinationSids (when destinationSids is empty, message is sent to everyone)
+   */
+  async sendData(
+    room: string,
+    data: Uint8Array,
+    kind: DataPacket_Kind,
+    options: SendDataOptions,
+  ): Promise<void>;
+  /**
+   * Sends data message to participants in the room
+   * @param room
+   * @param data opaque payload to send
+   * @param kind delivery reliability
    * @param destinationSids optional. when empty, message is sent to everyone
    */
   async sendData(
     room: string,
     data: Uint8Array,
     kind: DataPacket_Kind,
-    destinationSids: string[] = [],
+    destinationSids?: string[],
+  ): Promise<void>;
+  async sendData(
+    room: string,
+    data: Uint8Array,
+    kind: DataPacket_Kind,
+    options: SendDataOptions | string[] = {},
   ): Promise<void> {
+    const destinationSids = Array.isArray(options) ? options : options.destinationSids;
+    const topic = Array.isArray(options) ? undefined : options.topic;
     const req = SendDataRequest.toJSON({
       room,
       data,
       kind,
-      destinationSids,
+      destinationSids: destinationSids ?? [],
+      topic,
     });
     await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
   }
 }
+
+export type SendDataOptions = { destinationSids?: string[]; topic?: string };

@@ -115,6 +115,7 @@ export interface SendDataRequest {
   data?: Uint8Array;
   kind?: DataPacket_Kind;
   destinationSids?: string[];
+  topic?: string | undefined;
 }
 
 /**  */
@@ -1031,7 +1032,7 @@ export const UpdateSubscriptionsResponse = {
 };
 
 function createBaseSendDataRequest(): SendDataRequest {
-  return { room: "", data: new Uint8Array(), kind: 0, destinationSids: [] };
+  return { room: "", data: new Uint8Array(), kind: 0, destinationSids: [], topic: undefined };
 }
 
 export const SendDataRequest = {
@@ -1049,6 +1050,9 @@ export const SendDataRequest = {
       for (const v of message.destinationSids) {
         writer.uint32(34).string(v!);
       }
+    }
+    if (message.topic !== undefined) {
+      writer.uint32(42).string(message.topic);
     }
     return writer;
   },
@@ -1072,6 +1076,9 @@ export const SendDataRequest = {
         case 4:
           message.destinationSids!.push(reader.string());
           break;
+        case 5:
+          message.topic = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1086,6 +1093,7 @@ export const SendDataRequest = {
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(),
       kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
       destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
+      topic: isSet(object.topic) ? String(object.topic) : undefined,
     };
   },
 
@@ -1100,6 +1108,7 @@ export const SendDataRequest = {
     } else {
       obj.destinationSids = [];
     }
+    message.topic !== undefined && (obj.topic = message.topic);
     return obj;
   },
 
@@ -1109,6 +1118,7 @@ export const SendDataRequest = {
     message.data = object.data ?? new Uint8Array();
     message.kind = object.kind ?? 0;
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
+    message.topic = object.topic ?? undefined;
     return message;
   },
 };

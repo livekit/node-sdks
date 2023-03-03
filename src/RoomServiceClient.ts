@@ -60,6 +60,8 @@ export interface CreateOptions {
   nodeId?: string;
 }
 
+export type SendDataOptions = { destinationSids?: string[]; topic?: string };
+
 const svc = 'RoomService';
 
 /**
@@ -316,5 +318,3 @@ export class RoomServiceClient extends ServiceBase {
     await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
   }
 }
-
-export type SendDataOptions = { destinationSids?: string[]; topic?: string };

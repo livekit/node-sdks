@@ -287,6 +287,57 @@ export function disconnectReasonToJSON(object: DisconnectReason): string {
   }
 }
 
+export enum ReconnectReason {
+  RR_UNKOWN = 0,
+  RR_SIGNAL_DISCONNECTED = 1,
+  RR_PUBLISHER_FAILED = 2,
+  RR_SUBSCRIBER_FAILED = 3,
+  RR_SWITCH_CANDIDATE = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function reconnectReasonFromJSON(object: any): ReconnectReason {
+  switch (object) {
+    case 0:
+    case "RR_UNKOWN":
+      return ReconnectReason.RR_UNKOWN;
+    case 1:
+    case "RR_SIGNAL_DISCONNECTED":
+      return ReconnectReason.RR_SIGNAL_DISCONNECTED;
+    case 2:
+    case "RR_PUBLISHER_FAILED":
+      return ReconnectReason.RR_PUBLISHER_FAILED;
+    case 3:
+    case "RR_SUBSCRIBER_FAILED":
+      return ReconnectReason.RR_SUBSCRIBER_FAILED;
+    case 4:
+    case "RR_SWITCH_CANDIDATE":
+      return ReconnectReason.RR_SWITCH_CANDIDATE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ReconnectReason.UNRECOGNIZED;
+  }
+}
+
+export function reconnectReasonToJSON(object: ReconnectReason): string {
+  switch (object) {
+    case ReconnectReason.RR_UNKOWN:
+      return "RR_UNKOWN";
+    case ReconnectReason.RR_SIGNAL_DISCONNECTED:
+      return "RR_SIGNAL_DISCONNECTED";
+    case ReconnectReason.RR_PUBLISHER_FAILED:
+      return "RR_PUBLISHER_FAILED";
+    case ReconnectReason.RR_SUBSCRIBER_FAILED:
+      return "RR_SUBSCRIBER_FAILED";
+    case ReconnectReason.RR_SWITCH_CANDIDATE:
+      return "RR_SWITCH_CANDIDATE";
+    case ReconnectReason.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Room {
   sid: string;
   name: string;
@@ -312,6 +363,8 @@ export interface ParticipantPermission {
   canPublish: boolean;
   /** allow participant to publish data */
   canPublishData: boolean;
+  /** sources that are allowed to be published */
+  canPublishSources: TrackSource[];
   /** indicates that it's hidden to others */
   hidden: boolean;
   /** indicates it's a recorder instance */
@@ -386,6 +439,48 @@ export function participantInfo_StateToJSON(object: ParticipantInfo_State): stri
   }
 }
 
+export interface Encryption {
+}
+
+export enum Encryption_Type {
+  NONE = 0,
+  GCM = 1,
+  CUSTOM = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function encryption_TypeFromJSON(object: any): Encryption_Type {
+  switch (object) {
+    case 0:
+    case "NONE":
+      return Encryption_Type.NONE;
+    case 1:
+    case "GCM":
+      return Encryption_Type.GCM;
+    case 2:
+    case "CUSTOM":
+      return Encryption_Type.CUSTOM;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Encryption_Type.UNRECOGNIZED;
+  }
+}
+
+export function encryption_TypeToJSON(object: Encryption_Type): string {
+  switch (object) {
+    case Encryption_Type.NONE:
+      return "NONE";
+    case Encryption_Type.GCM:
+      return "GCM";
+    case Encryption_Type.CUSTOM:
+      return "CUSTOM";
+    case Encryption_Type.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface SimulcastCodecInfo {
   mimeType: string;
   mid: string;
@@ -419,6 +514,7 @@ export interface TrackInfo {
   stereo: boolean;
   /** true if RED (Redundant Encoding) is disabled for audio */
   disableRed: boolean;
+  encryption: Encryption_Type;
 }
 
 /** provide information about available spatial layers */
@@ -427,7 +523,7 @@ export interface VideoLayer {
   quality: VideoQuality;
   width: number;
   height: number;
-  /** target bitrate, server will measure actual */
+  /** target bitrate in bit per second (bps), server will measure actual */
   bitrate: number;
   ssrc: number;
 }
@@ -491,6 +587,8 @@ export interface UserPacket {
   payload: Uint8Array;
   /** the ID of the participants who will receive the message (the message will be sent to all the people in the room if this variable is empty) */
   destinationSids: string[];
+  /** topic under which the message was published */
+  topic?: string | undefined;
 }
 
 export interface ParticipantTracks {
@@ -898,7 +996,14 @@ export const Codec = {
 };
 
 function createBaseParticipantPermission(): ParticipantPermission {
-  return { canSubscribe: false, canPublish: false, canPublishData: false, hidden: false, recorder: false };
+  return {
+    canSubscribe: false,
+    canPublish: false,
+    canPublishData: false,
+    canPublishSources: [],
+    hidden: false,
+    recorder: false,
+  };
 }
 
 export const ParticipantPermission = {
@@ -912,6 +1017,11 @@ export const ParticipantPermission = {
     if (message.canPublishData === true) {
       writer.uint32(24).bool(message.canPublishData);
     }
+    writer.uint32(74).fork();
+    for (const v of message.canPublishSources) {
+      writer.int32(v);
+    }
+    writer.ldelim();
     if (message.hidden === true) {
       writer.uint32(56).bool(message.hidden);
     }
@@ -937,6 +1047,16 @@ export const ParticipantPermission = {
         case 3:
           message.canPublishData = reader.bool();
           break;
+        case 9:
+          if ((tag & 7) === 2) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.canPublishSources.push(reader.int32() as any);
+            }
+          } else {
+            message.canPublishSources.push(reader.int32() as any);
+          }
+          break;
         case 7:
           message.hidden = reader.bool();
           break;
@@ -956,6 +1076,9 @@ export const ParticipantPermission = {
       canSubscribe: isSet(object.canSubscribe) ? Boolean(object.canSubscribe) : false,
       canPublish: isSet(object.canPublish) ? Boolean(object.canPublish) : false,
       canPublishData: isSet(object.canPublishData) ? Boolean(object.canPublishData) : false,
+      canPublishSources: Array.isArray(object?.canPublishSources)
+        ? object.canPublishSources.map((e: any) => trackSourceFromJSON(e))
+        : [],
       hidden: isSet(object.hidden) ? Boolean(object.hidden) : false,
       recorder: isSet(object.recorder) ? Boolean(object.recorder) : false,
     };
@@ -966,6 +1089,11 @@ export const ParticipantPermission = {
     message.canSubscribe !== undefined && (obj.canSubscribe = message.canSubscribe);
     message.canPublish !== undefined && (obj.canPublish = message.canPublish);
     message.canPublishData !== undefined && (obj.canPublishData = message.canPublishData);
+    if (message.canPublishSources) {
+      obj.canPublishSources = message.canPublishSources.map((e) => trackSourceToJSON(e));
+    } else {
+      obj.canPublishSources = [];
+    }
     message.hidden !== undefined && (obj.hidden = message.hidden);
     message.recorder !== undefined && (obj.recorder = message.recorder);
     return obj;
@@ -976,6 +1104,7 @@ export const ParticipantPermission = {
     message.canSubscribe = object.canSubscribe ?? false;
     message.canPublish = object.canPublish ?? false;
     message.canPublishData = object.canPublishData ?? false;
+    message.canPublishSources = object.canPublishSources?.map((e) => e) || [];
     message.hidden = object.hidden ?? false;
     message.recorder = object.recorder ?? false;
     return message;
@@ -1140,6 +1269,45 @@ export const ParticipantInfo = {
   },
 };
 
+function createBaseEncryption(): Encryption {
+  return {};
+}
+
+export const Encryption = {
+  encode(_: Encryption, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): Encryption {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEncryption();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): Encryption {
+    return {};
+  },
+
+  toJSON(_: Encryption): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<Encryption>, I>>(_: I): Encryption {
+    const message = createBaseEncryption();
+    return message;
+  },
+};
+
 function createBaseSimulcastCodecInfo(): SimulcastCodecInfo {
   return { mimeType: "", mid: "", cid: "", layers: [] };
 }
@@ -1237,6 +1405,7 @@ function createBaseTrackInfo(): TrackInfo {
     codecs: [],
     stereo: false,
     disableRed: false,
+    encryption: 0,
   };
 }
 
@@ -1286,6 +1455,9 @@ export const TrackInfo = {
     }
     if (message.disableRed === true) {
       writer.uint32(120).bool(message.disableRed);
+    }
+    if (message.encryption !== 0) {
+      writer.uint32(128).int32(message.encryption);
     }
     return writer;
   },
@@ -1342,6 +1514,9 @@ export const TrackInfo = {
         case 15:
           message.disableRed = reader.bool();
           break;
+        case 16:
+          message.encryption = reader.int32() as any;
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1367,6 +1542,7 @@ export const TrackInfo = {
       codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e)) : [],
       stereo: isSet(object.stereo) ? Boolean(object.stereo) : false,
       disableRed: isSet(object.disableRed) ? Boolean(object.disableRed) : false,
+      encryption: isSet(object.encryption) ? encryption_TypeFromJSON(object.encryption) : 0,
     };
   },
 
@@ -1395,6 +1571,7 @@ export const TrackInfo = {
     }
     message.stereo !== undefined && (obj.stereo = message.stereo);
     message.disableRed !== undefined && (obj.disableRed = message.disableRed);
+    message.encryption !== undefined && (obj.encryption = encryption_TypeToJSON(message.encryption));
     return obj;
   },
 
@@ -1415,6 +1592,7 @@ export const TrackInfo = {
     message.codecs = object.codecs?.map((e) => SimulcastCodecInfo.fromPartial(e)) || [];
     message.stereo = object.stereo ?? false;
     message.disableRed = object.disableRed ?? false;
+    message.encryption = object.encryption ?? 0;
     return message;
   },
 };
@@ -1697,7 +1875,7 @@ export const SpeakerInfo = {
 };
 
 function createBaseUserPacket(): UserPacket {
-  return { participantSid: "", payload: new Uint8Array(), destinationSids: [] };
+  return { participantSid: "", payload: new Uint8Array(), destinationSids: [], topic: undefined };
 }
 
 export const UserPacket = {
@@ -1710,6 +1888,9 @@ export const UserPacket = {
     }
     for (const v of message.destinationSids) {
       writer.uint32(26).string(v!);
+    }
+    if (message.topic !== undefined) {
+      writer.uint32(34).string(message.topic);
     }
     return writer;
   },
@@ -1730,6 +1911,9 @@ export const UserPacket = {
         case 3:
           message.destinationSids.push(reader.string());
           break;
+        case 4:
+          message.topic = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1743,6 +1927,7 @@ export const UserPacket = {
       participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
       payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(),
       destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
+      topic: isSet(object.topic) ? String(object.topic) : undefined,
     };
   },
 
@@ -1756,6 +1941,7 @@ export const UserPacket = {
     } else {
       obj.destinationSids = [];
     }
+    message.topic !== undefined && (obj.topic = message.topic);
     return obj;
   },
 
@@ -1764,6 +1950,7 @@ export const UserPacket = {
     message.participantSid = object.participantSid ?? "";
     message.payload = object.payload ?? new Uint8Array();
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
+    message.topic = object.topic ?? undefined;
     return message;
   },
 };

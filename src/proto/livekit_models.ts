@@ -1,9 +1,97 @@
 /* eslint-disable */
-import Long from "long";
-import _m0 from "protobufjs/minimal";
-import { Timestamp } from "./google/protobuf/timestamp";
+import Long from 'long';
+import * as _m0 from 'protobufjs/minimal';
+import { Timestamp } from './google/protobuf/timestamp';
 
-export const protobufPackage = "livekit";
+export const protobufPackage = 'livekit';
+
+export enum AudioCodec {
+  DEFAULT_AC = 0,
+  OPUS = 1,
+  AAC = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function audioCodecFromJSON(object: any): AudioCodec {
+  switch (object) {
+    case 0:
+    case 'DEFAULT_AC':
+      return AudioCodec.DEFAULT_AC;
+    case 1:
+    case 'OPUS':
+      return AudioCodec.OPUS;
+    case 2:
+    case 'AAC':
+      return AudioCodec.AAC;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return AudioCodec.UNRECOGNIZED;
+  }
+}
+
+export function audioCodecToJSON(object: AudioCodec): string {
+  switch (object) {
+    case AudioCodec.DEFAULT_AC:
+      return 'DEFAULT_AC';
+    case AudioCodec.OPUS:
+      return 'OPUS';
+    case AudioCodec.AAC:
+      return 'AAC';
+    default:
+      return 'UNKNOWN';
+  }
+}
+
+export enum VideoCodec {
+  DEFAULT_VC = 0,
+  H264_BASELINE = 1,
+  H264_MAIN = 2,
+  H264_HIGH = 3,
+  VP8 = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function videoCodecFromJSON(object: any): VideoCodec {
+  switch (object) {
+    case 0:
+    case 'DEFAULT_VC':
+      return VideoCodec.DEFAULT_VC;
+    case 1:
+    case 'H264_BASELINE':
+      return VideoCodec.H264_BASELINE;
+    case 2:
+    case 'H264_MAIN':
+      return VideoCodec.H264_MAIN;
+    case 3:
+    case 'H264_HIGH':
+      return VideoCodec.H264_HIGH;
+    case 4:
+    case 'VP8':
+      return VideoCodec.VP8;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return VideoCodec.UNRECOGNIZED;
+  }
+}
+
+export function videoCodecToJSON(object: VideoCodec): string {
+  switch (object) {
+    case VideoCodec.DEFAULT_VC:
+      return 'DEFAULT_VC';
+    case VideoCodec.H264_BASELINE:
+      return 'H264_BASELINE';
+    case VideoCodec.H264_MAIN:
+      return 'H264_MAIN';
+    case VideoCodec.H264_HIGH:
+      return 'H264_HIGH';
+    case VideoCodec.VP8:
+      return 'VP8';
+    default:
+      return 'UNKNOWN';
+  }
+}
 
 export enum TrackType {
   AUDIO = 0,
@@ -15,16 +103,16 @@ export enum TrackType {
 export function trackTypeFromJSON(object: any): TrackType {
   switch (object) {
     case 0:
-    case "AUDIO":
+    case 'AUDIO':
       return TrackType.AUDIO;
     case 1:
-    case "VIDEO":
+    case 'VIDEO':
       return TrackType.VIDEO;
     case 2:
-    case "DATA":
+    case 'DATA':
       return TrackType.DATA;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return TrackType.UNRECOGNIZED;
   }
@@ -33,14 +121,13 @@ export function trackTypeFromJSON(object: any): TrackType {
 export function trackTypeToJSON(object: TrackType): string {
   switch (object) {
     case TrackType.AUDIO:
-      return "AUDIO";
+      return 'AUDIO';
     case TrackType.VIDEO:
-      return "VIDEO";
+      return 'VIDEO';
     case TrackType.DATA:
-      return "DATA";
-    case TrackType.UNRECOGNIZED:
+      return 'DATA';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -56,22 +143,22 @@ export enum TrackSource {
 export function trackSourceFromJSON(object: any): TrackSource {
   switch (object) {
     case 0:
-    case "UNKNOWN":
+    case 'UNKNOWN':
       return TrackSource.UNKNOWN;
     case 1:
-    case "CAMERA":
+    case 'CAMERA':
       return TrackSource.CAMERA;
     case 2:
-    case "MICROPHONE":
+    case 'MICROPHONE':
       return TrackSource.MICROPHONE;
     case 3:
-    case "SCREEN_SHARE":
+    case 'SCREEN_SHARE':
       return TrackSource.SCREEN_SHARE;
     case 4:
-    case "SCREEN_SHARE_AUDIO":
+    case 'SCREEN_SHARE_AUDIO':
       return TrackSource.SCREEN_SHARE_AUDIO;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return TrackSource.UNRECOGNIZED;
   }
@@ -80,18 +167,17 @@ export function trackSourceFromJSON(object: any): TrackSource {
 export function trackSourceToJSON(object: TrackSource): string {
   switch (object) {
     case TrackSource.UNKNOWN:
-      return "UNKNOWN";
+      return 'UNKNOWN';
     case TrackSource.CAMERA:
-      return "CAMERA";
+      return 'CAMERA';
     case TrackSource.MICROPHONE:
-      return "MICROPHONE";
+      return 'MICROPHONE';
     case TrackSource.SCREEN_SHARE:
-      return "SCREEN_SHARE";
+      return 'SCREEN_SHARE';
     case TrackSource.SCREEN_SHARE_AUDIO:
-      return "SCREEN_SHARE_AUDIO";
-    case TrackSource.UNRECOGNIZED:
+      return 'SCREEN_SHARE_AUDIO';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -106,19 +192,19 @@ export enum VideoQuality {
 export function videoQualityFromJSON(object: any): VideoQuality {
   switch (object) {
     case 0:
-    case "LOW":
+    case 'LOW':
       return VideoQuality.LOW;
     case 1:
-    case "MEDIUM":
+    case 'MEDIUM':
       return VideoQuality.MEDIUM;
     case 2:
-    case "HIGH":
+    case 'HIGH':
       return VideoQuality.HIGH;
     case 3:
-    case "OFF":
+    case 'OFF':
       return VideoQuality.OFF;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return VideoQuality.UNRECOGNIZED;
   }
@@ -127,16 +213,15 @@ export function videoQualityFromJSON(object: any): VideoQuality {
 export function videoQualityToJSON(object: VideoQuality): string {
   switch (object) {
     case VideoQuality.LOW:
-      return "LOW";
+      return 'LOW';
     case VideoQuality.MEDIUM:
-      return "MEDIUM";
+      return 'MEDIUM';
     case VideoQuality.HIGH:
-      return "HIGH";
+      return 'HIGH';
     case VideoQuality.OFF:
-      return "OFF";
-    case VideoQuality.UNRECOGNIZED:
+      return 'OFF';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -150,16 +235,16 @@ export enum ConnectionQuality {
 export function connectionQualityFromJSON(object: any): ConnectionQuality {
   switch (object) {
     case 0:
-    case "POOR":
+    case 'POOR':
       return ConnectionQuality.POOR;
     case 1:
-    case "GOOD":
+    case 'GOOD':
       return ConnectionQuality.GOOD;
     case 2:
-    case "EXCELLENT":
+    case 'EXCELLENT':
       return ConnectionQuality.EXCELLENT;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ConnectionQuality.UNRECOGNIZED;
   }
@@ -168,14 +253,13 @@ export function connectionQualityFromJSON(object: any): ConnectionQuality {
 export function connectionQualityToJSON(object: ConnectionQuality): string {
   switch (object) {
     case ConnectionQuality.POOR:
-      return "POOR";
+      return 'POOR';
     case ConnectionQuality.GOOD:
-      return "GOOD";
+      return 'GOOD';
     case ConnectionQuality.EXCELLENT:
-      return "EXCELLENT";
-    case ConnectionQuality.UNRECOGNIZED:
+      return 'EXCELLENT';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -189,16 +273,16 @@ export enum ClientConfigSetting {
 export function clientConfigSettingFromJSON(object: any): ClientConfigSetting {
   switch (object) {
     case 0:
-    case "UNSET":
+    case 'UNSET':
       return ClientConfigSetting.UNSET;
     case 1:
-    case "DISABLED":
+    case 'DISABLED':
       return ClientConfigSetting.DISABLED;
     case 2:
-    case "ENABLED":
+    case 'ENABLED':
       return ClientConfigSetting.ENABLED;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ClientConfigSetting.UNRECOGNIZED;
   }
@@ -207,14 +291,13 @@ export function clientConfigSettingFromJSON(object: any): ClientConfigSetting {
 export function clientConfigSettingToJSON(object: ClientConfigSetting): string {
   switch (object) {
     case ClientConfigSetting.UNSET:
-      return "UNSET";
+      return 'UNSET';
     case ClientConfigSetting.DISABLED:
-      return "DISABLED";
+      return 'DISABLED';
     case ClientConfigSetting.ENABLED:
-      return "ENABLED";
-    case ClientConfigSetting.UNRECOGNIZED:
+      return 'ENABLED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -233,31 +316,31 @@ export enum DisconnectReason {
 export function disconnectReasonFromJSON(object: any): DisconnectReason {
   switch (object) {
     case 0:
-    case "UNKNOWN_REASON":
+    case 'UNKNOWN_REASON':
       return DisconnectReason.UNKNOWN_REASON;
     case 1:
-    case "CLIENT_INITIATED":
+    case 'CLIENT_INITIATED':
       return DisconnectReason.CLIENT_INITIATED;
     case 2:
-    case "DUPLICATE_IDENTITY":
+    case 'DUPLICATE_IDENTITY':
       return DisconnectReason.DUPLICATE_IDENTITY;
     case 3:
-    case "SERVER_SHUTDOWN":
+    case 'SERVER_SHUTDOWN':
       return DisconnectReason.SERVER_SHUTDOWN;
     case 4:
-    case "PARTICIPANT_REMOVED":
+    case 'PARTICIPANT_REMOVED':
       return DisconnectReason.PARTICIPANT_REMOVED;
     case 5:
-    case "ROOM_DELETED":
+    case 'ROOM_DELETED':
       return DisconnectReason.ROOM_DELETED;
     case 6:
-    case "STATE_MISMATCH":
+    case 'STATE_MISMATCH':
       return DisconnectReason.STATE_MISMATCH;
     case 7:
-    case "JOIN_FAILURE":
+    case 'JOIN_FAILURE':
       return DisconnectReason.JOIN_FAILURE;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return DisconnectReason.UNRECOGNIZED;
   }
@@ -266,24 +349,23 @@ export function disconnectReasonFromJSON(object: any): DisconnectReason {
 export function disconnectReasonToJSON(object: DisconnectReason): string {
   switch (object) {
     case DisconnectReason.UNKNOWN_REASON:
-      return "UNKNOWN_REASON";
+      return 'UNKNOWN_REASON';
     case DisconnectReason.CLIENT_INITIATED:
-      return "CLIENT_INITIATED";
+      return 'CLIENT_INITIATED';
     case DisconnectReason.DUPLICATE_IDENTITY:
-      return "DUPLICATE_IDENTITY";
+      return 'DUPLICATE_IDENTITY';
     case DisconnectReason.SERVER_SHUTDOWN:
-      return "SERVER_SHUTDOWN";
+      return 'SERVER_SHUTDOWN';
     case DisconnectReason.PARTICIPANT_REMOVED:
-      return "PARTICIPANT_REMOVED";
+      return 'PARTICIPANT_REMOVED';
     case DisconnectReason.ROOM_DELETED:
-      return "ROOM_DELETED";
+      return 'ROOM_DELETED';
     case DisconnectReason.STATE_MISMATCH:
-      return "STATE_MISMATCH";
+      return 'STATE_MISMATCH';
     case DisconnectReason.JOIN_FAILURE:
-      return "JOIN_FAILURE";
-    case DisconnectReason.UNRECOGNIZED:
+      return 'JOIN_FAILURE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -299,22 +381,22 @@ export enum ReconnectReason {
 export function reconnectReasonFromJSON(object: any): ReconnectReason {
   switch (object) {
     case 0:
-    case "RR_UNKOWN":
+    case 'RR_UNKOWN':
       return ReconnectReason.RR_UNKOWN;
     case 1:
-    case "RR_SIGNAL_DISCONNECTED":
+    case 'RR_SIGNAL_DISCONNECTED':
       return ReconnectReason.RR_SIGNAL_DISCONNECTED;
     case 2:
-    case "RR_PUBLISHER_FAILED":
+    case 'RR_PUBLISHER_FAILED':
       return ReconnectReason.RR_PUBLISHER_FAILED;
     case 3:
-    case "RR_SUBSCRIBER_FAILED":
+    case 'RR_SUBSCRIBER_FAILED':
       return ReconnectReason.RR_SUBSCRIBER_FAILED;
     case 4:
-    case "RR_SWITCH_CANDIDATE":
+    case 'RR_SWITCH_CANDIDATE':
       return ReconnectReason.RR_SWITCH_CANDIDATE;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ReconnectReason.UNRECOGNIZED;
   }
@@ -323,18 +405,17 @@ export function reconnectReasonFromJSON(object: any): ReconnectReason {
 export function reconnectReasonToJSON(object: ReconnectReason): string {
   switch (object) {
     case ReconnectReason.RR_UNKOWN:
-      return "RR_UNKOWN";
+      return 'RR_UNKOWN';
     case ReconnectReason.RR_SIGNAL_DISCONNECTED:
-      return "RR_SIGNAL_DISCONNECTED";
+      return 'RR_SIGNAL_DISCONNECTED';
     case ReconnectReason.RR_PUBLISHER_FAILED:
-      return "RR_PUBLISHER_FAILED";
+      return 'RR_PUBLISHER_FAILED';
     case ReconnectReason.RR_SUBSCRIBER_FAILED:
-      return "RR_SUBSCRIBER_FAILED";
+      return 'RR_SUBSCRIBER_FAILED';
     case ReconnectReason.RR_SWITCH_CANDIDATE:
-      return "RR_SWITCH_CANDIDATE";
-    case ReconnectReason.UNRECOGNIZED:
+      return 'RR_SWITCH_CANDIDATE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -369,6 +450,8 @@ export interface ParticipantPermission {
   hidden: boolean;
   /** indicates it's a recorder instance */
   recorder: boolean;
+  /** indicates that participant can update own metadata */
+  canUpdateMetadata: boolean;
 }
 
 export interface ParticipantInfo {
@@ -405,19 +488,19 @@ export enum ParticipantInfo_State {
 export function participantInfo_StateFromJSON(object: any): ParticipantInfo_State {
   switch (object) {
     case 0:
-    case "JOINING":
+    case 'JOINING':
       return ParticipantInfo_State.JOINING;
     case 1:
-    case "JOINED":
+    case 'JOINED':
       return ParticipantInfo_State.JOINED;
     case 2:
-    case "ACTIVE":
+    case 'ACTIVE':
       return ParticipantInfo_State.ACTIVE;
     case 3:
-    case "DISCONNECTED":
+    case 'DISCONNECTED':
       return ParticipantInfo_State.DISCONNECTED;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ParticipantInfo_State.UNRECOGNIZED;
   }
@@ -426,21 +509,19 @@ export function participantInfo_StateFromJSON(object: any): ParticipantInfo_Stat
 export function participantInfo_StateToJSON(object: ParticipantInfo_State): string {
   switch (object) {
     case ParticipantInfo_State.JOINING:
-      return "JOINING";
+      return 'JOINING';
     case ParticipantInfo_State.JOINED:
-      return "JOINED";
+      return 'JOINED';
     case ParticipantInfo_State.ACTIVE:
-      return "ACTIVE";
+      return 'ACTIVE';
     case ParticipantInfo_State.DISCONNECTED:
-      return "DISCONNECTED";
-    case ParticipantInfo_State.UNRECOGNIZED:
+      return 'DISCONNECTED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
-export interface Encryption {
-}
+export interface Encryption {}
 
 export enum Encryption_Type {
   NONE = 0,
@@ -452,16 +533,16 @@ export enum Encryption_Type {
 export function encryption_TypeFromJSON(object: any): Encryption_Type {
   switch (object) {
     case 0:
-    case "NONE":
+    case 'NONE':
       return Encryption_Type.NONE;
     case 1:
-    case "GCM":
+    case 'GCM':
       return Encryption_Type.GCM;
     case 2:
-    case "CUSTOM":
+    case 'CUSTOM':
       return Encryption_Type.CUSTOM;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return Encryption_Type.UNRECOGNIZED;
   }
@@ -470,14 +551,13 @@ export function encryption_TypeFromJSON(object: any): Encryption_Type {
 export function encryption_TypeToJSON(object: Encryption_Type): string {
   switch (object) {
     case Encryption_Type.NONE:
-      return "NONE";
+      return 'NONE';
     case Encryption_Type.GCM:
-      return "GCM";
+      return 'GCM';
     case Encryption_Type.CUSTOM:
-      return "CUSTOM";
-    case Encryption_Type.UNRECOGNIZED:
+      return 'CUSTOM';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -544,13 +624,13 @@ export enum DataPacket_Kind {
 export function dataPacket_KindFromJSON(object: any): DataPacket_Kind {
   switch (object) {
     case 0:
-    case "RELIABLE":
+    case 'RELIABLE':
       return DataPacket_Kind.RELIABLE;
     case 1:
-    case "LOSSY":
+    case 'LOSSY':
       return DataPacket_Kind.LOSSY;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return DataPacket_Kind.UNRECOGNIZED;
   }
@@ -559,12 +639,11 @@ export function dataPacket_KindFromJSON(object: any): DataPacket_Kind {
 export function dataPacket_KindToJSON(object: DataPacket_Kind): string {
   switch (object) {
     case DataPacket_Kind.RELIABLE:
-      return "RELIABLE";
+      return 'RELIABLE';
     case DataPacket_Kind.LOSSY:
-      return "LOSSY";
-    case DataPacket_Kind.UNRECOGNIZED:
+      return 'LOSSY';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -617,13 +696,13 @@ export enum ServerInfo_Edition {
 export function serverInfo_EditionFromJSON(object: any): ServerInfo_Edition {
   switch (object) {
     case 0:
-    case "Standard":
+    case 'Standard':
       return ServerInfo_Edition.Standard;
     case 1:
-    case "Cloud":
+    case 'Cloud':
       return ServerInfo_Edition.Cloud;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ServerInfo_Edition.UNRECOGNIZED;
   }
@@ -632,12 +711,11 @@ export function serverInfo_EditionFromJSON(object: any): ServerInfo_Edition {
 export function serverInfo_EditionToJSON(object: ServerInfo_Edition): string {
   switch (object) {
     case ServerInfo_Edition.Standard:
-      return "Standard";
+      return 'Standard';
     case ServerInfo_Edition.Cloud:
-      return "Cloud";
-    case ServerInfo_Edition.UNRECOGNIZED:
+      return 'Cloud';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -670,28 +748,28 @@ export enum ClientInfo_SDK {
 export function clientInfo_SDKFromJSON(object: any): ClientInfo_SDK {
   switch (object) {
     case 0:
-    case "UNKNOWN":
+    case 'UNKNOWN':
       return ClientInfo_SDK.UNKNOWN;
     case 1:
-    case "JS":
+    case 'JS':
       return ClientInfo_SDK.JS;
     case 2:
-    case "SWIFT":
+    case 'SWIFT':
       return ClientInfo_SDK.SWIFT;
     case 3:
-    case "ANDROID":
+    case 'ANDROID':
       return ClientInfo_SDK.ANDROID;
     case 4:
-    case "FLUTTER":
+    case 'FLUTTER':
       return ClientInfo_SDK.FLUTTER;
     case 5:
-    case "GO":
+    case 'GO':
       return ClientInfo_SDK.GO;
     case 6:
-    case "UNITY":
+    case 'UNITY':
       return ClientInfo_SDK.UNITY;
     case -1:
-    case "UNRECOGNIZED":
+    case 'UNRECOGNIZED':
     default:
       return ClientInfo_SDK.UNRECOGNIZED;
   }
@@ -700,22 +778,21 @@ export function clientInfo_SDKFromJSON(object: any): ClientInfo_SDK {
 export function clientInfo_SDKToJSON(object: ClientInfo_SDK): string {
   switch (object) {
     case ClientInfo_SDK.UNKNOWN:
-      return "UNKNOWN";
+      return 'UNKNOWN';
     case ClientInfo_SDK.JS:
-      return "JS";
+      return 'JS';
     case ClientInfo_SDK.SWIFT:
-      return "SWIFT";
+      return 'SWIFT';
     case ClientInfo_SDK.ANDROID:
-      return "ANDROID";
+      return 'ANDROID';
     case ClientInfo_SDK.FLUTTER:
-      return "FLUTTER";
+      return 'FLUTTER';
     case ClientInfo_SDK.GO:
-      return "GO";
+      return 'GO';
     case ClientInfo_SDK.UNITY:
-      return "UNITY";
-    case ClientInfo_SDK.UNRECOGNIZED:
+      return 'UNITY';
     default:
-      return "UNRECOGNIZED";
+      return 'UNKNOWN';
   }
 }
 
@@ -792,14 +869,14 @@ export interface TimedVersion {
 
 function createBaseRoom(): Room {
   return {
-    sid: "",
-    name: "",
+    sid: '',
+    name: '',
     emptyTimeout: 0,
     maxParticipants: 0,
     creationTime: 0,
-    turnPassword: "",
+    turnPassword: '',
     enabledCodecs: [],
-    metadata: "",
+    metadata: '',
     numParticipants: 0,
     activeRecording: false,
   };
@@ -807,10 +884,10 @@ function createBaseRoom(): Room {
 
 export const Room = {
   encode(message: Room, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== "") {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
     if (message.emptyTimeout !== 0) {
@@ -822,13 +899,13 @@ export const Room = {
     if (message.creationTime !== 0) {
       writer.uint32(40).int64(message.creationTime);
     }
-    if (message.turnPassword !== "") {
+    if (message.turnPassword !== '') {
       writer.uint32(50).string(message.turnPassword);
     }
     for (const v of message.enabledCodecs) {
       Codec.encode(v!, writer.uint32(58).fork()).ldelim();
     }
-    if (message.metadata !== "") {
+    if (message.metadata !== '') {
       writer.uint32(66).string(message.metadata);
     }
     if (message.numParticipants !== 0) {
@@ -887,16 +964,16 @@ export const Room = {
 
   fromJSON(object: any): Room {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
-      name: isSet(object.name) ? String(object.name) : "",
+      sid: isSet(object.sid) ? String(object.sid) : '',
+      name: isSet(object.name) ? String(object.name) : '',
       emptyTimeout: isSet(object.emptyTimeout) ? Number(object.emptyTimeout) : 0,
       maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
       creationTime: isSet(object.creationTime) ? Number(object.creationTime) : 0,
-      turnPassword: isSet(object.turnPassword) ? String(object.turnPassword) : "",
+      turnPassword: isSet(object.turnPassword) ? String(object.turnPassword) : '',
       enabledCodecs: Array.isArray(object?.enabledCodecs)
         ? object.enabledCodecs.map((e: any) => Codec.fromJSON(e))
         : [],
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      metadata: isSet(object.metadata) ? String(object.metadata) : '',
       numParticipants: isSet(object.numParticipants) ? Number(object.numParticipants) : 0,
       activeRecording: isSet(object.activeRecording) ? Boolean(object.activeRecording) : false,
     };
@@ -907,30 +984,32 @@ export const Room = {
     message.sid !== undefined && (obj.sid = message.sid);
     message.name !== undefined && (obj.name = message.name);
     message.emptyTimeout !== undefined && (obj.emptyTimeout = Math.round(message.emptyTimeout));
-    message.maxParticipants !== undefined && (obj.maxParticipants = Math.round(message.maxParticipants));
+    message.maxParticipants !== undefined &&
+      (obj.maxParticipants = Math.round(message.maxParticipants));
     message.creationTime !== undefined && (obj.creationTime = Math.round(message.creationTime));
     message.turnPassword !== undefined && (obj.turnPassword = message.turnPassword);
     if (message.enabledCodecs) {
-      obj.enabledCodecs = message.enabledCodecs.map((e) => e ? Codec.toJSON(e) : undefined);
+      obj.enabledCodecs = message.enabledCodecs.map((e) => (e ? Codec.toJSON(e) : undefined));
     } else {
       obj.enabledCodecs = [];
     }
     message.metadata !== undefined && (obj.metadata = message.metadata);
-    message.numParticipants !== undefined && (obj.numParticipants = Math.round(message.numParticipants));
+    message.numParticipants !== undefined &&
+      (obj.numParticipants = Math.round(message.numParticipants));
     message.activeRecording !== undefined && (obj.activeRecording = message.activeRecording);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<Room>, I>>(object: I): Room {
     const message = createBaseRoom();
-    message.sid = object.sid ?? "";
-    message.name = object.name ?? "";
+    message.sid = object.sid ?? '';
+    message.name = object.name ?? '';
     message.emptyTimeout = object.emptyTimeout ?? 0;
     message.maxParticipants = object.maxParticipants ?? 0;
     message.creationTime = object.creationTime ?? 0;
-    message.turnPassword = object.turnPassword ?? "";
+    message.turnPassword = object.turnPassword ?? '';
     message.enabledCodecs = object.enabledCodecs?.map((e) => Codec.fromPartial(e)) || [];
-    message.metadata = object.metadata ?? "";
+    message.metadata = object.metadata ?? '';
     message.numParticipants = object.numParticipants ?? 0;
     message.activeRecording = object.activeRecording ?? false;
     return message;
@@ -938,15 +1017,15 @@ export const Room = {
 };
 
 function createBaseCodec(): Codec {
-  return { mime: "", fmtpLine: "" };
+  return { mime: '', fmtpLine: '' };
 }
 
 export const Codec = {
   encode(message: Codec, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mime !== "") {
+    if (message.mime !== '') {
       writer.uint32(10).string(message.mime);
     }
-    if (message.fmtpLine !== "") {
+    if (message.fmtpLine !== '') {
       writer.uint32(18).string(message.fmtpLine);
     }
     return writer;
@@ -975,8 +1054,8 @@ export const Codec = {
 
   fromJSON(object: any): Codec {
     return {
-      mime: isSet(object.mime) ? String(object.mime) : "",
-      fmtpLine: isSet(object.fmtpLine) ? String(object.fmtpLine) : "",
+      mime: isSet(object.mime) ? String(object.mime) : '',
+      fmtpLine: isSet(object.fmtpLine) ? String(object.fmtpLine) : '',
     };
   },
 
@@ -989,8 +1068,8 @@ export const Codec = {
 
   fromPartial<I extends Exact<DeepPartial<Codec>, I>>(object: I): Codec {
     const message = createBaseCodec();
-    message.mime = object.mime ?? "";
-    message.fmtpLine = object.fmtpLine ?? "";
+    message.mime = object.mime ?? '';
+    message.fmtpLine = object.fmtpLine ?? '';
     return message;
   },
 };
@@ -1003,6 +1082,7 @@ function createBaseParticipantPermission(): ParticipantPermission {
     canPublishSources: [],
     hidden: false,
     recorder: false,
+    canUpdateMetadata: false,
   };
 }
 
@@ -1027,6 +1107,9 @@ export const ParticipantPermission = {
     }
     if (message.recorder === true) {
       writer.uint32(64).bool(message.recorder);
+    }
+    if (message.canUpdateMetadata === true) {
+      writer.uint32(80).bool(message.canUpdateMetadata);
     }
     return writer;
   },
@@ -1063,6 +1146,9 @@ export const ParticipantPermission = {
         case 8:
           message.recorder = reader.bool();
           break;
+        case 10:
+          message.canUpdateMetadata = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1081,6 +1167,9 @@ export const ParticipantPermission = {
         : [],
       hidden: isSet(object.hidden) ? Boolean(object.hidden) : false,
       recorder: isSet(object.recorder) ? Boolean(object.recorder) : false,
+      canUpdateMetadata: isSet(object.canUpdateMetadata)
+        ? Boolean(object.canUpdateMetadata)
+        : false,
     };
   },
 
@@ -1096,10 +1185,13 @@ export const ParticipantPermission = {
     }
     message.hidden !== undefined && (obj.hidden = message.hidden);
     message.recorder !== undefined && (obj.recorder = message.recorder);
+    message.canUpdateMetadata !== undefined && (obj.canUpdateMetadata = message.canUpdateMetadata);
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ParticipantPermission>, I>>(object: I): ParticipantPermission {
+  fromPartial<I extends Exact<DeepPartial<ParticipantPermission>, I>>(
+    object: I,
+  ): ParticipantPermission {
     const message = createBaseParticipantPermission();
     message.canSubscribe = object.canSubscribe ?? false;
     message.canPublish = object.canPublish ?? false;
@@ -1107,32 +1199,33 @@ export const ParticipantPermission = {
     message.canPublishSources = object.canPublishSources?.map((e) => e) || [];
     message.hidden = object.hidden ?? false;
     message.recorder = object.recorder ?? false;
+    message.canUpdateMetadata = object.canUpdateMetadata ?? false;
     return message;
   },
 };
 
 function createBaseParticipantInfo(): ParticipantInfo {
   return {
-    sid: "",
-    identity: "",
+    sid: '',
+    identity: '',
     state: 0,
     tracks: [],
-    metadata: "",
+    metadata: '',
     joinedAt: 0,
-    name: "",
+    name: '',
     version: 0,
     permission: undefined,
-    region: "",
+    region: '',
     isPublisher: false,
   };
 }
 
 export const ParticipantInfo = {
   encode(message: ParticipantInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== "") {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
-    if (message.identity !== "") {
+    if (message.identity !== '') {
       writer.uint32(18).string(message.identity);
     }
     if (message.state !== 0) {
@@ -1141,13 +1234,13 @@ export const ParticipantInfo = {
     for (const v of message.tracks) {
       TrackInfo.encode(v!, writer.uint32(34).fork()).ldelim();
     }
-    if (message.metadata !== "") {
+    if (message.metadata !== '') {
       writer.uint32(42).string(message.metadata);
     }
     if (message.joinedAt !== 0) {
       writer.uint32(48).int64(message.joinedAt);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(74).string(message.name);
     }
     if (message.version !== 0) {
@@ -1156,7 +1249,7 @@ export const ParticipantInfo = {
     if (message.permission !== undefined) {
       ParticipantPermission.encode(message.permission, writer.uint32(90).fork()).ldelim();
     }
-    if (message.region !== "") {
+    if (message.region !== '') {
       writer.uint32(98).string(message.region);
     }
     if (message.isPublisher === true) {
@@ -1215,16 +1308,20 @@ export const ParticipantInfo = {
 
   fromJSON(object: any): ParticipantInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
+      sid: isSet(object.sid) ? String(object.sid) : '',
+      identity: isSet(object.identity) ? String(object.identity) : '',
       state: isSet(object.state) ? participantInfo_StateFromJSON(object.state) : 0,
-      tracks: Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      tracks: Array.isArray(object?.tracks)
+        ? object.tracks.map((e: any) => TrackInfo.fromJSON(e))
+        : [],
+      metadata: isSet(object.metadata) ? String(object.metadata) : '',
       joinedAt: isSet(object.joinedAt) ? Number(object.joinedAt) : 0,
-      name: isSet(object.name) ? String(object.name) : "",
+      name: isSet(object.name) ? String(object.name) : '',
       version: isSet(object.version) ? Number(object.version) : 0,
-      permission: isSet(object.permission) ? ParticipantPermission.fromJSON(object.permission) : undefined,
-      region: isSet(object.region) ? String(object.region) : "",
+      permission: isSet(object.permission)
+        ? ParticipantPermission.fromJSON(object.permission)
+        : undefined,
+      region: isSet(object.region) ? String(object.region) : '',
       isPublisher: isSet(object.isPublisher) ? Boolean(object.isPublisher) : false,
     };
   },
@@ -1235,7 +1332,7 @@ export const ParticipantInfo = {
     message.identity !== undefined && (obj.identity = message.identity);
     message.state !== undefined && (obj.state = participantInfo_StateToJSON(message.state));
     if (message.tracks) {
-      obj.tracks = message.tracks.map((e) => e ? TrackInfo.toJSON(e) : undefined);
+      obj.tracks = message.tracks.map((e) => (e ? TrackInfo.toJSON(e) : undefined));
     } else {
       obj.tracks = [];
     }
@@ -1244,7 +1341,9 @@ export const ParticipantInfo = {
     message.name !== undefined && (obj.name = message.name);
     message.version !== undefined && (obj.version = Math.round(message.version));
     message.permission !== undefined &&
-      (obj.permission = message.permission ? ParticipantPermission.toJSON(message.permission) : undefined);
+      (obj.permission = message.permission
+        ? ParticipantPermission.toJSON(message.permission)
+        : undefined);
     message.region !== undefined && (obj.region = message.region);
     message.isPublisher !== undefined && (obj.isPublisher = message.isPublisher);
     return obj;
@@ -1252,18 +1351,19 @@ export const ParticipantInfo = {
 
   fromPartial<I extends Exact<DeepPartial<ParticipantInfo>, I>>(object: I): ParticipantInfo {
     const message = createBaseParticipantInfo();
-    message.sid = object.sid ?? "";
-    message.identity = object.identity ?? "";
+    message.sid = object.sid ?? '';
+    message.identity = object.identity ?? '';
     message.state = object.state ?? 0;
     message.tracks = object.tracks?.map((e) => TrackInfo.fromPartial(e)) || [];
-    message.metadata = object.metadata ?? "";
+    message.metadata = object.metadata ?? '';
     message.joinedAt = object.joinedAt ?? 0;
-    message.name = object.name ?? "";
+    message.name = object.name ?? '';
     message.version = object.version ?? 0;
-    message.permission = (object.permission !== undefined && object.permission !== null)
-      ? ParticipantPermission.fromPartial(object.permission)
-      : undefined;
-    message.region = object.region ?? "";
+    message.permission =
+      object.permission !== undefined && object.permission !== null
+        ? ParticipantPermission.fromPartial(object.permission)
+        : undefined;
+    message.region = object.region ?? '';
     message.isPublisher = object.isPublisher ?? false;
     return message;
   },
@@ -1309,18 +1409,18 @@ export const Encryption = {
 };
 
 function createBaseSimulcastCodecInfo(): SimulcastCodecInfo {
-  return { mimeType: "", mid: "", cid: "", layers: [] };
+  return { mimeType: '', mid: '', cid: '', layers: [] };
 }
 
 export const SimulcastCodecInfo = {
   encode(message: SimulcastCodecInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.mimeType !== "") {
+    if (message.mimeType !== '') {
       writer.uint32(10).string(message.mimeType);
     }
-    if (message.mid !== "") {
+    if (message.mid !== '') {
       writer.uint32(18).string(message.mid);
     }
-    if (message.cid !== "") {
+    if (message.cid !== '') {
       writer.uint32(26).string(message.cid);
     }
     for (const v of message.layers) {
@@ -1358,10 +1458,12 @@ export const SimulcastCodecInfo = {
 
   fromJSON(object: any): SimulcastCodecInfo {
     return {
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      mid: isSet(object.mid) ? String(object.mid) : "",
-      cid: isSet(object.cid) ? String(object.cid) : "",
-      layers: Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
+      mimeType: isSet(object.mimeType) ? String(object.mimeType) : '',
+      mid: isSet(object.mid) ? String(object.mid) : '',
+      cid: isSet(object.cid) ? String(object.cid) : '',
+      layers: Array.isArray(object?.layers)
+        ? object.layers.map((e: any) => VideoLayer.fromJSON(e))
+        : [],
     };
   },
 
@@ -1371,7 +1473,7 @@ export const SimulcastCodecInfo = {
     message.mid !== undefined && (obj.mid = message.mid);
     message.cid !== undefined && (obj.cid = message.cid);
     if (message.layers) {
-      obj.layers = message.layers.map((e) => e ? VideoLayer.toJSON(e) : undefined);
+      obj.layers = message.layers.map((e) => (e ? VideoLayer.toJSON(e) : undefined));
     } else {
       obj.layers = [];
     }
@@ -1380,9 +1482,9 @@ export const SimulcastCodecInfo = {
 
   fromPartial<I extends Exact<DeepPartial<SimulcastCodecInfo>, I>>(object: I): SimulcastCodecInfo {
     const message = createBaseSimulcastCodecInfo();
-    message.mimeType = object.mimeType ?? "";
-    message.mid = object.mid ?? "";
-    message.cid = object.cid ?? "";
+    message.mimeType = object.mimeType ?? '';
+    message.mid = object.mid ?? '';
+    message.cid = object.cid ?? '';
     message.layers = object.layers?.map((e) => VideoLayer.fromPartial(e)) || [];
     return message;
   },
@@ -1390,9 +1492,9 @@ export const SimulcastCodecInfo = {
 
 function createBaseTrackInfo(): TrackInfo {
   return {
-    sid: "",
+    sid: '',
     type: 0,
-    name: "",
+    name: '',
     muted: false,
     width: 0,
     height: 0,
@@ -1400,8 +1502,8 @@ function createBaseTrackInfo(): TrackInfo {
     disableDtx: false,
     source: 0,
     layers: [],
-    mimeType: "",
-    mid: "",
+    mimeType: '',
+    mid: '',
     codecs: [],
     stereo: false,
     disableRed: false,
@@ -1411,13 +1513,13 @@ function createBaseTrackInfo(): TrackInfo {
 
 export const TrackInfo = {
   encode(message: TrackInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== "") {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
     if (message.type !== 0) {
       writer.uint32(16).int32(message.type);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(26).string(message.name);
     }
     if (message.muted === true) {
@@ -1441,10 +1543,10 @@ export const TrackInfo = {
     for (const v of message.layers) {
       VideoLayer.encode(v!, writer.uint32(82).fork()).ldelim();
     }
-    if (message.mimeType !== "") {
+    if (message.mimeType !== '') {
       writer.uint32(90).string(message.mimeType);
     }
-    if (message.mid !== "") {
+    if (message.mid !== '') {
       writer.uint32(98).string(message.mid);
     }
     for (const v of message.codecs) {
@@ -1527,19 +1629,23 @@ export const TrackInfo = {
 
   fromJSON(object: any): TrackInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
+      sid: isSet(object.sid) ? String(object.sid) : '',
       type: isSet(object.type) ? trackTypeFromJSON(object.type) : 0,
-      name: isSet(object.name) ? String(object.name) : "",
+      name: isSet(object.name) ? String(object.name) : '',
       muted: isSet(object.muted) ? Boolean(object.muted) : false,
       width: isSet(object.width) ? Number(object.width) : 0,
       height: isSet(object.height) ? Number(object.height) : 0,
       simulcast: isSet(object.simulcast) ? Boolean(object.simulcast) : false,
       disableDtx: isSet(object.disableDtx) ? Boolean(object.disableDtx) : false,
       source: isSet(object.source) ? trackSourceFromJSON(object.source) : 0,
-      layers: Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      mid: isSet(object.mid) ? String(object.mid) : "",
-      codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e)) : [],
+      layers: Array.isArray(object?.layers)
+        ? object.layers.map((e: any) => VideoLayer.fromJSON(e))
+        : [],
+      mimeType: isSet(object.mimeType) ? String(object.mimeType) : '',
+      mid: isSet(object.mid) ? String(object.mid) : '',
+      codecs: Array.isArray(object?.codecs)
+        ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e))
+        : [],
       stereo: isSet(object.stereo) ? Boolean(object.stereo) : false,
       disableRed: isSet(object.disableRed) ? Boolean(object.disableRed) : false,
       encryption: isSet(object.encryption) ? encryption_TypeFromJSON(object.encryption) : 0,
@@ -1558,28 +1664,29 @@ export const TrackInfo = {
     message.disableDtx !== undefined && (obj.disableDtx = message.disableDtx);
     message.source !== undefined && (obj.source = trackSourceToJSON(message.source));
     if (message.layers) {
-      obj.layers = message.layers.map((e) => e ? VideoLayer.toJSON(e) : undefined);
+      obj.layers = message.layers.map((e) => (e ? VideoLayer.toJSON(e) : undefined));
     } else {
       obj.layers = [];
     }
     message.mimeType !== undefined && (obj.mimeType = message.mimeType);
     message.mid !== undefined && (obj.mid = message.mid);
     if (message.codecs) {
-      obj.codecs = message.codecs.map((e) => e ? SimulcastCodecInfo.toJSON(e) : undefined);
+      obj.codecs = message.codecs.map((e) => (e ? SimulcastCodecInfo.toJSON(e) : undefined));
     } else {
       obj.codecs = [];
     }
     message.stereo !== undefined && (obj.stereo = message.stereo);
     message.disableRed !== undefined && (obj.disableRed = message.disableRed);
-    message.encryption !== undefined && (obj.encryption = encryption_TypeToJSON(message.encryption));
+    message.encryption !== undefined &&
+      (obj.encryption = encryption_TypeToJSON(message.encryption));
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<TrackInfo>, I>>(object: I): TrackInfo {
     const message = createBaseTrackInfo();
-    message.sid = object.sid ?? "";
+    message.sid = object.sid ?? '';
     message.type = object.type ?? 0;
-    message.name = object.name ?? "";
+    message.name = object.name ?? '';
     message.muted = object.muted ?? false;
     message.width = object.width ?? 0;
     message.height = object.height ?? 0;
@@ -1587,8 +1694,8 @@ export const TrackInfo = {
     message.disableDtx = object.disableDtx ?? false;
     message.source = object.source ?? 0;
     message.layers = object.layers?.map((e) => VideoLayer.fromPartial(e)) || [];
-    message.mimeType = object.mimeType ?? "";
-    message.mid = object.mid ?? "";
+    message.mimeType = object.mimeType ?? '';
+    message.mid = object.mid ?? '';
     message.codecs = object.codecs?.map((e) => SimulcastCodecInfo.fromPartial(e)) || [];
     message.stereo = object.stereo ?? false;
     message.disableRed = object.disableRed ?? false;
@@ -1735,7 +1842,8 @@ export const DataPacket = {
   toJSON(message: DataPacket): unknown {
     const obj: any = {};
     message.kind !== undefined && (obj.kind = dataPacket_KindToJSON(message.kind));
-    message.user !== undefined && (obj.user = message.user ? UserPacket.toJSON(message.user) : undefined);
+    message.user !== undefined &&
+      (obj.user = message.user ? UserPacket.toJSON(message.user) : undefined);
     message.speaker !== undefined &&
       (obj.speaker = message.speaker ? ActiveSpeakerUpdate.toJSON(message.speaker) : undefined);
     return obj;
@@ -1744,12 +1852,14 @@ export const DataPacket = {
   fromPartial<I extends Exact<DeepPartial<DataPacket>, I>>(object: I): DataPacket {
     const message = createBaseDataPacket();
     message.kind = object.kind ?? 0;
-    message.user = (object.user !== undefined && object.user !== null)
-      ? UserPacket.fromPartial(object.user)
-      : undefined;
-    message.speaker = (object.speaker !== undefined && object.speaker !== null)
-      ? ActiveSpeakerUpdate.fromPartial(object.speaker)
-      : undefined;
+    message.user =
+      object.user !== undefined && object.user !== null
+        ? UserPacket.fromPartial(object.user)
+        : undefined;
+    message.speaker =
+      object.speaker !== undefined && object.speaker !== null
+        ? ActiveSpeakerUpdate.fromPartial(object.speaker)
+        : undefined;
     return message;
   },
 };
@@ -1786,21 +1896,25 @@ export const ActiveSpeakerUpdate = {
 
   fromJSON(object: any): ActiveSpeakerUpdate {
     return {
-      speakers: Array.isArray(object?.speakers) ? object.speakers.map((e: any) => SpeakerInfo.fromJSON(e)) : [],
+      speakers: Array.isArray(object?.speakers)
+        ? object.speakers.map((e: any) => SpeakerInfo.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: ActiveSpeakerUpdate): unknown {
     const obj: any = {};
     if (message.speakers) {
-      obj.speakers = message.speakers.map((e) => e ? SpeakerInfo.toJSON(e) : undefined);
+      obj.speakers = message.speakers.map((e) => (e ? SpeakerInfo.toJSON(e) : undefined));
     } else {
       obj.speakers = [];
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ActiveSpeakerUpdate>, I>>(object: I): ActiveSpeakerUpdate {
+  fromPartial<I extends Exact<DeepPartial<ActiveSpeakerUpdate>, I>>(
+    object: I,
+  ): ActiveSpeakerUpdate {
     const message = createBaseActiveSpeakerUpdate();
     message.speakers = object.speakers?.map((e) => SpeakerInfo.fromPartial(e)) || [];
     return message;
@@ -1808,12 +1922,12 @@ export const ActiveSpeakerUpdate = {
 };
 
 function createBaseSpeakerInfo(): SpeakerInfo {
-  return { sid: "", level: 0, active: false };
+  return { sid: '', level: 0, active: false };
 }
 
 export const SpeakerInfo = {
   encode(message: SpeakerInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sid !== "") {
+    if (message.sid !== '') {
       writer.uint32(10).string(message.sid);
     }
     if (message.level !== 0) {
@@ -1851,7 +1965,7 @@ export const SpeakerInfo = {
 
   fromJSON(object: any): SpeakerInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
+      sid: isSet(object.sid) ? String(object.sid) : '',
       level: isSet(object.level) ? Number(object.level) : 0,
       active: isSet(object.active) ? Boolean(object.active) : false,
     };
@@ -1867,7 +1981,7 @@ export const SpeakerInfo = {
 
   fromPartial<I extends Exact<DeepPartial<SpeakerInfo>, I>>(object: I): SpeakerInfo {
     const message = createBaseSpeakerInfo();
-    message.sid = object.sid ?? "";
+    message.sid = object.sid ?? '';
     message.level = object.level ?? 0;
     message.active = object.active ?? false;
     return message;
@@ -1875,12 +1989,12 @@ export const SpeakerInfo = {
 };
 
 function createBaseUserPacket(): UserPacket {
-  return { participantSid: "", payload: new Uint8Array(), destinationSids: [], topic: undefined };
+  return { participantSid: '', payload: new Uint8Array(), destinationSids: [], topic: undefined };
 }
 
 export const UserPacket = {
   encode(message: UserPacket, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.participantSid !== "") {
+    if (message.participantSid !== '') {
       writer.uint32(10).string(message.participantSid);
     }
     if (message.payload.length !== 0) {
@@ -1924,9 +2038,11 @@ export const UserPacket = {
 
   fromJSON(object: any): UserPacket {
     return {
-      participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
+      participantSid: isSet(object.participantSid) ? String(object.participantSid) : '',
       payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(),
-      destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
+      destinationSids: Array.isArray(object?.destinationSids)
+        ? object.destinationSids.map((e: any) => String(e))
+        : [],
       topic: isSet(object.topic) ? String(object.topic) : undefined,
     };
   },
@@ -1935,7 +2051,9 @@ export const UserPacket = {
     const obj: any = {};
     message.participantSid !== undefined && (obj.participantSid = message.participantSid);
     message.payload !== undefined &&
-      (obj.payload = base64FromBytes(message.payload !== undefined ? message.payload : new Uint8Array()));
+      (obj.payload = base64FromBytes(
+        message.payload !== undefined ? message.payload : new Uint8Array(),
+      ));
     if (message.destinationSids) {
       obj.destinationSids = message.destinationSids.map((e) => e);
     } else {
@@ -1947,7 +2065,7 @@ export const UserPacket = {
 
   fromPartial<I extends Exact<DeepPartial<UserPacket>, I>>(object: I): UserPacket {
     const message = createBaseUserPacket();
-    message.participantSid = object.participantSid ?? "";
+    message.participantSid = object.participantSid ?? '';
     message.payload = object.payload ?? new Uint8Array();
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
     message.topic = object.topic ?? undefined;
@@ -1956,12 +2074,12 @@ export const UserPacket = {
 };
 
 function createBaseParticipantTracks(): ParticipantTracks {
-  return { participantSid: "", trackSids: [] };
+  return { participantSid: '', trackSids: [] };
 }
 
 export const ParticipantTracks = {
   encode(message: ParticipantTracks, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.participantSid !== "") {
+    if (message.participantSid !== '') {
       writer.uint32(10).string(message.participantSid);
     }
     for (const v of message.trackSids) {
@@ -1993,8 +2111,10 @@ export const ParticipantTracks = {
 
   fromJSON(object: any): ParticipantTracks {
     return {
-      participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
-      trackSids: Array.isArray(object?.trackSids) ? object.trackSids.map((e: any) => String(e)) : [],
+      participantSid: isSet(object.participantSid) ? String(object.participantSid) : '',
+      trackSids: Array.isArray(object?.trackSids)
+        ? object.trackSids.map((e: any) => String(e))
+        : [],
     };
   },
 
@@ -2011,14 +2131,14 @@ export const ParticipantTracks = {
 
   fromPartial<I extends Exact<DeepPartial<ParticipantTracks>, I>>(object: I): ParticipantTracks {
     const message = createBaseParticipantTracks();
-    message.participantSid = object.participantSid ?? "";
+    message.participantSid = object.participantSid ?? '';
     message.trackSids = object.trackSids?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseServerInfo(): ServerInfo {
-  return { edition: 0, version: "", protocol: 0, region: "", nodeId: "", debugInfo: "" };
+  return { edition: 0, version: '', protocol: 0, region: '', nodeId: '', debugInfo: '' };
 }
 
 export const ServerInfo = {
@@ -2026,19 +2146,19 @@ export const ServerInfo = {
     if (message.edition !== 0) {
       writer.uint32(8).int32(message.edition);
     }
-    if (message.version !== "") {
+    if (message.version !== '') {
       writer.uint32(18).string(message.version);
     }
     if (message.protocol !== 0) {
       writer.uint32(24).int32(message.protocol);
     }
-    if (message.region !== "") {
+    if (message.region !== '') {
       writer.uint32(34).string(message.region);
     }
-    if (message.nodeId !== "") {
+    if (message.nodeId !== '') {
       writer.uint32(42).string(message.nodeId);
     }
-    if (message.debugInfo !== "") {
+    if (message.debugInfo !== '') {
       writer.uint32(50).string(message.debugInfo);
     }
     return writer;
@@ -2080,11 +2200,11 @@ export const ServerInfo = {
   fromJSON(object: any): ServerInfo {
     return {
       edition: isSet(object.edition) ? serverInfo_EditionFromJSON(object.edition) : 0,
-      version: isSet(object.version) ? String(object.version) : "",
+      version: isSet(object.version) ? String(object.version) : '',
       protocol: isSet(object.protocol) ? Number(object.protocol) : 0,
-      region: isSet(object.region) ? String(object.region) : "",
-      nodeId: isSet(object.nodeId) ? String(object.nodeId) : "",
-      debugInfo: isSet(object.debugInfo) ? String(object.debugInfo) : "",
+      region: isSet(object.region) ? String(object.region) : '',
+      nodeId: isSet(object.nodeId) ? String(object.nodeId) : '',
+      debugInfo: isSet(object.debugInfo) ? String(object.debugInfo) : '',
     };
   },
 
@@ -2102,11 +2222,11 @@ export const ServerInfo = {
   fromPartial<I extends Exact<DeepPartial<ServerInfo>, I>>(object: I): ServerInfo {
     const message = createBaseServerInfo();
     message.edition = object.edition ?? 0;
-    message.version = object.version ?? "";
+    message.version = object.version ?? '';
     message.protocol = object.protocol ?? 0;
-    message.region = object.region ?? "";
-    message.nodeId = object.nodeId ?? "";
-    message.debugInfo = object.debugInfo ?? "";
+    message.region = object.region ?? '';
+    message.nodeId = object.nodeId ?? '';
+    message.debugInfo = object.debugInfo ?? '';
     return message;
   },
 };
@@ -2114,15 +2234,15 @@ export const ServerInfo = {
 function createBaseClientInfo(): ClientInfo {
   return {
     sdk: 0,
-    version: "",
+    version: '',
     protocol: 0,
-    os: "",
-    osVersion: "",
-    deviceModel: "",
-    browser: "",
-    browserVersion: "",
-    address: "",
-    network: "",
+    os: '',
+    osVersion: '',
+    deviceModel: '',
+    browser: '',
+    browserVersion: '',
+    address: '',
+    network: '',
   };
 }
 
@@ -2131,31 +2251,31 @@ export const ClientInfo = {
     if (message.sdk !== 0) {
       writer.uint32(8).int32(message.sdk);
     }
-    if (message.version !== "") {
+    if (message.version !== '') {
       writer.uint32(18).string(message.version);
     }
     if (message.protocol !== 0) {
       writer.uint32(24).int32(message.protocol);
     }
-    if (message.os !== "") {
+    if (message.os !== '') {
       writer.uint32(34).string(message.os);
     }
-    if (message.osVersion !== "") {
+    if (message.osVersion !== '') {
       writer.uint32(42).string(message.osVersion);
     }
-    if (message.deviceModel !== "") {
+    if (message.deviceModel !== '') {
       writer.uint32(50).string(message.deviceModel);
     }
-    if (message.browser !== "") {
+    if (message.browser !== '') {
       writer.uint32(58).string(message.browser);
     }
-    if (message.browserVersion !== "") {
+    if (message.browserVersion !== '') {
       writer.uint32(66).string(message.browserVersion);
     }
-    if (message.address !== "") {
+    if (message.address !== '') {
       writer.uint32(74).string(message.address);
     }
-    if (message.network !== "") {
+    if (message.network !== '') {
       writer.uint32(82).string(message.network);
     }
     return writer;
@@ -2209,15 +2329,15 @@ export const ClientInfo = {
   fromJSON(object: any): ClientInfo {
     return {
       sdk: isSet(object.sdk) ? clientInfo_SDKFromJSON(object.sdk) : 0,
-      version: isSet(object.version) ? String(object.version) : "",
+      version: isSet(object.version) ? String(object.version) : '',
       protocol: isSet(object.protocol) ? Number(object.protocol) : 0,
-      os: isSet(object.os) ? String(object.os) : "",
-      osVersion: isSet(object.osVersion) ? String(object.osVersion) : "",
-      deviceModel: isSet(object.deviceModel) ? String(object.deviceModel) : "",
-      browser: isSet(object.browser) ? String(object.browser) : "",
-      browserVersion: isSet(object.browserVersion) ? String(object.browserVersion) : "",
-      address: isSet(object.address) ? String(object.address) : "",
-      network: isSet(object.network) ? String(object.network) : "",
+      os: isSet(object.os) ? String(object.os) : '',
+      osVersion: isSet(object.osVersion) ? String(object.osVersion) : '',
+      deviceModel: isSet(object.deviceModel) ? String(object.deviceModel) : '',
+      browser: isSet(object.browser) ? String(object.browser) : '',
+      browserVersion: isSet(object.browserVersion) ? String(object.browserVersion) : '',
+      address: isSet(object.address) ? String(object.address) : '',
+      network: isSet(object.network) ? String(object.network) : '',
     };
   },
 
@@ -2239,21 +2359,27 @@ export const ClientInfo = {
   fromPartial<I extends Exact<DeepPartial<ClientInfo>, I>>(object: I): ClientInfo {
     const message = createBaseClientInfo();
     message.sdk = object.sdk ?? 0;
-    message.version = object.version ?? "";
+    message.version = object.version ?? '';
     message.protocol = object.protocol ?? 0;
-    message.os = object.os ?? "";
-    message.osVersion = object.osVersion ?? "";
-    message.deviceModel = object.deviceModel ?? "";
-    message.browser = object.browser ?? "";
-    message.browserVersion = object.browserVersion ?? "";
-    message.address = object.address ?? "";
-    message.network = object.network ?? "";
+    message.os = object.os ?? '';
+    message.osVersion = object.osVersion ?? '';
+    message.deviceModel = object.deviceModel ?? '';
+    message.browser = object.browser ?? '';
+    message.browserVersion = object.browserVersion ?? '';
+    message.address = object.address ?? '';
+    message.network = object.network ?? '';
     return message;
   },
 };
 
 function createBaseClientConfiguration(): ClientConfiguration {
-  return { video: undefined, screen: undefined, resumeConnection: 0, disabledCodecs: undefined, forceRelay: 0 };
+  return {
+    video: undefined,
+    screen: undefined,
+    resumeConnection: 0,
+    disabledCodecs: undefined,
+    forceRelay: 0,
+  };
 }
 
 export const ClientConfiguration = {
@@ -2310,37 +2436,50 @@ export const ClientConfiguration = {
     return {
       video: isSet(object.video) ? VideoConfiguration.fromJSON(object.video) : undefined,
       screen: isSet(object.screen) ? VideoConfiguration.fromJSON(object.screen) : undefined,
-      resumeConnection: isSet(object.resumeConnection) ? clientConfigSettingFromJSON(object.resumeConnection) : 0,
-      disabledCodecs: isSet(object.disabledCodecs) ? DisabledCodecs.fromJSON(object.disabledCodecs) : undefined,
+      resumeConnection: isSet(object.resumeConnection)
+        ? clientConfigSettingFromJSON(object.resumeConnection)
+        : 0,
+      disabledCodecs: isSet(object.disabledCodecs)
+        ? DisabledCodecs.fromJSON(object.disabledCodecs)
+        : undefined,
       forceRelay: isSet(object.forceRelay) ? clientConfigSettingFromJSON(object.forceRelay) : 0,
     };
   },
 
   toJSON(message: ClientConfiguration): unknown {
     const obj: any = {};
-    message.video !== undefined && (obj.video = message.video ? VideoConfiguration.toJSON(message.video) : undefined);
+    message.video !== undefined &&
+      (obj.video = message.video ? VideoConfiguration.toJSON(message.video) : undefined);
     message.screen !== undefined &&
       (obj.screen = message.screen ? VideoConfiguration.toJSON(message.screen) : undefined);
     message.resumeConnection !== undefined &&
       (obj.resumeConnection = clientConfigSettingToJSON(message.resumeConnection));
     message.disabledCodecs !== undefined &&
-      (obj.disabledCodecs = message.disabledCodecs ? DisabledCodecs.toJSON(message.disabledCodecs) : undefined);
-    message.forceRelay !== undefined && (obj.forceRelay = clientConfigSettingToJSON(message.forceRelay));
+      (obj.disabledCodecs = message.disabledCodecs
+        ? DisabledCodecs.toJSON(message.disabledCodecs)
+        : undefined);
+    message.forceRelay !== undefined &&
+      (obj.forceRelay = clientConfigSettingToJSON(message.forceRelay));
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ClientConfiguration>, I>>(object: I): ClientConfiguration {
+  fromPartial<I extends Exact<DeepPartial<ClientConfiguration>, I>>(
+    object: I,
+  ): ClientConfiguration {
     const message = createBaseClientConfiguration();
-    message.video = (object.video !== undefined && object.video !== null)
-      ? VideoConfiguration.fromPartial(object.video)
-      : undefined;
-    message.screen = (object.screen !== undefined && object.screen !== null)
-      ? VideoConfiguration.fromPartial(object.screen)
-      : undefined;
+    message.video =
+      object.video !== undefined && object.video !== null
+        ? VideoConfiguration.fromPartial(object.video)
+        : undefined;
+    message.screen =
+      object.screen !== undefined && object.screen !== null
+        ? VideoConfiguration.fromPartial(object.screen)
+        : undefined;
     message.resumeConnection = object.resumeConnection ?? 0;
-    message.disabledCodecs = (object.disabledCodecs !== undefined && object.disabledCodecs !== null)
-      ? DisabledCodecs.fromPartial(object.disabledCodecs)
-      : undefined;
+    message.disabledCodecs =
+      object.disabledCodecs !== undefined && object.disabledCodecs !== null
+        ? DisabledCodecs.fromPartial(object.disabledCodecs)
+        : undefined;
     message.forceRelay = object.forceRelay ?? 0;
     return message;
   },
@@ -2377,12 +2516,17 @@ export const VideoConfiguration = {
   },
 
   fromJSON(object: any): VideoConfiguration {
-    return { hardwareEncoder: isSet(object.hardwareEncoder) ? clientConfigSettingFromJSON(object.hardwareEncoder) : 0 };
+    return {
+      hardwareEncoder: isSet(object.hardwareEncoder)
+        ? clientConfigSettingFromJSON(object.hardwareEncoder)
+        : 0,
+    };
   },
 
   toJSON(message: VideoConfiguration): unknown {
     const obj: any = {};
-    message.hardwareEncoder !== undefined && (obj.hardwareEncoder = clientConfigSettingToJSON(message.hardwareEncoder));
+    message.hardwareEncoder !== undefined &&
+      (obj.hardwareEncoder = clientConfigSettingToJSON(message.hardwareEncoder));
     return obj;
   },
 
@@ -2424,13 +2568,15 @@ export const DisabledCodecs = {
   },
 
   fromJSON(object: any): DisabledCodecs {
-    return { codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => Codec.fromJSON(e)) : [] };
+    return {
+      codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => Codec.fromJSON(e)) : [],
+    };
   },
 
   toJSON(message: DisabledCodecs): unknown {
     const obj: any = {};
     if (message.codecs) {
-      obj.codecs = message.codecs.map((e) => e ? Codec.toJSON(e) : undefined);
+      obj.codecs = message.codecs.map((e) => (e ? Codec.toJSON(e) : undefined));
     } else {
       obj.codecs = [];
     }
@@ -2571,7 +2717,10 @@ export const RTPStats = {
       writer.uint32(185).double(message.jitterMax);
     }
     Object.entries(message.gapHistogram).forEach(([key, value]) => {
-      RTPStats_GapHistogramEntry.encode({ key: key as any, value }, writer.uint32(194).fork()).ldelim();
+      RTPStats_GapHistogramEntry.encode(
+        { key: key as any, value },
+        writer.uint32(194).fork(),
+      ).ldelim();
     });
     if (message.nacks !== 0) {
       writer.uint32(200).uint32(message.nacks);
@@ -2771,11 +2920,17 @@ export const RTPStats = {
       bitrate: isSet(object.bitrate) ? Number(object.bitrate) : 0,
       packetsLost: isSet(object.packetsLost) ? Number(object.packetsLost) : 0,
       packetLossRate: isSet(object.packetLossRate) ? Number(object.packetLossRate) : 0,
-      packetLossPercentage: isSet(object.packetLossPercentage) ? Number(object.packetLossPercentage) : 0,
+      packetLossPercentage: isSet(object.packetLossPercentage)
+        ? Number(object.packetLossPercentage)
+        : 0,
       packetsDuplicate: isSet(object.packetsDuplicate) ? Number(object.packetsDuplicate) : 0,
-      packetDuplicateRate: isSet(object.packetDuplicateRate) ? Number(object.packetDuplicateRate) : 0,
+      packetDuplicateRate: isSet(object.packetDuplicateRate)
+        ? Number(object.packetDuplicateRate)
+        : 0,
       bytesDuplicate: isSet(object.bytesDuplicate) ? Number(object.bytesDuplicate) : 0,
-      headerBytesDuplicate: isSet(object.headerBytesDuplicate) ? Number(object.headerBytesDuplicate) : 0,
+      headerBytesDuplicate: isSet(object.headerBytesDuplicate)
+        ? Number(object.headerBytesDuplicate)
+        : 0,
       bitrateDuplicate: isSet(object.bitrateDuplicate) ? Number(object.bitrateDuplicate) : 0,
       packetsPadding: isSet(object.packetsPadding) ? Number(object.packetsPadding) : 0,
       packetPaddingRate: isSet(object.packetPaddingRate) ? Number(object.packetPaddingRate) : 0,
@@ -2788,10 +2943,13 @@ export const RTPStats = {
       jitterCurrent: isSet(object.jitterCurrent) ? Number(object.jitterCurrent) : 0,
       jitterMax: isSet(object.jitterMax) ? Number(object.jitterMax) : 0,
       gapHistogram: isObject(object.gapHistogram)
-        ? Object.entries(object.gapHistogram).reduce<{ [key: number]: number }>((acc, [key, value]) => {
-          acc[Number(key)] = Number(value);
-          return acc;
-        }, {})
+        ? Object.entries(object.gapHistogram).reduce<{ [key: number]: number }>(
+            (acc, [key, value]) => {
+              acc[Number(key)] = Number(value);
+              return acc;
+            },
+            {},
+          )
         : {},
       nacks: isSet(object.nacks) ? Number(object.nacks) : 0,
       nackAcks: isSet(object.nackAcks) ? Number(object.nackAcks) : 0,
@@ -2806,7 +2964,9 @@ export const RTPStats = {
       keyFrames: isSet(object.keyFrames) ? Number(object.keyFrames) : 0,
       lastKeyFrame: isSet(object.lastKeyFrame) ? fromJsonTimestamp(object.lastKeyFrame) : undefined,
       layerLockPlis: isSet(object.layerLockPlis) ? Number(object.layerLockPlis) : 0,
-      lastLayerLockPli: isSet(object.lastLayerLockPli) ? fromJsonTimestamp(object.lastLayerLockPli) : undefined,
+      lastLayerLockPli: isSet(object.lastLayerLockPli)
+        ? fromJsonTimestamp(object.lastLayerLockPli)
+        : undefined,
     };
   },
 
@@ -2822,18 +2982,26 @@ export const RTPStats = {
     message.bitrate !== undefined && (obj.bitrate = message.bitrate);
     message.packetsLost !== undefined && (obj.packetsLost = Math.round(message.packetsLost));
     message.packetLossRate !== undefined && (obj.packetLossRate = message.packetLossRate);
-    message.packetLossPercentage !== undefined && (obj.packetLossPercentage = message.packetLossPercentage);
-    message.packetsDuplicate !== undefined && (obj.packetsDuplicate = Math.round(message.packetsDuplicate));
-    message.packetDuplicateRate !== undefined && (obj.packetDuplicateRate = message.packetDuplicateRate);
-    message.bytesDuplicate !== undefined && (obj.bytesDuplicate = Math.round(message.bytesDuplicate));
-    message.headerBytesDuplicate !== undefined && (obj.headerBytesDuplicate = Math.round(message.headerBytesDuplicate));
+    message.packetLossPercentage !== undefined &&
+      (obj.packetLossPercentage = message.packetLossPercentage);
+    message.packetsDuplicate !== undefined &&
+      (obj.packetsDuplicate = Math.round(message.packetsDuplicate));
+    message.packetDuplicateRate !== undefined &&
+      (obj.packetDuplicateRate = message.packetDuplicateRate);
+    message.bytesDuplicate !== undefined &&
+      (obj.bytesDuplicate = Math.round(message.bytesDuplicate));
+    message.headerBytesDuplicate !== undefined &&
+      (obj.headerBytesDuplicate = Math.round(message.headerBytesDuplicate));
     message.bitrateDuplicate !== undefined && (obj.bitrateDuplicate = message.bitrateDuplicate);
-    message.packetsPadding !== undefined && (obj.packetsPadding = Math.round(message.packetsPadding));
+    message.packetsPadding !== undefined &&
+      (obj.packetsPadding = Math.round(message.packetsPadding));
     message.packetPaddingRate !== undefined && (obj.packetPaddingRate = message.packetPaddingRate);
     message.bytesPadding !== undefined && (obj.bytesPadding = Math.round(message.bytesPadding));
-    message.headerBytesPadding !== undefined && (obj.headerBytesPadding = Math.round(message.headerBytesPadding));
+    message.headerBytesPadding !== undefined &&
+      (obj.headerBytesPadding = Math.round(message.headerBytesPadding));
     message.bitratePadding !== undefined && (obj.bitratePadding = message.bitratePadding);
-    message.packetsOutOfOrder !== undefined && (obj.packetsOutOfOrder = Math.round(message.packetsOutOfOrder));
+    message.packetsOutOfOrder !== undefined &&
+      (obj.packetsOutOfOrder = Math.round(message.packetsOutOfOrder));
     message.frames !== undefined && (obj.frames = Math.round(message.frames));
     message.frameRate !== undefined && (obj.frameRate = message.frameRate);
     message.jitterCurrent !== undefined && (obj.jitterCurrent = message.jitterCurrent);
@@ -2857,7 +3025,8 @@ export const RTPStats = {
     message.keyFrames !== undefined && (obj.keyFrames = Math.round(message.keyFrames));
     message.lastKeyFrame !== undefined && (obj.lastKeyFrame = message.lastKeyFrame.toISOString());
     message.layerLockPlis !== undefined && (obj.layerLockPlis = Math.round(message.layerLockPlis));
-    message.lastLayerLockPli !== undefined && (obj.lastLayerLockPli = message.lastLayerLockPli.toISOString());
+    message.lastLayerLockPli !== undefined &&
+      (obj.lastLayerLockPli = message.lastLayerLockPli.toISOString());
     return obj;
   },
 
@@ -2889,15 +3058,14 @@ export const RTPStats = {
     message.frameRate = object.frameRate ?? 0;
     message.jitterCurrent = object.jitterCurrent ?? 0;
     message.jitterMax = object.jitterMax ?? 0;
-    message.gapHistogram = Object.entries(object.gapHistogram ?? {}).reduce<{ [key: number]: number }>(
-      (acc, [key, value]) => {
-        if (value !== undefined) {
-          acc[Number(key)] = Number(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.gapHistogram = Object.entries(object.gapHistogram ?? {}).reduce<{
+      [key: number]: number;
+    }>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[Number(key)] = Number(value);
+      }
+      return acc;
+    }, {});
     message.nacks = object.nacks ?? 0;
     message.nackAcks = object.nackAcks ?? 0;
     message.nackMisses = object.nackMisses ?? 0;
@@ -2921,7 +3089,10 @@ function createBaseRTPStats_GapHistogramEntry(): RTPStats_GapHistogramEntry {
 }
 
 export const RTPStats_GapHistogramEntry = {
-  encode(message: RTPStats_GapHistogramEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: RTPStats_GapHistogramEntry,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     if (message.key !== 0) {
       writer.uint32(8).int32(message.key);
     }
@@ -2953,7 +3124,10 @@ export const RTPStats_GapHistogramEntry = {
   },
 
   fromJSON(object: any): RTPStats_GapHistogramEntry {
-    return { key: isSet(object.key) ? Number(object.key) : 0, value: isSet(object.value) ? Number(object.value) : 0 };
+    return {
+      key: isSet(object.key) ? Number(object.key) : 0,
+      value: isSet(object.value) ? Number(object.value) : 0,
+    };
   },
 
   toJSON(message: RTPStats_GapHistogramEntry): unknown {
@@ -2963,7 +3137,9 @@ export const RTPStats_GapHistogramEntry = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<RTPStats_GapHistogramEntry>, I>>(object: I): RTPStats_GapHistogramEntry {
+  fromPartial<I extends Exact<DeepPartial<RTPStats_GapHistogramEntry>, I>>(
+    object: I,
+  ): RTPStats_GapHistogramEntry {
     const message = createBaseRTPStats_GapHistogramEntry();
     message.key = object.key ?? 0;
     message.value = object.value ?? 0;
@@ -3033,56 +3209,50 @@ declare var self: any | undefined;
 declare var window: any | undefined;
 declare var global: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
 })();
 
+const atob: (b64: string) => string =
+  globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64: string): Uint8Array {
-  if (globalThis.Buffer) {
-    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
-  } else {
-    const bin = globalThis.atob(b64);
-    const arr = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; ++i) {
-      arr[i] = bin.charCodeAt(i);
-    }
-    return arr;
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; ++i) {
+    arr[i] = bin.charCodeAt(i);
   }
+  return arr;
 }
 
+const btoa: (bin: string) => string =
+  globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
-  if (globalThis.Buffer) {
-    return globalThis.Buffer.from(arr).toString("base64");
-  } else {
-    const bin: string[] = [];
-    arr.forEach((byte) => {
-      bin.push(String.fromCharCode(byte));
-    });
-    return globalThis.btoa(bin.join(""));
+  const bin: string[] = [];
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
+  return btoa(bin.join(''));
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends Array<infer U>
+  ? Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U>
+  ? ReadonlyArray<DeepPartial<U>>
+  : T extends {}
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<Exclude<keyof I, KeysOfUnion<P>>, never>;
 
 function toTimestamp(date: Date): Timestamp {
   const seconds = date.getTime() / 1_000;
@@ -3099,7 +3269,7 @@ function fromTimestamp(t: Timestamp): Date {
 function fromJsonTimestamp(o: any): Date {
   if (o instanceof Date) {
     return o;
-  } else if (typeof o === "string") {
+  } else if (typeof o === 'string') {
     return new Date(o);
   } else {
     return fromTimestamp(Timestamp.fromJSON(o));
@@ -3108,7 +3278,7 @@ function fromJsonTimestamp(o: any): Date {
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   return long.toNumber();
 }
@@ -3119,7 +3289,7 @@ if (_m0.util.Long !== Long) {
 }
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

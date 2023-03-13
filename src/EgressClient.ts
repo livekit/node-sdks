@@ -78,9 +78,9 @@ export interface TrackCompositeOptions {
  * Used to supply multiple outputs with an egress request
  */
 export interface EncodedOutputs {
-  fileOutput?: EncodedFileOutput | undefined;
-  streamOutput?: StreamOutput | undefined;
-  segmentOutput?: SegmentedFileOutput | undefined;
+  file?: EncodedFileOutput | undefined;
+  stream?: StreamOutput | undefined;
+  segments?: SegmentedFileOutput | undefined;
 }
 
 /**
@@ -293,10 +293,10 @@ export class EgressClient extends ServiceBase {
     let preset: EncodingOptionsPreset | undefined;
     let advanced: EncodingOptions | undefined;
 
-    if ((<EncodedOutputs>output).fileOutput !== undefined) {
-      file = (<EncodedOutputs>output).fileOutput;
-      stream = (<EncodedOutputs>output).streamOutput;
-      segments = (<EncodedOutputs>output).segmentOutput;
+    if ((<EncodedOutputs>output).file !== undefined) {
+      file = (<EncodedOutputs>output).file;
+      stream = (<EncodedOutputs>output).stream;
+      segments = (<EncodedOutputs>output).segments;
     } else if ((<EncodedFileOutput>output).filepath !== undefined) {
       file = <EncodedFileOutput>output;
     } else if ((<StreamOutput>output).urls !== undefined) {

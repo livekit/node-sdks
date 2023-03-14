@@ -333,13 +333,13 @@ export class EgressClient extends ServiceBase {
         segmentOutputs = [output.segments];
       }
     } else if (this.isEncodedFileOutput(output)) {
-      file = <EncodedFileOutput>output;
+      file = output;
       fileOutputs = [file];
     } else if (this.isSegmentedFileOutput(output)) {
-      segments = <SegmentedFileOutput>output;
+      segments = output;
       segmentOutputs = [segments];
     } else if (this.isStreamOutput(output)) {
-      stream = <StreamOutput>output;
+      stream = output;
       streamOutputs = [stream];
     }
 

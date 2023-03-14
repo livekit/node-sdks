@@ -280,6 +280,35 @@ export class EgressClient extends ServiceBase {
     return EgressInfo.fromJSON(data);
   }
 
+  private isEncodedOutputs(output: any): output is EncodedOutputs {
+    return (
+      (<EncodedOutputs>output).file !== undefined ||
+      (<EncodedOutputs>output).stream !== undefined ||
+      (<EncodedOutputs>output).segments !== undefined
+    );
+  }
+
+  private isEncodedFileOutput(output: any): output is EncodedFileOutput {
+    return (
+      (<EncodedFileOutput>output).filepath !== undefined ||
+      (<EncodedFileOutput>output).fileType !== undefined
+    );
+  }
+
+  private isSegmentedFileOutput(output: any): output is SegmentedFileOutput {
+    return (
+      (<SegmentedFileOutput>output).filenamePrefix !== undefined ||
+      (<SegmentedFileOutput>output).playlistName !== undefined ||
+      (<SegmentedFileOutput>output).filenameSuffix !== undefined
+    );
+  }
+
+  private isStreamOutput(output: any): output is StreamOutput {
+    return (
+      (<StreamOutput>output).protocol !== undefined || (<StreamOutput>output).urls !== undefined
+    );
+  }
+
   private getOutputParams(
     output: EncodedOutputs | EncodedFileOutput | StreamOutput | SegmentedFileOutput,
     options?: EncodingOptionsPreset | EncodingOptions,
@@ -293,16 +322,25 @@ export class EgressClient extends ServiceBase {
     let preset: EncodingOptionsPreset | undefined;
     let advanced: EncodingOptions | undefined;
 
-    if ((<EncodedOutputs>output).file !== undefined) {
-      file = (<EncodedOutputs>output).file;
-      stream = (<EncodedOutputs>output).stream;
-      segments = (<EncodedOutputs>output).segments;
-    } else if ((<EncodedFileOutput>output).filepath !== undefined) {
+    if (this.isEncodedOutputs(output)) {
+      if (output.file !== undefined) {
+        fileOutputs = [output.file];
+      }
+      if (output.stream !== undefined) {
+        streamOutputs = [output.stream];
+      }
+      if (output.segments !== undefined) {
+        segmentOutputs = [output.segments];
+      }
+    } else if (this.isEncodedFileOutput(output)) {
       file = <EncodedFileOutput>output;
-    } else if ((<StreamOutput>output).urls !== undefined) {
-      stream = <StreamOutput>output;
-    } else if ((<SegmentedFileOutput>output).filenamePrefix !== undefined) {
+      fileOutputs = [file];
+    } else if (this.isSegmentedFileOutput(output)) {
       segments = <SegmentedFileOutput>output;
+      segmentOutputs = [segments];
+    } else if (this.isStreamOutput(output)) {
+      stream = <StreamOutput>output;
+      streamOutputs = [stream];
     }
 
     if (options) {
@@ -311,16 +349,6 @@ export class EgressClient extends ServiceBase {
       } else {
         advanced = <EncodingOptions>options;
       }
-    }
-
-    if (file) {
-      fileOutputs = [file];
-    }
-    if (stream) {
-      streamOutputs = [stream];
-    }
-    if (segments) {
-      segmentOutputs = [segments];
     }
 
     return { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs };
@@ -339,10 +367,10 @@ export class EgressClient extends ServiceBase {
     let file: DirectFileOutput | undefined;
     let websocketUrl: string | undefined;
 
-    if ((<DirectFileOutput>output).filepath !== undefined) {
-      file = <DirectFileOutput>output;
+    if (typeof output === 'string') {
+      websocketUrl = output;
     } else {
-      websocketUrl = <string>output;
+      file = <DirectFileOutput>output;
     }
 
     const req = TrackEgressRequest.toJSON({

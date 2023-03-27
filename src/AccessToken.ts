@@ -53,6 +53,11 @@ export class AccessToken {
     }
     if (!apiKey || !apiSecret) {
       throw Error('api-key and api-secret must be set');
+    } else if (typeof document !== 'undefined') {
+      // check against document rather than window because deno provides window
+      console.error("You should not include your API secret in your web client bundle.\n\n" +
+        "Your web client should request a token from your backend server which should then use " +
+        "the API secret to generate a token. See https://docs.livekit.io/docs/client-sdk/js");
     }
 
     this.apiKey = apiKey;

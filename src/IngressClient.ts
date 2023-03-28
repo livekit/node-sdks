@@ -133,8 +133,7 @@ export class IngressClient extends ServiceBase {
     const roomName: string = opts.roomName || '';
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
-    const audio: IngressAudioOptions | undefined = opts.audio;
-    const video: IngressVideoOptions | undefined = opts.video;
+    const { audio, video } = opts;
 
     const req = UpdateIngressRequest.toJSON({
       ingressId,

@@ -34,11 +34,11 @@ export interface CreateIngressOptions {
   /**
    * custom audio encoding parameters. optional
    */
-  audioParams?: IngressAudioOptions;
+  audio?: IngressAudioOptions;
   /**
    * custom video encoding parameters. optional
    */
-  videoParams?: IngressVideoOptions;
+  video?: IngressVideoOptions;
 }
 
 export interface UpdateIngressOptions {
@@ -61,11 +61,11 @@ export interface UpdateIngressOptions {
   /**
    * custom audio encoding parameters. optional
    */
-  audioParams?: IngressAudioOptions;
+  audio?: IngressAudioOptions;
   /**
    * custom video encoding parameters. optional
    */
-  videoParams?: IngressVideoOptions;
+  video?: IngressVideoOptions;
 }
 
 /**
@@ -101,8 +101,8 @@ export class IngressClient extends ServiceBase {
       roomName = opts.roomName || '';
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
-      audio = opts.audioParams;
-      video = opts.videoParams;
+      audio = opts.audio;
+      video = opts.video;
     }
 
     const req = CreateIngressRequest.toJSON({
@@ -133,8 +133,7 @@ export class IngressClient extends ServiceBase {
     const roomName: string = opts.roomName || '';
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
-    const audio: IngressAudioOptions | undefined = opts.audioParams;
-    const video: IngressVideoOptions | undefined = opts.videoParams;
+    const { audio, video } = opts;
 
     const req = UpdateIngressRequest.toJSON({
       ingressId,

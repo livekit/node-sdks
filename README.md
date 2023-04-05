@@ -2,7 +2,9 @@
 
 # LiveKit Server API for JS
 
-This library is designed to work with [livekit-server](https://github.com/livekit/livekit-server). <!--BEGIN_DESCRIPTION--><!--END_DESCRIPTION-->
+<!--BEGIN_DESCRIPTION-->
+This library is designed to work with [livekit-server](https://github.com/livekit/livekit-server).
+<!--END_DESCRIPTION-->
 
 ## Installation
 

@@ -3,7 +3,7 @@
 # LiveKit Server API for JS
 
 <!--BEGIN_DESCRIPTION-->
-This library is designed to work with [livekit-server](https://github.com/livekit/livekit-server).
+Javascript/Typescript APIs to manage rooms and to create access tokens. This library is designed to work with [livekit-server](https://github.com/livekit/livekit-server). Use it with a Node.js backend to manage access to LiveKit.
 <!--END_DESCRIPTION-->
 
 ## Installation

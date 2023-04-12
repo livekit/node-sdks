@@ -1,7 +1,9 @@
 export * from './AccessToken';
 export * from './EgressClient';
-export * from './grants';
 export * from './IngressClient';
+export * from './RoomServiceClient';
+export * from './WebhookReceiver';
+export * from './grants';
 export {
   DirectFileOutput,
   EgressInfo,
@@ -12,14 +14,13 @@ export {
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StreamOutput,
-  StreamProtocol,
+  StreamProtocol
 } from './proto/livekit_egress';
 export {
-  IngressAudioOptions,
+  IngressAudioEncodingOptions, IngressAudioEncodingPreset, IngressAudioOptions,
   IngressInfo,
   IngressInput,
-  IngressState,
-  IngressVideoOptions,
+  IngressState, IngressVideoEncodingOptions, IngressVideoEncodingPreset, IngressVideoOptions
 } from './proto/livekit_ingress';
 export {
   DataPacket_Kind,
@@ -27,8 +28,6 @@ export {
   ParticipantInfo_State,
   ParticipantPermission,
   Room,
-  TrackInfo,
-  TrackType,
+  TrackInfo, TrackSource, TrackType
 } from './proto/livekit_models';
-export * from './RoomServiceClient';
-export * from './WebhookReceiver';
+

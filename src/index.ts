@@ -14,13 +14,18 @@ export {
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StreamOutput,
-  StreamProtocol
+  StreamProtocol,
 } from './proto/livekit_egress';
 export {
-  IngressAudioEncodingOptions, IngressAudioEncodingPreset, IngressAudioOptions,
+  IngressAudioEncodingOptions,
+  IngressAudioEncodingPreset,
+  IngressAudioOptions,
   IngressInfo,
   IngressInput,
-  IngressState, IngressVideoEncodingOptions, IngressVideoEncodingPreset, IngressVideoOptions
+  IngressState,
+  IngressVideoEncodingOptions,
+  IngressVideoEncodingPreset,
+  IngressVideoOptions,
 } from './proto/livekit_ingress';
 export {
   DataPacket_Kind,
@@ -28,6 +33,7 @@ export {
   ParticipantInfo_State,
   ParticipantPermission,
   Room,
-  TrackInfo, TrackSource, TrackType
+  TrackInfo,
+  TrackSource,
+  TrackType,
 } from './proto/livekit_models';
-

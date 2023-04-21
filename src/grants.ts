@@ -1,3 +1,10 @@
+export enum TrackSource {
+  CAMERA = 'camera',
+  MICROPHONE = 'microphone',
+  SCREEN_SHARE = 'screen_share',
+  SCREEN_SHARE_AUDIO = 'screen_share_audio',
+}
+
 export interface VideoGrant {
   /** permission to create a room */
   roomCreate?: boolean;
@@ -26,6 +33,12 @@ export interface VideoGrant {
    */
   canPublish?: boolean;
 
+  /**
+   * TrackSource types that the participant is allowed to publish
+   * When set, it supersedes CanPublish. Only sources explicitly set here can be published
+   */
+  canPublishSources?: TrackSource[];
+
   /** allow participant to subscribe to other tracks */
   canSubscribe?: boolean;
 
@@ -33,6 +46,11 @@ export interface VideoGrant {
    * allow participants to publish data, defaults to true if not set
    */
   canPublishData?: boolean;
+
+  /**
+   * by default, a participant is not allowed to update its own metadata
+   */
+  canUpdateOwnMetadata?: boolean;
 
   /** participant isn't visible to others */
   hidden?: boolean;

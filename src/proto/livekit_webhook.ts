@@ -10,7 +10,8 @@ export const protobufPackage = "livekit";
 export interface WebhookEvent {
   /**
    * one of room_started, room_finished, participant_joined, participant_left,
-   * track_published, track_unpublished, egress_started, egress_updated, egress_ended, ingress_started, ingress_ended
+   * track_published, track_unpublished, egress_started, egress_updated, egress_ended,
+   * ingress_started, ingress_ended
    */
   event?: string;
   room?: Room;
@@ -26,6 +27,7 @@ export interface WebhookEvent {
   id?: string;
   /** timestamp in seconds */
   createdAt?: number;
+  numDropped?: number;
 }
 
 function createBaseWebhookEvent(): WebhookEvent {
@@ -38,6 +40,7 @@ function createBaseWebhookEvent(): WebhookEvent {
     track: undefined,
     id: "",
     createdAt: 0,
+    numDropped: 0,
   };
 }
 
@@ -66,6 +69,9 @@ export const WebhookEvent = {
     }
     if (message.createdAt !== undefined && message.createdAt !== 0) {
       writer.uint32(56).int64(message.createdAt);
+    }
+    if (message.numDropped !== undefined && message.numDropped !== 0) {
+      writer.uint32(88).int32(message.numDropped);
     }
     return writer;
   },
@@ -101,6 +107,9 @@ export const WebhookEvent = {
         case 7:
           message.createdAt = longToNumber(reader.int64() as Long);
           break;
+        case 11:
+          message.numDropped = reader.int32();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -119,6 +128,7 @@ export const WebhookEvent = {
       track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
       id: isSet(object.id) ? String(object.id) : "",
       createdAt: isSet(object.createdAt) ? Number(object.createdAt) : 0,
+      numDropped: isSet(object.numDropped) ? Number(object.numDropped) : 0,
     };
   },
 
@@ -135,6 +145,7 @@ export const WebhookEvent = {
     message.track !== undefined && (obj.track = message.track ? TrackInfo.toJSON(message.track) : undefined);
     message.id !== undefined && (obj.id = message.id);
     message.createdAt !== undefined && (obj.createdAt = Math.round(message.createdAt));
+    message.numDropped !== undefined && (obj.numDropped = Math.round(message.numDropped));
     return obj;
   },
 
@@ -156,6 +167,7 @@ export const WebhookEvent = {
       : undefined;
     message.id = object.id ?? "";
     message.createdAt = object.createdAt ?? 0;
+    message.numDropped = object.numDropped ?? 0;
     return message;
   },
 };

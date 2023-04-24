@@ -107,7 +107,7 @@ export class AccessToken {
    */
   async toJwt(): Promise<string> {
     // TODO: check for video grant validity
-    let encryptJWT = new jose.SignJWT(this.grants as Record<string, unknown>)
+    let signJWT = new jose.SignJWT(this.grants as Record<string, unknown>)
       .setProtectedHeader({
         alg: 'HS256',
         typ: 'JWT',
@@ -117,11 +117,11 @@ export class AccessToken {
       .setExpirationTime(typeof this.ttl === 'number' ? Date.now() + this.ttl : this.ttl)
       .setNotBefore(0);
     if (this.identity) {
-      encryptJWT = encryptJWT.setJti(this.identity).setSubject(this.identity);
+      signJWT = signJWT.setJti(this.identity).setSubject(this.identity);
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
-    const jwt = await encryptJWT.sign(Buffer.from(this.apiSecret));
+    const jwt = await signJWT.sign(Buffer.from(this.apiSecret));
 
     return jwt;
   }

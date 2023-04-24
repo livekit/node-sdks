@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
@@ -37,7 +37,7 @@ export class AccessToken {
 
   identity?: string;
 
-  ttl?: number | string;
+  ttl: number | string;
 
   /**
    * Creates a new AccessToken
@@ -105,21 +105,26 @@ export class AccessToken {
   /**
    * @returns JWT encoded token
    */
-  toJwt(): string {
+  async toJwt(): Promise<string> {
     // TODO: check for video grant validity
 
-    const opts: jwt.SignOptions = {
-      issuer: this.apiKey,
-      expiresIn: this.ttl,
-      notBefore: 0,
-    };
+    let encryptJWT = new jose.EncryptJWT(this.grants as Record<string, unknown>)
+      .setProtectedHeader({
+        alg: 'PBES2-HS512+A256KW',
+        typ: 'JWT',
+        enc: 'A256CBC-HS512',
+      })
+      .setIssuedAt()
+      .setIssuer(this.apiKey)
+      .setExpirationTime(this.ttl)
+      .setNotBefore(0);
     if (this.identity) {
-      opts.subject = this.identity;
-      opts.jwtid = this.identity;
+      encryptJWT = encryptJWT.setJti(this.identity).setSubject(this.identity);
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
-    return jwt.sign(this.grants, this.apiSecret, opts);
+    const jwt = await encryptJWT.encrypt(Buffer.from(this.apiSecret));
+    return jwt;
   }
 }
 
@@ -134,7 +139,7 @@ export class TokenVerifier {
   }
 
   verify(token: string): ClaimGrants {
-    const decoded = jwt.verify(token, this.apiSecret, { issuer: this.apiKey });
+    const decoded = jose.jwtVerify(token, Buffer.from(this.apiSecret), { issuer: this.apiKey });
     if (!decoded) {
       throw Error('invalid token');
     }

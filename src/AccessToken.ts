@@ -107,23 +107,22 @@ export class AccessToken {
    */
   async toJwt(): Promise<string> {
     // TODO: check for video grant validity
-
-    let encryptJWT = new jose.EncryptJWT(this.grants as Record<string, unknown>)
+    let encryptJWT = new jose.SignJWT(this.grants as Record<string, unknown>)
       .setProtectedHeader({
-        alg: 'PBES2-HS512+A256KW',
+        alg: 'HS256',
         typ: 'JWT',
-        enc: 'A256CBC-HS512',
       })
       .setIssuedAt()
       .setIssuer(this.apiKey)
-      .setExpirationTime(this.ttl)
+      .setExpirationTime(typeof this.ttl === 'number' ? Date.now() + this.ttl : this.ttl)
       .setNotBefore(0);
     if (this.identity) {
       encryptJWT = encryptJWT.setJti(this.identity).setSubject(this.identity);
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
-    const jwt = await encryptJWT.encrypt(Buffer.from(this.apiSecret));
+    const jwt = await encryptJWT.sign(Buffer.from(this.apiSecret));
+
     return jwt;
   }
 }
@@ -138,12 +137,14 @@ export class TokenVerifier {
     this.apiSecret = apiSecret;
   }
 
-  verify(token: string): ClaimGrants {
-    const decoded = jose.jwtVerify(token, Buffer.from(this.apiSecret), { issuer: this.apiKey });
+  async verify(token: string): Promise<ClaimGrants> {
+    const decoded = await jose.jwtVerify(token, Buffer.from(this.apiSecret), {
+      issuer: this.apiKey,
+    });
     if (!decoded) {
       throw Error('invalid token');
     }
 
-    return decoded as ClaimGrants;
+    return decoded.payload as ClaimGrants;
   }
 }

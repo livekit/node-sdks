@@ -438,6 +438,7 @@ export interface Room {
   enabledCodecs: Codec[];
   metadata: string;
   numParticipants: number;
+  numPublishers: number;
   activeRecording: boolean;
 }
 
@@ -905,6 +906,7 @@ function createBaseRoom(): Room {
     enabledCodecs: [],
     metadata: "",
     numParticipants: 0,
+    numPublishers: 0,
     activeRecording: false,
   };
 }
@@ -937,6 +939,9 @@ export const Room = {
     }
     if (message.numParticipants !== 0) {
       writer.uint32(72).uint32(message.numParticipants);
+    }
+    if (message.numPublishers !== 0) {
+      writer.uint32(88).uint32(message.numPublishers);
     }
     if (message.activeRecording === true) {
       writer.uint32(80).bool(message.activeRecording);
@@ -978,6 +983,9 @@ export const Room = {
         case 9:
           message.numParticipants = reader.uint32();
           break;
+        case 11:
+          message.numPublishers = reader.uint32();
+          break;
         case 10:
           message.activeRecording = reader.bool();
           break;
@@ -1002,6 +1010,7 @@ export const Room = {
         : [],
       metadata: isSet(object.metadata) ? String(object.metadata) : "",
       numParticipants: isSet(object.numParticipants) ? Number(object.numParticipants) : 0,
+      numPublishers: isSet(object.numPublishers) ? Number(object.numPublishers) : 0,
       activeRecording: isSet(object.activeRecording) ? Boolean(object.activeRecording) : false,
     };
   },
@@ -1021,6 +1030,7 @@ export const Room = {
     }
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.numParticipants !== undefined && (obj.numParticipants = Math.round(message.numParticipants));
+    message.numPublishers !== undefined && (obj.numPublishers = Math.round(message.numPublishers));
     message.activeRecording !== undefined && (obj.activeRecording = message.activeRecording);
     return obj;
   },
@@ -1036,6 +1046,7 @@ export const Room = {
     message.enabledCodecs = object.enabledCodecs?.map((e) => Codec.fromPartial(e)) || [];
     message.metadata = object.metadata ?? "";
     message.numParticipants = object.numParticipants ?? 0;
+    message.numPublishers = object.numPublishers ?? 0;
     message.activeRecording = object.activeRecording ?? false;
     return message;
   },

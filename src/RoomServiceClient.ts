@@ -92,7 +92,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'CreateRoom',
       CreateRoomRequest.toJSON(CreateRoomRequest.fromPartial(options)),
-      this.authHeader({ roomCreate: true }),
+      await this.authHeader({ roomCreate: true }),
     );
     return Room.fromJSON(data);
   }
@@ -108,7 +108,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'ListRooms',
       ListRoomsRequest.toJSON({ names: names ?? [] }),
-      this.authHeader({ roomList: true }),
+      await this.authHeader({ roomList: true }),
     );
     const res = ListRoomsResponse.fromJSON(data);
     return res.rooms ?? [];
@@ -119,7 +119,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'DeleteRoom',
       DeleteRoomRequest.toJSON({ room }),
-      this.authHeader({ roomCreate: true }),
+      await this.authHeader({ roomCreate: true }),
     );
   }
 
@@ -133,7 +133,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'UpdateRoomMetadata',
       UpdateRoomMetadataRequest.toJSON({ room, metadata }),
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
     return Room.fromJSON(data);
   }
@@ -147,7 +147,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'ListParticipants',
       ListParticipantsRequest.toJSON({ room }),
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
     const res = ListParticipantsResponse.fromJSON(data);
     return res.participants ?? [];
@@ -164,7 +164,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'GetParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
 
     return ParticipantInfo.fromJSON(data);
@@ -182,7 +182,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'RemoveParticipant',
       RoomParticipantIdentity.toJSON({ room, identity }),
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -209,7 +209,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'MutePublishedTrack',
       req,
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
     const res = MuteRoomTrackResponse.fromJSON(data);
     return res.track!;
@@ -241,7 +241,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'UpdateParticipant',
       UpdateParticipantRequest.toJSON(req),
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
     return ParticipantInfo.fromJSON(data);
   }
@@ -270,7 +270,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'UpdateSubscriptions',
       req,
-      this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room }),
     );
   }
 
@@ -315,6 +315,6 @@ export class RoomServiceClient extends ServiceBase {
       destinationSids: destinationSids ?? [],
       topic,
     });
-    await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
+    await this.rpc.request(svc, 'SendData', req, await this.authHeader({ roomAdmin: true, room }));
   }
 }

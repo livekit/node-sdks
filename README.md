@@ -133,7 +133,7 @@ const receiver = new WebhookReceiver('apikey', 'apisecret');
 
 // In order to use the validator, WebhookReceiver must have access to the raw POSTed string (instead of a parsed JSON object)
 // if you are using express middleware, ensure that `express.raw` is used for the webhook endpoint
-// router.use('/webhook/path', express.raw());
+// app.use(express.raw({type: 'application/webhook+json'}));
 
 app.post('/webhook-endpoint', (req, res) => {
   // event is a WebhookEvent object

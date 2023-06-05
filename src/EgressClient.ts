@@ -57,6 +57,10 @@ export interface WebOptions {
    * record video only. optional
    */
   videoOnly?: boolean;
+  /**
+   * await START_RECORDING chrome log
+   */
+  awaitStartSignal?: boolean;
 }
 
 export interface TrackCompositeOptions {
@@ -188,12 +192,14 @@ export class EgressClient extends ServiceBase {
   ): Promise<EgressInfo> {
     const audioOnly = opts?.audioOnly || false;
     const videoOnly = opts?.videoOnly || false;
+    const awaitStartSignal = opts?.awaitStartSignal || false;
     const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
       this.getOutputParams(output, opts?.encodingOptions);
     const req = WebEgressRequest.toJSON({
       url,
       audioOnly,
       videoOnly,
+      awaitStartSignal,
       file,
       stream,
       segments,

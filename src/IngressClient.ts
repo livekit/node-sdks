@@ -110,7 +110,7 @@ export class IngressClient extends ServiceBase {
       roomName = opts.roomName || '';
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
-	  bypassTranscoding = opts.bypassTranscoding || false;
+      bypassTranscoding = opts.bypassTranscoding || false;
       audio = opts.audio;
       video = opts.video;
     }
@@ -121,7 +121,7 @@ export class IngressClient extends ServiceBase {
       roomName,
       participantIdentity,
       participantName,
-	  bypassTranscoding,
+      bypassTranscoding,
       audio,
       video,
     });
@@ -152,7 +152,7 @@ export class IngressClient extends ServiceBase {
       roomName,
       participantIdentity,
       participantName,
-	  bypassTranscoding,
+      bypassTranscoding,
       audio,
       video,
     });

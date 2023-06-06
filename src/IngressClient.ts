@@ -32,6 +32,10 @@ export interface CreateIngressOptions {
    */
   participantName?: string;
   /**
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
+   */
+  bypassTranscoding?: boolean;
+  /**
    * custom audio encoding parameters. optional
    */
   audio?: IngressAudioOptions;
@@ -58,6 +62,10 @@ export interface UpdateIngressOptions {
    * participant display name
    */
   participantName?: string;
+  /**
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
+   */
+  bypassTranscoding?: boolean | undefined;
   /**
    * custom audio encoding parameters. optional
    */
@@ -93,6 +101,7 @@ export class IngressClient extends ServiceBase {
     let roomName: string = '';
     let participantName: string = '';
     let participantIdentity: string = '';
+    let bypassTranscoding: boolean = false;
     let audio: IngressAudioOptions | undefined;
     let video: IngressVideoOptions | undefined;
 
@@ -101,6 +110,7 @@ export class IngressClient extends ServiceBase {
       roomName = opts.roomName || '';
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
+      bypassTranscoding = opts.bypassTranscoding || false;
       audio = opts.audio;
       video = opts.video;
     }
@@ -111,6 +121,7 @@ export class IngressClient extends ServiceBase {
       roomName,
       participantIdentity,
       participantName,
+      bypassTranscoding,
       audio,
       video,
     });
@@ -133,7 +144,7 @@ export class IngressClient extends ServiceBase {
     const roomName: string = opts.roomName || '';
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
-    const { audio, video } = opts;
+    const { audio, video, bypassTranscoding } = opts;
 
     const req = UpdateIngressRequest.toJSON({
       ingressId,
@@ -141,6 +152,7 @@ export class IngressClient extends ServiceBase {
       roomName,
       participantIdentity,
       participantName,
+      bypassTranscoding,
       audio,
       video,
     });

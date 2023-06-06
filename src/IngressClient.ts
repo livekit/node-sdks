@@ -31,7 +31,7 @@ export interface CreateIngressOptions {
    * participant display name
    */
   participantName?: string;
-  /** 
+  /**
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
   bypassTranscoding?: boolean;
@@ -62,7 +62,7 @@ export interface UpdateIngressOptions {
    * participant display name
    */
   participantName?: string;
-  /** 
+  /**
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
   bypassTranscoding?: boolean | undefined;

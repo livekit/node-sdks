@@ -87,6 +87,12 @@ export interface EncodedOutputs {
   segments?: SegmentedFileOutput | undefined;
 }
 
+export interface ListEgressOptions {
+  roomName?: string;
+  egressId?: string;
+  active?: boolean;
+}
+
 /**
  * Client to access Egress APIs
  */
@@ -432,15 +438,30 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
+   * @param options options to filter listed Egresses, by default returns all
+   * Egress instances
+   */
+  async listEgress(options?: ListEgressOptions): Promise<Array<EgressInfo>>;
+  /**
+   * @deprecated
    * @param roomName list egress for one room only
    */
-  async listEgress(roomName?: string): Promise<Array<EgressInfo>> {
-    roomName ??= '';
+  async listEgress(roomName?: string): Promise<Array<EgressInfo>>;
+  /**
+   * @param roomName list egress for one room only
+   */
+  async listEgress(options?: string | ListEgressOptions): Promise<Array<EgressInfo>> {
+    let req: ListEgressRequest = {};
+    if (typeof options === 'string') {
+      req.roomName = options;
+    } else if (options !== undefined) {
+      req = options;
+    }
 
     const data = await this.rpc.request(
       svc,
       'ListEgress',
-      ListEgressRequest.toJSON({ roomName }),
+      ListEgressRequest.toJSON(req),
       this.authHeader({ roomRecord: true }),
     );
     return ListEgressResponse.fromJSON(data).items ?? [];

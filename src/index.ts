@@ -34,6 +34,5 @@ export {
   ParticipantPermission,
   Room,
   TrackInfo,
-  TrackSource,
   TrackType,
 } from './proto/livekit_models';

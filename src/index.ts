@@ -36,3 +36,4 @@ export {
   TrackInfo,
   TrackType,
 } from './proto/livekit_models';
+export type { WebhookEvent } from './proto/livekit_webhook';

@@ -1,4 +1,4 @@
-import type { DataPacket_Kind, DeepPartial, Exact, TrackInfo } from './proto/livekit_models';
+import type { DataPacket_Kind, DeepPartial, TrackInfo } from './proto/livekit_models';
 import { ParticipantInfo, ParticipantPermission, Room } from './proto/livekit_models';
 import {
   CreateRoomRequest,
@@ -218,11 +218,11 @@ export class RoomServiceClient extends ServiceBase {
    * @param permission optional, new permissions to assign to participant
    * @param name optional, new name for participant
    */
-  async updateParticipant<I extends Exact<DeepPartial<ParticipantPermission>, I>>(
+  async updateParticipant(
     room: string,
     identity: string,
     metadata?: string,
-    permission?: I,
+    permission?: DeepPartial<ParticipantPermission>,
     name?: string,
   ): Promise<ParticipantInfo> {
     const req: UpdateParticipantRequest = {

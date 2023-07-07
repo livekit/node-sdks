@@ -1,10 +1,5 @@
-import {
-  DataPacket_Kind,
-  ParticipantInfo,
-  ParticipantPermission,
-  Room,
-  TrackInfo,
-} from './proto/livekit_models';
+import type { DataPacket_Kind, DeepPartial, Exact, TrackInfo } from './proto/livekit_models';
+import { ParticipantInfo, ParticipantPermission, Room } from './proto/livekit_models';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -223,20 +218,22 @@ export class RoomServiceClient extends ServiceBase {
    * @param permission optional, new permissions to assign to participant
    * @param name optional, new name for participant
    */
-  async updateParticipant(
+  async updateParticipant<I extends Exact<DeepPartial<ParticipantPermission>, I>>(
     room: string,
     identity: string,
     metadata?: string,
-    permission?: ParticipantPermission,
+    permission?: I,
     name?: string,
   ): Promise<ParticipantInfo> {
     const req: UpdateParticipantRequest = {
       room,
       identity,
       metadata: metadata || '',
-      permission,
       name: name || '',
     };
+    if (permission) {
+      req.permission = ParticipantPermission.fromPartial(permission);
+    }
     const data = await this.rpc.request(
       svc,
       'UpdateParticipant',

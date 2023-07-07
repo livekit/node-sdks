@@ -1,10 +1,5 @@
-import {
-  DataPacket_Kind,
-  ParticipantInfo,
-  ParticipantPermission,
-  Room,
-  TrackInfo,
-} from './proto/livekit_models';
+import type { DataPacket_Kind, DeepPartial, TrackInfo } from './proto/livekit_models';
+import { ParticipantInfo, ParticipantPermission, Room } from './proto/livekit_models';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -227,16 +222,18 @@ export class RoomServiceClient extends ServiceBase {
     room: string,
     identity: string,
     metadata?: string,
-    permission?: ParticipantPermission,
+    permission?: DeepPartial<ParticipantPermission>,
     name?: string,
   ): Promise<ParticipantInfo> {
     const req: UpdateParticipantRequest = {
       room,
       identity,
       metadata: metadata || '',
-      permission,
       name: name || '',
     };
+    if (permission) {
+      req.permission = ParticipantPermission.fromPartial(permission);
+    }
     const data = await this.rpc.request(
       svc,
       'UpdateParticipant',

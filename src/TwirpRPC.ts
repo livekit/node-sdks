@@ -23,6 +23,9 @@ export class TwirpRpc {
   instance: AxiosInstance;
 
   constructor(host: string, pkg: string, prefix?: string) {
+    if (host.startsWith('ws')) {
+      host = host.replace('ws', 'http');
+    }
     this.host = host;
     this.pkg = pkg;
     this.prefix = prefix || defaultPrefix;

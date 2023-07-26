@@ -24,7 +24,7 @@ export class TwirpRpc {
 
   constructor(host: string, pkg: string, prefix?: string) {
     if (host.startsWith('ws')) {
-      host = host.replace('ws', 'http');
+      host = host.replace(/^ws/, 'http');
     }
     this.host = host;
     this.pkg = pkg;

@@ -19,12 +19,9 @@ export const protobufPackage = "livekit";
 
 export enum IngressInput {
   RTMP_INPUT = 0,
-  /**
-   * WHIP_INPUT - FILE_INPUT = 2;
-   *  SRT_INPUT = 3;
-   *  URL_INPUT = 4;
-   */
   WHIP_INPUT = 1,
+  /** URL_INPUT - Pull from the provided URL. Only HTTP url are supported, serving either a single media file or a HLS stream */
+  URL_INPUT = 2,
   UNRECOGNIZED = -1,
 }
 
@@ -36,6 +33,9 @@ export function ingressInputFromJSON(object: any): IngressInput {
     case 1:
     case "WHIP_INPUT":
       return IngressInput.WHIP_INPUT;
+    case 2:
+    case "URL_INPUT":
+      return IngressInput.URL_INPUT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -49,6 +49,8 @@ export function ingressInputToJSON(object: IngressInput): string {
       return "RTMP_INPUT";
     case IngressInput.WHIP_INPUT:
       return "WHIP_INPUT";
+    case IngressInput.URL_INPUT:
+      return "URL_INPUT";
     case IngressInput.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -148,6 +150,8 @@ export function ingressVideoEncodingPresetToJSON(object: IngressVideoEncodingPre
 
 export interface CreateIngressRequest {
   inputType?: IngressInput;
+  /** Where to pull media from, only for URL input type */
+  url?: string;
   /** User provided identifier for the ingress */
   name?: string;
   /** room to publish to */
@@ -196,6 +200,7 @@ export interface IngressInfo {
   ingressId?: string;
   name?: string;
   streamKey?: string;
+  /** URL to point the encoder to for push (RTMP, WHIP), or location to pull media from for pull (URL) */
   url?: string;
   /**
    * for RTMP input, it'll be a rtmp:// URL
@@ -275,7 +280,7 @@ export function ingressState_StatusToJSON(object: IngressState_Status): string {
 
 export interface InputVideoState {
   mimeType?: string;
-  /** uint32 bitrate = 2; */
+  averageBitrate?: number;
   width?: number;
   height?: number;
   framerate?: number;
@@ -283,7 +288,7 @@ export interface InputVideoState {
 
 export interface InputAudioState {
   mimeType?: string;
-  /** uint32 bitrate = 2; */
+  averageBitrate?: number;
   channels?: number;
   sampleRate?: number;
 }
@@ -302,6 +307,8 @@ export interface UpdateIngressRequest {
 export interface ListIngressRequest {
   /** when blank, lists all ingress endpoints */
   roomName?: string;
+  /** (optional, filter by ingress ID) */
+  ingressId?: string;
 }
 
 export interface ListIngressResponse {
@@ -315,6 +322,7 @@ export interface DeleteIngressRequest {
 function createBaseCreateIngressRequest(): CreateIngressRequest {
   return {
     inputType: 0,
+    url: "",
     name: "",
     roomName: "",
     participantIdentity: "",
@@ -329,6 +337,9 @@ export const CreateIngressRequest = {
   encode(message: CreateIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.inputType !== undefined && message.inputType !== 0) {
       writer.uint32(8).int32(message.inputType);
+    }
+    if (message.url !== undefined && message.url !== "") {
+      writer.uint32(74).string(message.url);
     }
     if (message.name !== undefined && message.name !== "") {
       writer.uint32(18).string(message.name);
@@ -364,6 +375,9 @@ export const CreateIngressRequest = {
         case 1:
           message.inputType = reader.int32() as any;
           break;
+        case 9:
+          message.url = reader.string();
+          break;
         case 2:
           message.name = reader.string();
           break;
@@ -396,6 +410,7 @@ export const CreateIngressRequest = {
   fromJSON(object: any): CreateIngressRequest {
     return {
       inputType: isSet(object.inputType) ? ingressInputFromJSON(object.inputType) : 0,
+      url: isSet(object.url) ? String(object.url) : "",
       name: isSet(object.name) ? String(object.name) : "",
       roomName: isSet(object.roomName) ? String(object.roomName) : "",
       participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
@@ -409,6 +424,7 @@ export const CreateIngressRequest = {
   toJSON(message: CreateIngressRequest): unknown {
     const obj: any = {};
     message.inputType !== undefined && (obj.inputType = ingressInputToJSON(message.inputType));
+    message.url !== undefined && (obj.url = message.url);
     message.name !== undefined && (obj.name = message.name);
     message.roomName !== undefined && (obj.roomName = message.roomName);
     message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
@@ -422,6 +438,7 @@ export const CreateIngressRequest = {
   fromPartial<I extends Exact<DeepPartial<CreateIngressRequest>, I>>(object: I): CreateIngressRequest {
     const message = createBaseCreateIngressRequest();
     message.inputType = object.inputType ?? 0;
+    message.url = object.url ?? "";
     message.name = object.name ?? "";
     message.roomName = object.roomName ?? "";
     message.participantIdentity = object.participantIdentity ?? "";
@@ -1065,13 +1082,16 @@ export const IngressState = {
 };
 
 function createBaseInputVideoState(): InputVideoState {
-  return { mimeType: "", width: 0, height: 0, framerate: 0 };
+  return { mimeType: "", averageBitrate: 0, width: 0, height: 0, framerate: 0 };
 }
 
 export const InputVideoState = {
   encode(message: InputVideoState, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.mimeType !== undefined && message.mimeType !== "") {
       writer.uint32(10).string(message.mimeType);
+    }
+    if (message.averageBitrate !== undefined && message.averageBitrate !== 0) {
+      writer.uint32(16).uint32(message.averageBitrate);
     }
     if (message.width !== undefined && message.width !== 0) {
       writer.uint32(24).uint32(message.width);
@@ -1095,6 +1115,9 @@ export const InputVideoState = {
         case 1:
           message.mimeType = reader.string();
           break;
+        case 2:
+          message.averageBitrate = reader.uint32();
+          break;
         case 3:
           message.width = reader.uint32();
           break;
@@ -1115,6 +1138,7 @@ export const InputVideoState = {
   fromJSON(object: any): InputVideoState {
     return {
       mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
+      averageBitrate: isSet(object.averageBitrate) ? Number(object.averageBitrate) : 0,
       width: isSet(object.width) ? Number(object.width) : 0,
       height: isSet(object.height) ? Number(object.height) : 0,
       framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
@@ -1124,6 +1148,7 @@ export const InputVideoState = {
   toJSON(message: InputVideoState): unknown {
     const obj: any = {};
     message.mimeType !== undefined && (obj.mimeType = message.mimeType);
+    message.averageBitrate !== undefined && (obj.averageBitrate = Math.round(message.averageBitrate));
     message.width !== undefined && (obj.width = Math.round(message.width));
     message.height !== undefined && (obj.height = Math.round(message.height));
     message.framerate !== undefined && (obj.framerate = message.framerate);
@@ -1133,6 +1158,7 @@ export const InputVideoState = {
   fromPartial<I extends Exact<DeepPartial<InputVideoState>, I>>(object: I): InputVideoState {
     const message = createBaseInputVideoState();
     message.mimeType = object.mimeType ?? "";
+    message.averageBitrate = object.averageBitrate ?? 0;
     message.width = object.width ?? 0;
     message.height = object.height ?? 0;
     message.framerate = object.framerate ?? 0;
@@ -1141,13 +1167,16 @@ export const InputVideoState = {
 };
 
 function createBaseInputAudioState(): InputAudioState {
-  return { mimeType: "", channels: 0, sampleRate: 0 };
+  return { mimeType: "", averageBitrate: 0, channels: 0, sampleRate: 0 };
 }
 
 export const InputAudioState = {
   encode(message: InputAudioState, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.mimeType !== undefined && message.mimeType !== "") {
       writer.uint32(10).string(message.mimeType);
+    }
+    if (message.averageBitrate !== undefined && message.averageBitrate !== 0) {
+      writer.uint32(16).uint32(message.averageBitrate);
     }
     if (message.channels !== undefined && message.channels !== 0) {
       writer.uint32(24).uint32(message.channels);
@@ -1168,6 +1197,9 @@ export const InputAudioState = {
         case 1:
           message.mimeType = reader.string();
           break;
+        case 2:
+          message.averageBitrate = reader.uint32();
+          break;
         case 3:
           message.channels = reader.uint32();
           break;
@@ -1185,6 +1217,7 @@ export const InputAudioState = {
   fromJSON(object: any): InputAudioState {
     return {
       mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
+      averageBitrate: isSet(object.averageBitrate) ? Number(object.averageBitrate) : 0,
       channels: isSet(object.channels) ? Number(object.channels) : 0,
       sampleRate: isSet(object.sampleRate) ? Number(object.sampleRate) : 0,
     };
@@ -1193,6 +1226,7 @@ export const InputAudioState = {
   toJSON(message: InputAudioState): unknown {
     const obj: any = {};
     message.mimeType !== undefined && (obj.mimeType = message.mimeType);
+    message.averageBitrate !== undefined && (obj.averageBitrate = Math.round(message.averageBitrate));
     message.channels !== undefined && (obj.channels = Math.round(message.channels));
     message.sampleRate !== undefined && (obj.sampleRate = Math.round(message.sampleRate));
     return obj;
@@ -1201,6 +1235,7 @@ export const InputAudioState = {
   fromPartial<I extends Exact<DeepPartial<InputAudioState>, I>>(object: I): InputAudioState {
     const message = createBaseInputAudioState();
     message.mimeType = object.mimeType ?? "";
+    message.averageBitrate = object.averageBitrate ?? 0;
     message.channels = object.channels ?? 0;
     message.sampleRate = object.sampleRate ?? 0;
     return message;
@@ -1333,13 +1368,16 @@ export const UpdateIngressRequest = {
 };
 
 function createBaseListIngressRequest(): ListIngressRequest {
-  return { roomName: "" };
+  return { roomName: "", ingressId: "" };
 }
 
 export const ListIngressRequest = {
   encode(message: ListIngressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.roomName !== undefined && message.roomName !== "") {
       writer.uint32(10).string(message.roomName);
+    }
+    if (message.ingressId !== undefined && message.ingressId !== "") {
+      writer.uint32(18).string(message.ingressId);
     }
     return writer;
   },
@@ -1354,6 +1392,9 @@ export const ListIngressRequest = {
         case 1:
           message.roomName = reader.string();
           break;
+        case 2:
+          message.ingressId = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1363,18 +1404,23 @@ export const ListIngressRequest = {
   },
 
   fromJSON(object: any): ListIngressRequest {
-    return { roomName: isSet(object.roomName) ? String(object.roomName) : "" };
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      ingressId: isSet(object.ingressId) ? String(object.ingressId) : "",
+    };
   },
 
   toJSON(message: ListIngressRequest): unknown {
     const obj: any = {};
     message.roomName !== undefined && (obj.roomName = message.roomName);
+    message.ingressId !== undefined && (obj.ingressId = message.ingressId);
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<ListIngressRequest>, I>>(object: I): ListIngressRequest {
     const message = createBaseListIngressRequest();
     message.roomName = object.roomName ?? "";
+    message.ingressId = object.ingressId ?? "";
     return message;
   },
 };

@@ -479,11 +479,17 @@ export interface Room {
   numParticipants: number;
   numPublishers: number;
   activeRecording: boolean;
+  playoutDelay?: PlayoutDelay;
 }
 
 export interface Codec {
   mime: string;
   fmtpLine: string;
+}
+
+export interface PlayoutDelay {
+  enabled: boolean;
+  min: number;
 }
 
 export interface ParticipantPermission {
@@ -647,6 +653,7 @@ export interface TrackInfo {
   /** true if RED (Redundant Encoding) is disabled for audio */
   disableRed: boolean;
   encryption: Encryption_Type;
+  stream: string;
 }
 
 /** provide information about available spatial layers */
@@ -798,6 +805,8 @@ export enum ClientInfo_SDK {
   UNITY = 6,
   REACT_NATIVE = 7,
   RUST = 8,
+  PYTHON = 9,
+  CPP = 10,
   UNRECOGNIZED = -1,
 }
 
@@ -830,6 +839,12 @@ export function clientInfo_SDKFromJSON(object: any): ClientInfo_SDK {
     case 8:
     case "RUST":
       return ClientInfo_SDK.RUST;
+    case 9:
+    case "PYTHON":
+      return ClientInfo_SDK.PYTHON;
+    case 10:
+    case "CPP":
+      return ClientInfo_SDK.CPP;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -857,6 +872,10 @@ export function clientInfo_SDKToJSON(object: ClientInfo_SDK): string {
       return "REACT_NATIVE";
     case ClientInfo_SDK.RUST:
       return "RUST";
+    case ClientInfo_SDK.PYTHON:
+      return "PYTHON";
+    case ClientInfo_SDK.CPP:
+      return "CPP";
     case ClientInfo_SDK.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -953,6 +972,7 @@ function createBaseRoom(): Room {
     numParticipants: 0,
     numPublishers: 0,
     activeRecording: false,
+    playoutDelay: undefined,
   };
 }
 
@@ -990,6 +1010,9 @@ export const Room = {
     }
     if (message.activeRecording === true) {
       writer.uint32(80).bool(message.activeRecording);
+    }
+    if (message.playoutDelay !== undefined) {
+      PlayoutDelay.encode(message.playoutDelay, writer.uint32(98).fork()).ldelim();
     }
     return writer;
   },
@@ -1034,6 +1057,9 @@ export const Room = {
         case 10:
           message.activeRecording = reader.bool();
           break;
+        case 12:
+          message.playoutDelay = PlayoutDelay.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1057,6 +1083,7 @@ export const Room = {
       numParticipants: isSet(object.numParticipants) ? Number(object.numParticipants) : 0,
       numPublishers: isSet(object.numPublishers) ? Number(object.numPublishers) : 0,
       activeRecording: isSet(object.activeRecording) ? Boolean(object.activeRecording) : false,
+      playoutDelay: isSet(object.playoutDelay) ? PlayoutDelay.fromJSON(object.playoutDelay) : undefined,
     };
   },
 
@@ -1077,6 +1104,8 @@ export const Room = {
     message.numParticipants !== undefined && (obj.numParticipants = Math.round(message.numParticipants));
     message.numPublishers !== undefined && (obj.numPublishers = Math.round(message.numPublishers));
     message.activeRecording !== undefined && (obj.activeRecording = message.activeRecording);
+    message.playoutDelay !== undefined &&
+      (obj.playoutDelay = message.playoutDelay ? PlayoutDelay.toJSON(message.playoutDelay) : undefined);
     return obj;
   },
 
@@ -1093,6 +1122,9 @@ export const Room = {
     message.numParticipants = object.numParticipants ?? 0;
     message.numPublishers = object.numPublishers ?? 0;
     message.activeRecording = object.activeRecording ?? false;
+    message.playoutDelay = (object.playoutDelay !== undefined && object.playoutDelay !== null)
+      ? PlayoutDelay.fromPartial(object.playoutDelay)
+      : undefined;
     return message;
   },
 };
@@ -1151,6 +1183,64 @@ export const Codec = {
     const message = createBaseCodec();
     message.mime = object.mime ?? "";
     message.fmtpLine = object.fmtpLine ?? "";
+    return message;
+  },
+};
+
+function createBasePlayoutDelay(): PlayoutDelay {
+  return { enabled: false, min: 0 };
+}
+
+export const PlayoutDelay = {
+  encode(message: PlayoutDelay, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.enabled === true) {
+      writer.uint32(8).bool(message.enabled);
+    }
+    if (message.min !== 0) {
+      writer.uint32(16).uint32(message.min);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): PlayoutDelay {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePlayoutDelay();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.enabled = reader.bool();
+          break;
+        case 2:
+          message.min = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PlayoutDelay {
+    return {
+      enabled: isSet(object.enabled) ? Boolean(object.enabled) : false,
+      min: isSet(object.min) ? Number(object.min) : 0,
+    };
+  },
+
+  toJSON(message: PlayoutDelay): unknown {
+    const obj: any = {};
+    message.enabled !== undefined && (obj.enabled = message.enabled);
+    message.min !== undefined && (obj.min = Math.round(message.min));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<PlayoutDelay>, I>>(object: I): PlayoutDelay {
+    const message = createBasePlayoutDelay();
+    message.enabled = object.enabled ?? false;
+    message.min = object.min ?? 0;
     return message;
   },
 };
@@ -1576,6 +1666,7 @@ function createBaseTrackInfo(): TrackInfo {
     stereo: false,
     disableRed: false,
     encryption: 0,
+    stream: "",
   };
 }
 
@@ -1628,6 +1719,9 @@ export const TrackInfo = {
     }
     if (message.encryption !== 0) {
       writer.uint32(128).int32(message.encryption);
+    }
+    if (message.stream !== "") {
+      writer.uint32(138).string(message.stream);
     }
     return writer;
   },
@@ -1687,6 +1781,9 @@ export const TrackInfo = {
         case 16:
           message.encryption = reader.int32() as any;
           break;
+        case 17:
+          message.stream = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1713,6 +1810,7 @@ export const TrackInfo = {
       stereo: isSet(object.stereo) ? Boolean(object.stereo) : false,
       disableRed: isSet(object.disableRed) ? Boolean(object.disableRed) : false,
       encryption: isSet(object.encryption) ? encryption_TypeFromJSON(object.encryption) : 0,
+      stream: isSet(object.stream) ? String(object.stream) : "",
     };
   },
 
@@ -1742,6 +1840,7 @@ export const TrackInfo = {
     message.stereo !== undefined && (obj.stereo = message.stereo);
     message.disableRed !== undefined && (obj.disableRed = message.disableRed);
     message.encryption !== undefined && (obj.encryption = encryption_TypeToJSON(message.encryption));
+    message.stream !== undefined && (obj.stream = message.stream);
     return obj;
   },
 
@@ -1763,6 +1862,7 @@ export const TrackInfo = {
     message.stereo = object.stereo ?? false;
     message.disableRed = object.disableRed ?? false;
     message.encryption = object.encryption ?? 0;
+    message.stream = object.stream ?? "";
     return message;
   },
 };

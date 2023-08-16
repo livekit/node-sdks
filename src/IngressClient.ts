@@ -35,7 +35,7 @@ export interface CreateIngressOptions {
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
   bypassTranscoding?: boolean;
-  /** 
+  /**
    * url of the media to pull for ingresses of type URL
    */
   url?: string;
@@ -128,7 +128,7 @@ export class IngressClient extends ServiceBase {
       participantIdentity,
       participantName,
       bypassTranscoding,
-	  url,
+      url,
       audio,
       video,
     });

@@ -36,6 +36,10 @@ export interface CreateIngressOptions {
    */
   bypassTranscoding?: boolean;
   /**
+   * url of the media to pull for ingresses of type URL
+   */
+  url?: string;
+  /**
    * custom audio encoding parameters. optional
    */
   audio?: IngressAudioOptions;
@@ -102,6 +106,7 @@ export class IngressClient extends ServiceBase {
     let participantName: string = '';
     let participantIdentity: string = '';
     let bypassTranscoding: boolean = false;
+    let url: string = '';
     let audio: IngressAudioOptions | undefined;
     let video: IngressVideoOptions | undefined;
 
@@ -111,6 +116,7 @@ export class IngressClient extends ServiceBase {
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
       bypassTranscoding = opts.bypassTranscoding || false;
+      url = opts.url || '';
       audio = opts.audio;
       video = opts.video;
     }
@@ -122,6 +128,7 @@ export class IngressClient extends ServiceBase {
       participantIdentity,
       participantName,
       bypassTranscoding,
+      url,
       audio,
       video,
     });

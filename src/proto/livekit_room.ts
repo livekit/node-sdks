@@ -27,6 +27,8 @@ export interface CreateRoomRequest {
   metadata?: string;
   /** egress */
   egress?: RoomEgress;
+  /** minimum playout delay of subscriber */
+  minPlayoutDelay?: number;
 }
 
 export interface RoomEgress {
@@ -129,7 +131,15 @@ export interface UpdateRoomMetadataRequest {
 }
 
 function createBaseCreateRoomRequest(): CreateRoomRequest {
-  return { name: "", emptyTimeout: 0, maxParticipants: 0, nodeId: "", metadata: "", egress: undefined };
+  return {
+    name: "",
+    emptyTimeout: 0,
+    maxParticipants: 0,
+    nodeId: "",
+    metadata: "",
+    egress: undefined,
+    minPlayoutDelay: 0,
+  };
 }
 
 export const CreateRoomRequest = {
@@ -151,6 +161,9 @@ export const CreateRoomRequest = {
     }
     if (message.egress !== undefined) {
       RoomEgress.encode(message.egress, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.minPlayoutDelay !== undefined && message.minPlayoutDelay !== 0) {
+      writer.uint32(56).uint32(message.minPlayoutDelay);
     }
     return writer;
   },
@@ -180,6 +193,9 @@ export const CreateRoomRequest = {
         case 6:
           message.egress = RoomEgress.decode(reader, reader.uint32());
           break;
+        case 7:
+          message.minPlayoutDelay = reader.uint32();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -196,6 +212,7 @@ export const CreateRoomRequest = {
       nodeId: isSet(object.nodeId) ? String(object.nodeId) : "",
       metadata: isSet(object.metadata) ? String(object.metadata) : "",
       egress: isSet(object.egress) ? RoomEgress.fromJSON(object.egress) : undefined,
+      minPlayoutDelay: isSet(object.minPlayoutDelay) ? Number(object.minPlayoutDelay) : 0,
     };
   },
 
@@ -207,6 +224,7 @@ export const CreateRoomRequest = {
     message.nodeId !== undefined && (obj.nodeId = message.nodeId);
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.egress !== undefined && (obj.egress = message.egress ? RoomEgress.toJSON(message.egress) : undefined);
+    message.minPlayoutDelay !== undefined && (obj.minPlayoutDelay = Math.round(message.minPlayoutDelay));
     return obj;
   },
 
@@ -220,6 +238,7 @@ export const CreateRoomRequest = {
     message.egress = (object.egress !== undefined && object.egress !== null)
       ? RoomEgress.fromPartial(object.egress)
       : undefined;
+    message.minPlayoutDelay = object.minPlayoutDelay ?? 0;
     return message;
   },
 };

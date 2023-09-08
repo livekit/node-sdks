@@ -49,13 +49,23 @@ export interface CreateOptions {
   egress?: RoomEgress;
 
   /**
+   * minimum playout delay in milliseconds
+   */
+  minPlayoutDelay?: number;
+
+  /**
    * override the node room is allocated to, for debugging
    * does not work with Cloud
    */
   nodeId?: string;
 }
 
-export type SendDataOptions = { destinationSids?: string[]; topic?: string };
+export type SendDataOptions = {
+  /** If set, only deliver to listed participant identities */
+  destinationIdentities?: string[];
+  destinationSids?: string[];
+  topic?: string;
+};
 
 const svc = 'RoomService';
 
@@ -286,6 +296,7 @@ export class RoomServiceClient extends ServiceBase {
   ): Promise<void>;
   /**
    * Sends data message to participants in the room
+   * @deprecated use sendData(room, data, kind, options) instead
    * @param room
    * @param data opaque payload to send
    * @param kind delivery reliability
@@ -305,13 +316,21 @@ export class RoomServiceClient extends ServiceBase {
   ): Promise<void> {
     const destinationSids = Array.isArray(options) ? options : options.destinationSids;
     const topic = Array.isArray(options) ? undefined : options.topic;
-    const req = SendDataRequest.toJSON({
+    const req: SendDataRequest = {
       room,
       data,
       kind,
       destinationSids: destinationSids ?? [],
       topic,
-    });
-    await this.rpc.request(svc, 'SendData', req, this.authHeader({ roomAdmin: true, room }));
+    };
+    if (!Array.isArray(options) && options.destinationIdentities) {
+      req.destinationIdentities = options.destinationIdentities;
+    }
+    await this.rpc.request(
+      svc,
+      'SendData',
+      SendDataRequest.toJSON(req),
+      this.authHeader({ roomAdmin: true, room }),
+    );
   }
 }

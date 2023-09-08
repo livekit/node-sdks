@@ -6,6 +6,7 @@ import {
   EncodingOptionsPreset,
   ListEgressRequest,
   ListEgressResponse,
+  ParticipantEgressRequest,
   RoomCompositeEgressRequest,
   SegmentedFileOutput,
   StopEgressRequest,
@@ -61,6 +62,18 @@ export interface WebOptions {
    * await START_RECORDING chrome log
    */
   awaitStartSignal?: boolean;
+}
+
+export interface ParticipantEgressOptions {
+  /**
+   * true to capture source screenshare and screenshare_audio
+   * false to capture camera and microphone
+   */
+  screenShare?: boolean;
+  /**
+   * encoding options or preset. optional
+   */
+  encodingOptions?: EncodingOptionsPreset | EncodingOptions;
 }
 
 export interface TrackCompositeOptions {
@@ -219,6 +232,42 @@ export class EgressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'StartWebEgress',
+      req,
+      this.authHeader({ roomRecord: true }),
+    );
+    return EgressInfo.fromJSON(data);
+  }
+
+  /**
+   * Export a participant's audio and video tracks,
+   *
+   * @param roomName room name
+   * @param output one or more outputs
+   * @param opts ParticipantEgressOptions
+   */
+  async startParticipantEgress(
+    roomName: string,
+    identity: string,
+    output: EncodedOutputs,
+    opts?: ParticipantEgressOptions,
+  ): Promise<EgressInfo> {
+    const { preset, advanced, fileOutputs, streamOutputs, segmentOutputs } = this.getOutputParams(
+      output,
+      opts?.encodingOptions,
+    );
+    const req = ParticipantEgressRequest.toJSON({
+      roomName,
+      identity,
+      preset,
+      advanced,
+      fileOutputs,
+      streamOutputs,
+      segmentOutputs,
+    });
+
+    const data = await this.rpc.request(
+      svc,
+      'StartParticipantEgress',
       req,
       this.authHeader({ roomRecord: true }),
     );

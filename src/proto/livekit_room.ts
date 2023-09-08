@@ -1,6 +1,6 @@
 /* eslint-disable */
 import _m0 from "protobufjs/minimal";
-import { AutoTrackEgress, RoomCompositeEgressRequest } from "./livekit_egress";
+import { AutoParticipantEgress, AutoTrackEgress, RoomCompositeEgressRequest } from "./livekit_egress";
 import {
   DataPacket_Kind,
   dataPacket_KindFromJSON,
@@ -33,6 +33,7 @@ export interface CreateRoomRequest {
 
 export interface RoomEgress {
   room?: RoomCompositeEgressRequest;
+  participant?: AutoParticipantEgress;
   tracks?: AutoTrackEgress;
 }
 
@@ -116,7 +117,14 @@ export interface SendDataRequest {
   room?: string;
   data?: Uint8Array;
   kind?: DataPacket_Kind;
+  /**
+   * mark deprecated
+   *
+   * @deprecated
+   */
   destinationSids?: string[];
+  /** when set, only forward to these identities */
+  destinationIdentities?: string[];
   topic?: string | undefined;
 }
 
@@ -244,13 +252,16 @@ export const CreateRoomRequest = {
 };
 
 function createBaseRoomEgress(): RoomEgress {
-  return { room: undefined, tracks: undefined };
+  return { room: undefined, participant: undefined, tracks: undefined };
 }
 
 export const RoomEgress = {
   encode(message: RoomEgress, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.room !== undefined) {
       RoomCompositeEgressRequest.encode(message.room, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.participant !== undefined) {
+      AutoParticipantEgress.encode(message.participant, writer.uint32(26).fork()).ldelim();
     }
     if (message.tracks !== undefined) {
       AutoTrackEgress.encode(message.tracks, writer.uint32(18).fork()).ldelim();
@@ -268,6 +279,9 @@ export const RoomEgress = {
         case 1:
           message.room = RoomCompositeEgressRequest.decode(reader, reader.uint32());
           break;
+        case 3:
+          message.participant = AutoParticipantEgress.decode(reader, reader.uint32());
+          break;
         case 2:
           message.tracks = AutoTrackEgress.decode(reader, reader.uint32());
           break;
@@ -282,6 +296,7 @@ export const RoomEgress = {
   fromJSON(object: any): RoomEgress {
     return {
       room: isSet(object.room) ? RoomCompositeEgressRequest.fromJSON(object.room) : undefined,
+      participant: isSet(object.participant) ? AutoParticipantEgress.fromJSON(object.participant) : undefined,
       tracks: isSet(object.tracks) ? AutoTrackEgress.fromJSON(object.tracks) : undefined,
     };
   },
@@ -290,6 +305,8 @@ export const RoomEgress = {
     const obj: any = {};
     message.room !== undefined &&
       (obj.room = message.room ? RoomCompositeEgressRequest.toJSON(message.room) : undefined);
+    message.participant !== undefined &&
+      (obj.participant = message.participant ? AutoParticipantEgress.toJSON(message.participant) : undefined);
     message.tracks !== undefined && (obj.tracks = message.tracks ? AutoTrackEgress.toJSON(message.tracks) : undefined);
     return obj;
   },
@@ -298,6 +315,9 @@ export const RoomEgress = {
     const message = createBaseRoomEgress();
     message.room = (object.room !== undefined && object.room !== null)
       ? RoomCompositeEgressRequest.fromPartial(object.room)
+      : undefined;
+    message.participant = (object.participant !== undefined && object.participant !== null)
+      ? AutoParticipantEgress.fromPartial(object.participant)
       : undefined;
     message.tracks = (object.tracks !== undefined && object.tracks !== null)
       ? AutoTrackEgress.fromPartial(object.tracks)
@@ -1051,7 +1071,14 @@ export const UpdateSubscriptionsResponse = {
 };
 
 function createBaseSendDataRequest(): SendDataRequest {
-  return { room: "", data: new Uint8Array(), kind: 0, destinationSids: [], topic: undefined };
+  return {
+    room: "",
+    data: new Uint8Array(),
+    kind: 0,
+    destinationSids: [],
+    destinationIdentities: [],
+    topic: undefined,
+  };
 }
 
 export const SendDataRequest = {
@@ -1068,6 +1095,11 @@ export const SendDataRequest = {
     if (message.destinationSids !== undefined && message.destinationSids.length !== 0) {
       for (const v of message.destinationSids) {
         writer.uint32(34).string(v!);
+      }
+    }
+    if (message.destinationIdentities !== undefined && message.destinationIdentities.length !== 0) {
+      for (const v of message.destinationIdentities) {
+        writer.uint32(50).string(v!);
       }
     }
     if (message.topic !== undefined) {
@@ -1095,6 +1127,9 @@ export const SendDataRequest = {
         case 4:
           message.destinationSids!.push(reader.string());
           break;
+        case 6:
+          message.destinationIdentities!.push(reader.string());
+          break;
         case 5:
           message.topic = reader.string();
           break;
@@ -1112,6 +1147,9 @@ export const SendDataRequest = {
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(),
       kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
       destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
+      destinationIdentities: Array.isArray(object?.destinationIdentities)
+        ? object.destinationIdentities.map((e: any) => String(e))
+        : [],
       topic: isSet(object.topic) ? String(object.topic) : undefined,
     };
   },
@@ -1127,6 +1165,11 @@ export const SendDataRequest = {
     } else {
       obj.destinationSids = [];
     }
+    if (message.destinationIdentities) {
+      obj.destinationIdentities = message.destinationIdentities.map((e) => e);
+    } else {
+      obj.destinationIdentities = [];
+    }
     message.topic !== undefined && (obj.topic = message.topic);
     return obj;
   },
@@ -1137,6 +1180,7 @@ export const SendDataRequest = {
     message.data = object.data ?? new Uint8Array();
     message.kind = object.kind ?? 0;
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
+    message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
     message.topic = object.topic ?? undefined;
     return message;
   },

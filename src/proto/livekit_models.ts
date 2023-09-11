@@ -722,10 +722,13 @@ export interface SpeakerInfo {
 export interface UserPacket {
   /** participant ID of user that sent the message */
   participantSid: string;
+  participantIdentity: string;
   /** user defined payload */
   payload: Uint8Array;
-  /** the ID of the participants who will receive the message (the message will be sent to all the people in the room if this variable is empty) */
+  /** the ID of the participants who will receive the message (sent to all by default) */
   destinationSids: string[];
+  /** identities of participants who will receive the message (sent to all by default) */
+  destinationIdentities: string[];
   /** topic under which the message was published */
   topic?: string | undefined;
 }
@@ -902,6 +905,18 @@ export interface DisabledCodecs {
   publish: Codec[];
 }
 
+export interface RTPDrift {
+  startTime?: Date;
+  endTime?: Date;
+  duration: number;
+  startTimestamp: number;
+  endTimestamp: number;
+  rtpClockTicks: number;
+  driftSamples: number;
+  driftMs: number;
+  clockRate: number;
+}
+
 export interface RTPStats {
   startTime?: Date;
   endTime?: Date;
@@ -944,9 +959,9 @@ export interface RTPStats {
   lastKeyFrame?: Date;
   layerLockPlis: number;
   lastLayerLockPli?: Date;
-  sampleRate: number;
-  /** NEXT_ID: 44 */
-  driftMs: number;
+  packetDrift?: RTPDrift;
+  /** NEXT_ID: 46 */
+  reportDrift?: RTPDrift;
 }
 
 export interface RTPStats_GapHistogramEntry {
@@ -2145,7 +2160,14 @@ export const SpeakerInfo = {
 };
 
 function createBaseUserPacket(): UserPacket {
-  return { participantSid: "", payload: new Uint8Array(), destinationSids: [], topic: undefined };
+  return {
+    participantSid: "",
+    participantIdentity: "",
+    payload: new Uint8Array(),
+    destinationSids: [],
+    destinationIdentities: [],
+    topic: undefined,
+  };
 }
 
 export const UserPacket = {
@@ -2153,11 +2175,17 @@ export const UserPacket = {
     if (message.participantSid !== "") {
       writer.uint32(10).string(message.participantSid);
     }
+    if (message.participantIdentity !== "") {
+      writer.uint32(42).string(message.participantIdentity);
+    }
     if (message.payload.length !== 0) {
       writer.uint32(18).bytes(message.payload);
     }
     for (const v of message.destinationSids) {
       writer.uint32(26).string(v!);
+    }
+    for (const v of message.destinationIdentities) {
+      writer.uint32(50).string(v!);
     }
     if (message.topic !== undefined) {
       writer.uint32(34).string(message.topic);
@@ -2175,11 +2203,17 @@ export const UserPacket = {
         case 1:
           message.participantSid = reader.string();
           break;
+        case 5:
+          message.participantIdentity = reader.string();
+          break;
         case 2:
           message.payload = reader.bytes();
           break;
         case 3:
           message.destinationSids.push(reader.string());
+          break;
+        case 6:
+          message.destinationIdentities.push(reader.string());
           break;
         case 4:
           message.topic = reader.string();
@@ -2195,8 +2229,12 @@ export const UserPacket = {
   fromJSON(object: any): UserPacket {
     return {
       participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
+      participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
       payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(),
       destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
+      destinationIdentities: Array.isArray(object?.destinationIdentities)
+        ? object.destinationIdentities.map((e: any) => String(e))
+        : [],
       topic: isSet(object.topic) ? String(object.topic) : undefined,
     };
   },
@@ -2204,12 +2242,18 @@ export const UserPacket = {
   toJSON(message: UserPacket): unknown {
     const obj: any = {};
     message.participantSid !== undefined && (obj.participantSid = message.participantSid);
+    message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
     message.payload !== undefined &&
       (obj.payload = base64FromBytes(message.payload !== undefined ? message.payload : new Uint8Array()));
     if (message.destinationSids) {
       obj.destinationSids = message.destinationSids.map((e) => e);
     } else {
       obj.destinationSids = [];
+    }
+    if (message.destinationIdentities) {
+      obj.destinationIdentities = message.destinationIdentities.map((e) => e);
+    } else {
+      obj.destinationIdentities = [];
     }
     message.topic !== undefined && (obj.topic = message.topic);
     return obj;
@@ -2218,8 +2262,10 @@ export const UserPacket = {
   fromPartial<I extends Exact<DeepPartial<UserPacket>, I>>(object: I): UserPacket {
     const message = createBaseUserPacket();
     message.participantSid = object.participantSid ?? "";
+    message.participantIdentity = object.participantIdentity ?? "";
     message.payload = object.payload ?? new Uint8Array();
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
+    message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
     message.topic = object.topic ?? undefined;
     return message;
   },
@@ -2729,6 +2775,137 @@ export const DisabledCodecs = {
   },
 };
 
+function createBaseRTPDrift(): RTPDrift {
+  return {
+    startTime: undefined,
+    endTime: undefined,
+    duration: 0,
+    startTimestamp: 0,
+    endTimestamp: 0,
+    rtpClockTicks: 0,
+    driftSamples: 0,
+    driftMs: 0,
+    clockRate: 0,
+  };
+}
+
+export const RTPDrift = {
+  encode(message: RTPDrift, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.startTime !== undefined) {
+      Timestamp.encode(toTimestamp(message.startTime), writer.uint32(10).fork()).ldelim();
+    }
+    if (message.endTime !== undefined) {
+      Timestamp.encode(toTimestamp(message.endTime), writer.uint32(18).fork()).ldelim();
+    }
+    if (message.duration !== 0) {
+      writer.uint32(25).double(message.duration);
+    }
+    if (message.startTimestamp !== 0) {
+      writer.uint32(32).uint64(message.startTimestamp);
+    }
+    if (message.endTimestamp !== 0) {
+      writer.uint32(40).uint64(message.endTimestamp);
+    }
+    if (message.rtpClockTicks !== 0) {
+      writer.uint32(48).uint64(message.rtpClockTicks);
+    }
+    if (message.driftSamples !== 0) {
+      writer.uint32(56).int64(message.driftSamples);
+    }
+    if (message.driftMs !== 0) {
+      writer.uint32(65).double(message.driftMs);
+    }
+    if (message.clockRate !== 0) {
+      writer.uint32(73).double(message.clockRate);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RTPDrift {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRTPDrift();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.startTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.endTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          break;
+        case 3:
+          message.duration = reader.double();
+          break;
+        case 4:
+          message.startTimestamp = longToNumber(reader.uint64() as Long);
+          break;
+        case 5:
+          message.endTimestamp = longToNumber(reader.uint64() as Long);
+          break;
+        case 6:
+          message.rtpClockTicks = longToNumber(reader.uint64() as Long);
+          break;
+        case 7:
+          message.driftSamples = longToNumber(reader.int64() as Long);
+          break;
+        case 8:
+          message.driftMs = reader.double();
+          break;
+        case 9:
+          message.clockRate = reader.double();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RTPDrift {
+    return {
+      startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
+      endTime: isSet(object.endTime) ? fromJsonTimestamp(object.endTime) : undefined,
+      duration: isSet(object.duration) ? Number(object.duration) : 0,
+      startTimestamp: isSet(object.startTimestamp) ? Number(object.startTimestamp) : 0,
+      endTimestamp: isSet(object.endTimestamp) ? Number(object.endTimestamp) : 0,
+      rtpClockTicks: isSet(object.rtpClockTicks) ? Number(object.rtpClockTicks) : 0,
+      driftSamples: isSet(object.driftSamples) ? Number(object.driftSamples) : 0,
+      driftMs: isSet(object.driftMs) ? Number(object.driftMs) : 0,
+      clockRate: isSet(object.clockRate) ? Number(object.clockRate) : 0,
+    };
+  },
+
+  toJSON(message: RTPDrift): unknown {
+    const obj: any = {};
+    message.startTime !== undefined && (obj.startTime = message.startTime.toISOString());
+    message.endTime !== undefined && (obj.endTime = message.endTime.toISOString());
+    message.duration !== undefined && (obj.duration = message.duration);
+    message.startTimestamp !== undefined && (obj.startTimestamp = Math.round(message.startTimestamp));
+    message.endTimestamp !== undefined && (obj.endTimestamp = Math.round(message.endTimestamp));
+    message.rtpClockTicks !== undefined && (obj.rtpClockTicks = Math.round(message.rtpClockTicks));
+    message.driftSamples !== undefined && (obj.driftSamples = Math.round(message.driftSamples));
+    message.driftMs !== undefined && (obj.driftMs = message.driftMs);
+    message.clockRate !== undefined && (obj.clockRate = message.clockRate);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<RTPDrift>, I>>(object: I): RTPDrift {
+    const message = createBaseRTPDrift();
+    message.startTime = object.startTime ?? undefined;
+    message.endTime = object.endTime ?? undefined;
+    message.duration = object.duration ?? 0;
+    message.startTimestamp = object.startTimestamp ?? 0;
+    message.endTimestamp = object.endTimestamp ?? 0;
+    message.rtpClockTicks = object.rtpClockTicks ?? 0;
+    message.driftSamples = object.driftSamples ?? 0;
+    message.driftMs = object.driftMs ?? 0;
+    message.clockRate = object.clockRate ?? 0;
+    return message;
+  },
+};
+
 function createBaseRTPStats(): RTPStats {
   return {
     startTime: undefined,
@@ -2772,8 +2949,8 @@ function createBaseRTPStats(): RTPStats {
     lastKeyFrame: undefined,
     layerLockPlis: 0,
     lastLayerLockPli: undefined,
-    sampleRate: 0,
-    driftMs: 0,
+    packetDrift: undefined,
+    reportDrift: undefined,
   };
 }
 
@@ -2902,11 +3079,11 @@ export const RTPStats = {
     if (message.lastLayerLockPli !== undefined) {
       Timestamp.encode(toTimestamp(message.lastLayerLockPli), writer.uint32(290).fork()).ldelim();
     }
-    if (message.sampleRate !== 0) {
-      writer.uint32(337).double(message.sampleRate);
+    if (message.packetDrift !== undefined) {
+      RTPDrift.encode(message.packetDrift, writer.uint32(354).fork()).ldelim();
     }
-    if (message.driftMs !== 0) {
-      writer.uint32(345).double(message.driftMs);
+    if (message.reportDrift !== undefined) {
+      RTPDrift.encode(message.reportDrift, writer.uint32(362).fork()).ldelim();
     }
     return writer;
   },
@@ -3044,11 +3221,11 @@ export const RTPStats = {
         case 36:
           message.lastLayerLockPli = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           break;
-        case 42:
-          message.sampleRate = reader.double();
+        case 44:
+          message.packetDrift = RTPDrift.decode(reader, reader.uint32());
           break;
-        case 43:
-          message.driftMs = reader.double();
+        case 45:
+          message.reportDrift = RTPDrift.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -3106,8 +3283,8 @@ export const RTPStats = {
       lastKeyFrame: isSet(object.lastKeyFrame) ? fromJsonTimestamp(object.lastKeyFrame) : undefined,
       layerLockPlis: isSet(object.layerLockPlis) ? Number(object.layerLockPlis) : 0,
       lastLayerLockPli: isSet(object.lastLayerLockPli) ? fromJsonTimestamp(object.lastLayerLockPli) : undefined,
-      sampleRate: isSet(object.sampleRate) ? Number(object.sampleRate) : 0,
-      driftMs: isSet(object.driftMs) ? Number(object.driftMs) : 0,
+      packetDrift: isSet(object.packetDrift) ? RTPDrift.fromJSON(object.packetDrift) : undefined,
+      reportDrift: isSet(object.reportDrift) ? RTPDrift.fromJSON(object.reportDrift) : undefined,
     };
   },
 
@@ -3159,8 +3336,10 @@ export const RTPStats = {
     message.lastKeyFrame !== undefined && (obj.lastKeyFrame = message.lastKeyFrame.toISOString());
     message.layerLockPlis !== undefined && (obj.layerLockPlis = Math.round(message.layerLockPlis));
     message.lastLayerLockPli !== undefined && (obj.lastLayerLockPli = message.lastLayerLockPli.toISOString());
-    message.sampleRate !== undefined && (obj.sampleRate = message.sampleRate);
-    message.driftMs !== undefined && (obj.driftMs = message.driftMs);
+    message.packetDrift !== undefined &&
+      (obj.packetDrift = message.packetDrift ? RTPDrift.toJSON(message.packetDrift) : undefined);
+    message.reportDrift !== undefined &&
+      (obj.reportDrift = message.reportDrift ? RTPDrift.toJSON(message.reportDrift) : undefined);
     return obj;
   },
 
@@ -3215,8 +3394,12 @@ export const RTPStats = {
     message.lastKeyFrame = object.lastKeyFrame ?? undefined;
     message.layerLockPlis = object.layerLockPlis ?? 0;
     message.lastLayerLockPli = object.lastLayerLockPli ?? undefined;
-    message.sampleRate = object.sampleRate ?? 0;
-    message.driftMs = object.driftMs ?? 0;
+    message.packetDrift = (object.packetDrift !== undefined && object.packetDrift !== null)
+      ? RTPDrift.fromPartial(object.packetDrift)
+      : undefined;
+    message.reportDrift = (object.reportDrift !== undefined && object.reportDrift !== null)
+      ? RTPDrift.fromPartial(object.reportDrift)
+      : undefined;
     return message;
   },
 };

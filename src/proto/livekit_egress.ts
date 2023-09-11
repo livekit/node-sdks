@@ -350,6 +350,25 @@ export interface WebEgressRequest {
   segmentOutputs?: SegmentedFileOutput[];
 }
 
+/** record audio and video from a single participant */
+export interface ParticipantEgressRequest {
+  /** required */
+  roomName?: string;
+  /** required */
+  identity?: string;
+  /** (default false) */
+  screenShare?: boolean;
+  /** (default H264_720P_30) */
+  preset?:
+    | EncodingOptionsPreset
+    | undefined;
+  /** (optional) */
+  advanced?: EncodingOptions | undefined;
+  fileOutputs?: EncodedFileOutput[];
+  streamOutputs?: StreamOutput[];
+  segmentOutputs?: SegmentedFileOutput[];
+}
+
 /** containerize up to one audio and one video track */
 export interface TrackCompositeEgressRequest {
   /** required */
@@ -412,6 +431,8 @@ export interface SegmentedFileOutput {
   filenamePrefix?: string;
   /** (optional) */
   playlistName?: string;
+  /** (optional, disabled if not provided). Path of a live playlist */
+  livePlaylistName?: string;
   /** in seconds (optional) */
   segmentDuration?: number;
   /** (optional, default INDEX) */
@@ -538,10 +559,11 @@ export interface EgressInfo {
   updatedAt?: number;
   error?: string;
   roomComposite?: RoomCompositeEgressRequest | undefined;
+  web?: WebEgressRequest | undefined;
+  participant?: ParticipantEgressRequest | undefined;
   trackComposite?: TrackCompositeEgressRequest | undefined;
-  track?: TrackEgressRequest | undefined;
-  web?:
-    | WebEgressRequest
+  track?:
+    | TrackEgressRequest
     | undefined;
   /** @deprecated */
   stream?:
@@ -622,12 +644,25 @@ export interface FileInfo {
 
 export interface SegmentsInfo {
   playlistName?: string;
+  livePlaylistName?: string;
   duration?: number;
   size?: number;
   playlistLocation?: string;
+  livePlaylistLocation?: string;
   segmentCount?: number;
   startedAt?: number;
   endedAt?: number;
+}
+
+export interface AutoParticipantEgress {
+  /** (default H264_720P_30) */
+  preset?:
+    | EncodingOptionsPreset
+    | undefined;
+  /** (optional) */
+  advanced?: EncodingOptions | undefined;
+  fileOutputs?: EncodedFileOutput[];
+  segmentOutputs?: SegmentedFileOutput[];
 }
 
 export interface AutoTrackEgress {
@@ -1042,6 +1077,155 @@ export const WebEgressRequest = {
   },
 };
 
+function createBaseParticipantEgressRequest(): ParticipantEgressRequest {
+  return {
+    roomName: "",
+    identity: "",
+    screenShare: false,
+    preset: undefined,
+    advanced: undefined,
+    fileOutputs: [],
+    streamOutputs: [],
+    segmentOutputs: [],
+  };
+}
+
+export const ParticipantEgressRequest = {
+  encode(message: ParticipantEgressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.roomName !== undefined && message.roomName !== "") {
+      writer.uint32(10).string(message.roomName);
+    }
+    if (message.identity !== undefined && message.identity !== "") {
+      writer.uint32(18).string(message.identity);
+    }
+    if (message.screenShare === true) {
+      writer.uint32(24).bool(message.screenShare);
+    }
+    if (message.preset !== undefined) {
+      writer.uint32(32).int32(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      EncodingOptions.encode(message.advanced, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.fileOutputs !== undefined && message.fileOutputs.length !== 0) {
+      for (const v of message.fileOutputs) {
+        EncodedFileOutput.encode(v!, writer.uint32(50).fork()).ldelim();
+      }
+    }
+    if (message.streamOutputs !== undefined && message.streamOutputs.length !== 0) {
+      for (const v of message.streamOutputs) {
+        StreamOutput.encode(v!, writer.uint32(58).fork()).ldelim();
+      }
+    }
+    if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
+      for (const v of message.segmentOutputs) {
+        SegmentedFileOutput.encode(v!, writer.uint32(66).fork()).ldelim();
+      }
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantEgressRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseParticipantEgressRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.roomName = reader.string();
+          break;
+        case 2:
+          message.identity = reader.string();
+          break;
+        case 3:
+          message.screenShare = reader.bool();
+          break;
+        case 4:
+          message.preset = reader.int32() as any;
+          break;
+        case 5:
+          message.advanced = EncodingOptions.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
+          break;
+        case 7:
+          message.streamOutputs!.push(StreamOutput.decode(reader, reader.uint32()));
+          break;
+        case 8:
+          message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ParticipantEgressRequest {
+    return {
+      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      identity: isSet(object.identity) ? String(object.identity) : "",
+      screenShare: isSet(object.screenShare) ? Boolean(object.screenShare) : false,
+      preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
+      advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
+      fileOutputs: Array.isArray(object?.fileOutputs)
+        ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
+        : [],
+      streamOutputs: Array.isArray(object?.streamOutputs)
+        ? object.streamOutputs.map((e: any) => StreamOutput.fromJSON(e))
+        : [],
+      segmentOutputs: Array.isArray(object?.segmentOutputs)
+        ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: ParticipantEgressRequest): unknown {
+    const obj: any = {};
+    message.roomName !== undefined && (obj.roomName = message.roomName);
+    message.identity !== undefined && (obj.identity = message.identity);
+    message.screenShare !== undefined && (obj.screenShare = message.screenShare);
+    message.preset !== undefined &&
+      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
+    message.advanced !== undefined &&
+      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
+    if (message.fileOutputs) {
+      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
+    } else {
+      obj.fileOutputs = [];
+    }
+    if (message.streamOutputs) {
+      obj.streamOutputs = message.streamOutputs.map((e) => e ? StreamOutput.toJSON(e) : undefined);
+    } else {
+      obj.streamOutputs = [];
+    }
+    if (message.segmentOutputs) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
+    } else {
+      obj.segmentOutputs = [];
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<ParticipantEgressRequest>, I>>(object: I): ParticipantEgressRequest {
+    const message = createBaseParticipantEgressRequest();
+    message.roomName = object.roomName ?? "";
+    message.identity = object.identity ?? "";
+    message.screenShare = object.screenShare ?? false;
+    message.preset = object.preset ?? undefined;
+    message.advanced = (object.advanced !== undefined && object.advanced !== null)
+      ? EncodingOptions.fromPartial(object.advanced)
+      : undefined;
+    message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
+    message.streamOutputs = object.streamOutputs?.map((e) => StreamOutput.fromPartial(e)) || [];
+    message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
   return {
     roomName: "",
@@ -1426,6 +1610,7 @@ function createBaseSegmentedFileOutput(): SegmentedFileOutput {
     protocol: 0,
     filenamePrefix: "",
     playlistName: "",
+    livePlaylistName: "",
     segmentDuration: 0,
     filenameSuffix: 0,
     disableManifest: false,
@@ -1446,6 +1631,9 @@ export const SegmentedFileOutput = {
     }
     if (message.playlistName !== undefined && message.playlistName !== "") {
       writer.uint32(26).string(message.playlistName);
+    }
+    if (message.livePlaylistName !== undefined && message.livePlaylistName !== "") {
+      writer.uint32(90).string(message.livePlaylistName);
     }
     if (message.segmentDuration !== undefined && message.segmentDuration !== 0) {
       writer.uint32(32).uint32(message.segmentDuration);
@@ -1487,6 +1675,9 @@ export const SegmentedFileOutput = {
         case 3:
           message.playlistName = reader.string();
           break;
+        case 11:
+          message.livePlaylistName = reader.string();
+          break;
         case 4:
           message.segmentDuration = reader.uint32();
           break;
@@ -1521,6 +1712,7 @@ export const SegmentedFileOutput = {
       protocol: isSet(object.protocol) ? segmentedFileProtocolFromJSON(object.protocol) : 0,
       filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : "",
       playlistName: isSet(object.playlistName) ? String(object.playlistName) : "",
+      livePlaylistName: isSet(object.livePlaylistName) ? String(object.livePlaylistName) : "",
       segmentDuration: isSet(object.segmentDuration) ? Number(object.segmentDuration) : 0,
       filenameSuffix: isSet(object.filenameSuffix) ? segmentedFileSuffixFromJSON(object.filenameSuffix) : 0,
       disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
@@ -1536,6 +1728,7 @@ export const SegmentedFileOutput = {
     message.protocol !== undefined && (obj.protocol = segmentedFileProtocolToJSON(message.protocol));
     message.filenamePrefix !== undefined && (obj.filenamePrefix = message.filenamePrefix);
     message.playlistName !== undefined && (obj.playlistName = message.playlistName);
+    message.livePlaylistName !== undefined && (obj.livePlaylistName = message.livePlaylistName);
     message.segmentDuration !== undefined && (obj.segmentDuration = Math.round(message.segmentDuration));
     message.filenameSuffix !== undefined && (obj.filenameSuffix = segmentedFileSuffixToJSON(message.filenameSuffix));
     message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
@@ -1551,6 +1744,7 @@ export const SegmentedFileOutput = {
     message.protocol = object.protocol ?? 0;
     message.filenamePrefix = object.filenamePrefix ?? "";
     message.playlistName = object.playlistName ?? "";
+    message.livePlaylistName = object.livePlaylistName ?? "";
     message.segmentDuration = object.segmentDuration ?? 0;
     message.filenameSuffix = object.filenameSuffix ?? 0;
     message.disableManifest = object.disableManifest ?? false;
@@ -2590,9 +2784,10 @@ function createBaseEgressInfo(): EgressInfo {
     updatedAt: 0,
     error: "",
     roomComposite: undefined,
+    web: undefined,
+    participant: undefined,
     trackComposite: undefined,
     track: undefined,
-    web: undefined,
     stream: undefined,
     file: undefined,
     segments: undefined,
@@ -2631,14 +2826,17 @@ export const EgressInfo = {
     if (message.roomComposite !== undefined) {
       RoomCompositeEgressRequest.encode(message.roomComposite, writer.uint32(34).fork()).ldelim();
     }
+    if (message.web !== undefined) {
+      WebEgressRequest.encode(message.web, writer.uint32(114).fork()).ldelim();
+    }
+    if (message.participant !== undefined) {
+      ParticipantEgressRequest.encode(message.participant, writer.uint32(154).fork()).ldelim();
+    }
     if (message.trackComposite !== undefined) {
       TrackCompositeEgressRequest.encode(message.trackComposite, writer.uint32(42).fork()).ldelim();
     }
     if (message.track !== undefined) {
       TrackEgressRequest.encode(message.track, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.web !== undefined) {
-      WebEgressRequest.encode(message.web, writer.uint32(114).fork()).ldelim();
     }
     if (message.stream !== undefined) {
       StreamInfoList.encode(message.stream, writer.uint32(58).fork()).ldelim();
@@ -2701,14 +2899,17 @@ export const EgressInfo = {
         case 4:
           message.roomComposite = RoomCompositeEgressRequest.decode(reader, reader.uint32());
           break;
+        case 14:
+          message.web = WebEgressRequest.decode(reader, reader.uint32());
+          break;
+        case 19:
+          message.participant = ParticipantEgressRequest.decode(reader, reader.uint32());
+          break;
         case 5:
           message.trackComposite = TrackCompositeEgressRequest.decode(reader, reader.uint32());
           break;
         case 6:
           message.track = TrackEgressRequest.decode(reader, reader.uint32());
-          break;
-        case 14:
-          message.web = WebEgressRequest.decode(reader, reader.uint32());
           break;
         case 7:
           message.stream = StreamInfoList.decode(reader, reader.uint32());
@@ -2749,11 +2950,12 @@ export const EgressInfo = {
       roomComposite: isSet(object.roomComposite)
         ? RoomCompositeEgressRequest.fromJSON(object.roomComposite)
         : undefined,
+      web: isSet(object.web) ? WebEgressRequest.fromJSON(object.web) : undefined,
+      participant: isSet(object.participant) ? ParticipantEgressRequest.fromJSON(object.participant) : undefined,
       trackComposite: isSet(object.trackComposite)
         ? TrackCompositeEgressRequest.fromJSON(object.trackComposite)
         : undefined,
       track: isSet(object.track) ? TrackEgressRequest.fromJSON(object.track) : undefined,
-      web: isSet(object.web) ? WebEgressRequest.fromJSON(object.web) : undefined,
       stream: isSet(object.stream) ? StreamInfoList.fromJSON(object.stream) : undefined,
       file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
       segments: isSet(object.segments) ? SegmentsInfo.fromJSON(object.segments) : undefined,
@@ -2781,11 +2983,13 @@ export const EgressInfo = {
       (obj.roomComposite = message.roomComposite
         ? RoomCompositeEgressRequest.toJSON(message.roomComposite)
         : undefined);
+    message.web !== undefined && (obj.web = message.web ? WebEgressRequest.toJSON(message.web) : undefined);
+    message.participant !== undefined &&
+      (obj.participant = message.participant ? ParticipantEgressRequest.toJSON(message.participant) : undefined);
     message.trackComposite !== undefined && (obj.trackComposite = message.trackComposite
       ? TrackCompositeEgressRequest.toJSON(message.trackComposite)
       : undefined);
     message.track !== undefined && (obj.track = message.track ? TrackEgressRequest.toJSON(message.track) : undefined);
-    message.web !== undefined && (obj.web = message.web ? WebEgressRequest.toJSON(message.web) : undefined);
     message.stream !== undefined && (obj.stream = message.stream ? StreamInfoList.toJSON(message.stream) : undefined);
     message.file !== undefined && (obj.file = message.file ? FileInfo.toJSON(message.file) : undefined);
     message.segments !== undefined &&
@@ -2821,14 +3025,17 @@ export const EgressInfo = {
     message.roomComposite = (object.roomComposite !== undefined && object.roomComposite !== null)
       ? RoomCompositeEgressRequest.fromPartial(object.roomComposite)
       : undefined;
+    message.web = (object.web !== undefined && object.web !== null)
+      ? WebEgressRequest.fromPartial(object.web)
+      : undefined;
+    message.participant = (object.participant !== undefined && object.participant !== null)
+      ? ParticipantEgressRequest.fromPartial(object.participant)
+      : undefined;
     message.trackComposite = (object.trackComposite !== undefined && object.trackComposite !== null)
       ? TrackCompositeEgressRequest.fromPartial(object.trackComposite)
       : undefined;
     message.track = (object.track !== undefined && object.track !== null)
       ? TrackEgressRequest.fromPartial(object.track)
-      : undefined;
-    message.web = (object.web !== undefined && object.web !== null)
-      ? WebEgressRequest.fromPartial(object.web)
       : undefined;
     message.stream = (object.stream !== undefined && object.stream !== null)
       ? StreamInfoList.fromPartial(object.stream)
@@ -3086,13 +3293,26 @@ export const FileInfo = {
 };
 
 function createBaseSegmentsInfo(): SegmentsInfo {
-  return { playlistName: "", duration: 0, size: 0, playlistLocation: "", segmentCount: 0, startedAt: 0, endedAt: 0 };
+  return {
+    playlistName: "",
+    livePlaylistName: "",
+    duration: 0,
+    size: 0,
+    playlistLocation: "",
+    livePlaylistLocation: "",
+    segmentCount: 0,
+    startedAt: 0,
+    endedAt: 0,
+  };
 }
 
 export const SegmentsInfo = {
   encode(message: SegmentsInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.playlistName !== undefined && message.playlistName !== "") {
       writer.uint32(10).string(message.playlistName);
+    }
+    if (message.livePlaylistName !== undefined && message.livePlaylistName !== "") {
+      writer.uint32(66).string(message.livePlaylistName);
     }
     if (message.duration !== undefined && message.duration !== 0) {
       writer.uint32(16).int64(message.duration);
@@ -3102,6 +3322,9 @@ export const SegmentsInfo = {
     }
     if (message.playlistLocation !== undefined && message.playlistLocation !== "") {
       writer.uint32(34).string(message.playlistLocation);
+    }
+    if (message.livePlaylistLocation !== undefined && message.livePlaylistLocation !== "") {
+      writer.uint32(74).string(message.livePlaylistLocation);
     }
     if (message.segmentCount !== undefined && message.segmentCount !== 0) {
       writer.uint32(40).int64(message.segmentCount);
@@ -3125,6 +3348,9 @@ export const SegmentsInfo = {
         case 1:
           message.playlistName = reader.string();
           break;
+        case 8:
+          message.livePlaylistName = reader.string();
+          break;
         case 2:
           message.duration = longToNumber(reader.int64() as Long);
           break;
@@ -3133,6 +3359,9 @@ export const SegmentsInfo = {
           break;
         case 4:
           message.playlistLocation = reader.string();
+          break;
+        case 9:
+          message.livePlaylistLocation = reader.string();
           break;
         case 5:
           message.segmentCount = longToNumber(reader.int64() as Long);
@@ -3154,9 +3383,11 @@ export const SegmentsInfo = {
   fromJSON(object: any): SegmentsInfo {
     return {
       playlistName: isSet(object.playlistName) ? String(object.playlistName) : "",
+      livePlaylistName: isSet(object.livePlaylistName) ? String(object.livePlaylistName) : "",
       duration: isSet(object.duration) ? Number(object.duration) : 0,
       size: isSet(object.size) ? Number(object.size) : 0,
       playlistLocation: isSet(object.playlistLocation) ? String(object.playlistLocation) : "",
+      livePlaylistLocation: isSet(object.livePlaylistLocation) ? String(object.livePlaylistLocation) : "",
       segmentCount: isSet(object.segmentCount) ? Number(object.segmentCount) : 0,
       startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
       endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
@@ -3166,9 +3397,11 @@ export const SegmentsInfo = {
   toJSON(message: SegmentsInfo): unknown {
     const obj: any = {};
     message.playlistName !== undefined && (obj.playlistName = message.playlistName);
+    message.livePlaylistName !== undefined && (obj.livePlaylistName = message.livePlaylistName);
     message.duration !== undefined && (obj.duration = Math.round(message.duration));
     message.size !== undefined && (obj.size = Math.round(message.size));
     message.playlistLocation !== undefined && (obj.playlistLocation = message.playlistLocation);
+    message.livePlaylistLocation !== undefined && (obj.livePlaylistLocation = message.livePlaylistLocation);
     message.segmentCount !== undefined && (obj.segmentCount = Math.round(message.segmentCount));
     message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
     message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
@@ -3178,12 +3411,110 @@ export const SegmentsInfo = {
   fromPartial<I extends Exact<DeepPartial<SegmentsInfo>, I>>(object: I): SegmentsInfo {
     const message = createBaseSegmentsInfo();
     message.playlistName = object.playlistName ?? "";
+    message.livePlaylistName = object.livePlaylistName ?? "";
     message.duration = object.duration ?? 0;
     message.size = object.size ?? 0;
     message.playlistLocation = object.playlistLocation ?? "";
+    message.livePlaylistLocation = object.livePlaylistLocation ?? "";
     message.segmentCount = object.segmentCount ?? 0;
     message.startedAt = object.startedAt ?? 0;
     message.endedAt = object.endedAt ?? 0;
+    return message;
+  },
+};
+
+function createBaseAutoParticipantEgress(): AutoParticipantEgress {
+  return { preset: undefined, advanced: undefined, fileOutputs: [], segmentOutputs: [] };
+}
+
+export const AutoParticipantEgress = {
+  encode(message: AutoParticipantEgress, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.preset !== undefined) {
+      writer.uint32(8).int32(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      EncodingOptions.encode(message.advanced, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.fileOutputs !== undefined && message.fileOutputs.length !== 0) {
+      for (const v of message.fileOutputs) {
+        EncodedFileOutput.encode(v!, writer.uint32(26).fork()).ldelim();
+      }
+    }
+    if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
+      for (const v of message.segmentOutputs) {
+        SegmentedFileOutput.encode(v!, writer.uint32(34).fork()).ldelim();
+      }
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AutoParticipantEgress {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAutoParticipantEgress();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.preset = reader.int32() as any;
+          break;
+        case 2:
+          message.advanced = EncodingOptions.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
+          break;
+        case 4:
+          message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AutoParticipantEgress {
+    return {
+      preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
+      advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
+      fileOutputs: Array.isArray(object?.fileOutputs)
+        ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
+        : [],
+      segmentOutputs: Array.isArray(object?.segmentOutputs)
+        ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: AutoParticipantEgress): unknown {
+    const obj: any = {};
+    message.preset !== undefined &&
+      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
+    message.advanced !== undefined &&
+      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
+    if (message.fileOutputs) {
+      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
+    } else {
+      obj.fileOutputs = [];
+    }
+    if (message.segmentOutputs) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
+    } else {
+      obj.segmentOutputs = [];
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<AutoParticipantEgress>, I>>(object: I): AutoParticipantEgress {
+    const message = createBaseAutoParticipantEgress();
+    message.preset = object.preset ?? undefined;
+    message.advanced = (object.advanced !== undefined && object.advanced !== null)
+      ? EncodingOptions.fromPartial(object.advanced)
+      : undefined;
+    message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
+    message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -3278,9 +3609,10 @@ export const AutoTrackEgress = {
 export interface Egress {
   /** start recording or streaming a room, participant, or tracks */
   StartRoomCompositeEgress(request: RoomCompositeEgressRequest): Promise<EgressInfo>;
+  StartWebEgress(request: WebEgressRequest): Promise<EgressInfo>;
+  StartParticipantEgress(request: ParticipantEgressRequest): Promise<EgressInfo>;
   StartTrackCompositeEgress(request: TrackCompositeEgressRequest): Promise<EgressInfo>;
   StartTrackEgress(request: TrackEgressRequest): Promise<EgressInfo>;
-  StartWebEgress(request: WebEgressRequest): Promise<EgressInfo>;
   /** update web composite layout */
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;
   /** add or remove stream endpoints */

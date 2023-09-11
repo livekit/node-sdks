@@ -238,6 +238,7 @@ export enum IngressState_Status {
   ENDPOINT_BUFFERING = 1,
   ENDPOINT_PUBLISHING = 2,
   ENDPOINT_ERROR = 3,
+  ENDPOINT_COMPLETE = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -255,6 +256,9 @@ export function ingressState_StatusFromJSON(object: any): IngressState_Status {
     case 3:
     case "ENDPOINT_ERROR":
       return IngressState_Status.ENDPOINT_ERROR;
+    case 4:
+    case "ENDPOINT_COMPLETE":
+      return IngressState_Status.ENDPOINT_COMPLETE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -272,6 +276,8 @@ export function ingressState_StatusToJSON(object: IngressState_Status): string {
       return "ENDPOINT_PUBLISHING";
     case IngressState_Status.ENDPOINT_ERROR:
       return "ENDPOINT_ERROR";
+    case IngressState_Status.ENDPOINT_COMPLETE:
+      return "ENDPOINT_COMPLETE";
     case IngressState_Status.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

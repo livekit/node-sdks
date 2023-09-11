@@ -80,6 +80,18 @@ export interface UpdateIngressOptions {
   video?: IngressVideoOptions;
 }
 
+export interface ListIngressOptions {
+  /**
+   * list ingress for one room only
+   */
+  roomName?: string;
+
+  /**
+   * list ingress by ID
+   */
+  ingressId?: string;
+}
+
 /**
  * Client to access Ingress APIs
  */
@@ -174,15 +186,25 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
+   * @deprecated use listIngress(opts) instead
    * @param roomName list ingress for one room only
    */
-  async listIngress(roomName?: string): Promise<Array<IngressInfo>> {
-    roomName ??= '';
-
+  async listIngress(roomName?: string): Promise<Array<IngressInfo>>;
+  /**
+   * @param opts list options
+   */
+  async listIngress(opts?: ListIngressOptions): Promise<Array<IngressInfo>>;
+  async listIngress(arg?: string | ListIngressOptions): Promise<Array<IngressInfo>> {
+    let req: ListIngressRequest = {};
+    if (typeof arg === 'string') {
+      req.roomName = arg;
+    } else if (arg) {
+      req = arg;
+    }
     const data = await this.rpc.request(
       svc,
       'ListIngress',
-      ListIngressRequest.toJSON({ roomName }),
+      ListIngressRequest.toJSON(req),
       this.authHeader({ ingressAdmin: true }),
     );
     return ListIngressResponse.fromJSON(data).items ?? [];

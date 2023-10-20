@@ -95,6 +95,39 @@ export function videoCodecToJSON(object: VideoCodec): string {
   }
 }
 
+export enum ImageCodec {
+  IC_DEFAULT = 0,
+  IC_JPEG = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function imageCodecFromJSON(object: any): ImageCodec {
+  switch (object) {
+    case 0:
+    case "IC_DEFAULT":
+      return ImageCodec.IC_DEFAULT;
+    case 1:
+    case "IC_JPEG":
+      return ImageCodec.IC_JPEG;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ImageCodec.UNRECOGNIZED;
+  }
+}
+
+export function imageCodecToJSON(object: ImageCodec): string {
+  switch (object) {
+    case ImageCodec.IC_DEFAULT:
+      return "IC_DEFAULT";
+    case ImageCodec.IC_JPEG:
+      return "IC_JPEG";
+    case ImageCodec.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum TrackType {
   AUDIO = 0,
   VIDEO = 1,
@@ -479,7 +512,6 @@ export interface Room {
   numParticipants: number;
   numPublishers: number;
   activeRecording: boolean;
-  playoutDelay?: PlayoutDelay;
 }
 
 export interface Codec {
@@ -490,6 +522,7 @@ export interface Codec {
 export interface PlayoutDelay {
   enabled: boolean;
   min: number;
+  max: number;
 }
 
 export interface ParticipantPermission {
@@ -987,7 +1020,6 @@ function createBaseRoom(): Room {
     numParticipants: 0,
     numPublishers: 0,
     activeRecording: false,
-    playoutDelay: undefined,
   };
 }
 
@@ -1025,9 +1057,6 @@ export const Room = {
     }
     if (message.activeRecording === true) {
       writer.uint32(80).bool(message.activeRecording);
-    }
-    if (message.playoutDelay !== undefined) {
-      PlayoutDelay.encode(message.playoutDelay, writer.uint32(98).fork()).ldelim();
     }
     return writer;
   },
@@ -1072,9 +1101,6 @@ export const Room = {
         case 10:
           message.activeRecording = reader.bool();
           break;
-        case 12:
-          message.playoutDelay = PlayoutDelay.decode(reader, reader.uint32());
-          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1098,7 +1124,6 @@ export const Room = {
       numParticipants: isSet(object.numParticipants) ? Number(object.numParticipants) : 0,
       numPublishers: isSet(object.numPublishers) ? Number(object.numPublishers) : 0,
       activeRecording: isSet(object.activeRecording) ? Boolean(object.activeRecording) : false,
-      playoutDelay: isSet(object.playoutDelay) ? PlayoutDelay.fromJSON(object.playoutDelay) : undefined,
     };
   },
 
@@ -1119,8 +1144,6 @@ export const Room = {
     message.numParticipants !== undefined && (obj.numParticipants = Math.round(message.numParticipants));
     message.numPublishers !== undefined && (obj.numPublishers = Math.round(message.numPublishers));
     message.activeRecording !== undefined && (obj.activeRecording = message.activeRecording);
-    message.playoutDelay !== undefined &&
-      (obj.playoutDelay = message.playoutDelay ? PlayoutDelay.toJSON(message.playoutDelay) : undefined);
     return obj;
   },
 
@@ -1137,9 +1160,6 @@ export const Room = {
     message.numParticipants = object.numParticipants ?? 0;
     message.numPublishers = object.numPublishers ?? 0;
     message.activeRecording = object.activeRecording ?? false;
-    message.playoutDelay = (object.playoutDelay !== undefined && object.playoutDelay !== null)
-      ? PlayoutDelay.fromPartial(object.playoutDelay)
-      : undefined;
     return message;
   },
 };
@@ -1203,7 +1223,7 @@ export const Codec = {
 };
 
 function createBasePlayoutDelay(): PlayoutDelay {
-  return { enabled: false, min: 0 };
+  return { enabled: false, min: 0, max: 0 };
 }
 
 export const PlayoutDelay = {
@@ -1213,6 +1233,9 @@ export const PlayoutDelay = {
     }
     if (message.min !== 0) {
       writer.uint32(16).uint32(message.min);
+    }
+    if (message.max !== 0) {
+      writer.uint32(24).uint32(message.max);
     }
     return writer;
   },
@@ -1230,6 +1253,9 @@ export const PlayoutDelay = {
         case 2:
           message.min = reader.uint32();
           break;
+        case 3:
+          message.max = reader.uint32();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1242,6 +1268,7 @@ export const PlayoutDelay = {
     return {
       enabled: isSet(object.enabled) ? Boolean(object.enabled) : false,
       min: isSet(object.min) ? Number(object.min) : 0,
+      max: isSet(object.max) ? Number(object.max) : 0,
     };
   },
 
@@ -1249,6 +1276,7 @@ export const PlayoutDelay = {
     const obj: any = {};
     message.enabled !== undefined && (obj.enabled = message.enabled);
     message.min !== undefined && (obj.min = Math.round(message.min));
+    message.max !== undefined && (obj.max = Math.round(message.max));
     return obj;
   },
 
@@ -1256,6 +1284,7 @@ export const PlayoutDelay = {
     const message = createBasePlayoutDelay();
     message.enabled = object.enabled ?? false;
     message.min = object.min ?? 0;
+    message.max = object.max ?? 0;
     return message;
   },
 };

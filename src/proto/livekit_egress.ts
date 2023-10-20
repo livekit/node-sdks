@@ -5,6 +5,9 @@ import {
   AudioCodec,
   audioCodecFromJSON,
   audioCodecToJSON,
+  ImageCodec,
+  imageCodecFromJSON,
+  imageCodecToJSON,
   VideoCodec,
   videoCodecFromJSON,
   videoCodecToJSON,
@@ -113,6 +116,39 @@ export function segmentedFileSuffixToJSON(object: SegmentedFileSuffix): string {
     case SegmentedFileSuffix.TIMESTAMP:
       return "TIMESTAMP";
     case SegmentedFileSuffix.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum ImageFileSuffix {
+  IMAGE_SUFFIX_INDEX = 0,
+  IMAGE_SUFFIX_TIMESTAMP = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function imageFileSuffixFromJSON(object: any): ImageFileSuffix {
+  switch (object) {
+    case 0:
+    case "IMAGE_SUFFIX_INDEX":
+      return ImageFileSuffix.IMAGE_SUFFIX_INDEX;
+    case 1:
+    case "IMAGE_SUFFIX_TIMESTAMP":
+      return ImageFileSuffix.IMAGE_SUFFIX_TIMESTAMP;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ImageFileSuffix.UNRECOGNIZED;
+  }
+}
+
+export function imageFileSuffixToJSON(object: ImageFileSuffix): string {
+  switch (object) {
+    case ImageFileSuffix.IMAGE_SUFFIX_INDEX:
+      return "IMAGE_SUFFIX_INDEX";
+    case ImageFileSuffix.IMAGE_SUFFIX_TIMESTAMP:
+      return "IMAGE_SUFFIX_TIMESTAMP";
+    case ImageFileSuffix.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -325,6 +361,7 @@ export interface RoomCompositeEgressRequest {
   fileOutputs?: EncodedFileOutput[];
   streamOutputs?: StreamOutput[];
   segmentOutputs?: SegmentedFileOutput[];
+  imageOutputs?: ImageOutput[];
 }
 
 /** record any website */
@@ -348,6 +385,7 @@ export interface WebEgressRequest {
   fileOutputs?: EncodedFileOutput[];
   streamOutputs?: StreamOutput[];
   segmentOutputs?: SegmentedFileOutput[];
+  imageOutputs?: ImageOutput[];
 }
 
 /** record audio and video from a single participant */
@@ -367,6 +405,7 @@ export interface ParticipantEgressRequest {
   fileOutputs?: EncodedFileOutput[];
   streamOutputs?: StreamOutput[];
   segmentOutputs?: SegmentedFileOutput[];
+  imageOutputs?: ImageOutput[];
 }
 
 /** containerize up to one audio and one video track */
@@ -398,6 +437,7 @@ export interface TrackCompositeEgressRequest {
   fileOutputs?: EncodedFileOutput[];
   streamOutputs?: StreamOutput[];
   segmentOutputs?: SegmentedFileOutput[];
+  imageOutputs?: ImageOutput[];
 }
 
 /** record tracks individually, without transcoding */
@@ -448,6 +488,27 @@ export interface SegmentedFileOutput {
 export interface DirectFileOutput {
   /** see egress docs for templating (default {track_id}-{time}) */
   filepath?: string;
+  /** disable upload of manifest file (default false) */
+  disableManifest?: boolean;
+  s3?: S3Upload | undefined;
+  gcp?: GCPUpload | undefined;
+  azure?: AzureBlobUpload | undefined;
+  aliOSS?: AliOSSUpload | undefined;
+}
+
+export interface ImageOutput {
+  /** in seconds (required) */
+  captureInterval?: number;
+  /** (optional, defaults to track width) */
+  width?: number;
+  /** (optional, defaults to track height) */
+  height?: number;
+  /** (optional) */
+  filenamePrefix?: string;
+  /** (optional, default INDEX) */
+  filenameSuffix?: ImageFileSuffix;
+  /** (optional) */
+  imageCodec?: ImageCodec;
   /** disable upload of manifest file (default false) */
   disableManifest?: boolean;
   s3?: S3Upload | undefined;
@@ -532,6 +593,12 @@ export interface UpdateStreamRequest {
   removeOutputUrls?: string[];
 }
 
+export interface UpdateOutputsRequest {
+  egressId?: string;
+  addImageOutputs?: ImageOutput[];
+  removeImageOutputs?: ImageOutput[];
+}
+
 export interface ListEgressRequest {
   /** (optional, filter by room name) */
   roomName?: string;
@@ -578,6 +645,7 @@ export interface EgressInfo {
   streamResults?: StreamInfo[];
   fileResults?: FileInfo[];
   segmentResults?: SegmentsInfo[];
+  imageResults?: ImagesInfo[];
 }
 
 /** @deprecated */
@@ -654,6 +722,12 @@ export interface SegmentsInfo {
   endedAt?: number;
 }
 
+export interface ImagesInfo {
+  imageCount?: number;
+  startedAt?: number;
+  endedAt?: number;
+}
+
 export interface AutoParticipantEgress {
   /** (default H264_720P_30) */
   preset?:
@@ -690,6 +764,7 @@ function createBaseRoomCompositeEgressRequest(): RoomCompositeEgressRequest {
     fileOutputs: [],
     streamOutputs: [],
     segmentOutputs: [],
+    imageOutputs: [],
   };
 }
 
@@ -738,6 +813,11 @@ export const RoomCompositeEgressRequest = {
     if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
       for (const v of message.segmentOutputs) {
         SegmentedFileOutput.encode(v!, writer.uint32(106).fork()).ldelim();
+      }
+    }
+    if (message.imageOutputs !== undefined && message.imageOutputs.length !== 0) {
+      for (const v of message.imageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(114).fork()).ldelim();
       }
     }
     return writer;
@@ -789,6 +869,9 @@ export const RoomCompositeEgressRequest = {
         case 13:
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
           break;
+        case 14:
+          message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -817,6 +900,9 @@ export const RoomCompositeEgressRequest = {
         : [],
       segmentOutputs: Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+      imageOutputs: Array.isArray(object?.imageOutputs)
+        ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
   },
@@ -851,6 +937,11 @@ export const RoomCompositeEgressRequest = {
     } else {
       obj.segmentOutputs = [];
     }
+    if (message.imageOutputs) {
+      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.imageOutputs = [];
+    }
     return obj;
   },
 
@@ -877,6 +968,7 @@ export const RoomCompositeEgressRequest = {
     message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
     message.streamOutputs = object.streamOutputs?.map((e) => StreamOutput.fromPartial(e)) || [];
     message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
+    message.imageOutputs = object.imageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -895,6 +987,7 @@ function createBaseWebEgressRequest(): WebEgressRequest {
     fileOutputs: [],
     streamOutputs: [],
     segmentOutputs: [],
+    imageOutputs: [],
   };
 }
 
@@ -940,6 +1033,11 @@ export const WebEgressRequest = {
     if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
       for (const v of message.segmentOutputs) {
         SegmentedFileOutput.encode(v!, writer.uint32(90).fork()).ldelim();
+      }
+    }
+    if (message.imageOutputs !== undefined && message.imageOutputs.length !== 0) {
+      for (const v of message.imageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(106).fork()).ldelim();
       }
     }
     return writer;
@@ -988,6 +1086,9 @@ export const WebEgressRequest = {
         case 11:
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
           break;
+        case 13:
+          message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1015,6 +1116,9 @@ export const WebEgressRequest = {
         : [],
       segmentOutputs: Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+      imageOutputs: Array.isArray(object?.imageOutputs)
+        ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
   },
@@ -1048,6 +1152,11 @@ export const WebEgressRequest = {
     } else {
       obj.segmentOutputs = [];
     }
+    if (message.imageOutputs) {
+      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.imageOutputs = [];
+    }
     return obj;
   },
 
@@ -1073,6 +1182,7 @@ export const WebEgressRequest = {
     message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
     message.streamOutputs = object.streamOutputs?.map((e) => StreamOutput.fromPartial(e)) || [];
     message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
+    message.imageOutputs = object.imageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1087,6 +1197,7 @@ function createBaseParticipantEgressRequest(): ParticipantEgressRequest {
     fileOutputs: [],
     streamOutputs: [],
     segmentOutputs: [],
+    imageOutputs: [],
   };
 }
 
@@ -1120,6 +1231,11 @@ export const ParticipantEgressRequest = {
     if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
       for (const v of message.segmentOutputs) {
         SegmentedFileOutput.encode(v!, writer.uint32(66).fork()).ldelim();
+      }
+    }
+    if (message.imageOutputs !== undefined && message.imageOutputs.length !== 0) {
+      for (const v of message.imageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(74).fork()).ldelim();
       }
     }
     return writer;
@@ -1156,6 +1272,9 @@ export const ParticipantEgressRequest = {
         case 8:
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
           break;
+        case 9:
+          message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1179,6 +1298,9 @@ export const ParticipantEgressRequest = {
         : [],
       segmentOutputs: Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+      imageOutputs: Array.isArray(object?.imageOutputs)
+        ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
   },
@@ -1207,6 +1329,11 @@ export const ParticipantEgressRequest = {
     } else {
       obj.segmentOutputs = [];
     }
+    if (message.imageOutputs) {
+      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.imageOutputs = [];
+    }
     return obj;
   },
 
@@ -1222,6 +1349,7 @@ export const ParticipantEgressRequest = {
     message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
     message.streamOutputs = object.streamOutputs?.map((e) => StreamOutput.fromPartial(e)) || [];
     message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
+    message.imageOutputs = object.imageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1239,6 +1367,7 @@ function createBaseTrackCompositeEgressRequest(): TrackCompositeEgressRequest {
     fileOutputs: [],
     streamOutputs: [],
     segmentOutputs: [],
+    imageOutputs: [],
   };
 }
 
@@ -1281,6 +1410,11 @@ export const TrackCompositeEgressRequest = {
     if (message.segmentOutputs !== undefined && message.segmentOutputs.length !== 0) {
       for (const v of message.segmentOutputs) {
         SegmentedFileOutput.encode(v!, writer.uint32(106).fork()).ldelim();
+      }
+    }
+    if (message.imageOutputs !== undefined && message.imageOutputs.length !== 0) {
+      for (const v of message.imageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(114).fork()).ldelim();
       }
     }
     return writer;
@@ -1326,6 +1460,9 @@ export const TrackCompositeEgressRequest = {
         case 13:
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
           break;
+        case 14:
+          message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1352,6 +1489,9 @@ export const TrackCompositeEgressRequest = {
         : [],
       segmentOutputs: Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
+        : [],
+      imageOutputs: Array.isArray(object?.imageOutputs)
+        ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
   },
@@ -1384,6 +1524,11 @@ export const TrackCompositeEgressRequest = {
     } else {
       obj.segmentOutputs = [];
     }
+    if (message.imageOutputs) {
+      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.imageOutputs = [];
+    }
     return obj;
   },
 
@@ -1408,6 +1553,7 @@ export const TrackCompositeEgressRequest = {
     message.fileOutputs = object.fileOutputs?.map((e) => EncodedFileOutput.fromPartial(e)) || [];
     message.streamOutputs = object.streamOutputs?.map((e) => StreamOutput.fromPartial(e)) || [];
     message.segmentOutputs = object.segmentOutputs?.map((e) => SegmentedFileOutput.fromPartial(e)) || [];
+    message.imageOutputs = object.imageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1845,6 +1991,161 @@ export const DirectFileOutput = {
   fromPartial<I extends Exact<DeepPartial<DirectFileOutput>, I>>(object: I): DirectFileOutput {
     const message = createBaseDirectFileOutput();
     message.filepath = object.filepath ?? "";
+    message.disableManifest = object.disableManifest ?? false;
+    message.s3 = (object.s3 !== undefined && object.s3 !== null) ? S3Upload.fromPartial(object.s3) : undefined;
+    message.gcp = (object.gcp !== undefined && object.gcp !== null) ? GCPUpload.fromPartial(object.gcp) : undefined;
+    message.azure = (object.azure !== undefined && object.azure !== null)
+      ? AzureBlobUpload.fromPartial(object.azure)
+      : undefined;
+    message.aliOSS = (object.aliOSS !== undefined && object.aliOSS !== null)
+      ? AliOSSUpload.fromPartial(object.aliOSS)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseImageOutput(): ImageOutput {
+  return {
+    captureInterval: 0,
+    width: 0,
+    height: 0,
+    filenamePrefix: "",
+    filenameSuffix: 0,
+    imageCodec: 0,
+    disableManifest: false,
+    s3: undefined,
+    gcp: undefined,
+    azure: undefined,
+    aliOSS: undefined,
+  };
+}
+
+export const ImageOutput = {
+  encode(message: ImageOutput, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.captureInterval !== undefined && message.captureInterval !== 0) {
+      writer.uint32(8).uint32(message.captureInterval);
+    }
+    if (message.width !== undefined && message.width !== 0) {
+      writer.uint32(16).int32(message.width);
+    }
+    if (message.height !== undefined && message.height !== 0) {
+      writer.uint32(24).int32(message.height);
+    }
+    if (message.filenamePrefix !== undefined && message.filenamePrefix !== "") {
+      writer.uint32(34).string(message.filenamePrefix);
+    }
+    if (message.filenameSuffix !== undefined && message.filenameSuffix !== 0) {
+      writer.uint32(40).int32(message.filenameSuffix);
+    }
+    if (message.imageCodec !== undefined && message.imageCodec !== 0) {
+      writer.uint32(48).int32(message.imageCodec);
+    }
+    if (message.disableManifest === true) {
+      writer.uint32(56).bool(message.disableManifest);
+    }
+    if (message.s3 !== undefined) {
+      S3Upload.encode(message.s3, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.gcp !== undefined) {
+      GCPUpload.encode(message.gcp, writer.uint32(74).fork()).ldelim();
+    }
+    if (message.azure !== undefined) {
+      AzureBlobUpload.encode(message.azure, writer.uint32(82).fork()).ldelim();
+    }
+    if (message.aliOSS !== undefined) {
+      AliOSSUpload.encode(message.aliOSS, writer.uint32(90).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ImageOutput {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImageOutput();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.captureInterval = reader.uint32();
+          break;
+        case 2:
+          message.width = reader.int32();
+          break;
+        case 3:
+          message.height = reader.int32();
+          break;
+        case 4:
+          message.filenamePrefix = reader.string();
+          break;
+        case 5:
+          message.filenameSuffix = reader.int32() as any;
+          break;
+        case 6:
+          message.imageCodec = reader.int32() as any;
+          break;
+        case 7:
+          message.disableManifest = reader.bool();
+          break;
+        case 8:
+          message.s3 = S3Upload.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.gcp = GCPUpload.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.azure = AzureBlobUpload.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImageOutput {
+    return {
+      captureInterval: isSet(object.captureInterval) ? Number(object.captureInterval) : 0,
+      width: isSet(object.width) ? Number(object.width) : 0,
+      height: isSet(object.height) ? Number(object.height) : 0,
+      filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : "",
+      filenameSuffix: isSet(object.filenameSuffix) ? imageFileSuffixFromJSON(object.filenameSuffix) : 0,
+      imageCodec: isSet(object.imageCodec) ? imageCodecFromJSON(object.imageCodec) : 0,
+      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
+      gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
+      azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
+      aliOSS: isSet(object.aliOSS) ? AliOSSUpload.fromJSON(object.aliOSS) : undefined,
+    };
+  },
+
+  toJSON(message: ImageOutput): unknown {
+    const obj: any = {};
+    message.captureInterval !== undefined && (obj.captureInterval = Math.round(message.captureInterval));
+    message.width !== undefined && (obj.width = Math.round(message.width));
+    message.height !== undefined && (obj.height = Math.round(message.height));
+    message.filenamePrefix !== undefined && (obj.filenamePrefix = message.filenamePrefix);
+    message.filenameSuffix !== undefined && (obj.filenameSuffix = imageFileSuffixToJSON(message.filenameSuffix));
+    message.imageCodec !== undefined && (obj.imageCodec = imageCodecToJSON(message.imageCodec));
+    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
+    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
+    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
+    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    message.aliOSS !== undefined && (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<ImageOutput>, I>>(object: I): ImageOutput {
+    const message = createBaseImageOutput();
+    message.captureInterval = object.captureInterval ?? 0;
+    message.width = object.width ?? 0;
+    message.height = object.height ?? 0;
+    message.filenamePrefix = object.filenamePrefix ?? "";
+    message.filenameSuffix = object.filenameSuffix ?? 0;
+    message.imageCodec = object.imageCodec ?? 0;
     message.disableManifest = object.disableManifest ?? false;
     message.s3 = (object.s3 !== undefined && object.s3 !== null) ? S3Upload.fromPartial(object.s3) : undefined;
     message.gcp = (object.gcp !== undefined && object.gcp !== null) ? GCPUpload.fromPartial(object.gcp) : undefined;
@@ -2606,6 +2907,89 @@ export const UpdateStreamRequest = {
   },
 };
 
+function createBaseUpdateOutputsRequest(): UpdateOutputsRequest {
+  return { egressId: "", addImageOutputs: [], removeImageOutputs: [] };
+}
+
+export const UpdateOutputsRequest = {
+  encode(message: UpdateOutputsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.egressId !== undefined && message.egressId !== "") {
+      writer.uint32(10).string(message.egressId);
+    }
+    if (message.addImageOutputs !== undefined && message.addImageOutputs.length !== 0) {
+      for (const v of message.addImageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(18).fork()).ldelim();
+      }
+    }
+    if (message.removeImageOutputs !== undefined && message.removeImageOutputs.length !== 0) {
+      for (const v of message.removeImageOutputs) {
+        ImageOutput.encode(v!, writer.uint32(26).fork()).ldelim();
+      }
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateOutputsRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateOutputsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.egressId = reader.string();
+          break;
+        case 2:
+          message.addImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
+        case 3:
+          message.removeImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateOutputsRequest {
+    return {
+      egressId: isSet(object.egressId) ? String(object.egressId) : "",
+      addImageOutputs: Array.isArray(object?.addImageOutputs)
+        ? object.addImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
+        : [],
+      removeImageOutputs: Array.isArray(object?.removeImageOutputs)
+        ? object.removeImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: UpdateOutputsRequest): unknown {
+    const obj: any = {};
+    message.egressId !== undefined && (obj.egressId = message.egressId);
+    if (message.addImageOutputs) {
+      obj.addImageOutputs = message.addImageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.addImageOutputs = [];
+    }
+    if (message.removeImageOutputs) {
+      obj.removeImageOutputs = message.removeImageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
+    } else {
+      obj.removeImageOutputs = [];
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<UpdateOutputsRequest>, I>>(object: I): UpdateOutputsRequest {
+    const message = createBaseUpdateOutputsRequest();
+    message.egressId = object.egressId ?? "";
+    message.addImageOutputs = object.addImageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
+    message.removeImageOutputs = object.removeImageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseListEgressRequest(): ListEgressRequest {
   return { roomName: "", egressId: "", active: false };
 }
@@ -2794,6 +3178,7 @@ function createBaseEgressInfo(): EgressInfo {
     streamResults: [],
     fileResults: [],
     segmentResults: [],
+    imageResults: [],
   };
 }
 
@@ -2860,6 +3245,11 @@ export const EgressInfo = {
     if (message.segmentResults !== undefined && message.segmentResults.length !== 0) {
       for (const v of message.segmentResults) {
         SegmentsInfo.encode(v!, writer.uint32(138).fork()).ldelim();
+      }
+    }
+    if (message.imageResults !== undefined && message.imageResults.length !== 0) {
+      for (const v of message.imageResults) {
+        ImagesInfo.encode(v!, writer.uint32(162).fork()).ldelim();
       }
     }
     return writer;
@@ -2929,6 +3319,9 @@ export const EgressInfo = {
         case 17:
           message.segmentResults!.push(SegmentsInfo.decode(reader, reader.uint32()));
           break;
+        case 20:
+          message.imageResults!.push(ImagesInfo.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -2965,6 +3358,9 @@ export const EgressInfo = {
       fileResults: Array.isArray(object?.fileResults) ? object.fileResults.map((e: any) => FileInfo.fromJSON(e)) : [],
       segmentResults: Array.isArray(object?.segmentResults)
         ? object.segmentResults.map((e: any) => SegmentsInfo.fromJSON(e))
+        : [],
+      imageResults: Array.isArray(object?.imageResults)
+        ? object.imageResults.map((e: any) => ImagesInfo.fromJSON(e))
         : [],
     };
   },
@@ -3009,6 +3405,11 @@ export const EgressInfo = {
     } else {
       obj.segmentResults = [];
     }
+    if (message.imageResults) {
+      obj.imageResults = message.imageResults.map((e) => e ? ImagesInfo.toJSON(e) : undefined);
+    } else {
+      obj.imageResults = [];
+    }
     return obj;
   },
 
@@ -3047,6 +3448,7 @@ export const EgressInfo = {
     message.streamResults = object.streamResults?.map((e) => StreamInfo.fromPartial(e)) || [];
     message.fileResults = object.fileResults?.map((e) => FileInfo.fromPartial(e)) || [];
     message.segmentResults = object.segmentResults?.map((e) => SegmentsInfo.fromPartial(e)) || [];
+    message.imageResults = object.imageResults?.map((e) => ImagesInfo.fromPartial(e)) || [];
     return message;
   },
 };
@@ -3423,6 +3825,73 @@ export const SegmentsInfo = {
   },
 };
 
+function createBaseImagesInfo(): ImagesInfo {
+  return { imageCount: 0, startedAt: 0, endedAt: 0 };
+}
+
+export const ImagesInfo = {
+  encode(message: ImagesInfo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.imageCount !== undefined && message.imageCount !== 0) {
+      writer.uint32(8).int64(message.imageCount);
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      writer.uint32(16).int64(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      writer.uint32(24).int64(message.endedAt);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ImagesInfo {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImagesInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.imageCount = longToNumber(reader.int64() as Long);
+          break;
+        case 2:
+          message.startedAt = longToNumber(reader.int64() as Long);
+          break;
+        case 3:
+          message.endedAt = longToNumber(reader.int64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImagesInfo {
+    return {
+      imageCount: isSet(object.imageCount) ? Number(object.imageCount) : 0,
+      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+    };
+  },
+
+  toJSON(message: ImagesInfo): unknown {
+    const obj: any = {};
+    message.imageCount !== undefined && (obj.imageCount = Math.round(message.imageCount));
+    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
+    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<ImagesInfo>, I>>(object: I): ImagesInfo {
+    const message = createBaseImagesInfo();
+    message.imageCount = object.imageCount ?? 0;
+    message.startedAt = object.startedAt ?? 0;
+    message.endedAt = object.endedAt ?? 0;
+    return message;
+  },
+};
+
 function createBaseAutoParticipantEgress(): AutoParticipantEgress {
   return { preset: undefined, advanced: undefined, fileOutputs: [], segmentOutputs: [] };
 }
@@ -3617,6 +4086,8 @@ export interface Egress {
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;
   /** add or remove stream endpoints */
   UpdateStream(request: UpdateStreamRequest): Promise<EgressInfo>;
+  /** add or remove outputs */
+  UpdateOutputs(request: UpdateOutputsRequest): Promise<EgressInfo>;
   /** list available egress */
   ListEgress(request: ListEgressRequest): Promise<ListEgressResponse>;
   /** stop a recording or stream */

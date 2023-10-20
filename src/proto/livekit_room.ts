@@ -27,8 +27,14 @@ export interface CreateRoomRequest {
   metadata?: string;
   /** egress */
   egress?: RoomEgress;
-  /** minimum playout delay of subscriber */
+  /** playout delay of subscriber */
   minPlayoutDelay?: number;
+  maxPlayoutDelay?: number;
+  /**
+   * improves A/V sync when playout_delay set to a value larger than 200ms. It will disables transceiver re-use
+   * so not recommended for rooms with frequent subscription changes
+   */
+  syncStreams?: boolean;
 }
 
 export interface RoomEgress {
@@ -147,6 +153,8 @@ function createBaseCreateRoomRequest(): CreateRoomRequest {
     metadata: "",
     egress: undefined,
     minPlayoutDelay: 0,
+    maxPlayoutDelay: 0,
+    syncStreams: false,
   };
 }
 
@@ -172,6 +180,12 @@ export const CreateRoomRequest = {
     }
     if (message.minPlayoutDelay !== undefined && message.minPlayoutDelay !== 0) {
       writer.uint32(56).uint32(message.minPlayoutDelay);
+    }
+    if (message.maxPlayoutDelay !== undefined && message.maxPlayoutDelay !== 0) {
+      writer.uint32(64).uint32(message.maxPlayoutDelay);
+    }
+    if (message.syncStreams === true) {
+      writer.uint32(72).bool(message.syncStreams);
     }
     return writer;
   },
@@ -204,6 +218,12 @@ export const CreateRoomRequest = {
         case 7:
           message.minPlayoutDelay = reader.uint32();
           break;
+        case 8:
+          message.maxPlayoutDelay = reader.uint32();
+          break;
+        case 9:
+          message.syncStreams = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -221,6 +241,8 @@ export const CreateRoomRequest = {
       metadata: isSet(object.metadata) ? String(object.metadata) : "",
       egress: isSet(object.egress) ? RoomEgress.fromJSON(object.egress) : undefined,
       minPlayoutDelay: isSet(object.minPlayoutDelay) ? Number(object.minPlayoutDelay) : 0,
+      maxPlayoutDelay: isSet(object.maxPlayoutDelay) ? Number(object.maxPlayoutDelay) : 0,
+      syncStreams: isSet(object.syncStreams) ? Boolean(object.syncStreams) : false,
     };
   },
 
@@ -233,6 +255,8 @@ export const CreateRoomRequest = {
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.egress !== undefined && (obj.egress = message.egress ? RoomEgress.toJSON(message.egress) : undefined);
     message.minPlayoutDelay !== undefined && (obj.minPlayoutDelay = Math.round(message.minPlayoutDelay));
+    message.maxPlayoutDelay !== undefined && (obj.maxPlayoutDelay = Math.round(message.maxPlayoutDelay));
+    message.syncStreams !== undefined && (obj.syncStreams = message.syncStreams);
     return obj;
   },
 
@@ -247,6 +271,8 @@ export const CreateRoomRequest = {
       ? RoomEgress.fromPartial(object.egress)
       : undefined;
     message.minPlayoutDelay = object.minPlayoutDelay ?? 0;
+    message.maxPlayoutDelay = object.maxPlayoutDelay ?? 0;
+    message.syncStreams = object.syncStreams ?? false;
     return message;
   },
 };

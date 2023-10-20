@@ -93,16 +93,26 @@ export function ingressAudioEncodingPresetToJSON(object: IngressAudioEncodingPre
 }
 
 export enum IngressVideoEncodingPreset {
-  /** H264_720P_30FPS_3_LAYERS - 1280x720,  30fps, 1700kbps main layer, 3 layers total */
+  /** H264_720P_30FPS_3_LAYERS - 1280x720,  30fps, 1900kbps main layer, 3 layers total */
   H264_720P_30FPS_3_LAYERS = 0,
-  /** H264_1080P_30FPS_3_LAYERS - 1980x1080, 30fps, 3000kbps main layer, 3 layers total */
+  /** H264_1080P_30FPS_3_LAYERS - 1980x1080, 30fps, 3500kbps main layer, 3 layers total */
   H264_1080P_30FPS_3_LAYERS = 1,
-  /** H264_540P_25FPS_2_LAYERS - 960x540,  25fps, 600kbps  main layer, 2 layers total */
+  /** H264_540P_25FPS_2_LAYERS - 960x540,  25fps, 1000kbps  main layer, 2 layers total */
   H264_540P_25FPS_2_LAYERS = 2,
-  /** H264_720P_30FPS_1_LAYER - 1280x720,  30fps, 1700kbps, no simulcast */
+  /** H264_720P_30FPS_1_LAYER - 1280x720,  30fps, 1900kbps, no simulcast */
   H264_720P_30FPS_1_LAYER = 3,
-  /** H264_1080P_30FPS_1_LAYER - 1980x1080, 30fps, 3000kbps, no simulcast */
+  /** H264_1080P_30FPS_1_LAYER - 1980x1080, 30fps, 3500kbps, no simulcast */
   H264_1080P_30FPS_1_LAYER = 4,
+  /** H264_720P_30FPS_3_LAYERS_HIGH_MOTION - 1280x720,  30fps, 2500kbps main layer, 3 layers total, higher bitrate for high motion, harder to encode content */
+  H264_720P_30FPS_3_LAYERS_HIGH_MOTION = 5,
+  /** H264_1080P_30FPS_3_LAYERS_HIGH_MOTION - 1980x1080, 30fps, 4500kbps main layer, 3 layers total, higher bitrate for high motion, harder to encode content */
+  H264_1080P_30FPS_3_LAYERS_HIGH_MOTION = 6,
+  /** H264_540P_25FPS_2_LAYERS_HIGH_MOTION - 960x540,  25fps, 1300kbps  main layer, 2 layers total, higher bitrate for high motion, harder to encode content */
+  H264_540P_25FPS_2_LAYERS_HIGH_MOTION = 7,
+  /** H264_720P_30FPS_1_LAYER_HIGH_MOTION - 1280x720,  30fps, 2500kbps, no simulcast, higher bitrate for high motion, harder to encode content */
+  H264_720P_30FPS_1_LAYER_HIGH_MOTION = 8,
+  /** H264_1080P_30FPS_1_LAYER_HIGH_MOTION - 1980x1080, 30fps, 4500kbps, no simulcast, higher bitrate for high motion, harder to encode content */
+  H264_1080P_30FPS_1_LAYER_HIGH_MOTION = 9,
   UNRECOGNIZED = -1,
 }
 
@@ -123,6 +133,21 @@ export function ingressVideoEncodingPresetFromJSON(object: any): IngressVideoEnc
     case 4:
     case "H264_1080P_30FPS_1_LAYER":
       return IngressVideoEncodingPreset.H264_1080P_30FPS_1_LAYER;
+    case 5:
+    case "H264_720P_30FPS_3_LAYERS_HIGH_MOTION":
+      return IngressVideoEncodingPreset.H264_720P_30FPS_3_LAYERS_HIGH_MOTION;
+    case 6:
+    case "H264_1080P_30FPS_3_LAYERS_HIGH_MOTION":
+      return IngressVideoEncodingPreset.H264_1080P_30FPS_3_LAYERS_HIGH_MOTION;
+    case 7:
+    case "H264_540P_25FPS_2_LAYERS_HIGH_MOTION":
+      return IngressVideoEncodingPreset.H264_540P_25FPS_2_LAYERS_HIGH_MOTION;
+    case 8:
+    case "H264_720P_30FPS_1_LAYER_HIGH_MOTION":
+      return IngressVideoEncodingPreset.H264_720P_30FPS_1_LAYER_HIGH_MOTION;
+    case 9:
+    case "H264_1080P_30FPS_1_LAYER_HIGH_MOTION":
+      return IngressVideoEncodingPreset.H264_1080P_30FPS_1_LAYER_HIGH_MOTION;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -142,6 +167,16 @@ export function ingressVideoEncodingPresetToJSON(object: IngressVideoEncodingPre
       return "H264_720P_30FPS_1_LAYER";
     case IngressVideoEncodingPreset.H264_1080P_30FPS_1_LAYER:
       return "H264_1080P_30FPS_1_LAYER";
+    case IngressVideoEncodingPreset.H264_720P_30FPS_3_LAYERS_HIGH_MOTION:
+      return "H264_720P_30FPS_3_LAYERS_HIGH_MOTION";
+    case IngressVideoEncodingPreset.H264_1080P_30FPS_3_LAYERS_HIGH_MOTION:
+      return "H264_1080P_30FPS_3_LAYERS_HIGH_MOTION";
+    case IngressVideoEncodingPreset.H264_540P_25FPS_2_LAYERS_HIGH_MOTION:
+      return "H264_540P_25FPS_2_LAYERS_HIGH_MOTION";
+    case IngressVideoEncodingPreset.H264_720P_30FPS_1_LAYER_HIGH_MOTION:
+      return "H264_720P_30FPS_1_LAYER_HIGH_MOTION";
+    case IngressVideoEncodingPreset.H264_1080P_30FPS_1_LAYER_HIGH_MOTION:
+      return "H264_1080P_30FPS_1_LAYER_HIGH_MOTION";
     case IngressVideoEncodingPreset.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

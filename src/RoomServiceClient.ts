@@ -54,6 +54,18 @@ export interface CreateOptions {
   minPlayoutDelay?: number;
 
   /**
+   * maximum playout delay in milliseconds
+   */
+  maxPlayoutDelay?: number;
+
+  /**
+   * improves A/V sync when min_playout_delay set to a value larger than 200ms.
+   * It will disables transceiver re-use -- this option is not recommended
+   * for rooms with frequent subscription changes
+   */
+  syncStreams?: boolean;
+
+  /**
    * override the node room is allocated to, for debugging
    * does not work with Cloud
    */

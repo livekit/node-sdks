@@ -80,7 +80,7 @@ export class AccessToken {
    * @param grant
    */
   addGrant(grant: VideoGrant) {
-    this.grants.video = grant;
+    this.grants.video = { ...(this.grants.video ?? {}), ...grant };
   }
 
   /**

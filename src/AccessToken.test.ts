@@ -58,3 +58,18 @@ describe('verify token is valid', () => {
     expect(decoded.video?.roomCreate).toBeTruthy();
   });
 });
+
+describe('adding grants should not overwrite existing grants', () => {
+  it('should not overwrite existing grants', () => {
+    const t = new AccessToken(testApiKey, testSecret, {
+      identity: 'me',
+      name: 'myname',
+    });
+    t.addGrant({ roomCreate: true });
+    t.addGrant({ roomJoin: true });
+
+    const decoded = <any>jwt.verify(t.toJwt(), testSecret, { jwtid: 'me' });
+    expect(decoded.video?.roomCreate).toBeTruthy();
+    expect(decoded.video?.roomJoin).toBeTruthy();
+  });
+});

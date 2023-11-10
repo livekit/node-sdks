@@ -184,88 +184,112 @@ export function ingressVideoEncodingPresetToJSON(object: IngressVideoEncodingPre
 }
 
 export interface CreateIngressRequest {
-  inputType?: IngressInput;
+  inputType?:
+    | IngressInput
+    | undefined;
   /** Where to pull media from, only for URL input type */
-  url?: string;
+  url?:
+    | string
+    | undefined;
   /** User provided identifier for the ingress */
-  name?: string;
+  name?:
+    | string
+    | undefined;
   /** room to publish to */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** publish as participant */
-  participantIdentity?: string;
+  participantIdentity?:
+    | string
+    | undefined;
   /** name of publishing participant (used for display only) */
-  participantName?: string;
+  participantName?:
+    | string
+    | undefined;
   /** whether to pass through the incoming media without transcoding, only compatible with some input types */
-  bypassTranscoding?: boolean;
-  audio?: IngressAudioOptions;
-  video?: IngressVideoOptions;
+  bypassTranscoding?: boolean | undefined;
+  audio?: IngressAudioOptions | undefined;
+  video?: IngressVideoOptions | undefined;
 }
 
 export interface IngressAudioOptions {
-  name?: string;
-  source?: TrackSource;
+  name?: string | undefined;
+  source?: TrackSource | undefined;
   preset?: IngressAudioEncodingPreset | undefined;
   options?: IngressAudioEncodingOptions | undefined;
 }
 
 export interface IngressVideoOptions {
-  name?: string;
-  source?: TrackSource;
+  name?: string | undefined;
+  source?: TrackSource | undefined;
   preset?: IngressVideoEncodingPreset | undefined;
   options?: IngressVideoEncodingOptions | undefined;
 }
 
 export interface IngressAudioEncodingOptions {
   /** desired audio codec to publish to room */
-  audioCodec?: AudioCodec;
-  bitrate?: number;
-  disableDtx?: boolean;
-  channels?: number;
+  audioCodec?: AudioCodec | undefined;
+  bitrate?: number | undefined;
+  disableDtx?: boolean | undefined;
+  channels?: number | undefined;
 }
 
 export interface IngressVideoEncodingOptions {
   /** desired codec to publish to room */
-  videoCodec?: VideoCodec;
-  frameRate?: number;
+  videoCodec?: VideoCodec | undefined;
+  frameRate?:
+    | number
+    | undefined;
   /** simulcast layers to publish, when empty, should usually be set to layers at 1/2 and 1/4 of the dimensions */
-  layers?: VideoLayer[];
+  layers?: VideoLayer[] | undefined;
 }
 
 export interface IngressInfo {
-  ingressId?: string;
-  name?: string;
-  streamKey?: string;
+  ingressId?: string | undefined;
+  name?: string | undefined;
+  streamKey?:
+    | string
+    | undefined;
   /** URL to point the encoder to for push (RTMP, WHIP), or location to pull media from for pull (URL) */
-  url?: string;
+  url?:
+    | string
+    | undefined;
   /**
    * for RTMP input, it'll be a rtmp:// URL
    * for FILE input, it'll be a http:// URL
    * for SRT input, it'll be a srt:// URL
    */
-  inputType?: IngressInput;
-  bypassTranscoding?: boolean;
-  audio?: IngressAudioOptions;
-  video?: IngressVideoOptions;
-  roomName?: string;
-  participantIdentity?: string;
-  participantName?: string;
-  reusable?: boolean;
+  inputType?: IngressInput | undefined;
+  bypassTranscoding?: boolean | undefined;
+  audio?: IngressAudioOptions | undefined;
+  video?: IngressVideoOptions | undefined;
+  roomName?: string | undefined;
+  participantIdentity?: string | undefined;
+  participantName?: string | undefined;
+  reusable?:
+    | boolean
+    | undefined;
   /** Description of error/stream non compliance and debug info for publisher otherwise (received bitrate, resolution, bandwidth) */
-  state?: IngressState;
+  state?: IngressState | undefined;
 }
 
 export interface IngressState {
-  status?: IngressState_Status;
+  status?:
+    | IngressState_Status
+    | undefined;
   /** Error/non compliance description if any */
-  error?: string;
-  video?: InputVideoState;
-  audio?: InputAudioState;
+  error?: string | undefined;
+  video?: InputVideoState | undefined;
+  audio?:
+    | InputAudioState
+    | undefined;
   /** ID of the current/previous room published to */
-  roomId?: string;
-  startedAt?: number;
-  endedAt?: number;
-  resourceId?: string;
-  tracks?: TrackInfo[];
+  roomId?: string | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
+  resourceId?: string | undefined;
+  tracks?: TrackInfo[] | undefined;
 }
 
 export enum IngressState_Status {
@@ -320,44 +344,46 @@ export function ingressState_StatusToJSON(object: IngressState_Status): string {
 }
 
 export interface InputVideoState {
-  mimeType?: string;
-  averageBitrate?: number;
-  width?: number;
-  height?: number;
-  framerate?: number;
+  mimeType?: string | undefined;
+  averageBitrate?: number | undefined;
+  width?: number | undefined;
+  height?: number | undefined;
+  framerate?: number | undefined;
 }
 
 export interface InputAudioState {
-  mimeType?: string;
-  averageBitrate?: number;
-  channels?: number;
-  sampleRate?: number;
+  mimeType?: string | undefined;
+  averageBitrate?: number | undefined;
+  channels?: number | undefined;
+  sampleRate?: number | undefined;
 }
 
 export interface UpdateIngressRequest {
-  ingressId?: string;
-  name?: string;
-  roomName?: string;
-  participantIdentity?: string;
-  participantName?: string;
+  ingressId?: string | undefined;
+  name?: string | undefined;
+  roomName?: string | undefined;
+  participantIdentity?: string | undefined;
+  participantName?: string | undefined;
   bypassTranscoding?: boolean | undefined;
-  audio?: IngressAudioOptions;
-  video?: IngressVideoOptions;
+  audio?: IngressAudioOptions | undefined;
+  video?: IngressVideoOptions | undefined;
 }
 
 export interface ListIngressRequest {
   /** when blank, lists all ingress endpoints */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** (optional, filter by ingress ID) */
-  ingressId?: string;
+  ingressId?: string | undefined;
 }
 
 export interface ListIngressResponse {
-  items?: IngressInfo[];
+  items?: IngressInfo[] | undefined;
 }
 
 export interface DeleteIngressRequest {
-  ingressId?: string;
+  ingressId?: string | undefined;
 }
 
 function createBaseCreateIngressRequest(): CreateIngressRequest {
@@ -407,43 +433,80 @@ export const CreateIngressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CreateIngressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateIngressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.inputType = reader.int32() as any;
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.url = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.participantIdentity = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.participantName = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.bypassTranscoding = reader.bool();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.audio = IngressAudioOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.video = IngressVideoOptions.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -451,12 +514,12 @@ export const CreateIngressRequest = {
   fromJSON(object: any): CreateIngressRequest {
     return {
       inputType: isSet(object.inputType) ? ingressInputFromJSON(object.inputType) : 0,
-      url: isSet(object.url) ? String(object.url) : "",
-      name: isSet(object.name) ? String(object.name) : "",
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
-      participantName: isSet(object.participantName) ? String(object.participantName) : "",
-      bypassTranscoding: isSet(object.bypassTranscoding) ? Boolean(object.bypassTranscoding) : false,
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
+      participantName: isSet(object.participantName) ? globalThis.String(object.participantName) : "",
+      bypassTranscoding: isSet(object.bypassTranscoding) ? globalThis.Boolean(object.bypassTranscoding) : false,
       audio: isSet(object.audio) ? IngressAudioOptions.fromJSON(object.audio) : undefined,
       video: isSet(object.video) ? IngressVideoOptions.fromJSON(object.video) : undefined,
     };
@@ -464,18 +527,39 @@ export const CreateIngressRequest = {
 
   toJSON(message: CreateIngressRequest): unknown {
     const obj: any = {};
-    message.inputType !== undefined && (obj.inputType = ingressInputToJSON(message.inputType));
-    message.url !== undefined && (obj.url = message.url);
-    message.name !== undefined && (obj.name = message.name);
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
-    message.participantName !== undefined && (obj.participantName = message.participantName);
-    message.bypassTranscoding !== undefined && (obj.bypassTranscoding = message.bypassTranscoding);
-    message.audio !== undefined && (obj.audio = message.audio ? IngressAudioOptions.toJSON(message.audio) : undefined);
-    message.video !== undefined && (obj.video = message.video ? IngressVideoOptions.toJSON(message.video) : undefined);
+    if (message.inputType !== undefined && message.inputType !== 0) {
+      obj.inputType = ingressInputToJSON(message.inputType);
+    }
+    if (message.url !== undefined && message.url !== "") {
+      obj.url = message.url;
+    }
+    if (message.name !== undefined && message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.participantIdentity !== undefined && message.participantIdentity !== "") {
+      obj.participantIdentity = message.participantIdentity;
+    }
+    if (message.participantName !== undefined && message.participantName !== "") {
+      obj.participantName = message.participantName;
+    }
+    if (message.bypassTranscoding === true) {
+      obj.bypassTranscoding = message.bypassTranscoding;
+    }
+    if (message.audio !== undefined) {
+      obj.audio = IngressAudioOptions.toJSON(message.audio);
+    }
+    if (message.video !== undefined) {
+      obj.video = IngressVideoOptions.toJSON(message.video);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CreateIngressRequest>, I>>(base?: I): CreateIngressRequest {
+    return CreateIngressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CreateIngressRequest>, I>>(object: I): CreateIngressRequest {
     const message = createBaseCreateIngressRequest();
     message.inputType = object.inputType ?? 0;
@@ -517,35 +601,52 @@ export const IngressAudioOptions = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressAudioOptions {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressAudioOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.source = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.options = IngressAudioEncodingOptions.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): IngressAudioOptions {
     return {
-      name: isSet(object.name) ? String(object.name) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
       source: isSet(object.source) ? trackSourceFromJSON(object.source) : 0,
       preset: isSet(object.preset) ? ingressAudioEncodingPresetFromJSON(object.preset) : undefined,
       options: isSet(object.options) ? IngressAudioEncodingOptions.fromJSON(object.options) : undefined,
@@ -554,15 +655,24 @@ export const IngressAudioOptions = {
 
   toJSON(message: IngressAudioOptions): unknown {
     const obj: any = {};
-    message.name !== undefined && (obj.name = message.name);
-    message.source !== undefined && (obj.source = trackSourceToJSON(message.source));
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? ingressAudioEncodingPresetToJSON(message.preset) : undefined);
-    message.options !== undefined &&
-      (obj.options = message.options ? IngressAudioEncodingOptions.toJSON(message.options) : undefined);
+    if (message.name !== undefined && message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.source !== undefined && message.source !== 0) {
+      obj.source = trackSourceToJSON(message.source);
+    }
+    if (message.preset !== undefined) {
+      obj.preset = ingressAudioEncodingPresetToJSON(message.preset);
+    }
+    if (message.options !== undefined) {
+      obj.options = IngressAudioEncodingOptions.toJSON(message.options);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressAudioOptions>, I>>(base?: I): IngressAudioOptions {
+    return IngressAudioOptions.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressAudioOptions>, I>>(object: I): IngressAudioOptions {
     const message = createBaseIngressAudioOptions();
     message.name = object.name ?? "";
@@ -597,35 +707,52 @@ export const IngressVideoOptions = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressVideoOptions {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressVideoOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.source = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.options = IngressVideoEncodingOptions.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): IngressVideoOptions {
     return {
-      name: isSet(object.name) ? String(object.name) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
       source: isSet(object.source) ? trackSourceFromJSON(object.source) : 0,
       preset: isSet(object.preset) ? ingressVideoEncodingPresetFromJSON(object.preset) : undefined,
       options: isSet(object.options) ? IngressVideoEncodingOptions.fromJSON(object.options) : undefined,
@@ -634,15 +761,24 @@ export const IngressVideoOptions = {
 
   toJSON(message: IngressVideoOptions): unknown {
     const obj: any = {};
-    message.name !== undefined && (obj.name = message.name);
-    message.source !== undefined && (obj.source = trackSourceToJSON(message.source));
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? ingressVideoEncodingPresetToJSON(message.preset) : undefined);
-    message.options !== undefined &&
-      (obj.options = message.options ? IngressVideoEncodingOptions.toJSON(message.options) : undefined);
+    if (message.name !== undefined && message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.source !== undefined && message.source !== 0) {
+      obj.source = trackSourceToJSON(message.source);
+    }
+    if (message.preset !== undefined) {
+      obj.preset = ingressVideoEncodingPresetToJSON(message.preset);
+    }
+    if (message.options !== undefined) {
+      obj.options = IngressVideoEncodingOptions.toJSON(message.options);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressVideoOptions>, I>>(base?: I): IngressVideoOptions {
+    return IngressVideoOptions.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressVideoOptions>, I>>(object: I): IngressVideoOptions {
     const message = createBaseIngressVideoOptions();
     message.name = object.name ?? "";
@@ -677,28 +813,45 @@ export const IngressAudioEncodingOptions = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressAudioEncodingOptions {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressAudioEncodingOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.audioCodec = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.bitrate = reader.uint32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.disableDtx = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.channels = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -706,21 +859,32 @@ export const IngressAudioEncodingOptions = {
   fromJSON(object: any): IngressAudioEncodingOptions {
     return {
       audioCodec: isSet(object.audioCodec) ? audioCodecFromJSON(object.audioCodec) : 0,
-      bitrate: isSet(object.bitrate) ? Number(object.bitrate) : 0,
-      disableDtx: isSet(object.disableDtx) ? Boolean(object.disableDtx) : false,
-      channels: isSet(object.channels) ? Number(object.channels) : 0,
+      bitrate: isSet(object.bitrate) ? globalThis.Number(object.bitrate) : 0,
+      disableDtx: isSet(object.disableDtx) ? globalThis.Boolean(object.disableDtx) : false,
+      channels: isSet(object.channels) ? globalThis.Number(object.channels) : 0,
     };
   },
 
   toJSON(message: IngressAudioEncodingOptions): unknown {
     const obj: any = {};
-    message.audioCodec !== undefined && (obj.audioCodec = audioCodecToJSON(message.audioCodec));
-    message.bitrate !== undefined && (obj.bitrate = Math.round(message.bitrate));
-    message.disableDtx !== undefined && (obj.disableDtx = message.disableDtx);
-    message.channels !== undefined && (obj.channels = Math.round(message.channels));
+    if (message.audioCodec !== undefined && message.audioCodec !== 0) {
+      obj.audioCodec = audioCodecToJSON(message.audioCodec);
+    }
+    if (message.bitrate !== undefined && message.bitrate !== 0) {
+      obj.bitrate = Math.round(message.bitrate);
+    }
+    if (message.disableDtx === true) {
+      obj.disableDtx = message.disableDtx;
+    }
+    if (message.channels !== undefined && message.channels !== 0) {
+      obj.channels = Math.round(message.channels);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressAudioEncodingOptions>, I>>(base?: I): IngressAudioEncodingOptions {
+    return IngressAudioEncodingOptions.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressAudioEncodingOptions>, I>>(object: I): IngressAudioEncodingOptions {
     const message = createBaseIngressAudioEncodingOptions();
     message.audioCodec = object.audioCodec ?? 0;
@@ -752,25 +916,38 @@ export const IngressVideoEncodingOptions = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressVideoEncodingOptions {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressVideoEncodingOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.videoCodec = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 17) {
+            break;
+          }
+
           message.frameRate = reader.double();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.layers!.push(VideoLayer.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -778,23 +955,28 @@ export const IngressVideoEncodingOptions = {
   fromJSON(object: any): IngressVideoEncodingOptions {
     return {
       videoCodec: isSet(object.videoCodec) ? videoCodecFromJSON(object.videoCodec) : 0,
-      frameRate: isSet(object.frameRate) ? Number(object.frameRate) : 0,
-      layers: Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
+      frameRate: isSet(object.frameRate) ? globalThis.Number(object.frameRate) : 0,
+      layers: globalThis.Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: IngressVideoEncodingOptions): unknown {
     const obj: any = {};
-    message.videoCodec !== undefined && (obj.videoCodec = videoCodecToJSON(message.videoCodec));
-    message.frameRate !== undefined && (obj.frameRate = message.frameRate);
-    if (message.layers) {
-      obj.layers = message.layers.map((e) => e ? VideoLayer.toJSON(e) : undefined);
-    } else {
-      obj.layers = [];
+    if (message.videoCodec !== undefined && message.videoCodec !== 0) {
+      obj.videoCodec = videoCodecToJSON(message.videoCodec);
+    }
+    if (message.frameRate !== undefined && message.frameRate !== 0) {
+      obj.frameRate = message.frameRate;
+    }
+    if (message.layers?.length) {
+      obj.layers = message.layers.map((e) => VideoLayer.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressVideoEncodingOptions>, I>>(base?: I): IngressVideoEncodingOptions {
+    return IngressVideoEncodingOptions.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressVideoEncodingOptions>, I>>(object: I): IngressVideoEncodingOptions {
     const message = createBaseIngressVideoEncodingOptions();
     message.videoCodec = object.videoCodec ?? 0;
@@ -867,95 +1049,177 @@ export const IngressInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.ingressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.streamKey = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.url = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.inputType = reader.int32() as any;
-          break;
+          continue;
         case 13:
+          if (tag !== 104) {
+            break;
+          }
+
           message.bypassTranscoding = reader.bool();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.audio = IngressAudioOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.video = IngressVideoOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.participantIdentity = reader.string();
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.participantName = reader.string();
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.reusable = reader.bool();
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.state = IngressState.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): IngressInfo {
     return {
-      ingressId: isSet(object.ingressId) ? String(object.ingressId) : "",
-      name: isSet(object.name) ? String(object.name) : "",
-      streamKey: isSet(object.streamKey) ? String(object.streamKey) : "",
-      url: isSet(object.url) ? String(object.url) : "",
+      ingressId: isSet(object.ingressId) ? globalThis.String(object.ingressId) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      streamKey: isSet(object.streamKey) ? globalThis.String(object.streamKey) : "",
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
       inputType: isSet(object.inputType) ? ingressInputFromJSON(object.inputType) : 0,
-      bypassTranscoding: isSet(object.bypassTranscoding) ? Boolean(object.bypassTranscoding) : false,
+      bypassTranscoding: isSet(object.bypassTranscoding) ? globalThis.Boolean(object.bypassTranscoding) : false,
       audio: isSet(object.audio) ? IngressAudioOptions.fromJSON(object.audio) : undefined,
       video: isSet(object.video) ? IngressVideoOptions.fromJSON(object.video) : undefined,
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
-      participantName: isSet(object.participantName) ? String(object.participantName) : "",
-      reusable: isSet(object.reusable) ? Boolean(object.reusable) : false,
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
+      participantName: isSet(object.participantName) ? globalThis.String(object.participantName) : "",
+      reusable: isSet(object.reusable) ? globalThis.Boolean(object.reusable) : false,
       state: isSet(object.state) ? IngressState.fromJSON(object.state) : undefined,
     };
   },
 
   toJSON(message: IngressInfo): unknown {
     const obj: any = {};
-    message.ingressId !== undefined && (obj.ingressId = message.ingressId);
-    message.name !== undefined && (obj.name = message.name);
-    message.streamKey !== undefined && (obj.streamKey = message.streamKey);
-    message.url !== undefined && (obj.url = message.url);
-    message.inputType !== undefined && (obj.inputType = ingressInputToJSON(message.inputType));
-    message.bypassTranscoding !== undefined && (obj.bypassTranscoding = message.bypassTranscoding);
-    message.audio !== undefined && (obj.audio = message.audio ? IngressAudioOptions.toJSON(message.audio) : undefined);
-    message.video !== undefined && (obj.video = message.video ? IngressVideoOptions.toJSON(message.video) : undefined);
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
-    message.participantName !== undefined && (obj.participantName = message.participantName);
-    message.reusable !== undefined && (obj.reusable = message.reusable);
-    message.state !== undefined && (obj.state = message.state ? IngressState.toJSON(message.state) : undefined);
+    if (message.ingressId !== undefined && message.ingressId !== "") {
+      obj.ingressId = message.ingressId;
+    }
+    if (message.name !== undefined && message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.streamKey !== undefined && message.streamKey !== "") {
+      obj.streamKey = message.streamKey;
+    }
+    if (message.url !== undefined && message.url !== "") {
+      obj.url = message.url;
+    }
+    if (message.inputType !== undefined && message.inputType !== 0) {
+      obj.inputType = ingressInputToJSON(message.inputType);
+    }
+    if (message.bypassTranscoding === true) {
+      obj.bypassTranscoding = message.bypassTranscoding;
+    }
+    if (message.audio !== undefined) {
+      obj.audio = IngressAudioOptions.toJSON(message.audio);
+    }
+    if (message.video !== undefined) {
+      obj.video = IngressVideoOptions.toJSON(message.video);
+    }
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.participantIdentity !== undefined && message.participantIdentity !== "") {
+      obj.participantIdentity = message.participantIdentity;
+    }
+    if (message.participantName !== undefined && message.participantName !== "") {
+      obj.participantName = message.participantName;
+    }
+    if (message.reusable === true) {
+      obj.reusable = message.reusable;
+    }
+    if (message.state !== undefined) {
+      obj.state = IngressState.toJSON(message.state);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressInfo>, I>>(base?: I): IngressInfo {
+    return IngressInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressInfo>, I>>(object: I): IngressInfo {
     const message = createBaseIngressInfo();
     message.ingressId = object.ingressId ?? "";
@@ -1030,43 +1294,80 @@ export const IngressState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IngressState {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIngressState();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.status = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.error = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.video = InputVideoState.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.audio = InputAudioState.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.roomId = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.resourceId = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.tracks!.push(TrackInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -1074,35 +1375,52 @@ export const IngressState = {
   fromJSON(object: any): IngressState {
     return {
       status: isSet(object.status) ? ingressState_StatusFromJSON(object.status) : 0,
-      error: isSet(object.error) ? String(object.error) : "",
+      error: isSet(object.error) ? globalThis.String(object.error) : "",
       video: isSet(object.video) ? InputVideoState.fromJSON(object.video) : undefined,
       audio: isSet(object.audio) ? InputAudioState.fromJSON(object.audio) : undefined,
-      roomId: isSet(object.roomId) ? String(object.roomId) : "",
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
-      resourceId: isSet(object.resourceId) ? String(object.resourceId) : "",
-      tracks: Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
+      roomId: isSet(object.roomId) ? globalThis.String(object.roomId) : "",
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
+      resourceId: isSet(object.resourceId) ? globalThis.String(object.resourceId) : "",
+      tracks: globalThis.Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: IngressState): unknown {
     const obj: any = {};
-    message.status !== undefined && (obj.status = ingressState_StatusToJSON(message.status));
-    message.error !== undefined && (obj.error = message.error);
-    message.video !== undefined && (obj.video = message.video ? InputVideoState.toJSON(message.video) : undefined);
-    message.audio !== undefined && (obj.audio = message.audio ? InputAudioState.toJSON(message.audio) : undefined);
-    message.roomId !== undefined && (obj.roomId = message.roomId);
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
-    message.resourceId !== undefined && (obj.resourceId = message.resourceId);
-    if (message.tracks) {
-      obj.tracks = message.tracks.map((e) => e ? TrackInfo.toJSON(e) : undefined);
-    } else {
-      obj.tracks = [];
+    if (message.status !== undefined && message.status !== 0) {
+      obj.status = ingressState_StatusToJSON(message.status);
+    }
+    if (message.error !== undefined && message.error !== "") {
+      obj.error = message.error;
+    }
+    if (message.video !== undefined) {
+      obj.video = InputVideoState.toJSON(message.video);
+    }
+    if (message.audio !== undefined) {
+      obj.audio = InputAudioState.toJSON(message.audio);
+    }
+    if (message.roomId !== undefined && message.roomId !== "") {
+      obj.roomId = message.roomId;
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
+    if (message.resourceId !== undefined && message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
+    if (message.tracks?.length) {
+      obj.tracks = message.tracks.map((e) => TrackInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IngressState>, I>>(base?: I): IngressState {
+    return IngressState.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IngressState>, I>>(object: I): IngressState {
     const message = createBaseIngressState();
     message.status = object.status ?? 0;
@@ -1147,55 +1465,89 @@ export const InputVideoState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): InputVideoState {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInputVideoState();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.mimeType = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.averageBitrate = reader.uint32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.width = reader.uint32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.height = reader.uint32();
-          break;
+          continue;
         case 5:
+          if (tag !== 41) {
+            break;
+          }
+
           message.framerate = reader.double();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): InputVideoState {
     return {
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      averageBitrate: isSet(object.averageBitrate) ? Number(object.averageBitrate) : 0,
-      width: isSet(object.width) ? Number(object.width) : 0,
-      height: isSet(object.height) ? Number(object.height) : 0,
-      framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
+      mimeType: isSet(object.mimeType) ? globalThis.String(object.mimeType) : "",
+      averageBitrate: isSet(object.averageBitrate) ? globalThis.Number(object.averageBitrate) : 0,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      framerate: isSet(object.framerate) ? globalThis.Number(object.framerate) : 0,
     };
   },
 
   toJSON(message: InputVideoState): unknown {
     const obj: any = {};
-    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
-    message.averageBitrate !== undefined && (obj.averageBitrate = Math.round(message.averageBitrate));
-    message.width !== undefined && (obj.width = Math.round(message.width));
-    message.height !== undefined && (obj.height = Math.round(message.height));
-    message.framerate !== undefined && (obj.framerate = message.framerate);
+    if (message.mimeType !== undefined && message.mimeType !== "") {
+      obj.mimeType = message.mimeType;
+    }
+    if (message.averageBitrate !== undefined && message.averageBitrate !== 0) {
+      obj.averageBitrate = Math.round(message.averageBitrate);
+    }
+    if (message.width !== undefined && message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.height !== undefined && message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.framerate !== undefined && message.framerate !== 0) {
+      obj.framerate = message.framerate;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<InputVideoState>, I>>(base?: I): InputVideoState {
+    return InputVideoState.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<InputVideoState>, I>>(object: I): InputVideoState {
     const message = createBaseInputVideoState();
     message.mimeType = object.mimeType ?? "";
@@ -1229,50 +1581,78 @@ export const InputAudioState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): InputAudioState {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInputAudioState();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.mimeType = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.averageBitrate = reader.uint32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.channels = reader.uint32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.sampleRate = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): InputAudioState {
     return {
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      averageBitrate: isSet(object.averageBitrate) ? Number(object.averageBitrate) : 0,
-      channels: isSet(object.channels) ? Number(object.channels) : 0,
-      sampleRate: isSet(object.sampleRate) ? Number(object.sampleRate) : 0,
+      mimeType: isSet(object.mimeType) ? globalThis.String(object.mimeType) : "",
+      averageBitrate: isSet(object.averageBitrate) ? globalThis.Number(object.averageBitrate) : 0,
+      channels: isSet(object.channels) ? globalThis.Number(object.channels) : 0,
+      sampleRate: isSet(object.sampleRate) ? globalThis.Number(object.sampleRate) : 0,
     };
   },
 
   toJSON(message: InputAudioState): unknown {
     const obj: any = {};
-    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
-    message.averageBitrate !== undefined && (obj.averageBitrate = Math.round(message.averageBitrate));
-    message.channels !== undefined && (obj.channels = Math.round(message.channels));
-    message.sampleRate !== undefined && (obj.sampleRate = Math.round(message.sampleRate));
+    if (message.mimeType !== undefined && message.mimeType !== "") {
+      obj.mimeType = message.mimeType;
+    }
+    if (message.averageBitrate !== undefined && message.averageBitrate !== 0) {
+      obj.averageBitrate = Math.round(message.averageBitrate);
+    }
+    if (message.channels !== undefined && message.channels !== 0) {
+      obj.channels = Math.round(message.channels);
+    }
+    if (message.sampleRate !== undefined && message.sampleRate !== 0) {
+      obj.sampleRate = Math.round(message.sampleRate);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<InputAudioState>, I>>(base?: I): InputAudioState {
+    return InputAudioState.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<InputAudioState>, I>>(object: I): InputAudioState {
     const message = createBaseInputAudioState();
     message.mimeType = object.mimeType ?? "";
@@ -1326,52 +1706,85 @@ export const UpdateIngressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): UpdateIngressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateIngressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.ingressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.participantIdentity = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.participantName = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.bypassTranscoding = reader.bool();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.audio = IngressAudioOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.video = IngressVideoOptions.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): UpdateIngressRequest {
     return {
-      ingressId: isSet(object.ingressId) ? String(object.ingressId) : "",
-      name: isSet(object.name) ? String(object.name) : "",
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
-      participantName: isSet(object.participantName) ? String(object.participantName) : "",
-      bypassTranscoding: isSet(object.bypassTranscoding) ? Boolean(object.bypassTranscoding) : undefined,
+      ingressId: isSet(object.ingressId) ? globalThis.String(object.ingressId) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
+      participantName: isSet(object.participantName) ? globalThis.String(object.participantName) : "",
+      bypassTranscoding: isSet(object.bypassTranscoding) ? globalThis.Boolean(object.bypassTranscoding) : undefined,
       audio: isSet(object.audio) ? IngressAudioOptions.fromJSON(object.audio) : undefined,
       video: isSet(object.video) ? IngressVideoOptions.fromJSON(object.video) : undefined,
     };
@@ -1379,17 +1792,36 @@ export const UpdateIngressRequest = {
 
   toJSON(message: UpdateIngressRequest): unknown {
     const obj: any = {};
-    message.ingressId !== undefined && (obj.ingressId = message.ingressId);
-    message.name !== undefined && (obj.name = message.name);
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
-    message.participantName !== undefined && (obj.participantName = message.participantName);
-    message.bypassTranscoding !== undefined && (obj.bypassTranscoding = message.bypassTranscoding);
-    message.audio !== undefined && (obj.audio = message.audio ? IngressAudioOptions.toJSON(message.audio) : undefined);
-    message.video !== undefined && (obj.video = message.video ? IngressVideoOptions.toJSON(message.video) : undefined);
+    if (message.ingressId !== undefined && message.ingressId !== "") {
+      obj.ingressId = message.ingressId;
+    }
+    if (message.name !== undefined && message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.participantIdentity !== undefined && message.participantIdentity !== "") {
+      obj.participantIdentity = message.participantIdentity;
+    }
+    if (message.participantName !== undefined && message.participantName !== "") {
+      obj.participantName = message.participantName;
+    }
+    if (message.bypassTranscoding !== undefined) {
+      obj.bypassTranscoding = message.bypassTranscoding;
+    }
+    if (message.audio !== undefined) {
+      obj.audio = IngressAudioOptions.toJSON(message.audio);
+    }
+    if (message.video !== undefined) {
+      obj.video = IngressVideoOptions.toJSON(message.video);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<UpdateIngressRequest>, I>>(base?: I): UpdateIngressRequest {
+    return UpdateIngressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<UpdateIngressRequest>, I>>(object: I): UpdateIngressRequest {
     const message = createBaseUpdateIngressRequest();
     message.ingressId = object.ingressId ?? "";
@@ -1424,40 +1856,56 @@ export const ListIngressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ListIngressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListIngressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.ingressId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ListIngressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      ingressId: isSet(object.ingressId) ? String(object.ingressId) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      ingressId: isSet(object.ingressId) ? globalThis.String(object.ingressId) : "",
     };
   },
 
   toJSON(message: ListIngressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.ingressId !== undefined && (obj.ingressId = message.ingressId);
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.ingressId !== undefined && message.ingressId !== "") {
+      obj.ingressId = message.ingressId;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ListIngressRequest>, I>>(base?: I): ListIngressRequest {
+    return ListIngressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ListIngressRequest>, I>>(object: I): ListIngressRequest {
     const message = createBaseListIngressRequest();
     message.roomName = object.roomName ?? "";
@@ -1481,37 +1929,45 @@ export const ListIngressResponse = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ListIngressResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListIngressResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.items!.push(IngressInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ListIngressResponse {
-    return { items: Array.isArray(object?.items) ? object.items.map((e: any) => IngressInfo.fromJSON(e)) : [] };
+    return {
+      items: globalThis.Array.isArray(object?.items) ? object.items.map((e: any) => IngressInfo.fromJSON(e)) : [],
+    };
   },
 
   toJSON(message: ListIngressResponse): unknown {
     const obj: any = {};
-    if (message.items) {
-      obj.items = message.items.map((e) => e ? IngressInfo.toJSON(e) : undefined);
-    } else {
-      obj.items = [];
+    if (message.items?.length) {
+      obj.items = message.items.map((e) => IngressInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ListIngressResponse>, I>>(base?: I): ListIngressResponse {
+    return ListIngressResponse.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ListIngressResponse>, I>>(object: I): ListIngressResponse {
     const message = createBaseListIngressResponse();
     message.items = object.items?.map((e) => IngressInfo.fromPartial(e)) || [];
@@ -1532,33 +1988,43 @@ export const DeleteIngressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): DeleteIngressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteIngressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.ingressId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): DeleteIngressRequest {
-    return { ingressId: isSet(object.ingressId) ? String(object.ingressId) : "" };
+    return { ingressId: isSet(object.ingressId) ? globalThis.String(object.ingressId) : "" };
   },
 
   toJSON(message: DeleteIngressRequest): unknown {
     const obj: any = {};
-    message.ingressId !== undefined && (obj.ingressId = message.ingressId);
+    if (message.ingressId !== undefined && message.ingressId !== "") {
+      obj.ingressId = message.ingressId;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<DeleteIngressRequest>, I>>(base?: I): DeleteIngressRequest {
+    return DeleteIngressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<DeleteIngressRequest>, I>>(object: I): DeleteIngressRequest {
     const message = createBaseDeleteIngressRequest();
     message.ingressId = object.ingressId ?? "";
@@ -1575,29 +2041,11 @@ export interface Ingress {
   DeleteIngress(request: DeleteIngressRequest): Promise<IngressInfo>;
 }
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
-})();
-
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
@@ -1606,7 +2054,7 @@ export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+  if (long.gt(globalThis.Number.MAX_SAFE_INTEGER)) {
     throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   return long.toNumber();

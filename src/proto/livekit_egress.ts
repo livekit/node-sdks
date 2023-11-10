@@ -331,15 +331,25 @@ export function egressStatusToJSON(object: EgressStatus): string {
 /** composite using a web browser */
 export interface RoomCompositeEgressRequest {
   /** required */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** (optional) */
-  layout?: string;
+  layout?:
+    | string
+    | undefined;
   /** (default false) */
-  audioOnly?: boolean;
+  audioOnly?:
+    | boolean
+    | undefined;
   /** (default false) */
-  videoOnly?: boolean;
+  videoOnly?:
+    | boolean
+    | undefined;
   /** template base url (default https://recorder.livekit.io) */
-  customBaseUrl?: string;
+  customBaseUrl?:
+    | string
+    | undefined;
   /** @deprecated */
   file?:
     | EncodedFileOutput
@@ -358,18 +368,20 @@ export interface RoomCompositeEgressRequest {
     | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
-  fileOutputs?: EncodedFileOutput[];
-  streamOutputs?: StreamOutput[];
-  segmentOutputs?: SegmentedFileOutput[];
-  imageOutputs?: ImageOutput[];
+  fileOutputs?: EncodedFileOutput[] | undefined;
+  streamOutputs?: StreamOutput[] | undefined;
+  segmentOutputs?: SegmentedFileOutput[] | undefined;
+  imageOutputs?: ImageOutput[] | undefined;
 }
 
 /** record any website */
 export interface WebEgressRequest {
-  url?: string;
-  audioOnly?: boolean;
-  videoOnly?: boolean;
-  awaitStartSignal?: boolean;
+  url?: string | undefined;
+  audioOnly?: boolean | undefined;
+  videoOnly?: boolean | undefined;
+  awaitStartSignal?:
+    | boolean
+    | undefined;
   /** @deprecated */
   file?:
     | EncodedFileOutput
@@ -382,40 +394,52 @@ export interface WebEgressRequest {
   segments?: SegmentedFileOutput | undefined;
   preset?: EncodingOptionsPreset | undefined;
   advanced?: EncodingOptions | undefined;
-  fileOutputs?: EncodedFileOutput[];
-  streamOutputs?: StreamOutput[];
-  segmentOutputs?: SegmentedFileOutput[];
-  imageOutputs?: ImageOutput[];
+  fileOutputs?: EncodedFileOutput[] | undefined;
+  streamOutputs?: StreamOutput[] | undefined;
+  segmentOutputs?: SegmentedFileOutput[] | undefined;
+  imageOutputs?: ImageOutput[] | undefined;
 }
 
 /** record audio and video from a single participant */
 export interface ParticipantEgressRequest {
   /** required */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** required */
-  identity?: string;
+  identity?:
+    | string
+    | undefined;
   /** (default false) */
-  screenShare?: boolean;
+  screenShare?:
+    | boolean
+    | undefined;
   /** (default H264_720P_30) */
   preset?:
     | EncodingOptionsPreset
     | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
-  fileOutputs?: EncodedFileOutput[];
-  streamOutputs?: StreamOutput[];
-  segmentOutputs?: SegmentedFileOutput[];
-  imageOutputs?: ImageOutput[];
+  fileOutputs?: EncodedFileOutput[] | undefined;
+  streamOutputs?: StreamOutput[] | undefined;
+  segmentOutputs?: SegmentedFileOutput[] | undefined;
+  imageOutputs?: ImageOutput[] | undefined;
 }
 
 /** containerize up to one audio and one video track */
 export interface TrackCompositeEgressRequest {
   /** required */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** (optional) */
-  audioTrackId?: string;
+  audioTrackId?:
+    | string
+    | undefined;
   /** (optional) */
-  videoTrackId?: string;
+  videoTrackId?:
+    | string
+    | undefined;
   /** @deprecated */
   file?:
     | EncodedFileOutput
@@ -434,29 +458,35 @@ export interface TrackCompositeEgressRequest {
     | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
-  fileOutputs?: EncodedFileOutput[];
-  streamOutputs?: StreamOutput[];
-  segmentOutputs?: SegmentedFileOutput[];
-  imageOutputs?: ImageOutput[];
+  fileOutputs?: EncodedFileOutput[] | undefined;
+  streamOutputs?: StreamOutput[] | undefined;
+  segmentOutputs?: SegmentedFileOutput[] | undefined;
+  imageOutputs?: ImageOutput[] | undefined;
 }
 
 /** record tracks individually, without transcoding */
 export interface TrackEgressRequest {
   /** required */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** required */
-  trackId?: string;
+  trackId?: string | undefined;
   file?: DirectFileOutput | undefined;
   websocketUrl?: string | undefined;
 }
 
 export interface EncodedFileOutput {
   /** (optional) */
-  fileType?: EncodedFileType;
+  fileType?:
+    | EncodedFileType
+    | undefined;
   /** see egress docs for templating (default {room_name}-{time}) */
-  filepath?: string;
+  filepath?:
+    | string
+    | undefined;
   /** disable upload of manifest file (default false) */
-  disableManifest?: boolean;
+  disableManifest?: boolean | undefined;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -466,19 +496,31 @@ export interface EncodedFileOutput {
 /** Used to generate HLS segments or other kind of segmented output */
 export interface SegmentedFileOutput {
   /** (optional) */
-  protocol?: SegmentedFileProtocol;
+  protocol?:
+    | SegmentedFileProtocol
+    | undefined;
   /** (optional) */
-  filenamePrefix?: string;
+  filenamePrefix?:
+    | string
+    | undefined;
   /** (optional) */
-  playlistName?: string;
+  playlistName?:
+    | string
+    | undefined;
   /** (optional, disabled if not provided). Path of a live playlist */
-  livePlaylistName?: string;
+  livePlaylistName?:
+    | string
+    | undefined;
   /** in seconds (optional) */
-  segmentDuration?: number;
+  segmentDuration?:
+    | number
+    | undefined;
   /** (optional, default INDEX) */
-  filenameSuffix?: SegmentedFileSuffix;
+  filenameSuffix?:
+    | SegmentedFileSuffix
+    | undefined;
   /** disable upload of manifest file (default false) */
-  disableManifest?: boolean;
+  disableManifest?: boolean | undefined;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -487,9 +529,11 @@ export interface SegmentedFileOutput {
 
 export interface DirectFileOutput {
   /** see egress docs for templating (default {track_id}-{time}) */
-  filepath?: string;
+  filepath?:
+    | string
+    | undefined;
   /** disable upload of manifest file (default false) */
-  disableManifest?: boolean;
+  disableManifest?: boolean | undefined;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -498,19 +542,31 @@ export interface DirectFileOutput {
 
 export interface ImageOutput {
   /** in seconds (required) */
-  captureInterval?: number;
+  captureInterval?:
+    | number
+    | undefined;
   /** (optional, defaults to track width) */
-  width?: number;
+  width?:
+    | number
+    | undefined;
   /** (optional, defaults to track height) */
-  height?: number;
+  height?:
+    | number
+    | undefined;
   /** (optional) */
-  filenamePrefix?: string;
+  filenamePrefix?:
+    | string
+    | undefined;
   /** (optional, default INDEX) */
-  filenameSuffix?: ImageFileSuffix;
+  filenameSuffix?:
+    | ImageFileSuffix
+    | undefined;
   /** (optional) */
-  imageCodec?: ImageCodec;
+  imageCodec?:
+    | ImageCodec
+    | undefined;
   /** disable upload of manifest file (default false) */
-  disableManifest?: boolean;
+  disableManifest?: boolean | undefined;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -518,14 +574,14 @@ export interface ImageOutput {
 }
 
 export interface S3Upload {
-  accessKey?: string;
-  secret?: string;
-  region?: string;
-  endpoint?: string;
-  bucket?: string;
-  forcePathStyle?: boolean;
-  metadata?: { [key: string]: string };
-  tagging?: string;
+  accessKey?: string | undefined;
+  secret?: string | undefined;
+  region?: string | undefined;
+  endpoint?: string | undefined;
+  bucket?: string | undefined;
+  forcePathStyle?: boolean | undefined;
+  metadata?: { [key: string]: string } | undefined;
+  tagging?: string | undefined;
 }
 
 export interface S3Upload_MetadataEntry {
@@ -534,97 +590,121 @@ export interface S3Upload_MetadataEntry {
 }
 
 export interface GCPUpload {
-  credentials?: string;
-  bucket?: string;
+  credentials?: string | undefined;
+  bucket?: string | undefined;
 }
 
 export interface AzureBlobUpload {
-  accountName?: string;
-  accountKey?: string;
-  containerName?: string;
+  accountName?: string | undefined;
+  accountKey?: string | undefined;
+  containerName?: string | undefined;
 }
 
 export interface AliOSSUpload {
-  accessKey?: string;
-  secret?: string;
-  region?: string;
-  endpoint?: string;
-  bucket?: string;
+  accessKey?: string | undefined;
+  secret?: string | undefined;
+  region?: string | undefined;
+  endpoint?: string | undefined;
+  bucket?: string | undefined;
 }
 
 export interface StreamOutput {
   /** required */
-  protocol?: StreamProtocol;
+  protocol?:
+    | StreamProtocol
+    | undefined;
   /** required */
-  urls?: string[];
+  urls?: string[] | undefined;
 }
 
 export interface EncodingOptions {
   /** (default 1920) */
-  width?: number;
+  width?:
+    | number
+    | undefined;
   /** (default 1080) */
-  height?: number;
+  height?:
+    | number
+    | undefined;
   /** (default 24) */
-  depth?: number;
+  depth?:
+    | number
+    | undefined;
   /** (default 30) */
-  framerate?: number;
+  framerate?:
+    | number
+    | undefined;
   /** (default OPUS) */
-  audioCodec?: AudioCodec;
+  audioCodec?:
+    | AudioCodec
+    | undefined;
   /** (default 128) */
-  audioBitrate?: number;
+  audioBitrate?:
+    | number
+    | undefined;
   /** (default 44100) */
-  audioFrequency?: number;
+  audioFrequency?:
+    | number
+    | undefined;
   /** (default H264_MAIN) */
-  videoCodec?: VideoCodec;
+  videoCodec?:
+    | VideoCodec
+    | undefined;
   /** (default 4500) */
-  videoBitrate?: number;
+  videoBitrate?:
+    | number
+    | undefined;
   /** in seconds (default 4s for streaming, segment duration for segmented output, encoder default for files) */
-  keyFrameInterval?: number;
+  keyFrameInterval?: number | undefined;
 }
 
 export interface UpdateLayoutRequest {
-  egressId?: string;
-  layout?: string;
+  egressId?: string | undefined;
+  layout?: string | undefined;
 }
 
 export interface UpdateStreamRequest {
-  egressId?: string;
-  addOutputUrls?: string[];
-  removeOutputUrls?: string[];
+  egressId?: string | undefined;
+  addOutputUrls?: string[] | undefined;
+  removeOutputUrls?: string[] | undefined;
 }
 
 export interface UpdateOutputsRequest {
-  egressId?: string;
-  addImageOutputs?: ImageOutput[];
-  removeImageOutputs?: ImageOutput[];
+  egressId?: string | undefined;
+  addImageOutputs?: ImageOutput[] | undefined;
+  removeImageOutputs?: ImageOutput[] | undefined;
 }
 
 export interface ListEgressRequest {
   /** (optional, filter by room name) */
-  roomName?: string;
+  roomName?:
+    | string
+    | undefined;
   /** (optional, filter by egress ID) */
-  egressId?: string;
+  egressId?:
+    | string
+    | undefined;
   /** (optional, list active egress only) */
-  active?: boolean;
+  active?: boolean | undefined;
 }
 
 export interface ListEgressResponse {
-  items?: EgressInfo[];
+  items?: EgressInfo[] | undefined;
 }
 
 export interface StopEgressRequest {
-  egressId?: string;
+  egressId?: string | undefined;
 }
 
 export interface EgressInfo {
-  egressId?: string;
-  roomId?: string;
-  roomName?: string;
-  status?: EgressStatus;
-  startedAt?: number;
-  endedAt?: number;
-  updatedAt?: number;
-  error?: string;
+  egressId?: string | undefined;
+  roomId?: string | undefined;
+  roomName?: string | undefined;
+  status?: EgressStatus | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
+  updatedAt?: number | undefined;
+  error?: string | undefined;
   roomComposite?: RoomCompositeEgressRequest | undefined;
   web?: WebEgressRequest | undefined;
   participant?: ParticipantEgressRequest | undefined;
@@ -642,24 +722,24 @@ export interface EgressInfo {
     | undefined;
   /** @deprecated */
   segments?: SegmentsInfo | undefined;
-  streamResults?: StreamInfo[];
-  fileResults?: FileInfo[];
-  segmentResults?: SegmentsInfo[];
-  imageResults?: ImagesInfo[];
+  streamResults?: StreamInfo[] | undefined;
+  fileResults?: FileInfo[] | undefined;
+  segmentResults?: SegmentsInfo[] | undefined;
+  imageResults?: ImagesInfo[] | undefined;
 }
 
 /** @deprecated */
 export interface StreamInfoList {
-  info?: StreamInfo[];
+  info?: StreamInfo[] | undefined;
 }
 
 export interface StreamInfo {
-  url?: string;
-  startedAt?: number;
-  endedAt?: number;
-  duration?: number;
-  status?: StreamInfo_Status;
-  error?: string;
+  url?: string | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
+  duration?: number | undefined;
+  status?: StreamInfo_Status | undefined;
+  error?: string | undefined;
 }
 
 export enum StreamInfo_Status {
@@ -702,30 +782,31 @@ export function streamInfo_StatusToJSON(object: StreamInfo_Status): string {
 }
 
 export interface FileInfo {
-  filename?: string;
-  startedAt?: number;
-  endedAt?: number;
-  duration?: number;
-  size?: number;
-  location?: string;
+  filename?: string | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
+  duration?: number | undefined;
+  size?: number | undefined;
+  location?: string | undefined;
 }
 
 export interface SegmentsInfo {
-  playlistName?: string;
-  livePlaylistName?: string;
-  duration?: number;
-  size?: number;
-  playlistLocation?: string;
-  livePlaylistLocation?: string;
-  segmentCount?: number;
-  startedAt?: number;
-  endedAt?: number;
+  playlistName?: string | undefined;
+  livePlaylistName?: string | undefined;
+  duration?: number | undefined;
+  size?: number | undefined;
+  playlistLocation?: string | undefined;
+  livePlaylistLocation?: string | undefined;
+  segmentCount?: number | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
+  dataEventLocation?: string | undefined;
 }
 
 export interface ImagesInfo {
-  imageCount?: number;
-  startedAt?: number;
-  endedAt?: number;
+  imageCount?: number | undefined;
+  startedAt?: number | undefined;
+  endedAt?: number | undefined;
 }
 
 export interface AutoParticipantEgress {
@@ -735,15 +816,17 @@ export interface AutoParticipantEgress {
     | undefined;
   /** (optional) */
   advanced?: EncodingOptions | undefined;
-  fileOutputs?: EncodedFileOutput[];
-  segmentOutputs?: SegmentedFileOutput[];
+  fileOutputs?: EncodedFileOutput[] | undefined;
+  segmentOutputs?: SegmentedFileOutput[] | undefined;
 }
 
 export interface AutoTrackEgress {
   /** see docs for templating (default {track_id}-{time}) */
-  filepath?: string;
+  filepath?:
+    | string
+    | undefined;
   /** disables upload of json manifest file (default false) */
-  disableManifest?: boolean;
+  disableManifest?: boolean | undefined;
   s3?: S3Upload | undefined;
   gcp?: GCPUpload | undefined;
   azure?: AzureBlobUpload | undefined;
@@ -824,84 +907,141 @@ export const RoomCompositeEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RoomCompositeEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRoomCompositeEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.layout = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.audioOnly = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.videoOnly = reader.bool();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.customBaseUrl = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.file = EncodedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.stream = StreamOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.advanced = EncodingOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.streamOutputs!.push(StreamOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 14:
+          if (tag !== 114) {
+            break;
+          }
+
           message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): RoomCompositeEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      layout: isSet(object.layout) ? String(object.layout) : "",
-      audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
-      videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
-      customBaseUrl: isSet(object.customBaseUrl) ? String(object.customBaseUrl) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      layout: isSet(object.layout) ? globalThis.String(object.layout) : "",
+      audioOnly: isSet(object.audioOnly) ? globalThis.Boolean(object.audioOnly) : false,
+      videoOnly: isSet(object.videoOnly) ? globalThis.Boolean(object.videoOnly) : false,
+      customBaseUrl: isSet(object.customBaseUrl) ? globalThis.String(object.customBaseUrl) : "",
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
       segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
-      fileOutputs: Array.isArray(object?.fileOutputs)
+      fileOutputs: globalThis.Array.isArray(object?.fileOutputs)
         ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
         : [],
-      streamOutputs: Array.isArray(object?.streamOutputs)
+      streamOutputs: globalThis.Array.isArray(object?.streamOutputs)
         ? object.streamOutputs.map((e: any) => StreamOutput.fromJSON(e))
         : [],
-      segmentOutputs: Array.isArray(object?.segmentOutputs)
+      segmentOutputs: globalThis.Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
         : [],
-      imageOutputs: Array.isArray(object?.imageOutputs)
+      imageOutputs: globalThis.Array.isArray(object?.imageOutputs)
         ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
@@ -909,42 +1049,54 @@ export const RoomCompositeEgressRequest = {
 
   toJSON(message: RoomCompositeEgressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.layout !== undefined && (obj.layout = message.layout);
-    message.audioOnly !== undefined && (obj.audioOnly = message.audioOnly);
-    message.videoOnly !== undefined && (obj.videoOnly = message.videoOnly);
-    message.customBaseUrl !== undefined && (obj.customBaseUrl = message.customBaseUrl);
-    message.file !== undefined && (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
-    message.stream !== undefined && (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
-    message.segments !== undefined &&
-      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
-    message.advanced !== undefined &&
-      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
-    if (message.fileOutputs) {
-      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.fileOutputs = [];
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
     }
-    if (message.streamOutputs) {
-      obj.streamOutputs = message.streamOutputs.map((e) => e ? StreamOutput.toJSON(e) : undefined);
-    } else {
-      obj.streamOutputs = [];
+    if (message.layout !== undefined && message.layout !== "") {
+      obj.layout = message.layout;
     }
-    if (message.segmentOutputs) {
-      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.segmentOutputs = [];
+    if (message.audioOnly === true) {
+      obj.audioOnly = message.audioOnly;
     }
-    if (message.imageOutputs) {
-      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.imageOutputs = [];
+    if (message.videoOnly === true) {
+      obj.videoOnly = message.videoOnly;
+    }
+    if (message.customBaseUrl !== undefined && message.customBaseUrl !== "") {
+      obj.customBaseUrl = message.customBaseUrl;
+    }
+    if (message.file !== undefined) {
+      obj.file = EncodedFileOutput.toJSON(message.file);
+    }
+    if (message.stream !== undefined) {
+      obj.stream = StreamOutput.toJSON(message.stream);
+    }
+    if (message.segments !== undefined) {
+      obj.segments = SegmentedFileOutput.toJSON(message.segments);
+    }
+    if (message.preset !== undefined) {
+      obj.preset = encodingOptionsPresetToJSON(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      obj.advanced = EncodingOptions.toJSON(message.advanced);
+    }
+    if (message.fileOutputs?.length) {
+      obj.fileOutputs = message.fileOutputs.map((e) => EncodedFileOutput.toJSON(e));
+    }
+    if (message.streamOutputs?.length) {
+      obj.streamOutputs = message.streamOutputs.map((e) => StreamOutput.toJSON(e));
+    }
+    if (message.segmentOutputs?.length) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => SegmentedFileOutput.toJSON(e));
+    }
+    if (message.imageOutputs?.length) {
+      obj.imageOutputs = message.imageOutputs.map((e) => ImageOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<RoomCompositeEgressRequest>, I>>(base?: I): RoomCompositeEgressRequest {
+    return RoomCompositeEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<RoomCompositeEgressRequest>, I>>(object: I): RoomCompositeEgressRequest {
     const message = createBaseRoomCompositeEgressRequest();
     message.roomName = object.roomName ?? "";
@@ -1044,80 +1196,133 @@ export const WebEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): WebEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWebEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.url = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.audioOnly = reader.bool();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.videoOnly = reader.bool();
-          break;
+          continue;
         case 12:
+          if (tag !== 96) {
+            break;
+          }
+
           message.awaitStartSignal = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.file = EncodedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.stream = StreamOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.advanced = EncodingOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.streamOutputs!.push(StreamOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): WebEgressRequest {
     return {
-      url: isSet(object.url) ? String(object.url) : "",
-      audioOnly: isSet(object.audioOnly) ? Boolean(object.audioOnly) : false,
-      videoOnly: isSet(object.videoOnly) ? Boolean(object.videoOnly) : false,
-      awaitStartSignal: isSet(object.awaitStartSignal) ? Boolean(object.awaitStartSignal) : false,
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
+      audioOnly: isSet(object.audioOnly) ? globalThis.Boolean(object.audioOnly) : false,
+      videoOnly: isSet(object.videoOnly) ? globalThis.Boolean(object.videoOnly) : false,
+      awaitStartSignal: isSet(object.awaitStartSignal) ? globalThis.Boolean(object.awaitStartSignal) : false,
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
       segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
-      fileOutputs: Array.isArray(object?.fileOutputs)
+      fileOutputs: globalThis.Array.isArray(object?.fileOutputs)
         ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
         : [],
-      streamOutputs: Array.isArray(object?.streamOutputs)
+      streamOutputs: globalThis.Array.isArray(object?.streamOutputs)
         ? object.streamOutputs.map((e: any) => StreamOutput.fromJSON(e))
         : [],
-      segmentOutputs: Array.isArray(object?.segmentOutputs)
+      segmentOutputs: globalThis.Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
         : [],
-      imageOutputs: Array.isArray(object?.imageOutputs)
+      imageOutputs: globalThis.Array.isArray(object?.imageOutputs)
         ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
@@ -1125,41 +1330,51 @@ export const WebEgressRequest = {
 
   toJSON(message: WebEgressRequest): unknown {
     const obj: any = {};
-    message.url !== undefined && (obj.url = message.url);
-    message.audioOnly !== undefined && (obj.audioOnly = message.audioOnly);
-    message.videoOnly !== undefined && (obj.videoOnly = message.videoOnly);
-    message.awaitStartSignal !== undefined && (obj.awaitStartSignal = message.awaitStartSignal);
-    message.file !== undefined && (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
-    message.stream !== undefined && (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
-    message.segments !== undefined &&
-      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
-    message.advanced !== undefined &&
-      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
-    if (message.fileOutputs) {
-      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.fileOutputs = [];
+    if (message.url !== undefined && message.url !== "") {
+      obj.url = message.url;
     }
-    if (message.streamOutputs) {
-      obj.streamOutputs = message.streamOutputs.map((e) => e ? StreamOutput.toJSON(e) : undefined);
-    } else {
-      obj.streamOutputs = [];
+    if (message.audioOnly === true) {
+      obj.audioOnly = message.audioOnly;
     }
-    if (message.segmentOutputs) {
-      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.segmentOutputs = [];
+    if (message.videoOnly === true) {
+      obj.videoOnly = message.videoOnly;
     }
-    if (message.imageOutputs) {
-      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.imageOutputs = [];
+    if (message.awaitStartSignal === true) {
+      obj.awaitStartSignal = message.awaitStartSignal;
+    }
+    if (message.file !== undefined) {
+      obj.file = EncodedFileOutput.toJSON(message.file);
+    }
+    if (message.stream !== undefined) {
+      obj.stream = StreamOutput.toJSON(message.stream);
+    }
+    if (message.segments !== undefined) {
+      obj.segments = SegmentedFileOutput.toJSON(message.segments);
+    }
+    if (message.preset !== undefined) {
+      obj.preset = encodingOptionsPresetToJSON(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      obj.advanced = EncodingOptions.toJSON(message.advanced);
+    }
+    if (message.fileOutputs?.length) {
+      obj.fileOutputs = message.fileOutputs.map((e) => EncodedFileOutput.toJSON(e));
+    }
+    if (message.streamOutputs?.length) {
+      obj.streamOutputs = message.streamOutputs.map((e) => StreamOutput.toJSON(e));
+    }
+    if (message.segmentOutputs?.length) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => SegmentedFileOutput.toJSON(e));
+    }
+    if (message.imageOutputs?.length) {
+      obj.imageOutputs = message.imageOutputs.map((e) => ImageOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<WebEgressRequest>, I>>(base?: I): WebEgressRequest {
+    return WebEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<WebEgressRequest>, I>>(object: I): WebEgressRequest {
     const message = createBaseWebEgressRequest();
     message.url = object.url ?? "";
@@ -1242,64 +1457,101 @@ export const ParticipantEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseParticipantEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.identity = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.screenShare = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.advanced = EncodingOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.streamOutputs!.push(StreamOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ParticipantEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
-      screenShare: isSet(object.screenShare) ? Boolean(object.screenShare) : false,
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      identity: isSet(object.identity) ? globalThis.String(object.identity) : "",
+      screenShare: isSet(object.screenShare) ? globalThis.Boolean(object.screenShare) : false,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
-      fileOutputs: Array.isArray(object?.fileOutputs)
+      fileOutputs: globalThis.Array.isArray(object?.fileOutputs)
         ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
         : [],
-      streamOutputs: Array.isArray(object?.streamOutputs)
+      streamOutputs: globalThis.Array.isArray(object?.streamOutputs)
         ? object.streamOutputs.map((e: any) => StreamOutput.fromJSON(e))
         : [],
-      segmentOutputs: Array.isArray(object?.segmentOutputs)
+      segmentOutputs: globalThis.Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
         : [],
-      imageOutputs: Array.isArray(object?.imageOutputs)
+      imageOutputs: globalThis.Array.isArray(object?.imageOutputs)
         ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
@@ -1307,36 +1559,39 @@ export const ParticipantEgressRequest = {
 
   toJSON(message: ParticipantEgressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.identity !== undefined && (obj.identity = message.identity);
-    message.screenShare !== undefined && (obj.screenShare = message.screenShare);
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
-    message.advanced !== undefined &&
-      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
-    if (message.fileOutputs) {
-      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.fileOutputs = [];
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
     }
-    if (message.streamOutputs) {
-      obj.streamOutputs = message.streamOutputs.map((e) => e ? StreamOutput.toJSON(e) : undefined);
-    } else {
-      obj.streamOutputs = [];
+    if (message.identity !== undefined && message.identity !== "") {
+      obj.identity = message.identity;
     }
-    if (message.segmentOutputs) {
-      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.segmentOutputs = [];
+    if (message.screenShare === true) {
+      obj.screenShare = message.screenShare;
     }
-    if (message.imageOutputs) {
-      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.imageOutputs = [];
+    if (message.preset !== undefined) {
+      obj.preset = encodingOptionsPresetToJSON(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      obj.advanced = EncodingOptions.toJSON(message.advanced);
+    }
+    if (message.fileOutputs?.length) {
+      obj.fileOutputs = message.fileOutputs.map((e) => EncodedFileOutput.toJSON(e));
+    }
+    if (message.streamOutputs?.length) {
+      obj.streamOutputs = message.streamOutputs.map((e) => StreamOutput.toJSON(e));
+    }
+    if (message.segmentOutputs?.length) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => SegmentedFileOutput.toJSON(e));
+    }
+    if (message.imageOutputs?.length) {
+      obj.imageOutputs = message.imageOutputs.map((e) => ImageOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ParticipantEgressRequest>, I>>(base?: I): ParticipantEgressRequest {
+    return ParticipantEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ParticipantEgressRequest>, I>>(object: I): ParticipantEgressRequest {
     const message = createBaseParticipantEgressRequest();
     message.roomName = object.roomName ?? "";
@@ -1421,76 +1676,125 @@ export const TrackCompositeEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TrackCompositeEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTrackCompositeEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.audioTrackId = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.videoTrackId = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.file = EncodedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.stream = StreamOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.segments = SegmentedFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.advanced = EncodingOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.streamOutputs!.push(StreamOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 14:
+          if (tag !== 114) {
+            break;
+          }
+
           message.imageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): TrackCompositeEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      audioTrackId: isSet(object.audioTrackId) ? String(object.audioTrackId) : "",
-      videoTrackId: isSet(object.videoTrackId) ? String(object.videoTrackId) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      audioTrackId: isSet(object.audioTrackId) ? globalThis.String(object.audioTrackId) : "",
+      videoTrackId: isSet(object.videoTrackId) ? globalThis.String(object.videoTrackId) : "",
       file: isSet(object.file) ? EncodedFileOutput.fromJSON(object.file) : undefined,
       stream: isSet(object.stream) ? StreamOutput.fromJSON(object.stream) : undefined,
       segments: isSet(object.segments) ? SegmentedFileOutput.fromJSON(object.segments) : undefined,
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
-      fileOutputs: Array.isArray(object?.fileOutputs)
+      fileOutputs: globalThis.Array.isArray(object?.fileOutputs)
         ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
         : [],
-      streamOutputs: Array.isArray(object?.streamOutputs)
+      streamOutputs: globalThis.Array.isArray(object?.streamOutputs)
         ? object.streamOutputs.map((e: any) => StreamOutput.fromJSON(e))
         : [],
-      segmentOutputs: Array.isArray(object?.segmentOutputs)
+      segmentOutputs: globalThis.Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
         : [],
-      imageOutputs: Array.isArray(object?.imageOutputs)
+      imageOutputs: globalThis.Array.isArray(object?.imageOutputs)
         ? object.imageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
@@ -1498,40 +1802,48 @@ export const TrackCompositeEgressRequest = {
 
   toJSON(message: TrackCompositeEgressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.audioTrackId !== undefined && (obj.audioTrackId = message.audioTrackId);
-    message.videoTrackId !== undefined && (obj.videoTrackId = message.videoTrackId);
-    message.file !== undefined && (obj.file = message.file ? EncodedFileOutput.toJSON(message.file) : undefined);
-    message.stream !== undefined && (obj.stream = message.stream ? StreamOutput.toJSON(message.stream) : undefined);
-    message.segments !== undefined &&
-      (obj.segments = message.segments ? SegmentedFileOutput.toJSON(message.segments) : undefined);
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
-    message.advanced !== undefined &&
-      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
-    if (message.fileOutputs) {
-      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.fileOutputs = [];
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
     }
-    if (message.streamOutputs) {
-      obj.streamOutputs = message.streamOutputs.map((e) => e ? StreamOutput.toJSON(e) : undefined);
-    } else {
-      obj.streamOutputs = [];
+    if (message.audioTrackId !== undefined && message.audioTrackId !== "") {
+      obj.audioTrackId = message.audioTrackId;
     }
-    if (message.segmentOutputs) {
-      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.segmentOutputs = [];
+    if (message.videoTrackId !== undefined && message.videoTrackId !== "") {
+      obj.videoTrackId = message.videoTrackId;
     }
-    if (message.imageOutputs) {
-      obj.imageOutputs = message.imageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.imageOutputs = [];
+    if (message.file !== undefined) {
+      obj.file = EncodedFileOutput.toJSON(message.file);
+    }
+    if (message.stream !== undefined) {
+      obj.stream = StreamOutput.toJSON(message.stream);
+    }
+    if (message.segments !== undefined) {
+      obj.segments = SegmentedFileOutput.toJSON(message.segments);
+    }
+    if (message.preset !== undefined) {
+      obj.preset = encodingOptionsPresetToJSON(message.preset);
+    }
+    if (message.advanced !== undefined) {
+      obj.advanced = EncodingOptions.toJSON(message.advanced);
+    }
+    if (message.fileOutputs?.length) {
+      obj.fileOutputs = message.fileOutputs.map((e) => EncodedFileOutput.toJSON(e));
+    }
+    if (message.streamOutputs?.length) {
+      obj.streamOutputs = message.streamOutputs.map((e) => StreamOutput.toJSON(e));
+    }
+    if (message.segmentOutputs?.length) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => SegmentedFileOutput.toJSON(e));
+    }
+    if (message.imageOutputs?.length) {
+      obj.imageOutputs = message.imageOutputs.map((e) => ImageOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<TrackCompositeEgressRequest>, I>>(base?: I): TrackCompositeEgressRequest {
+    return TrackCompositeEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<TrackCompositeEgressRequest>, I>>(object: I): TrackCompositeEgressRequest {
     const message = createBaseTrackCompositeEgressRequest();
     message.roomName = object.roomName ?? "";
@@ -1580,50 +1892,78 @@ export const TrackEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TrackEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTrackEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.trackId = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.file = DirectFileOutput.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.websocketUrl = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): TrackEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      trackId: isSet(object.trackId) ? String(object.trackId) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      trackId: isSet(object.trackId) ? globalThis.String(object.trackId) : "",
       file: isSet(object.file) ? DirectFileOutput.fromJSON(object.file) : undefined,
-      websocketUrl: isSet(object.websocketUrl) ? String(object.websocketUrl) : undefined,
+      websocketUrl: isSet(object.websocketUrl) ? globalThis.String(object.websocketUrl) : undefined,
     };
   },
 
   toJSON(message: TrackEgressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.trackId !== undefined && (obj.trackId = message.trackId);
-    message.file !== undefined && (obj.file = message.file ? DirectFileOutput.toJSON(message.file) : undefined);
-    message.websocketUrl !== undefined && (obj.websocketUrl = message.websocketUrl);
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.trackId !== undefined && message.trackId !== "") {
+      obj.trackId = message.trackId;
+    }
+    if (message.file !== undefined) {
+      obj.file = DirectFileOutput.toJSON(message.file);
+    }
+    if (message.websocketUrl !== undefined) {
+      obj.websocketUrl = message.websocketUrl;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<TrackEgressRequest>, I>>(base?: I): TrackEgressRequest {
+    return TrackEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<TrackEgressRequest>, I>>(object: I): TrackEgressRequest {
     const message = createBaseTrackEgressRequest();
     message.roomName = object.roomName ?? "";
@@ -1675,37 +2015,66 @@ export const EncodedFileOutput = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): EncodedFileOutput {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEncodedFileOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.fileType = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.filepath = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.disableManifest = reader.bool();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.s3 = S3Upload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.gcp = GCPUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -1713,8 +2082,8 @@ export const EncodedFileOutput = {
   fromJSON(object: any): EncodedFileOutput {
     return {
       fileType: isSet(object.fileType) ? encodedFileTypeFromJSON(object.fileType) : 0,
-      filepath: isSet(object.filepath) ? String(object.filepath) : "",
-      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      filepath: isSet(object.filepath) ? globalThis.String(object.filepath) : "",
+      disableManifest: isSet(object.disableManifest) ? globalThis.Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -1724,16 +2093,33 @@ export const EncodedFileOutput = {
 
   toJSON(message: EncodedFileOutput): unknown {
     const obj: any = {};
-    message.fileType !== undefined && (obj.fileType = encodedFileTypeToJSON(message.fileType));
-    message.filepath !== undefined && (obj.filepath = message.filepath);
-    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
-    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
-    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
-    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
-    message.aliOSS !== undefined && (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
+    if (message.fileType !== undefined && message.fileType !== 0) {
+      obj.fileType = encodedFileTypeToJSON(message.fileType);
+    }
+    if (message.filepath !== undefined && message.filepath !== "") {
+      obj.filepath = message.filepath;
+    }
+    if (message.disableManifest === true) {
+      obj.disableManifest = message.disableManifest;
+    }
+    if (message.s3 !== undefined) {
+      obj.s3 = S3Upload.toJSON(message.s3);
+    }
+    if (message.gcp !== undefined) {
+      obj.gcp = GCPUpload.toJSON(message.gcp);
+    }
+    if (message.azure !== undefined) {
+      obj.azure = AzureBlobUpload.toJSON(message.azure);
+    }
+    if (message.aliOSS !== undefined) {
+      obj.aliOSS = AliOSSUpload.toJSON(message.aliOSS);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<EncodedFileOutput>, I>>(base?: I): EncodedFileOutput {
+    return EncodedFileOutput.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<EncodedFileOutput>, I>>(object: I): EncodedFileOutput {
     const message = createBaseEncodedFileOutput();
     message.fileType = object.fileType ?? 0;
@@ -1806,49 +2192,94 @@ export const SegmentedFileOutput = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SegmentedFileOutput {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSegmentedFileOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.protocol = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.filenamePrefix = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.playlistName = reader.string();
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.livePlaylistName = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.segmentDuration = reader.uint32();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.filenameSuffix = reader.int32() as any;
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.disableManifest = reader.bool();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.s3 = S3Upload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.gcp = GCPUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -1856,12 +2287,12 @@ export const SegmentedFileOutput = {
   fromJSON(object: any): SegmentedFileOutput {
     return {
       protocol: isSet(object.protocol) ? segmentedFileProtocolFromJSON(object.protocol) : 0,
-      filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : "",
-      playlistName: isSet(object.playlistName) ? String(object.playlistName) : "",
-      livePlaylistName: isSet(object.livePlaylistName) ? String(object.livePlaylistName) : "",
-      segmentDuration: isSet(object.segmentDuration) ? Number(object.segmentDuration) : 0,
+      filenamePrefix: isSet(object.filenamePrefix) ? globalThis.String(object.filenamePrefix) : "",
+      playlistName: isSet(object.playlistName) ? globalThis.String(object.playlistName) : "",
+      livePlaylistName: isSet(object.livePlaylistName) ? globalThis.String(object.livePlaylistName) : "",
+      segmentDuration: isSet(object.segmentDuration) ? globalThis.Number(object.segmentDuration) : 0,
       filenameSuffix: isSet(object.filenameSuffix) ? segmentedFileSuffixFromJSON(object.filenameSuffix) : 0,
-      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      disableManifest: isSet(object.disableManifest) ? globalThis.Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -1871,20 +2302,45 @@ export const SegmentedFileOutput = {
 
   toJSON(message: SegmentedFileOutput): unknown {
     const obj: any = {};
-    message.protocol !== undefined && (obj.protocol = segmentedFileProtocolToJSON(message.protocol));
-    message.filenamePrefix !== undefined && (obj.filenamePrefix = message.filenamePrefix);
-    message.playlistName !== undefined && (obj.playlistName = message.playlistName);
-    message.livePlaylistName !== undefined && (obj.livePlaylistName = message.livePlaylistName);
-    message.segmentDuration !== undefined && (obj.segmentDuration = Math.round(message.segmentDuration));
-    message.filenameSuffix !== undefined && (obj.filenameSuffix = segmentedFileSuffixToJSON(message.filenameSuffix));
-    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
-    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
-    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
-    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
-    message.aliOSS !== undefined && (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
+    if (message.protocol !== undefined && message.protocol !== 0) {
+      obj.protocol = segmentedFileProtocolToJSON(message.protocol);
+    }
+    if (message.filenamePrefix !== undefined && message.filenamePrefix !== "") {
+      obj.filenamePrefix = message.filenamePrefix;
+    }
+    if (message.playlistName !== undefined && message.playlistName !== "") {
+      obj.playlistName = message.playlistName;
+    }
+    if (message.livePlaylistName !== undefined && message.livePlaylistName !== "") {
+      obj.livePlaylistName = message.livePlaylistName;
+    }
+    if (message.segmentDuration !== undefined && message.segmentDuration !== 0) {
+      obj.segmentDuration = Math.round(message.segmentDuration);
+    }
+    if (message.filenameSuffix !== undefined && message.filenameSuffix !== 0) {
+      obj.filenameSuffix = segmentedFileSuffixToJSON(message.filenameSuffix);
+    }
+    if (message.disableManifest === true) {
+      obj.disableManifest = message.disableManifest;
+    }
+    if (message.s3 !== undefined) {
+      obj.s3 = S3Upload.toJSON(message.s3);
+    }
+    if (message.gcp !== undefined) {
+      obj.gcp = GCPUpload.toJSON(message.gcp);
+    }
+    if (message.azure !== undefined) {
+      obj.azure = AzureBlobUpload.toJSON(message.azure);
+    }
+    if (message.aliOSS !== undefined) {
+      obj.aliOSS = AliOSSUpload.toJSON(message.aliOSS);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<SegmentedFileOutput>, I>>(base?: I): SegmentedFileOutput {
+    return SegmentedFileOutput.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<SegmentedFileOutput>, I>>(object: I): SegmentedFileOutput {
     const message = createBaseSegmentedFileOutput();
     message.protocol = object.protocol ?? 0;
@@ -1934,42 +2390,67 @@ export const DirectFileOutput = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): DirectFileOutput {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDirectFileOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.filepath = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.disableManifest = reader.bool();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.s3 = S3Upload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.gcp = GCPUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): DirectFileOutput {
     return {
-      filepath: isSet(object.filepath) ? String(object.filepath) : "",
-      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      filepath: isSet(object.filepath) ? globalThis.String(object.filepath) : "",
+      disableManifest: isSet(object.disableManifest) ? globalThis.Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -1979,15 +2460,30 @@ export const DirectFileOutput = {
 
   toJSON(message: DirectFileOutput): unknown {
     const obj: any = {};
-    message.filepath !== undefined && (obj.filepath = message.filepath);
-    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
-    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
-    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
-    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
-    message.aliOSS !== undefined && (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
+    if (message.filepath !== undefined && message.filepath !== "") {
+      obj.filepath = message.filepath;
+    }
+    if (message.disableManifest === true) {
+      obj.disableManifest = message.disableManifest;
+    }
+    if (message.s3 !== undefined) {
+      obj.s3 = S3Upload.toJSON(message.s3);
+    }
+    if (message.gcp !== undefined) {
+      obj.gcp = GCPUpload.toJSON(message.gcp);
+    }
+    if (message.azure !== undefined) {
+      obj.azure = AzureBlobUpload.toJSON(message.azure);
+    }
+    if (message.aliOSS !== undefined) {
+      obj.aliOSS = AliOSSUpload.toJSON(message.aliOSS);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<DirectFileOutput>, I>>(base?: I): DirectFileOutput {
+    return DirectFileOutput.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<DirectFileOutput>, I>>(object: I): DirectFileOutput {
     const message = createBaseDirectFileOutput();
     message.filepath = object.filepath ?? "";
@@ -2059,62 +2555,107 @@ export const ImageOutput = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ImageOutput {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseImageOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.captureInterval = reader.uint32();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.width = reader.int32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.height = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.filenamePrefix = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.filenameSuffix = reader.int32() as any;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.imageCodec = reader.int32() as any;
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.disableManifest = reader.bool();
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.s3 = S3Upload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.gcp = GCPUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.aliOSS = AliOSSUpload.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ImageOutput {
     return {
-      captureInterval: isSet(object.captureInterval) ? Number(object.captureInterval) : 0,
-      width: isSet(object.width) ? Number(object.width) : 0,
-      height: isSet(object.height) ? Number(object.height) : 0,
-      filenamePrefix: isSet(object.filenamePrefix) ? String(object.filenamePrefix) : "",
+      captureInterval: isSet(object.captureInterval) ? globalThis.Number(object.captureInterval) : 0,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      filenamePrefix: isSet(object.filenamePrefix) ? globalThis.String(object.filenamePrefix) : "",
       filenameSuffix: isSet(object.filenameSuffix) ? imageFileSuffixFromJSON(object.filenameSuffix) : 0,
       imageCodec: isSet(object.imageCodec) ? imageCodecFromJSON(object.imageCodec) : 0,
-      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      disableManifest: isSet(object.disableManifest) ? globalThis.Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -2124,20 +2665,45 @@ export const ImageOutput = {
 
   toJSON(message: ImageOutput): unknown {
     const obj: any = {};
-    message.captureInterval !== undefined && (obj.captureInterval = Math.round(message.captureInterval));
-    message.width !== undefined && (obj.width = Math.round(message.width));
-    message.height !== undefined && (obj.height = Math.round(message.height));
-    message.filenamePrefix !== undefined && (obj.filenamePrefix = message.filenamePrefix);
-    message.filenameSuffix !== undefined && (obj.filenameSuffix = imageFileSuffixToJSON(message.filenameSuffix));
-    message.imageCodec !== undefined && (obj.imageCodec = imageCodecToJSON(message.imageCodec));
-    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
-    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
-    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
-    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
-    message.aliOSS !== undefined && (obj.aliOSS = message.aliOSS ? AliOSSUpload.toJSON(message.aliOSS) : undefined);
+    if (message.captureInterval !== undefined && message.captureInterval !== 0) {
+      obj.captureInterval = Math.round(message.captureInterval);
+    }
+    if (message.width !== undefined && message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.height !== undefined && message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.filenamePrefix !== undefined && message.filenamePrefix !== "") {
+      obj.filenamePrefix = message.filenamePrefix;
+    }
+    if (message.filenameSuffix !== undefined && message.filenameSuffix !== 0) {
+      obj.filenameSuffix = imageFileSuffixToJSON(message.filenameSuffix);
+    }
+    if (message.imageCodec !== undefined && message.imageCodec !== 0) {
+      obj.imageCodec = imageCodecToJSON(message.imageCodec);
+    }
+    if (message.disableManifest === true) {
+      obj.disableManifest = message.disableManifest;
+    }
+    if (message.s3 !== undefined) {
+      obj.s3 = S3Upload.toJSON(message.s3);
+    }
+    if (message.gcp !== undefined) {
+      obj.gcp = GCPUpload.toJSON(message.gcp);
+    }
+    if (message.azure !== undefined) {
+      obj.azure = AzureBlobUpload.toJSON(message.azure);
+    }
+    if (message.aliOSS !== undefined) {
+      obj.aliOSS = AliOSSUpload.toJSON(message.aliOSS);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ImageOutput>, I>>(base?: I): ImageOutput {
+    return ImageOutput.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ImageOutput>, I>>(object: I): ImageOutput {
     const message = createBaseImageOutput();
     message.captureInterval = object.captureInterval ?? 0;
@@ -2202,83 +2768,136 @@ export const S3Upload = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): S3Upload {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseS3Upload();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.accessKey = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.secret = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.region = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.endpoint = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.bucket = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.forcePathStyle = reader.bool();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           const entry7 = S3Upload_MetadataEntry.decode(reader, reader.uint32());
           if (entry7.value !== undefined) {
             message.metadata![entry7.key] = entry7.value;
           }
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.tagging = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): S3Upload {
     return {
-      accessKey: isSet(object.accessKey) ? String(object.accessKey) : "",
-      secret: isSet(object.secret) ? String(object.secret) : "",
-      region: isSet(object.region) ? String(object.region) : "",
-      endpoint: isSet(object.endpoint) ? String(object.endpoint) : "",
-      bucket: isSet(object.bucket) ? String(object.bucket) : "",
-      forcePathStyle: isSet(object.forcePathStyle) ? Boolean(object.forcePathStyle) : false,
+      accessKey: isSet(object.accessKey) ? globalThis.String(object.accessKey) : "",
+      secret: isSet(object.secret) ? globalThis.String(object.secret) : "",
+      region: isSet(object.region) ? globalThis.String(object.region) : "",
+      endpoint: isSet(object.endpoint) ? globalThis.String(object.endpoint) : "",
+      bucket: isSet(object.bucket) ? globalThis.String(object.bucket) : "",
+      forcePathStyle: isSet(object.forcePathStyle) ? globalThis.Boolean(object.forcePathStyle) : false,
       metadata: isObject(object.metadata)
         ? Object.entries(object.metadata).reduce<{ [key: string]: string }>((acc, [key, value]) => {
           acc[key] = String(value);
           return acc;
         }, {})
         : {},
-      tagging: isSet(object.tagging) ? String(object.tagging) : "",
+      tagging: isSet(object.tagging) ? globalThis.String(object.tagging) : "",
     };
   },
 
   toJSON(message: S3Upload): unknown {
     const obj: any = {};
-    message.accessKey !== undefined && (obj.accessKey = message.accessKey);
-    message.secret !== undefined && (obj.secret = message.secret);
-    message.region !== undefined && (obj.region = message.region);
-    message.endpoint !== undefined && (obj.endpoint = message.endpoint);
-    message.bucket !== undefined && (obj.bucket = message.bucket);
-    message.forcePathStyle !== undefined && (obj.forcePathStyle = message.forcePathStyle);
-    obj.metadata = {};
-    if (message.metadata) {
-      Object.entries(message.metadata).forEach(([k, v]) => {
-        obj.metadata[k] = v;
-      });
+    if (message.accessKey !== undefined && message.accessKey !== "") {
+      obj.accessKey = message.accessKey;
     }
-    message.tagging !== undefined && (obj.tagging = message.tagging);
+    if (message.secret !== undefined && message.secret !== "") {
+      obj.secret = message.secret;
+    }
+    if (message.region !== undefined && message.region !== "") {
+      obj.region = message.region;
+    }
+    if (message.endpoint !== undefined && message.endpoint !== "") {
+      obj.endpoint = message.endpoint;
+    }
+    if (message.bucket !== undefined && message.bucket !== "") {
+      obj.bucket = message.bucket;
+    }
+    if (message.forcePathStyle === true) {
+      obj.forcePathStyle = message.forcePathStyle;
+    }
+    if (message.metadata) {
+      const entries = Object.entries(message.metadata);
+      if (entries.length > 0) {
+        obj.metadata = {};
+        entries.forEach(([k, v]) => {
+          obj.metadata[k] = v;
+        });
+      }
+    }
+    if (message.tagging !== undefined && message.tagging !== "") {
+      obj.tagging = message.tagging;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<S3Upload>, I>>(base?: I): S3Upload {
+    return S3Upload.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<S3Upload>, I>>(object: I): S3Upload {
     const message = createBaseS3Upload();
     message.accessKey = object.accessKey ?? "";
@@ -2289,7 +2908,7 @@ export const S3Upload = {
     message.forcePathStyle = object.forcePathStyle ?? false;
     message.metadata = Object.entries(object.metadata ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
       if (value !== undefined) {
-        acc[key] = String(value);
+        acc[key] = globalThis.String(value);
       }
       return acc;
     }, {});
@@ -2314,37 +2933,56 @@ export const S3Upload_MetadataEntry = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): S3Upload_MetadataEntry {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseS3Upload_MetadataEntry();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.key = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.value = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): S3Upload_MetadataEntry {
-    return { key: isSet(object.key) ? String(object.key) : "", value: isSet(object.value) ? String(object.value) : "" };
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
   },
 
   toJSON(message: S3Upload_MetadataEntry): unknown {
     const obj: any = {};
-    message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined && (obj.value = message.value);
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<S3Upload_MetadataEntry>, I>>(base?: I): S3Upload_MetadataEntry {
+    return S3Upload_MetadataEntry.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<S3Upload_MetadataEntry>, I>>(object: I): S3Upload_MetadataEntry {
     const message = createBaseS3Upload_MetadataEntry();
     message.key = object.key ?? "";
@@ -2369,40 +3007,56 @@ export const GCPUpload = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): GCPUpload {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGCPUpload();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.credentials = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.bucket = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): GCPUpload {
     return {
-      credentials: isSet(object.credentials) ? String(object.credentials) : "",
-      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+      credentials: isSet(object.credentials) ? globalThis.String(object.credentials) : "",
+      bucket: isSet(object.bucket) ? globalThis.String(object.bucket) : "",
     };
   },
 
   toJSON(message: GCPUpload): unknown {
     const obj: any = {};
-    message.credentials !== undefined && (obj.credentials = message.credentials);
-    message.bucket !== undefined && (obj.bucket = message.bucket);
+    if (message.credentials !== undefined && message.credentials !== "") {
+      obj.credentials = message.credentials;
+    }
+    if (message.bucket !== undefined && message.bucket !== "") {
+      obj.bucket = message.bucket;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<GCPUpload>, I>>(base?: I): GCPUpload {
+    return GCPUpload.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<GCPUpload>, I>>(object: I): GCPUpload {
     const message = createBaseGCPUpload();
     message.credentials = object.credentials ?? "";
@@ -2430,45 +3084,67 @@ export const AzureBlobUpload = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): AzureBlobUpload {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAzureBlobUpload();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.accountName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.accountKey = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.containerName = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): AzureBlobUpload {
     return {
-      accountName: isSet(object.accountName) ? String(object.accountName) : "",
-      accountKey: isSet(object.accountKey) ? String(object.accountKey) : "",
-      containerName: isSet(object.containerName) ? String(object.containerName) : "",
+      accountName: isSet(object.accountName) ? globalThis.String(object.accountName) : "",
+      accountKey: isSet(object.accountKey) ? globalThis.String(object.accountKey) : "",
+      containerName: isSet(object.containerName) ? globalThis.String(object.containerName) : "",
     };
   },
 
   toJSON(message: AzureBlobUpload): unknown {
     const obj: any = {};
-    message.accountName !== undefined && (obj.accountName = message.accountName);
-    message.accountKey !== undefined && (obj.accountKey = message.accountKey);
-    message.containerName !== undefined && (obj.containerName = message.containerName);
+    if (message.accountName !== undefined && message.accountName !== "") {
+      obj.accountName = message.accountName;
+    }
+    if (message.accountKey !== undefined && message.accountKey !== "") {
+      obj.accountKey = message.accountKey;
+    }
+    if (message.containerName !== undefined && message.containerName !== "") {
+      obj.containerName = message.containerName;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<AzureBlobUpload>, I>>(base?: I): AzureBlobUpload {
+    return AzureBlobUpload.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<AzureBlobUpload>, I>>(object: I): AzureBlobUpload {
     const message = createBaseAzureBlobUpload();
     message.accountName = object.accountName ?? "";
@@ -2503,55 +3179,89 @@ export const AliOSSUpload = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): AliOSSUpload {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAliOSSUpload();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.accessKey = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.secret = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.region = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.endpoint = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.bucket = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): AliOSSUpload {
     return {
-      accessKey: isSet(object.accessKey) ? String(object.accessKey) : "",
-      secret: isSet(object.secret) ? String(object.secret) : "",
-      region: isSet(object.region) ? String(object.region) : "",
-      endpoint: isSet(object.endpoint) ? String(object.endpoint) : "",
-      bucket: isSet(object.bucket) ? String(object.bucket) : "",
+      accessKey: isSet(object.accessKey) ? globalThis.String(object.accessKey) : "",
+      secret: isSet(object.secret) ? globalThis.String(object.secret) : "",
+      region: isSet(object.region) ? globalThis.String(object.region) : "",
+      endpoint: isSet(object.endpoint) ? globalThis.String(object.endpoint) : "",
+      bucket: isSet(object.bucket) ? globalThis.String(object.bucket) : "",
     };
   },
 
   toJSON(message: AliOSSUpload): unknown {
     const obj: any = {};
-    message.accessKey !== undefined && (obj.accessKey = message.accessKey);
-    message.secret !== undefined && (obj.secret = message.secret);
-    message.region !== undefined && (obj.region = message.region);
-    message.endpoint !== undefined && (obj.endpoint = message.endpoint);
-    message.bucket !== undefined && (obj.bucket = message.bucket);
+    if (message.accessKey !== undefined && message.accessKey !== "") {
+      obj.accessKey = message.accessKey;
+    }
+    if (message.secret !== undefined && message.secret !== "") {
+      obj.secret = message.secret;
+    }
+    if (message.region !== undefined && message.region !== "") {
+      obj.region = message.region;
+    }
+    if (message.endpoint !== undefined && message.endpoint !== "") {
+      obj.endpoint = message.endpoint;
+    }
+    if (message.bucket !== undefined && message.bucket !== "") {
+      obj.bucket = message.bucket;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<AliOSSUpload>, I>>(base?: I): AliOSSUpload {
+    return AliOSSUpload.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<AliOSSUpload>, I>>(object: I): AliOSSUpload {
     const message = createBaseAliOSSUpload();
     message.accessKey = object.accessKey ?? "";
@@ -2581,22 +3291,31 @@ export const StreamOutput = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): StreamOutput {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStreamOutput();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.protocol = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.urls!.push(reader.string());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2604,21 +3323,24 @@ export const StreamOutput = {
   fromJSON(object: any): StreamOutput {
     return {
       protocol: isSet(object.protocol) ? streamProtocolFromJSON(object.protocol) : 0,
-      urls: Array.isArray(object?.urls) ? object.urls.map((e: any) => String(e)) : [],
+      urls: globalThis.Array.isArray(object?.urls) ? object.urls.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
   toJSON(message: StreamOutput): unknown {
     const obj: any = {};
-    message.protocol !== undefined && (obj.protocol = streamProtocolToJSON(message.protocol));
-    if (message.urls) {
-      obj.urls = message.urls.map((e) => e);
-    } else {
-      obj.urls = [];
+    if (message.protocol !== undefined && message.protocol !== 0) {
+      obj.protocol = streamProtocolToJSON(message.protocol);
+    }
+    if (message.urls?.length) {
+      obj.urls = message.urls;
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<StreamOutput>, I>>(base?: I): StreamOutput {
+    return StreamOutput.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<StreamOutput>, I>>(object: I): StreamOutput {
     const message = createBaseStreamOutput();
     message.protocol = object.protocol ?? 0;
@@ -2678,80 +3400,144 @@ export const EncodingOptions = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): EncodingOptions {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEncodingOptions();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.width = reader.int32();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.height = reader.int32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.depth = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.framerate = reader.int32();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.audioCodec = reader.int32() as any;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.audioBitrate = reader.int32();
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.audioFrequency = reader.int32();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.videoCodec = reader.int32() as any;
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.videoBitrate = reader.int32();
-          break;
+          continue;
         case 10:
+          if (tag !== 81) {
+            break;
+          }
+
           message.keyFrameInterval = reader.double();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): EncodingOptions {
     return {
-      width: isSet(object.width) ? Number(object.width) : 0,
-      height: isSet(object.height) ? Number(object.height) : 0,
-      depth: isSet(object.depth) ? Number(object.depth) : 0,
-      framerate: isSet(object.framerate) ? Number(object.framerate) : 0,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      depth: isSet(object.depth) ? globalThis.Number(object.depth) : 0,
+      framerate: isSet(object.framerate) ? globalThis.Number(object.framerate) : 0,
       audioCodec: isSet(object.audioCodec) ? audioCodecFromJSON(object.audioCodec) : 0,
-      audioBitrate: isSet(object.audioBitrate) ? Number(object.audioBitrate) : 0,
-      audioFrequency: isSet(object.audioFrequency) ? Number(object.audioFrequency) : 0,
+      audioBitrate: isSet(object.audioBitrate) ? globalThis.Number(object.audioBitrate) : 0,
+      audioFrequency: isSet(object.audioFrequency) ? globalThis.Number(object.audioFrequency) : 0,
       videoCodec: isSet(object.videoCodec) ? videoCodecFromJSON(object.videoCodec) : 0,
-      videoBitrate: isSet(object.videoBitrate) ? Number(object.videoBitrate) : 0,
-      keyFrameInterval: isSet(object.keyFrameInterval) ? Number(object.keyFrameInterval) : 0,
+      videoBitrate: isSet(object.videoBitrate) ? globalThis.Number(object.videoBitrate) : 0,
+      keyFrameInterval: isSet(object.keyFrameInterval) ? globalThis.Number(object.keyFrameInterval) : 0,
     };
   },
 
   toJSON(message: EncodingOptions): unknown {
     const obj: any = {};
-    message.width !== undefined && (obj.width = Math.round(message.width));
-    message.height !== undefined && (obj.height = Math.round(message.height));
-    message.depth !== undefined && (obj.depth = Math.round(message.depth));
-    message.framerate !== undefined && (obj.framerate = Math.round(message.framerate));
-    message.audioCodec !== undefined && (obj.audioCodec = audioCodecToJSON(message.audioCodec));
-    message.audioBitrate !== undefined && (obj.audioBitrate = Math.round(message.audioBitrate));
-    message.audioFrequency !== undefined && (obj.audioFrequency = Math.round(message.audioFrequency));
-    message.videoCodec !== undefined && (obj.videoCodec = videoCodecToJSON(message.videoCodec));
-    message.videoBitrate !== undefined && (obj.videoBitrate = Math.round(message.videoBitrate));
-    message.keyFrameInterval !== undefined && (obj.keyFrameInterval = message.keyFrameInterval);
+    if (message.width !== undefined && message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.height !== undefined && message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.depth !== undefined && message.depth !== 0) {
+      obj.depth = Math.round(message.depth);
+    }
+    if (message.framerate !== undefined && message.framerate !== 0) {
+      obj.framerate = Math.round(message.framerate);
+    }
+    if (message.audioCodec !== undefined && message.audioCodec !== 0) {
+      obj.audioCodec = audioCodecToJSON(message.audioCodec);
+    }
+    if (message.audioBitrate !== undefined && message.audioBitrate !== 0) {
+      obj.audioBitrate = Math.round(message.audioBitrate);
+    }
+    if (message.audioFrequency !== undefined && message.audioFrequency !== 0) {
+      obj.audioFrequency = Math.round(message.audioFrequency);
+    }
+    if (message.videoCodec !== undefined && message.videoCodec !== 0) {
+      obj.videoCodec = videoCodecToJSON(message.videoCodec);
+    }
+    if (message.videoBitrate !== undefined && message.videoBitrate !== 0) {
+      obj.videoBitrate = Math.round(message.videoBitrate);
+    }
+    if (message.keyFrameInterval !== undefined && message.keyFrameInterval !== 0) {
+      obj.keyFrameInterval = message.keyFrameInterval;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<EncodingOptions>, I>>(base?: I): EncodingOptions {
+    return EncodingOptions.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<EncodingOptions>, I>>(object: I): EncodingOptions {
     const message = createBaseEncodingOptions();
     message.width = object.width ?? 0;
@@ -2784,40 +3570,56 @@ export const UpdateLayoutRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): UpdateLayoutRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateLayoutRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.layout = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): UpdateLayoutRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      layout: isSet(object.layout) ? String(object.layout) : "",
+      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
+      layout: isSet(object.layout) ? globalThis.String(object.layout) : "",
     };
   },
 
   toJSON(message: UpdateLayoutRequest): unknown {
     const obj: any = {};
-    message.egressId !== undefined && (obj.egressId = message.egressId);
-    message.layout !== undefined && (obj.layout = message.layout);
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
+    }
+    if (message.layout !== undefined && message.layout !== "") {
+      obj.layout = message.layout;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<UpdateLayoutRequest>, I>>(base?: I): UpdateLayoutRequest {
+    return UpdateLayoutRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<UpdateLayoutRequest>, I>>(object: I): UpdateLayoutRequest {
     const message = createBaseUpdateLayoutRequest();
     message.egressId = object.egressId ?? "";
@@ -2849,55 +3651,71 @@ export const UpdateStreamRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): UpdateStreamRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateStreamRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.addOutputUrls!.push(reader.string());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.removeOutputUrls!.push(reader.string());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): UpdateStreamRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      addOutputUrls: Array.isArray(object?.addOutputUrls) ? object.addOutputUrls.map((e: any) => String(e)) : [],
-      removeOutputUrls: Array.isArray(object?.removeOutputUrls)
-        ? object.removeOutputUrls.map((e: any) => String(e))
+      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
+      addOutputUrls: globalThis.Array.isArray(object?.addOutputUrls)
+        ? object.addOutputUrls.map((e: any) => globalThis.String(e))
+        : [],
+      removeOutputUrls: globalThis.Array.isArray(object?.removeOutputUrls)
+        ? object.removeOutputUrls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
 
   toJSON(message: UpdateStreamRequest): unknown {
     const obj: any = {};
-    message.egressId !== undefined && (obj.egressId = message.egressId);
-    if (message.addOutputUrls) {
-      obj.addOutputUrls = message.addOutputUrls.map((e) => e);
-    } else {
-      obj.addOutputUrls = [];
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
     }
-    if (message.removeOutputUrls) {
-      obj.removeOutputUrls = message.removeOutputUrls.map((e) => e);
-    } else {
-      obj.removeOutputUrls = [];
+    if (message.addOutputUrls?.length) {
+      obj.addOutputUrls = message.addOutputUrls;
+    }
+    if (message.removeOutputUrls?.length) {
+      obj.removeOutputUrls = message.removeOutputUrls;
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<UpdateStreamRequest>, I>>(base?: I): UpdateStreamRequest {
+    return UpdateStreamRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<UpdateStreamRequest>, I>>(object: I): UpdateStreamRequest {
     const message = createBaseUpdateStreamRequest();
     message.egressId = object.egressId ?? "";
@@ -2930,36 +3748,49 @@ export const UpdateOutputsRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): UpdateOutputsRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateOutputsRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.addImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.removeImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): UpdateOutputsRequest {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      addImageOutputs: Array.isArray(object?.addImageOutputs)
+      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
+      addImageOutputs: globalThis.Array.isArray(object?.addImageOutputs)
         ? object.addImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
-      removeImageOutputs: Array.isArray(object?.removeImageOutputs)
+      removeImageOutputs: globalThis.Array.isArray(object?.removeImageOutputs)
         ? object.removeImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
         : [],
     };
@@ -2967,20 +3798,21 @@ export const UpdateOutputsRequest = {
 
   toJSON(message: UpdateOutputsRequest): unknown {
     const obj: any = {};
-    message.egressId !== undefined && (obj.egressId = message.egressId);
-    if (message.addImageOutputs) {
-      obj.addImageOutputs = message.addImageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.addImageOutputs = [];
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
     }
-    if (message.removeImageOutputs) {
-      obj.removeImageOutputs = message.removeImageOutputs.map((e) => e ? ImageOutput.toJSON(e) : undefined);
-    } else {
-      obj.removeImageOutputs = [];
+    if (message.addImageOutputs?.length) {
+      obj.addImageOutputs = message.addImageOutputs.map((e) => ImageOutput.toJSON(e));
+    }
+    if (message.removeImageOutputs?.length) {
+      obj.removeImageOutputs = message.removeImageOutputs.map((e) => ImageOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<UpdateOutputsRequest>, I>>(base?: I): UpdateOutputsRequest {
+    return UpdateOutputsRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<UpdateOutputsRequest>, I>>(object: I): UpdateOutputsRequest {
     const message = createBaseUpdateOutputsRequest();
     message.egressId = object.egressId ?? "";
@@ -3009,45 +3841,67 @@ export const ListEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ListEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.active = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ListEgressRequest {
     return {
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      active: isSet(object.active) ? Boolean(object.active) : false,
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
+      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
+      active: isSet(object.active) ? globalThis.Boolean(object.active) : false,
     };
   },
 
   toJSON(message: ListEgressRequest): unknown {
     const obj: any = {};
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.egressId !== undefined && (obj.egressId = message.egressId);
-    message.active !== undefined && (obj.active = message.active);
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
+    }
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
+    }
+    if (message.active === true) {
+      obj.active = message.active;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ListEgressRequest>, I>>(base?: I): ListEgressRequest {
+    return ListEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ListEgressRequest>, I>>(object: I): ListEgressRequest {
     const message = createBaseListEgressRequest();
     message.roomName = object.roomName ?? "";
@@ -3072,37 +3926,45 @@ export const ListEgressResponse = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ListEgressResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListEgressResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.items!.push(EgressInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ListEgressResponse {
-    return { items: Array.isArray(object?.items) ? object.items.map((e: any) => EgressInfo.fromJSON(e)) : [] };
+    return {
+      items: globalThis.Array.isArray(object?.items) ? object.items.map((e: any) => EgressInfo.fromJSON(e)) : [],
+    };
   },
 
   toJSON(message: ListEgressResponse): unknown {
     const obj: any = {};
-    if (message.items) {
-      obj.items = message.items.map((e) => e ? EgressInfo.toJSON(e) : undefined);
-    } else {
-      obj.items = [];
+    if (message.items?.length) {
+      obj.items = message.items.map((e) => EgressInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ListEgressResponse>, I>>(base?: I): ListEgressResponse {
+    return ListEgressResponse.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ListEgressResponse>, I>>(object: I): ListEgressResponse {
     const message = createBaseListEgressResponse();
     message.items = object.items?.map((e) => EgressInfo.fromPartial(e)) || [];
@@ -3123,33 +3985,43 @@ export const StopEgressRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): StopEgressRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStopEgressRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): StopEgressRequest {
-    return { egressId: isSet(object.egressId) ? String(object.egressId) : "" };
+    return { egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "" };
   },
 
   toJSON(message: StopEgressRequest): unknown {
     const obj: any = {};
-    message.egressId !== undefined && (obj.egressId = message.egressId);
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<StopEgressRequest>, I>>(base?: I): StopEgressRequest {
+    return StopEgressRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<StopEgressRequest>, I>>(object: I): StopEgressRequest {
     const message = createBaseStopEgressRequest();
     message.egressId = object.egressId ?? "";
@@ -3256,90 +4128,171 @@ export const EgressInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): EgressInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEgressInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.egressId = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.roomId = reader.string();
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.roomName = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.status = reader.int32() as any;
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 18:
+          if (tag !== 144) {
+            break;
+          }
+
           message.updatedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.error = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.roomComposite = RoomCompositeEgressRequest.decode(reader, reader.uint32());
-          break;
+          continue;
         case 14:
+          if (tag !== 114) {
+            break;
+          }
+
           message.web = WebEgressRequest.decode(reader, reader.uint32());
-          break;
+          continue;
         case 19:
+          if (tag !== 154) {
+            break;
+          }
+
           message.participant = ParticipantEgressRequest.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.trackComposite = TrackCompositeEgressRequest.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.track = TrackEgressRequest.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.stream = StreamInfoList.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.file = FileInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.segments = SegmentsInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 15:
+          if (tag !== 122) {
+            break;
+          }
+
           message.streamResults!.push(StreamInfo.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 16:
+          if (tag !== 130) {
+            break;
+          }
+
           message.fileResults!.push(FileInfo.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 17:
+          if (tag !== 138) {
+            break;
+          }
+
           message.segmentResults!.push(SegmentsInfo.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 20:
+          if (tag !== 162) {
+            break;
+          }
+
           message.imageResults!.push(ImagesInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): EgressInfo {
     return {
-      egressId: isSet(object.egressId) ? String(object.egressId) : "",
-      roomId: isSet(object.roomId) ? String(object.roomId) : "",
-      roomName: isSet(object.roomName) ? String(object.roomName) : "",
+      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
+      roomId: isSet(object.roomId) ? globalThis.String(object.roomId) : "",
+      roomName: isSet(object.roomName) ? globalThis.String(object.roomName) : "",
       status: isSet(object.status) ? egressStatusFromJSON(object.status) : 0,
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
-      updatedAt: isSet(object.updatedAt) ? Number(object.updatedAt) : 0,
-      error: isSet(object.error) ? String(object.error) : "",
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
+      updatedAt: isSet(object.updatedAt) ? globalThis.Number(object.updatedAt) : 0,
+      error: isSet(object.error) ? globalThis.String(object.error) : "",
       roomComposite: isSet(object.roomComposite)
         ? RoomCompositeEgressRequest.fromJSON(object.roomComposite)
         : undefined,
@@ -3352,14 +4305,16 @@ export const EgressInfo = {
       stream: isSet(object.stream) ? StreamInfoList.fromJSON(object.stream) : undefined,
       file: isSet(object.file) ? FileInfo.fromJSON(object.file) : undefined,
       segments: isSet(object.segments) ? SegmentsInfo.fromJSON(object.segments) : undefined,
-      streamResults: Array.isArray(object?.streamResults)
+      streamResults: globalThis.Array.isArray(object?.streamResults)
         ? object.streamResults.map((e: any) => StreamInfo.fromJSON(e))
         : [],
-      fileResults: Array.isArray(object?.fileResults) ? object.fileResults.map((e: any) => FileInfo.fromJSON(e)) : [],
-      segmentResults: Array.isArray(object?.segmentResults)
+      fileResults: globalThis.Array.isArray(object?.fileResults)
+        ? object.fileResults.map((e: any) => FileInfo.fromJSON(e))
+        : [],
+      segmentResults: globalThis.Array.isArray(object?.segmentResults)
         ? object.segmentResults.map((e: any) => SegmentsInfo.fromJSON(e))
         : [],
-      imageResults: Array.isArray(object?.imageResults)
+      imageResults: globalThis.Array.isArray(object?.imageResults)
         ? object.imageResults.map((e: any) => ImagesInfo.fromJSON(e))
         : [],
     };
@@ -3367,52 +4322,72 @@ export const EgressInfo = {
 
   toJSON(message: EgressInfo): unknown {
     const obj: any = {};
-    message.egressId !== undefined && (obj.egressId = message.egressId);
-    message.roomId !== undefined && (obj.roomId = message.roomId);
-    message.roomName !== undefined && (obj.roomName = message.roomName);
-    message.status !== undefined && (obj.status = egressStatusToJSON(message.status));
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
-    message.updatedAt !== undefined && (obj.updatedAt = Math.round(message.updatedAt));
-    message.error !== undefined && (obj.error = message.error);
-    message.roomComposite !== undefined &&
-      (obj.roomComposite = message.roomComposite
-        ? RoomCompositeEgressRequest.toJSON(message.roomComposite)
-        : undefined);
-    message.web !== undefined && (obj.web = message.web ? WebEgressRequest.toJSON(message.web) : undefined);
-    message.participant !== undefined &&
-      (obj.participant = message.participant ? ParticipantEgressRequest.toJSON(message.participant) : undefined);
-    message.trackComposite !== undefined && (obj.trackComposite = message.trackComposite
-      ? TrackCompositeEgressRequest.toJSON(message.trackComposite)
-      : undefined);
-    message.track !== undefined && (obj.track = message.track ? TrackEgressRequest.toJSON(message.track) : undefined);
-    message.stream !== undefined && (obj.stream = message.stream ? StreamInfoList.toJSON(message.stream) : undefined);
-    message.file !== undefined && (obj.file = message.file ? FileInfo.toJSON(message.file) : undefined);
-    message.segments !== undefined &&
-      (obj.segments = message.segments ? SegmentsInfo.toJSON(message.segments) : undefined);
-    if (message.streamResults) {
-      obj.streamResults = message.streamResults.map((e) => e ? StreamInfo.toJSON(e) : undefined);
-    } else {
-      obj.streamResults = [];
+    if (message.egressId !== undefined && message.egressId !== "") {
+      obj.egressId = message.egressId;
     }
-    if (message.fileResults) {
-      obj.fileResults = message.fileResults.map((e) => e ? FileInfo.toJSON(e) : undefined);
-    } else {
-      obj.fileResults = [];
+    if (message.roomId !== undefined && message.roomId !== "") {
+      obj.roomId = message.roomId;
     }
-    if (message.segmentResults) {
-      obj.segmentResults = message.segmentResults.map((e) => e ? SegmentsInfo.toJSON(e) : undefined);
-    } else {
-      obj.segmentResults = [];
+    if (message.roomName !== undefined && message.roomName !== "") {
+      obj.roomName = message.roomName;
     }
-    if (message.imageResults) {
-      obj.imageResults = message.imageResults.map((e) => e ? ImagesInfo.toJSON(e) : undefined);
-    } else {
-      obj.imageResults = [];
+    if (message.status !== undefined && message.status !== 0) {
+      obj.status = egressStatusToJSON(message.status);
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
+    if (message.updatedAt !== undefined && message.updatedAt !== 0) {
+      obj.updatedAt = Math.round(message.updatedAt);
+    }
+    if (message.error !== undefined && message.error !== "") {
+      obj.error = message.error;
+    }
+    if (message.roomComposite !== undefined) {
+      obj.roomComposite = RoomCompositeEgressRequest.toJSON(message.roomComposite);
+    }
+    if (message.web !== undefined) {
+      obj.web = WebEgressRequest.toJSON(message.web);
+    }
+    if (message.participant !== undefined) {
+      obj.participant = ParticipantEgressRequest.toJSON(message.participant);
+    }
+    if (message.trackComposite !== undefined) {
+      obj.trackComposite = TrackCompositeEgressRequest.toJSON(message.trackComposite);
+    }
+    if (message.track !== undefined) {
+      obj.track = TrackEgressRequest.toJSON(message.track);
+    }
+    if (message.stream !== undefined) {
+      obj.stream = StreamInfoList.toJSON(message.stream);
+    }
+    if (message.file !== undefined) {
+      obj.file = FileInfo.toJSON(message.file);
+    }
+    if (message.segments !== undefined) {
+      obj.segments = SegmentsInfo.toJSON(message.segments);
+    }
+    if (message.streamResults?.length) {
+      obj.streamResults = message.streamResults.map((e) => StreamInfo.toJSON(e));
+    }
+    if (message.fileResults?.length) {
+      obj.fileResults = message.fileResults.map((e) => FileInfo.toJSON(e));
+    }
+    if (message.segmentResults?.length) {
+      obj.segmentResults = message.segmentResults.map((e) => SegmentsInfo.toJSON(e));
+    }
+    if (message.imageResults?.length) {
+      obj.imageResults = message.imageResults.map((e) => ImagesInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<EgressInfo>, I>>(base?: I): EgressInfo {
+    return EgressInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<EgressInfo>, I>>(object: I): EgressInfo {
     const message = createBaseEgressInfo();
     message.egressId = object.egressId ?? "";
@@ -3468,37 +4443,43 @@ export const StreamInfoList = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): StreamInfoList {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStreamInfoList();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.info!.push(StreamInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): StreamInfoList {
-    return { info: Array.isArray(object?.info) ? object.info.map((e: any) => StreamInfo.fromJSON(e)) : [] };
+    return { info: globalThis.Array.isArray(object?.info) ? object.info.map((e: any) => StreamInfo.fromJSON(e)) : [] };
   },
 
   toJSON(message: StreamInfoList): unknown {
     const obj: any = {};
-    if (message.info) {
-      obj.info = message.info.map((e) => e ? StreamInfo.toJSON(e) : undefined);
-    } else {
-      obj.info = [];
+    if (message.info?.length) {
+      obj.info = message.info.map((e) => StreamInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<StreamInfoList>, I>>(base?: I): StreamInfoList {
+    return StreamInfoList.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<StreamInfoList>, I>>(object: I): StreamInfoList {
     const message = createBaseStreamInfoList();
     message.info = object.info?.map((e) => StreamInfo.fromPartial(e)) || [];
@@ -3534,60 +4515,100 @@ export const StreamInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): StreamInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStreamInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.url = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.duration = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.status = reader.int32() as any;
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.error = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): StreamInfo {
     return {
-      url: isSet(object.url) ? String(object.url) : "",
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
       status: isSet(object.status) ? streamInfo_StatusFromJSON(object.status) : 0,
-      error: isSet(object.error) ? String(object.error) : "",
+      error: isSet(object.error) ? globalThis.String(object.error) : "",
     };
   },
 
   toJSON(message: StreamInfo): unknown {
     const obj: any = {};
-    message.url !== undefined && (obj.url = message.url);
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
-    message.duration !== undefined && (obj.duration = Math.round(message.duration));
-    message.status !== undefined && (obj.status = streamInfo_StatusToJSON(message.status));
-    message.error !== undefined && (obj.error = message.error);
+    if (message.url !== undefined && message.url !== "") {
+      obj.url = message.url;
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
+    if (message.duration !== undefined && message.duration !== 0) {
+      obj.duration = Math.round(message.duration);
+    }
+    if (message.status !== undefined && message.status !== 0) {
+      obj.status = streamInfo_StatusToJSON(message.status);
+    }
+    if (message.error !== undefined && message.error !== "") {
+      obj.error = message.error;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<StreamInfo>, I>>(base?: I): StreamInfo {
+    return StreamInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<StreamInfo>, I>>(object: I): StreamInfo {
     const message = createBaseStreamInfo();
     message.url = object.url ?? "";
@@ -3628,60 +4649,100 @@ export const FileInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): FileInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFileInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.filename = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.duration = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.size = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.location = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): FileInfo {
     return {
-      filename: isSet(object.filename) ? String(object.filename) : "",
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
-      size: isSet(object.size) ? Number(object.size) : 0,
-      location: isSet(object.location) ? String(object.location) : "",
+      filename: isSet(object.filename) ? globalThis.String(object.filename) : "",
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
+      size: isSet(object.size) ? globalThis.Number(object.size) : 0,
+      location: isSet(object.location) ? globalThis.String(object.location) : "",
     };
   },
 
   toJSON(message: FileInfo): unknown {
     const obj: any = {};
-    message.filename !== undefined && (obj.filename = message.filename);
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
-    message.duration !== undefined && (obj.duration = Math.round(message.duration));
-    message.size !== undefined && (obj.size = Math.round(message.size));
-    message.location !== undefined && (obj.location = message.location);
+    if (message.filename !== undefined && message.filename !== "") {
+      obj.filename = message.filename;
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
+    if (message.duration !== undefined && message.duration !== 0) {
+      obj.duration = Math.round(message.duration);
+    }
+    if (message.size !== undefined && message.size !== 0) {
+      obj.size = Math.round(message.size);
+    }
+    if (message.location !== undefined && message.location !== "") {
+      obj.location = message.location;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<FileInfo>, I>>(base?: I): FileInfo {
+    return FileInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<FileInfo>, I>>(object: I): FileInfo {
     const message = createBaseFileInfo();
     message.filename = object.filename ?? "";
@@ -3705,6 +4766,7 @@ function createBaseSegmentsInfo(): SegmentsInfo {
     segmentCount: 0,
     startedAt: 0,
     endedAt: 0,
+    dataEventLocation: "",
   };
 }
 
@@ -3737,79 +4799,151 @@ export const SegmentsInfo = {
     if (message.endedAt !== undefined && message.endedAt !== 0) {
       writer.uint32(56).int64(message.endedAt);
     }
+    if (message.dataEventLocation !== undefined && message.dataEventLocation !== "") {
+      writer.uint32(82).string(message.dataEventLocation);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SegmentsInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSegmentsInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.playlistName = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.livePlaylistName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.duration = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.size = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.playlistLocation = reader.string();
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.livePlaylistLocation = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.segmentCount = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
+        case 10:
+          if (tag !== 82) {
+            break;
+          }
+
+          message.dataEventLocation = reader.string();
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): SegmentsInfo {
     return {
-      playlistName: isSet(object.playlistName) ? String(object.playlistName) : "",
-      livePlaylistName: isSet(object.livePlaylistName) ? String(object.livePlaylistName) : "",
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
-      size: isSet(object.size) ? Number(object.size) : 0,
-      playlistLocation: isSet(object.playlistLocation) ? String(object.playlistLocation) : "",
-      livePlaylistLocation: isSet(object.livePlaylistLocation) ? String(object.livePlaylistLocation) : "",
-      segmentCount: isSet(object.segmentCount) ? Number(object.segmentCount) : 0,
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      playlistName: isSet(object.playlistName) ? globalThis.String(object.playlistName) : "",
+      livePlaylistName: isSet(object.livePlaylistName) ? globalThis.String(object.livePlaylistName) : "",
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
+      size: isSet(object.size) ? globalThis.Number(object.size) : 0,
+      playlistLocation: isSet(object.playlistLocation) ? globalThis.String(object.playlistLocation) : "",
+      livePlaylistLocation: isSet(object.livePlaylistLocation) ? globalThis.String(object.livePlaylistLocation) : "",
+      segmentCount: isSet(object.segmentCount) ? globalThis.Number(object.segmentCount) : 0,
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
+      dataEventLocation: isSet(object.dataEventLocation) ? globalThis.String(object.dataEventLocation) : "",
     };
   },
 
   toJSON(message: SegmentsInfo): unknown {
     const obj: any = {};
-    message.playlistName !== undefined && (obj.playlistName = message.playlistName);
-    message.livePlaylistName !== undefined && (obj.livePlaylistName = message.livePlaylistName);
-    message.duration !== undefined && (obj.duration = Math.round(message.duration));
-    message.size !== undefined && (obj.size = Math.round(message.size));
-    message.playlistLocation !== undefined && (obj.playlistLocation = message.playlistLocation);
-    message.livePlaylistLocation !== undefined && (obj.livePlaylistLocation = message.livePlaylistLocation);
-    message.segmentCount !== undefined && (obj.segmentCount = Math.round(message.segmentCount));
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
+    if (message.playlistName !== undefined && message.playlistName !== "") {
+      obj.playlistName = message.playlistName;
+    }
+    if (message.livePlaylistName !== undefined && message.livePlaylistName !== "") {
+      obj.livePlaylistName = message.livePlaylistName;
+    }
+    if (message.duration !== undefined && message.duration !== 0) {
+      obj.duration = Math.round(message.duration);
+    }
+    if (message.size !== undefined && message.size !== 0) {
+      obj.size = Math.round(message.size);
+    }
+    if (message.playlistLocation !== undefined && message.playlistLocation !== "") {
+      obj.playlistLocation = message.playlistLocation;
+    }
+    if (message.livePlaylistLocation !== undefined && message.livePlaylistLocation !== "") {
+      obj.livePlaylistLocation = message.livePlaylistLocation;
+    }
+    if (message.segmentCount !== undefined && message.segmentCount !== 0) {
+      obj.segmentCount = Math.round(message.segmentCount);
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
+    if (message.dataEventLocation !== undefined && message.dataEventLocation !== "") {
+      obj.dataEventLocation = message.dataEventLocation;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<SegmentsInfo>, I>>(base?: I): SegmentsInfo {
+    return SegmentsInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<SegmentsInfo>, I>>(object: I): SegmentsInfo {
     const message = createBaseSegmentsInfo();
     message.playlistName = object.playlistName ?? "";
@@ -3821,6 +4955,7 @@ export const SegmentsInfo = {
     message.segmentCount = object.segmentCount ?? 0;
     message.startedAt = object.startedAt ?? 0;
     message.endedAt = object.endedAt ?? 0;
+    message.dataEventLocation = object.dataEventLocation ?? "";
     return message;
   },
 };
@@ -3844,45 +4979,67 @@ export const ImagesInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ImagesInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseImagesInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.imageCount = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.startedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.endedAt = longToNumber(reader.int64() as Long);
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ImagesInfo {
     return {
-      imageCount: isSet(object.imageCount) ? Number(object.imageCount) : 0,
-      startedAt: isSet(object.startedAt) ? Number(object.startedAt) : 0,
-      endedAt: isSet(object.endedAt) ? Number(object.endedAt) : 0,
+      imageCount: isSet(object.imageCount) ? globalThis.Number(object.imageCount) : 0,
+      startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
+      endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
     };
   },
 
   toJSON(message: ImagesInfo): unknown {
     const obj: any = {};
-    message.imageCount !== undefined && (obj.imageCount = Math.round(message.imageCount));
-    message.startedAt !== undefined && (obj.startedAt = Math.round(message.startedAt));
-    message.endedAt !== undefined && (obj.endedAt = Math.round(message.endedAt));
+    if (message.imageCount !== undefined && message.imageCount !== 0) {
+      obj.imageCount = Math.round(message.imageCount);
+    }
+    if (message.startedAt !== undefined && message.startedAt !== 0) {
+      obj.startedAt = Math.round(message.startedAt);
+    }
+    if (message.endedAt !== undefined && message.endedAt !== 0) {
+      obj.endedAt = Math.round(message.endedAt);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ImagesInfo>, I>>(base?: I): ImagesInfo {
+    return ImagesInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ImagesInfo>, I>>(object: I): ImagesInfo {
     const message = createBaseImagesInfo();
     message.imageCount = object.imageCount ?? 0;
@@ -3918,28 +5075,45 @@ export const AutoParticipantEgress = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): AutoParticipantEgress {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAutoParticipantEgress();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.preset = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.advanced = EncodingOptions.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.fileOutputs!.push(EncodedFileOutput.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.segmentOutputs!.push(SegmentedFileOutput.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -3948,10 +5122,10 @@ export const AutoParticipantEgress = {
     return {
       preset: isSet(object.preset) ? encodingOptionsPresetFromJSON(object.preset) : undefined,
       advanced: isSet(object.advanced) ? EncodingOptions.fromJSON(object.advanced) : undefined,
-      fileOutputs: Array.isArray(object?.fileOutputs)
+      fileOutputs: globalThis.Array.isArray(object?.fileOutputs)
         ? object.fileOutputs.map((e: any) => EncodedFileOutput.fromJSON(e))
         : [],
-      segmentOutputs: Array.isArray(object?.segmentOutputs)
+      segmentOutputs: globalThis.Array.isArray(object?.segmentOutputs)
         ? object.segmentOutputs.map((e: any) => SegmentedFileOutput.fromJSON(e))
         : [],
     };
@@ -3959,23 +5133,24 @@ export const AutoParticipantEgress = {
 
   toJSON(message: AutoParticipantEgress): unknown {
     const obj: any = {};
-    message.preset !== undefined &&
-      (obj.preset = message.preset !== undefined ? encodingOptionsPresetToJSON(message.preset) : undefined);
-    message.advanced !== undefined &&
-      (obj.advanced = message.advanced ? EncodingOptions.toJSON(message.advanced) : undefined);
-    if (message.fileOutputs) {
-      obj.fileOutputs = message.fileOutputs.map((e) => e ? EncodedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.fileOutputs = [];
+    if (message.preset !== undefined) {
+      obj.preset = encodingOptionsPresetToJSON(message.preset);
     }
-    if (message.segmentOutputs) {
-      obj.segmentOutputs = message.segmentOutputs.map((e) => e ? SegmentedFileOutput.toJSON(e) : undefined);
-    } else {
-      obj.segmentOutputs = [];
+    if (message.advanced !== undefined) {
+      obj.advanced = EncodingOptions.toJSON(message.advanced);
+    }
+    if (message.fileOutputs?.length) {
+      obj.fileOutputs = message.fileOutputs.map((e) => EncodedFileOutput.toJSON(e));
+    }
+    if (message.segmentOutputs?.length) {
+      obj.segmentOutputs = message.segmentOutputs.map((e) => SegmentedFileOutput.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<AutoParticipantEgress>, I>>(base?: I): AutoParticipantEgress {
+    return AutoParticipantEgress.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<AutoParticipantEgress>, I>>(object: I): AutoParticipantEgress {
     const message = createBaseAutoParticipantEgress();
     message.preset = object.preset ?? undefined;
@@ -4013,39 +5188,60 @@ export const AutoTrackEgress = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): AutoTrackEgress {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAutoTrackEgress();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.filepath = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.disableManifest = reader.bool();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.s3 = S3Upload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.gcp = GCPUpload.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.azure = AzureBlobUpload.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): AutoTrackEgress {
     return {
-      filepath: isSet(object.filepath) ? String(object.filepath) : "",
-      disableManifest: isSet(object.disableManifest) ? Boolean(object.disableManifest) : false,
+      filepath: isSet(object.filepath) ? globalThis.String(object.filepath) : "",
+      disableManifest: isSet(object.disableManifest) ? globalThis.Boolean(object.disableManifest) : false,
       s3: isSet(object.s3) ? S3Upload.fromJSON(object.s3) : undefined,
       gcp: isSet(object.gcp) ? GCPUpload.fromJSON(object.gcp) : undefined,
       azure: isSet(object.azure) ? AzureBlobUpload.fromJSON(object.azure) : undefined,
@@ -4054,14 +5250,27 @@ export const AutoTrackEgress = {
 
   toJSON(message: AutoTrackEgress): unknown {
     const obj: any = {};
-    message.filepath !== undefined && (obj.filepath = message.filepath);
-    message.disableManifest !== undefined && (obj.disableManifest = message.disableManifest);
-    message.s3 !== undefined && (obj.s3 = message.s3 ? S3Upload.toJSON(message.s3) : undefined);
-    message.gcp !== undefined && (obj.gcp = message.gcp ? GCPUpload.toJSON(message.gcp) : undefined);
-    message.azure !== undefined && (obj.azure = message.azure ? AzureBlobUpload.toJSON(message.azure) : undefined);
+    if (message.filepath !== undefined && message.filepath !== "") {
+      obj.filepath = message.filepath;
+    }
+    if (message.disableManifest === true) {
+      obj.disableManifest = message.disableManifest;
+    }
+    if (message.s3 !== undefined) {
+      obj.s3 = S3Upload.toJSON(message.s3);
+    }
+    if (message.gcp !== undefined) {
+      obj.gcp = GCPUpload.toJSON(message.gcp);
+    }
+    if (message.azure !== undefined) {
+      obj.azure = AzureBlobUpload.toJSON(message.azure);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<AutoTrackEgress>, I>>(base?: I): AutoTrackEgress {
+    return AutoTrackEgress.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<AutoTrackEgress>, I>>(object: I): AutoTrackEgress {
     const message = createBaseAutoTrackEgress();
     message.filepath = object.filepath ?? "";
@@ -4094,29 +5303,11 @@ export interface Egress {
   StopEgress(request: StopEgressRequest): Promise<EgressInfo>;
 }
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
-})();
-
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
@@ -4125,7 +5316,7 @@ export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+  if (long.gt(globalThis.Number.MAX_SAFE_INTEGER)) {
     throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   return long.toNumber();

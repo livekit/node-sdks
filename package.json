@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
-    "prepare": "npm run build",
+    "prepare": "pnpm build",
     "test": "jest"
   },
   "dependencies": {

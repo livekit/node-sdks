@@ -552,7 +552,7 @@ export interface ParticipantInfo {
   joinedAt: number;
   name: string;
   version: number;
-  permission?: ParticipantPermission;
+  permission?: ParticipantPermission | undefined;
   region: string;
   /**
    * indicates the participant has an active publisher connection
@@ -705,6 +705,7 @@ export interface DataPacket {
   kind: DataPacket_Kind;
   user?: UserPacket | undefined;
   speaker?: ActiveSpeakerUpdate | undefined;
+  persistableUser?: PersistableUserPacket | undefined;
 }
 
 export enum DataPacket_Kind {
@@ -764,6 +765,26 @@ export interface UserPacket {
   destinationIdentities: string[];
   /** topic under which the message was published */
   topic?: string | undefined;
+}
+
+export interface PersistableUserPacket {
+  /** participant ID of user that sent the message */
+  participantSid: string;
+  participantIdentity: string;
+  participantName: string;
+  /** user defined payload */
+  payload: Uint8Array;
+  /** the ID of the participants who will receive the message (sent to all by default) */
+  destinationSids: string[];
+  /** identities of participants who will receive the message (sent to all by default) */
+  destinationIdentities: string[];
+  /** topic under which the message was published */
+  topic?: string | undefined;
+  timestamp: number;
+}
+
+export interface PersistableUserData {
+  packets: PersistableUserPacket[];
 }
 
 export interface ParticipantTracks {
@@ -920,10 +941,10 @@ export function clientInfo_SDKToJSON(object: ClientInfo_SDK): string {
 
 /** server provided client configuration */
 export interface ClientConfiguration {
-  video?: VideoConfiguration;
-  screen?: VideoConfiguration;
+  video?: VideoConfiguration | undefined;
+  screen?: VideoConfiguration | undefined;
   resumeConnection: ClientConfigSetting;
-  disabledCodecs?: DisabledCodecs;
+  disabledCodecs?: DisabledCodecs | undefined;
   forceRelay: ClientConfigSetting;
 }
 
@@ -939,8 +960,8 @@ export interface DisabledCodecs {
 }
 
 export interface RTPDrift {
-  startTime?: Date;
-  endTime?: Date;
+  startTime?: Date | undefined;
+  endTime?: Date | undefined;
   duration: number;
   startTimestamp: number;
   endTimestamp: number;
@@ -951,8 +972,8 @@ export interface RTPDrift {
 }
 
 export interface RTPStats {
-  startTime?: Date;
-  endTime?: Date;
+  startTime?: Date | undefined;
+  endTime?: Date | undefined;
   duration: number;
   packets: number;
   packetRate: number;
@@ -983,18 +1004,20 @@ export interface RTPStats {
   nackMisses: number;
   nackRepeated: number;
   plis: number;
-  lastPli?: Date;
+  lastPli?: Date | undefined;
   firs: number;
-  lastFir?: Date;
+  lastFir?: Date | undefined;
   rttCurrent: number;
   rttMax: number;
   keyFrames: number;
-  lastKeyFrame?: Date;
+  lastKeyFrame?: Date | undefined;
   layerLockPlis: number;
-  lastLayerLockPli?: Date;
-  packetDrift?: RTPDrift;
+  lastLayerLockPli?: Date | undefined;
+  packetDrift?:
+    | RTPDrift
+    | undefined;
   /** NEXT_ID: 46 */
-  reportDrift?: RTPDrift;
+  reportDrift?: RTPDrift | undefined;
 }
 
 export interface RTPStats_GapHistogramEntry {
@@ -1062,91 +1085,157 @@ export const Room = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Room {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRoom();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.sid = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.emptyTimeout = reader.uint32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.maxParticipants = reader.uint32();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.creationTime = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.turnPassword = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.enabledCodecs.push(Codec.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.metadata = reader.string();
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.numParticipants = reader.uint32();
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.numPublishers = reader.uint32();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.activeRecording = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): Room {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
-      name: isSet(object.name) ? String(object.name) : "",
-      emptyTimeout: isSet(object.emptyTimeout) ? Number(object.emptyTimeout) : 0,
-      maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
-      creationTime: isSet(object.creationTime) ? Number(object.creationTime) : 0,
-      turnPassword: isSet(object.turnPassword) ? String(object.turnPassword) : "",
-      enabledCodecs: Array.isArray(object?.enabledCodecs)
+      sid: isSet(object.sid) ? globalThis.String(object.sid) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      emptyTimeout: isSet(object.emptyTimeout) ? globalThis.Number(object.emptyTimeout) : 0,
+      maxParticipants: isSet(object.maxParticipants) ? globalThis.Number(object.maxParticipants) : 0,
+      creationTime: isSet(object.creationTime) ? globalThis.Number(object.creationTime) : 0,
+      turnPassword: isSet(object.turnPassword) ? globalThis.String(object.turnPassword) : "",
+      enabledCodecs: globalThis.Array.isArray(object?.enabledCodecs)
         ? object.enabledCodecs.map((e: any) => Codec.fromJSON(e))
         : [],
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
-      numParticipants: isSet(object.numParticipants) ? Number(object.numParticipants) : 0,
-      numPublishers: isSet(object.numPublishers) ? Number(object.numPublishers) : 0,
-      activeRecording: isSet(object.activeRecording) ? Boolean(object.activeRecording) : false,
+      metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
+      numParticipants: isSet(object.numParticipants) ? globalThis.Number(object.numParticipants) : 0,
+      numPublishers: isSet(object.numPublishers) ? globalThis.Number(object.numPublishers) : 0,
+      activeRecording: isSet(object.activeRecording) ? globalThis.Boolean(object.activeRecording) : false,
     };
   },
 
   toJSON(message: Room): unknown {
     const obj: any = {};
-    message.sid !== undefined && (obj.sid = message.sid);
-    message.name !== undefined && (obj.name = message.name);
-    message.emptyTimeout !== undefined && (obj.emptyTimeout = Math.round(message.emptyTimeout));
-    message.maxParticipants !== undefined && (obj.maxParticipants = Math.round(message.maxParticipants));
-    message.creationTime !== undefined && (obj.creationTime = Math.round(message.creationTime));
-    message.turnPassword !== undefined && (obj.turnPassword = message.turnPassword);
-    if (message.enabledCodecs) {
-      obj.enabledCodecs = message.enabledCodecs.map((e) => e ? Codec.toJSON(e) : undefined);
-    } else {
-      obj.enabledCodecs = [];
+    if (message.sid !== "") {
+      obj.sid = message.sid;
     }
-    message.metadata !== undefined && (obj.metadata = message.metadata);
-    message.numParticipants !== undefined && (obj.numParticipants = Math.round(message.numParticipants));
-    message.numPublishers !== undefined && (obj.numPublishers = Math.round(message.numPublishers));
-    message.activeRecording !== undefined && (obj.activeRecording = message.activeRecording);
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.emptyTimeout !== 0) {
+      obj.emptyTimeout = Math.round(message.emptyTimeout);
+    }
+    if (message.maxParticipants !== 0) {
+      obj.maxParticipants = Math.round(message.maxParticipants);
+    }
+    if (message.creationTime !== 0) {
+      obj.creationTime = Math.round(message.creationTime);
+    }
+    if (message.turnPassword !== "") {
+      obj.turnPassword = message.turnPassword;
+    }
+    if (message.enabledCodecs?.length) {
+      obj.enabledCodecs = message.enabledCodecs.map((e) => Codec.toJSON(e));
+    }
+    if (message.metadata !== "") {
+      obj.metadata = message.metadata;
+    }
+    if (message.numParticipants !== 0) {
+      obj.numParticipants = Math.round(message.numParticipants);
+    }
+    if (message.numPublishers !== 0) {
+      obj.numPublishers = Math.round(message.numPublishers);
+    }
+    if (message.activeRecording === true) {
+      obj.activeRecording = message.activeRecording;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<Room>, I>>(base?: I): Room {
+    return Room.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<Room>, I>>(object: I): Room {
     const message = createBaseRoom();
     message.sid = object.sid ?? "";
@@ -1180,40 +1269,56 @@ export const Codec = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Codec {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCodec();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.mime = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.fmtpLine = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): Codec {
     return {
-      mime: isSet(object.mime) ? String(object.mime) : "",
-      fmtpLine: isSet(object.fmtpLine) ? String(object.fmtpLine) : "",
+      mime: isSet(object.mime) ? globalThis.String(object.mime) : "",
+      fmtpLine: isSet(object.fmtpLine) ? globalThis.String(object.fmtpLine) : "",
     };
   },
 
   toJSON(message: Codec): unknown {
     const obj: any = {};
-    message.mime !== undefined && (obj.mime = message.mime);
-    message.fmtpLine !== undefined && (obj.fmtpLine = message.fmtpLine);
+    if (message.mime !== "") {
+      obj.mime = message.mime;
+    }
+    if (message.fmtpLine !== "") {
+      obj.fmtpLine = message.fmtpLine;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<Codec>, I>>(base?: I): Codec {
+    return Codec.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<Codec>, I>>(object: I): Codec {
     const message = createBaseCodec();
     message.mime = object.mime ?? "";
@@ -1241,45 +1346,67 @@ export const PlayoutDelay = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): PlayoutDelay {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePlayoutDelay();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.enabled = reader.bool();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.min = reader.uint32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.max = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): PlayoutDelay {
     return {
-      enabled: isSet(object.enabled) ? Boolean(object.enabled) : false,
-      min: isSet(object.min) ? Number(object.min) : 0,
-      max: isSet(object.max) ? Number(object.max) : 0,
+      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+      min: isSet(object.min) ? globalThis.Number(object.min) : 0,
+      max: isSet(object.max) ? globalThis.Number(object.max) : 0,
     };
   },
 
   toJSON(message: PlayoutDelay): unknown {
     const obj: any = {};
-    message.enabled !== undefined && (obj.enabled = message.enabled);
-    message.min !== undefined && (obj.min = Math.round(message.min));
-    message.max !== undefined && (obj.max = Math.round(message.max));
+    if (message.enabled === true) {
+      obj.enabled = message.enabled;
+    }
+    if (message.min !== 0) {
+      obj.min = Math.round(message.min);
+    }
+    if (message.max !== 0) {
+      obj.max = Math.round(message.max);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<PlayoutDelay>, I>>(base?: I): PlayoutDelay {
+    return PlayoutDelay.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<PlayoutDelay>, I>>(object: I): PlayoutDelay {
     const message = createBasePlayoutDelay();
     message.enabled = object.enabled ?? false;
@@ -1330,78 +1457,123 @@ export const ParticipantPermission = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantPermission {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseParticipantPermission();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.canSubscribe = reader.bool();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.canPublish = reader.bool();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.canPublishData = reader.bool();
-          break;
+          continue;
         case 9:
-          if ((tag & 7) === 2) {
+          if (tag === 72) {
+            message.canPublishSources.push(reader.int32() as any);
+
+            continue;
+          }
+
+          if (tag === 74) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
               message.canPublishSources.push(reader.int32() as any);
             }
-          } else {
-            message.canPublishSources.push(reader.int32() as any);
+
+            continue;
           }
+
           break;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.hidden = reader.bool();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.recorder = reader.bool();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.canUpdateMetadata = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ParticipantPermission {
     return {
-      canSubscribe: isSet(object.canSubscribe) ? Boolean(object.canSubscribe) : false,
-      canPublish: isSet(object.canPublish) ? Boolean(object.canPublish) : false,
-      canPublishData: isSet(object.canPublishData) ? Boolean(object.canPublishData) : false,
-      canPublishSources: Array.isArray(object?.canPublishSources)
+      canSubscribe: isSet(object.canSubscribe) ? globalThis.Boolean(object.canSubscribe) : false,
+      canPublish: isSet(object.canPublish) ? globalThis.Boolean(object.canPublish) : false,
+      canPublishData: isSet(object.canPublishData) ? globalThis.Boolean(object.canPublishData) : false,
+      canPublishSources: globalThis.Array.isArray(object?.canPublishSources)
         ? object.canPublishSources.map((e: any) => trackSourceFromJSON(e))
         : [],
-      hidden: isSet(object.hidden) ? Boolean(object.hidden) : false,
-      recorder: isSet(object.recorder) ? Boolean(object.recorder) : false,
-      canUpdateMetadata: isSet(object.canUpdateMetadata) ? Boolean(object.canUpdateMetadata) : false,
+      hidden: isSet(object.hidden) ? globalThis.Boolean(object.hidden) : false,
+      recorder: isSet(object.recorder) ? globalThis.Boolean(object.recorder) : false,
+      canUpdateMetadata: isSet(object.canUpdateMetadata) ? globalThis.Boolean(object.canUpdateMetadata) : false,
     };
   },
 
   toJSON(message: ParticipantPermission): unknown {
     const obj: any = {};
-    message.canSubscribe !== undefined && (obj.canSubscribe = message.canSubscribe);
-    message.canPublish !== undefined && (obj.canPublish = message.canPublish);
-    message.canPublishData !== undefined && (obj.canPublishData = message.canPublishData);
-    if (message.canPublishSources) {
-      obj.canPublishSources = message.canPublishSources.map((e) => trackSourceToJSON(e));
-    } else {
-      obj.canPublishSources = [];
+    if (message.canSubscribe === true) {
+      obj.canSubscribe = message.canSubscribe;
     }
-    message.hidden !== undefined && (obj.hidden = message.hidden);
-    message.recorder !== undefined && (obj.recorder = message.recorder);
-    message.canUpdateMetadata !== undefined && (obj.canUpdateMetadata = message.canUpdateMetadata);
+    if (message.canPublish === true) {
+      obj.canPublish = message.canPublish;
+    }
+    if (message.canPublishData === true) {
+      obj.canPublishData = message.canPublishData;
+    }
+    if (message.canPublishSources?.length) {
+      obj.canPublishSources = message.canPublishSources.map((e) => trackSourceToJSON(e));
+    }
+    if (message.hidden === true) {
+      obj.hidden = message.hidden;
+    }
+    if (message.recorder === true) {
+      obj.recorder = message.recorder;
+    }
+    if (message.canUpdateMetadata === true) {
+      obj.canUpdateMetadata = message.canUpdateMetadata;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ParticipantPermission>, I>>(base?: I): ParticipantPermission {
+    return ParticipantPermission.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ParticipantPermission>, I>>(object: I): ParticipantPermission {
     const message = createBaseParticipantPermission();
     message.canSubscribe = object.canSubscribe ?? false;
@@ -1470,90 +1642,155 @@ export const ParticipantInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseParticipantInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.sid = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.identity = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.state = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.tracks.push(TrackInfo.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.metadata = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.joinedAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.version = reader.uint32();
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.permission = ParticipantPermission.decode(reader, reader.uint32());
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.region = reader.string();
-          break;
+          continue;
         case 13:
+          if (tag !== 104) {
+            break;
+          }
+
           message.isPublisher = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ParticipantInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
-      identity: isSet(object.identity) ? String(object.identity) : "",
+      sid: isSet(object.sid) ? globalThis.String(object.sid) : "",
+      identity: isSet(object.identity) ? globalThis.String(object.identity) : "",
       state: isSet(object.state) ? participantInfo_StateFromJSON(object.state) : 0,
-      tracks: Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
-      metadata: isSet(object.metadata) ? String(object.metadata) : "",
-      joinedAt: isSet(object.joinedAt) ? Number(object.joinedAt) : 0,
-      name: isSet(object.name) ? String(object.name) : "",
-      version: isSet(object.version) ? Number(object.version) : 0,
+      tracks: globalThis.Array.isArray(object?.tracks) ? object.tracks.map((e: any) => TrackInfo.fromJSON(e)) : [],
+      metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
+      joinedAt: isSet(object.joinedAt) ? globalThis.Number(object.joinedAt) : 0,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
       permission: isSet(object.permission) ? ParticipantPermission.fromJSON(object.permission) : undefined,
-      region: isSet(object.region) ? String(object.region) : "",
-      isPublisher: isSet(object.isPublisher) ? Boolean(object.isPublisher) : false,
+      region: isSet(object.region) ? globalThis.String(object.region) : "",
+      isPublisher: isSet(object.isPublisher) ? globalThis.Boolean(object.isPublisher) : false,
     };
   },
 
   toJSON(message: ParticipantInfo): unknown {
     const obj: any = {};
-    message.sid !== undefined && (obj.sid = message.sid);
-    message.identity !== undefined && (obj.identity = message.identity);
-    message.state !== undefined && (obj.state = participantInfo_StateToJSON(message.state));
-    if (message.tracks) {
-      obj.tracks = message.tracks.map((e) => e ? TrackInfo.toJSON(e) : undefined);
-    } else {
-      obj.tracks = [];
+    if (message.sid !== "") {
+      obj.sid = message.sid;
     }
-    message.metadata !== undefined && (obj.metadata = message.metadata);
-    message.joinedAt !== undefined && (obj.joinedAt = Math.round(message.joinedAt));
-    message.name !== undefined && (obj.name = message.name);
-    message.version !== undefined && (obj.version = Math.round(message.version));
-    message.permission !== undefined &&
-      (obj.permission = message.permission ? ParticipantPermission.toJSON(message.permission) : undefined);
-    message.region !== undefined && (obj.region = message.region);
-    message.isPublisher !== undefined && (obj.isPublisher = message.isPublisher);
+    if (message.identity !== "") {
+      obj.identity = message.identity;
+    }
+    if (message.state !== 0) {
+      obj.state = participantInfo_StateToJSON(message.state);
+    }
+    if (message.tracks?.length) {
+      obj.tracks = message.tracks.map((e) => TrackInfo.toJSON(e));
+    }
+    if (message.metadata !== "") {
+      obj.metadata = message.metadata;
+    }
+    if (message.joinedAt !== 0) {
+      obj.joinedAt = Math.round(message.joinedAt);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.version !== 0) {
+      obj.version = Math.round(message.version);
+    }
+    if (message.permission !== undefined) {
+      obj.permission = ParticipantPermission.toJSON(message.permission);
+    }
+    if (message.region !== "") {
+      obj.region = message.region;
+    }
+    if (message.isPublisher === true) {
+      obj.isPublisher = message.isPublisher;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ParticipantInfo>, I>>(base?: I): ParticipantInfo {
+    return ParticipantInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ParticipantInfo>, I>>(object: I): ParticipantInfo {
     const message = createBaseParticipantInfo();
     message.sid = object.sid ?? "";
@@ -1583,16 +1820,17 @@ export const Encryption = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Encryption {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEncryption();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -1606,6 +1844,9 @@ export const Encryption = {
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<Encryption>, I>>(base?: I): Encryption {
+    return Encryption.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<Encryption>, I>>(_: I): Encryption {
     const message = createBaseEncryption();
     return message;
@@ -1634,54 +1875,78 @@ export const SimulcastCodecInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SimulcastCodecInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSimulcastCodecInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.mimeType = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.mid = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.cid = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.layers.push(VideoLayer.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): SimulcastCodecInfo {
     return {
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      mid: isSet(object.mid) ? String(object.mid) : "",
-      cid: isSet(object.cid) ? String(object.cid) : "",
-      layers: Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
+      mimeType: isSet(object.mimeType) ? globalThis.String(object.mimeType) : "",
+      mid: isSet(object.mid) ? globalThis.String(object.mid) : "",
+      cid: isSet(object.cid) ? globalThis.String(object.cid) : "",
+      layers: globalThis.Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: SimulcastCodecInfo): unknown {
     const obj: any = {};
-    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
-    message.mid !== undefined && (obj.mid = message.mid);
-    message.cid !== undefined && (obj.cid = message.cid);
-    if (message.layers) {
-      obj.layers = message.layers.map((e) => e ? VideoLayer.toJSON(e) : undefined);
-    } else {
-      obj.layers = [];
+    if (message.mimeType !== "") {
+      obj.mimeType = message.mimeType;
+    }
+    if (message.mid !== "") {
+      obj.mid = message.mid;
+    }
+    if (message.cid !== "") {
+      obj.cid = message.cid;
+    }
+    if (message.layers?.length) {
+      obj.layers = message.layers.map((e) => VideoLayer.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<SimulcastCodecInfo>, I>>(base?: I): SimulcastCodecInfo {
+    return SimulcastCodecInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<SimulcastCodecInfo>, I>>(object: I): SimulcastCodecInfo {
     const message = createBaseSimulcastCodecInfo();
     message.mimeType = object.mimeType ?? "";
@@ -1771,123 +2036,223 @@ export const TrackInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TrackInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTrackInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.sid = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.type = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.muted = reader.bool();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.width = reader.uint32();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.height = reader.uint32();
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.simulcast = reader.bool();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.disableDtx = reader.bool();
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.source = reader.int32() as any;
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.layers.push(VideoLayer.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.mimeType = reader.string();
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.mid = reader.string();
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.codecs.push(SimulcastCodecInfo.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 14:
+          if (tag !== 112) {
+            break;
+          }
+
           message.stereo = reader.bool();
-          break;
+          continue;
         case 15:
+          if (tag !== 120) {
+            break;
+          }
+
           message.disableRed = reader.bool();
-          break;
+          continue;
         case 16:
+          if (tag !== 128) {
+            break;
+          }
+
           message.encryption = reader.int32() as any;
-          break;
+          continue;
         case 17:
+          if (tag !== 138) {
+            break;
+          }
+
           message.stream = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): TrackInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
+      sid: isSet(object.sid) ? globalThis.String(object.sid) : "",
       type: isSet(object.type) ? trackTypeFromJSON(object.type) : 0,
-      name: isSet(object.name) ? String(object.name) : "",
-      muted: isSet(object.muted) ? Boolean(object.muted) : false,
-      width: isSet(object.width) ? Number(object.width) : 0,
-      height: isSet(object.height) ? Number(object.height) : 0,
-      simulcast: isSet(object.simulcast) ? Boolean(object.simulcast) : false,
-      disableDtx: isSet(object.disableDtx) ? Boolean(object.disableDtx) : false,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      muted: isSet(object.muted) ? globalThis.Boolean(object.muted) : false,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      simulcast: isSet(object.simulcast) ? globalThis.Boolean(object.simulcast) : false,
+      disableDtx: isSet(object.disableDtx) ? globalThis.Boolean(object.disableDtx) : false,
       source: isSet(object.source) ? trackSourceFromJSON(object.source) : 0,
-      layers: Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
-      mimeType: isSet(object.mimeType) ? String(object.mimeType) : "",
-      mid: isSet(object.mid) ? String(object.mid) : "",
-      codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e)) : [],
-      stereo: isSet(object.stereo) ? Boolean(object.stereo) : false,
-      disableRed: isSet(object.disableRed) ? Boolean(object.disableRed) : false,
+      layers: globalThis.Array.isArray(object?.layers) ? object.layers.map((e: any) => VideoLayer.fromJSON(e)) : [],
+      mimeType: isSet(object.mimeType) ? globalThis.String(object.mimeType) : "",
+      mid: isSet(object.mid) ? globalThis.String(object.mid) : "",
+      codecs: globalThis.Array.isArray(object?.codecs)
+        ? object.codecs.map((e: any) => SimulcastCodecInfo.fromJSON(e))
+        : [],
+      stereo: isSet(object.stereo) ? globalThis.Boolean(object.stereo) : false,
+      disableRed: isSet(object.disableRed) ? globalThis.Boolean(object.disableRed) : false,
       encryption: isSet(object.encryption) ? encryption_TypeFromJSON(object.encryption) : 0,
-      stream: isSet(object.stream) ? String(object.stream) : "",
+      stream: isSet(object.stream) ? globalThis.String(object.stream) : "",
     };
   },
 
   toJSON(message: TrackInfo): unknown {
     const obj: any = {};
-    message.sid !== undefined && (obj.sid = message.sid);
-    message.type !== undefined && (obj.type = trackTypeToJSON(message.type));
-    message.name !== undefined && (obj.name = message.name);
-    message.muted !== undefined && (obj.muted = message.muted);
-    message.width !== undefined && (obj.width = Math.round(message.width));
-    message.height !== undefined && (obj.height = Math.round(message.height));
-    message.simulcast !== undefined && (obj.simulcast = message.simulcast);
-    message.disableDtx !== undefined && (obj.disableDtx = message.disableDtx);
-    message.source !== undefined && (obj.source = trackSourceToJSON(message.source));
-    if (message.layers) {
-      obj.layers = message.layers.map((e) => e ? VideoLayer.toJSON(e) : undefined);
-    } else {
-      obj.layers = [];
+    if (message.sid !== "") {
+      obj.sid = message.sid;
     }
-    message.mimeType !== undefined && (obj.mimeType = message.mimeType);
-    message.mid !== undefined && (obj.mid = message.mid);
-    if (message.codecs) {
-      obj.codecs = message.codecs.map((e) => e ? SimulcastCodecInfo.toJSON(e) : undefined);
-    } else {
-      obj.codecs = [];
+    if (message.type !== 0) {
+      obj.type = trackTypeToJSON(message.type);
     }
-    message.stereo !== undefined && (obj.stereo = message.stereo);
-    message.disableRed !== undefined && (obj.disableRed = message.disableRed);
-    message.encryption !== undefined && (obj.encryption = encryption_TypeToJSON(message.encryption));
-    message.stream !== undefined && (obj.stream = message.stream);
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.muted === true) {
+      obj.muted = message.muted;
+    }
+    if (message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.simulcast === true) {
+      obj.simulcast = message.simulcast;
+    }
+    if (message.disableDtx === true) {
+      obj.disableDtx = message.disableDtx;
+    }
+    if (message.source !== 0) {
+      obj.source = trackSourceToJSON(message.source);
+    }
+    if (message.layers?.length) {
+      obj.layers = message.layers.map((e) => VideoLayer.toJSON(e));
+    }
+    if (message.mimeType !== "") {
+      obj.mimeType = message.mimeType;
+    }
+    if (message.mid !== "") {
+      obj.mid = message.mid;
+    }
+    if (message.codecs?.length) {
+      obj.codecs = message.codecs.map((e) => SimulcastCodecInfo.toJSON(e));
+    }
+    if (message.stereo === true) {
+      obj.stereo = message.stereo;
+    }
+    if (message.disableRed === true) {
+      obj.disableRed = message.disableRed;
+    }
+    if (message.encryption !== 0) {
+      obj.encryption = encryption_TypeToJSON(message.encryption);
+    }
+    if (message.stream !== "") {
+      obj.stream = message.stream;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<TrackInfo>, I>>(base?: I): TrackInfo {
+    return TrackInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<TrackInfo>, I>>(object: I): TrackInfo {
     const message = createBaseTrackInfo();
     message.sid = object.sid ?? "";
@@ -1936,31 +2301,52 @@ export const VideoLayer = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): VideoLayer {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseVideoLayer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.quality = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.width = reader.uint32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.height = reader.uint32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.bitrate = reader.uint32();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.ssrc = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -1968,23 +2354,36 @@ export const VideoLayer = {
   fromJSON(object: any): VideoLayer {
     return {
       quality: isSet(object.quality) ? videoQualityFromJSON(object.quality) : 0,
-      width: isSet(object.width) ? Number(object.width) : 0,
-      height: isSet(object.height) ? Number(object.height) : 0,
-      bitrate: isSet(object.bitrate) ? Number(object.bitrate) : 0,
-      ssrc: isSet(object.ssrc) ? Number(object.ssrc) : 0,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      bitrate: isSet(object.bitrate) ? globalThis.Number(object.bitrate) : 0,
+      ssrc: isSet(object.ssrc) ? globalThis.Number(object.ssrc) : 0,
     };
   },
 
   toJSON(message: VideoLayer): unknown {
     const obj: any = {};
-    message.quality !== undefined && (obj.quality = videoQualityToJSON(message.quality));
-    message.width !== undefined && (obj.width = Math.round(message.width));
-    message.height !== undefined && (obj.height = Math.round(message.height));
-    message.bitrate !== undefined && (obj.bitrate = Math.round(message.bitrate));
-    message.ssrc !== undefined && (obj.ssrc = Math.round(message.ssrc));
+    if (message.quality !== 0) {
+      obj.quality = videoQualityToJSON(message.quality);
+    }
+    if (message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.bitrate !== 0) {
+      obj.bitrate = Math.round(message.bitrate);
+    }
+    if (message.ssrc !== 0) {
+      obj.ssrc = Math.round(message.ssrc);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<VideoLayer>, I>>(base?: I): VideoLayer {
+    return VideoLayer.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<VideoLayer>, I>>(object: I): VideoLayer {
     const message = createBaseVideoLayer();
     message.quality = object.quality ?? 0;
@@ -1997,7 +2396,7 @@ export const VideoLayer = {
 };
 
 function createBaseDataPacket(): DataPacket {
-  return { kind: 0, user: undefined, speaker: undefined };
+  return { kind: 0, user: undefined, speaker: undefined, persistableUser: undefined };
 }
 
 export const DataPacket = {
@@ -2011,29 +2410,52 @@ export const DataPacket = {
     if (message.speaker !== undefined) {
       ActiveSpeakerUpdate.encode(message.speaker, writer.uint32(26).fork()).ldelim();
     }
+    if (message.persistableUser !== undefined) {
+      PersistableUserPacket.encode(message.persistableUser, writer.uint32(34).fork()).ldelim();
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): DataPacket {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDataPacket();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.kind = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.user = UserPacket.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.speaker = ActiveSpeakerUpdate.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.persistableUser = PersistableUserPacket.decode(reader, reader.uint32());
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2043,18 +2465,32 @@ export const DataPacket = {
       kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
       user: isSet(object.user) ? UserPacket.fromJSON(object.user) : undefined,
       speaker: isSet(object.speaker) ? ActiveSpeakerUpdate.fromJSON(object.speaker) : undefined,
+      persistableUser: isSet(object.persistableUser)
+        ? PersistableUserPacket.fromJSON(object.persistableUser)
+        : undefined,
     };
   },
 
   toJSON(message: DataPacket): unknown {
     const obj: any = {};
-    message.kind !== undefined && (obj.kind = dataPacket_KindToJSON(message.kind));
-    message.user !== undefined && (obj.user = message.user ? UserPacket.toJSON(message.user) : undefined);
-    message.speaker !== undefined &&
-      (obj.speaker = message.speaker ? ActiveSpeakerUpdate.toJSON(message.speaker) : undefined);
+    if (message.kind !== 0) {
+      obj.kind = dataPacket_KindToJSON(message.kind);
+    }
+    if (message.user !== undefined) {
+      obj.user = UserPacket.toJSON(message.user);
+    }
+    if (message.speaker !== undefined) {
+      obj.speaker = ActiveSpeakerUpdate.toJSON(message.speaker);
+    }
+    if (message.persistableUser !== undefined) {
+      obj.persistableUser = PersistableUserPacket.toJSON(message.persistableUser);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<DataPacket>, I>>(base?: I): DataPacket {
+    return DataPacket.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<DataPacket>, I>>(object: I): DataPacket {
     const message = createBaseDataPacket();
     message.kind = object.kind ?? 0;
@@ -2063,6 +2499,9 @@ export const DataPacket = {
       : undefined;
     message.speaker = (object.speaker !== undefined && object.speaker !== null)
       ? ActiveSpeakerUpdate.fromPartial(object.speaker)
+      : undefined;
+    message.persistableUser = (object.persistableUser !== undefined && object.persistableUser !== null)
+      ? PersistableUserPacket.fromPartial(object.persistableUser)
       : undefined;
     return message;
   },
@@ -2081,39 +2520,47 @@ export const ActiveSpeakerUpdate = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ActiveSpeakerUpdate {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseActiveSpeakerUpdate();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.speakers.push(SpeakerInfo.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ActiveSpeakerUpdate {
     return {
-      speakers: Array.isArray(object?.speakers) ? object.speakers.map((e: any) => SpeakerInfo.fromJSON(e)) : [],
+      speakers: globalThis.Array.isArray(object?.speakers)
+        ? object.speakers.map((e: any) => SpeakerInfo.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: ActiveSpeakerUpdate): unknown {
     const obj: any = {};
-    if (message.speakers) {
-      obj.speakers = message.speakers.map((e) => e ? SpeakerInfo.toJSON(e) : undefined);
-    } else {
-      obj.speakers = [];
+    if (message.speakers?.length) {
+      obj.speakers = message.speakers.map((e) => SpeakerInfo.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ActiveSpeakerUpdate>, I>>(base?: I): ActiveSpeakerUpdate {
+    return ActiveSpeakerUpdate.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ActiveSpeakerUpdate>, I>>(object: I): ActiveSpeakerUpdate {
     const message = createBaseActiveSpeakerUpdate();
     message.speakers = object.speakers?.map((e) => SpeakerInfo.fromPartial(e)) || [];
@@ -2140,45 +2587,67 @@ export const SpeakerInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SpeakerInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSpeakerInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.sid = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 21) {
+            break;
+          }
+
           message.level = reader.float();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.active = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): SpeakerInfo {
     return {
-      sid: isSet(object.sid) ? String(object.sid) : "",
-      level: isSet(object.level) ? Number(object.level) : 0,
-      active: isSet(object.active) ? Boolean(object.active) : false,
+      sid: isSet(object.sid) ? globalThis.String(object.sid) : "",
+      level: isSet(object.level) ? globalThis.Number(object.level) : 0,
+      active: isSet(object.active) ? globalThis.Boolean(object.active) : false,
     };
   },
 
   toJSON(message: SpeakerInfo): unknown {
     const obj: any = {};
-    message.sid !== undefined && (obj.sid = message.sid);
-    message.level !== undefined && (obj.level = message.level);
-    message.active !== undefined && (obj.active = message.active);
+    if (message.sid !== "") {
+      obj.sid = message.sid;
+    }
+    if (message.level !== 0) {
+      obj.level = message.level;
+    }
+    if (message.active === true) {
+      obj.active = message.active;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<SpeakerInfo>, I>>(base?: I): SpeakerInfo {
+    return SpeakerInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<SpeakerInfo>, I>>(object: I): SpeakerInfo {
     const message = createBaseSpeakerInfo();
     message.sid = object.sid ?? "";
@@ -2192,7 +2661,7 @@ function createBaseUserPacket(): UserPacket {
   return {
     participantSid: "",
     participantIdentity: "",
-    payload: new Uint8Array(),
+    payload: new Uint8Array(0),
     destinationSids: [],
     destinationIdentities: [],
     topic: undefined,
@@ -2223,79 +2692,350 @@ export const UserPacket = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): UserPacket {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserPacket();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.participantSid = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.participantIdentity = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.payload = reader.bytes();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.destinationSids.push(reader.string());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.destinationIdentities.push(reader.string());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): UserPacket {
     return {
-      participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
-      participantIdentity: isSet(object.participantIdentity) ? String(object.participantIdentity) : "",
-      payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(),
-      destinationSids: Array.isArray(object?.destinationSids) ? object.destinationSids.map((e: any) => String(e)) : [],
-      destinationIdentities: Array.isArray(object?.destinationIdentities)
-        ? object.destinationIdentities.map((e: any) => String(e))
+      participantSid: isSet(object.participantSid) ? globalThis.String(object.participantSid) : "",
+      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
+      payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(0),
+      destinationSids: globalThis.Array.isArray(object?.destinationSids)
+        ? object.destinationSids.map((e: any) => globalThis.String(e))
         : [],
-      topic: isSet(object.topic) ? String(object.topic) : undefined,
+      destinationIdentities: globalThis.Array.isArray(object?.destinationIdentities)
+        ? object.destinationIdentities.map((e: any) => globalThis.String(e))
+        : [],
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : undefined,
     };
   },
 
   toJSON(message: UserPacket): unknown {
     const obj: any = {};
-    message.participantSid !== undefined && (obj.participantSid = message.participantSid);
-    message.participantIdentity !== undefined && (obj.participantIdentity = message.participantIdentity);
-    message.payload !== undefined &&
-      (obj.payload = base64FromBytes(message.payload !== undefined ? message.payload : new Uint8Array()));
-    if (message.destinationSids) {
-      obj.destinationSids = message.destinationSids.map((e) => e);
-    } else {
-      obj.destinationSids = [];
+    if (message.participantSid !== "") {
+      obj.participantSid = message.participantSid;
     }
-    if (message.destinationIdentities) {
-      obj.destinationIdentities = message.destinationIdentities.map((e) => e);
-    } else {
-      obj.destinationIdentities = [];
+    if (message.participantIdentity !== "") {
+      obj.participantIdentity = message.participantIdentity;
     }
-    message.topic !== undefined && (obj.topic = message.topic);
+    if (message.payload.length !== 0) {
+      obj.payload = base64FromBytes(message.payload);
+    }
+    if (message.destinationSids?.length) {
+      obj.destinationSids = message.destinationSids;
+    }
+    if (message.destinationIdentities?.length) {
+      obj.destinationIdentities = message.destinationIdentities;
+    }
+    if (message.topic !== undefined) {
+      obj.topic = message.topic;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<UserPacket>, I>>(base?: I): UserPacket {
+    return UserPacket.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<UserPacket>, I>>(object: I): UserPacket {
     const message = createBaseUserPacket();
     message.participantSid = object.participantSid ?? "";
     message.participantIdentity = object.participantIdentity ?? "";
-    message.payload = object.payload ?? new Uint8Array();
+    message.payload = object.payload ?? new Uint8Array(0);
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
     message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
     message.topic = object.topic ?? undefined;
+    return message;
+  },
+};
+
+function createBasePersistableUserPacket(): PersistableUserPacket {
+  return {
+    participantSid: "",
+    participantIdentity: "",
+    participantName: "",
+    payload: new Uint8Array(0),
+    destinationSids: [],
+    destinationIdentities: [],
+    topic: undefined,
+    timestamp: 0,
+  };
+}
+
+export const PersistableUserPacket = {
+  encode(message: PersistableUserPacket, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.participantSid !== "") {
+      writer.uint32(10).string(message.participantSid);
+    }
+    if (message.participantIdentity !== "") {
+      writer.uint32(42).string(message.participantIdentity);
+    }
+    if (message.participantName !== "") {
+      writer.uint32(66).string(message.participantName);
+    }
+    if (message.payload.length !== 0) {
+      writer.uint32(18).bytes(message.payload);
+    }
+    for (const v of message.destinationSids) {
+      writer.uint32(26).string(v!);
+    }
+    for (const v of message.destinationIdentities) {
+      writer.uint32(50).string(v!);
+    }
+    if (message.topic !== undefined) {
+      writer.uint32(34).string(message.topic);
+    }
+    if (message.timestamp !== 0) {
+      writer.uint32(56).int64(message.timestamp);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): PersistableUserPacket {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePersistableUserPacket();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.participantSid = reader.string();
+          continue;
+        case 5:
+          if (tag !== 42) {
+            break;
+          }
+
+          message.participantIdentity = reader.string();
+          continue;
+        case 8:
+          if (tag !== 66) {
+            break;
+          }
+
+          message.participantName = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.payload = reader.bytes();
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.destinationSids.push(reader.string());
+          continue;
+        case 6:
+          if (tag !== 50) {
+            break;
+          }
+
+          message.destinationIdentities.push(reader.string());
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.topic = reader.string();
+          continue;
+        case 7:
+          if (tag !== 56) {
+            break;
+          }
+
+          message.timestamp = longToNumber(reader.int64() as Long);
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PersistableUserPacket {
+    return {
+      participantSid: isSet(object.participantSid) ? globalThis.String(object.participantSid) : "",
+      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
+      participantName: isSet(object.participantName) ? globalThis.String(object.participantName) : "",
+      payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(0),
+      destinationSids: globalThis.Array.isArray(object?.destinationSids)
+        ? object.destinationSids.map((e: any) => globalThis.String(e))
+        : [],
+      destinationIdentities: globalThis.Array.isArray(object?.destinationIdentities)
+        ? object.destinationIdentities.map((e: any) => globalThis.String(e))
+        : [],
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : undefined,
+      timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0,
+    };
+  },
+
+  toJSON(message: PersistableUserPacket): unknown {
+    const obj: any = {};
+    if (message.participantSid !== "") {
+      obj.participantSid = message.participantSid;
+    }
+    if (message.participantIdentity !== "") {
+      obj.participantIdentity = message.participantIdentity;
+    }
+    if (message.participantName !== "") {
+      obj.participantName = message.participantName;
+    }
+    if (message.payload.length !== 0) {
+      obj.payload = base64FromBytes(message.payload);
+    }
+    if (message.destinationSids?.length) {
+      obj.destinationSids = message.destinationSids;
+    }
+    if (message.destinationIdentities?.length) {
+      obj.destinationIdentities = message.destinationIdentities;
+    }
+    if (message.topic !== undefined) {
+      obj.topic = message.topic;
+    }
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PersistableUserPacket>, I>>(base?: I): PersistableUserPacket {
+    return PersistableUserPacket.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PersistableUserPacket>, I>>(object: I): PersistableUserPacket {
+    const message = createBasePersistableUserPacket();
+    message.participantSid = object.participantSid ?? "";
+    message.participantIdentity = object.participantIdentity ?? "";
+    message.participantName = object.participantName ?? "";
+    message.payload = object.payload ?? new Uint8Array(0);
+    message.destinationSids = object.destinationSids?.map((e) => e) || [];
+    message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
+    message.topic = object.topic ?? undefined;
+    message.timestamp = object.timestamp ?? 0;
+    return message;
+  },
+};
+
+function createBasePersistableUserData(): PersistableUserData {
+  return { packets: [] };
+}
+
+export const PersistableUserData = {
+  encode(message: PersistableUserData, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    for (const v of message.packets) {
+      PersistableUserPacket.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): PersistableUserData {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePersistableUserData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.packets.push(PersistableUserPacket.decode(reader, reader.uint32()));
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PersistableUserData {
+    return {
+      packets: globalThis.Array.isArray(object?.packets)
+        ? object.packets.map((e: any) => PersistableUserPacket.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: PersistableUserData): unknown {
+    const obj: any = {};
+    if (message.packets?.length) {
+      obj.packets = message.packets.map((e) => PersistableUserPacket.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PersistableUserData>, I>>(base?: I): PersistableUserData {
+    return PersistableUserData.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PersistableUserData>, I>>(object: I): PersistableUserData {
+    const message = createBasePersistableUserData();
+    message.packets = object.packets?.map((e) => PersistableUserPacket.fromPartial(e)) || [];
     return message;
   },
 };
@@ -2316,44 +3056,58 @@ export const ParticipantTracks = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantTracks {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseParticipantTracks();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.participantSid = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.trackSids.push(reader.string());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): ParticipantTracks {
     return {
-      participantSid: isSet(object.participantSid) ? String(object.participantSid) : "",
-      trackSids: Array.isArray(object?.trackSids) ? object.trackSids.map((e: any) => String(e)) : [],
+      participantSid: isSet(object.participantSid) ? globalThis.String(object.participantSid) : "",
+      trackSids: globalThis.Array.isArray(object?.trackSids)
+        ? object.trackSids.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
   toJSON(message: ParticipantTracks): unknown {
     const obj: any = {};
-    message.participantSid !== undefined && (obj.participantSid = message.participantSid);
-    if (message.trackSids) {
-      obj.trackSids = message.trackSids.map((e) => e);
-    } else {
-      obj.trackSids = [];
+    if (message.participantSid !== "") {
+      obj.participantSid = message.participantSid;
+    }
+    if (message.trackSids?.length) {
+      obj.trackSids = message.trackSids;
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ParticipantTracks>, I>>(base?: I): ParticipantTracks {
+    return ParticipantTracks.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ParticipantTracks>, I>>(object: I): ParticipantTracks {
     const message = createBaseParticipantTracks();
     message.participantSid = object.participantSid ?? "";
@@ -2390,34 +3144,59 @@ export const ServerInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ServerInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseServerInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.edition = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.version = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.protocol = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.region = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.nodeId = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.debugInfo = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2425,25 +3204,40 @@ export const ServerInfo = {
   fromJSON(object: any): ServerInfo {
     return {
       edition: isSet(object.edition) ? serverInfo_EditionFromJSON(object.edition) : 0,
-      version: isSet(object.version) ? String(object.version) : "",
-      protocol: isSet(object.protocol) ? Number(object.protocol) : 0,
-      region: isSet(object.region) ? String(object.region) : "",
-      nodeId: isSet(object.nodeId) ? String(object.nodeId) : "",
-      debugInfo: isSet(object.debugInfo) ? String(object.debugInfo) : "",
+      version: isSet(object.version) ? globalThis.String(object.version) : "",
+      protocol: isSet(object.protocol) ? globalThis.Number(object.protocol) : 0,
+      region: isSet(object.region) ? globalThis.String(object.region) : "",
+      nodeId: isSet(object.nodeId) ? globalThis.String(object.nodeId) : "",
+      debugInfo: isSet(object.debugInfo) ? globalThis.String(object.debugInfo) : "",
     };
   },
 
   toJSON(message: ServerInfo): unknown {
     const obj: any = {};
-    message.edition !== undefined && (obj.edition = serverInfo_EditionToJSON(message.edition));
-    message.version !== undefined && (obj.version = message.version);
-    message.protocol !== undefined && (obj.protocol = Math.round(message.protocol));
-    message.region !== undefined && (obj.region = message.region);
-    message.nodeId !== undefined && (obj.nodeId = message.nodeId);
-    message.debugInfo !== undefined && (obj.debugInfo = message.debugInfo);
+    if (message.edition !== 0) {
+      obj.edition = serverInfo_EditionToJSON(message.edition);
+    }
+    if (message.version !== "") {
+      obj.version = message.version;
+    }
+    if (message.protocol !== 0) {
+      obj.protocol = Math.round(message.protocol);
+    }
+    if (message.region !== "") {
+      obj.region = message.region;
+    }
+    if (message.nodeId !== "") {
+      obj.nodeId = message.nodeId;
+    }
+    if (message.debugInfo !== "") {
+      obj.debugInfo = message.debugInfo;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ServerInfo>, I>>(base?: I): ServerInfo {
+    return ServerInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ServerInfo>, I>>(object: I): ServerInfo {
     const message = createBaseServerInfo();
     message.edition = object.edition ?? 0;
@@ -2507,46 +3301,87 @@ export const ClientInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientInfo {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseClientInfo();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.sdk = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.version = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.protocol = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.os = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.osVersion = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.deviceModel = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.browser = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.browserVersion = reader.string();
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.address = reader.string();
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.network = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2554,33 +3389,56 @@ export const ClientInfo = {
   fromJSON(object: any): ClientInfo {
     return {
       sdk: isSet(object.sdk) ? clientInfo_SDKFromJSON(object.sdk) : 0,
-      version: isSet(object.version) ? String(object.version) : "",
-      protocol: isSet(object.protocol) ? Number(object.protocol) : 0,
-      os: isSet(object.os) ? String(object.os) : "",
-      osVersion: isSet(object.osVersion) ? String(object.osVersion) : "",
-      deviceModel: isSet(object.deviceModel) ? String(object.deviceModel) : "",
-      browser: isSet(object.browser) ? String(object.browser) : "",
-      browserVersion: isSet(object.browserVersion) ? String(object.browserVersion) : "",
-      address: isSet(object.address) ? String(object.address) : "",
-      network: isSet(object.network) ? String(object.network) : "",
+      version: isSet(object.version) ? globalThis.String(object.version) : "",
+      protocol: isSet(object.protocol) ? globalThis.Number(object.protocol) : 0,
+      os: isSet(object.os) ? globalThis.String(object.os) : "",
+      osVersion: isSet(object.osVersion) ? globalThis.String(object.osVersion) : "",
+      deviceModel: isSet(object.deviceModel) ? globalThis.String(object.deviceModel) : "",
+      browser: isSet(object.browser) ? globalThis.String(object.browser) : "",
+      browserVersion: isSet(object.browserVersion) ? globalThis.String(object.browserVersion) : "",
+      address: isSet(object.address) ? globalThis.String(object.address) : "",
+      network: isSet(object.network) ? globalThis.String(object.network) : "",
     };
   },
 
   toJSON(message: ClientInfo): unknown {
     const obj: any = {};
-    message.sdk !== undefined && (obj.sdk = clientInfo_SDKToJSON(message.sdk));
-    message.version !== undefined && (obj.version = message.version);
-    message.protocol !== undefined && (obj.protocol = Math.round(message.protocol));
-    message.os !== undefined && (obj.os = message.os);
-    message.osVersion !== undefined && (obj.osVersion = message.osVersion);
-    message.deviceModel !== undefined && (obj.deviceModel = message.deviceModel);
-    message.browser !== undefined && (obj.browser = message.browser);
-    message.browserVersion !== undefined && (obj.browserVersion = message.browserVersion);
-    message.address !== undefined && (obj.address = message.address);
-    message.network !== undefined && (obj.network = message.network);
+    if (message.sdk !== 0) {
+      obj.sdk = clientInfo_SDKToJSON(message.sdk);
+    }
+    if (message.version !== "") {
+      obj.version = message.version;
+    }
+    if (message.protocol !== 0) {
+      obj.protocol = Math.round(message.protocol);
+    }
+    if (message.os !== "") {
+      obj.os = message.os;
+    }
+    if (message.osVersion !== "") {
+      obj.osVersion = message.osVersion;
+    }
+    if (message.deviceModel !== "") {
+      obj.deviceModel = message.deviceModel;
+    }
+    if (message.browser !== "") {
+      obj.browser = message.browser;
+    }
+    if (message.browserVersion !== "") {
+      obj.browserVersion = message.browserVersion;
+    }
+    if (message.address !== "") {
+      obj.address = message.address;
+    }
+    if (message.network !== "") {
+      obj.network = message.network;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ClientInfo>, I>>(base?: I): ClientInfo {
+    return ClientInfo.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ClientInfo>, I>>(object: I): ClientInfo {
     const message = createBaseClientInfo();
     message.sdk = object.sdk ?? 0;
@@ -2622,31 +3480,52 @@ export const ClientConfiguration = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientConfiguration {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseClientConfiguration();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.video = VideoConfiguration.decode(reader, reader.uint32());
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.screen = VideoConfiguration.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.resumeConnection = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.disabledCodecs = DisabledCodecs.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.forceRelay = reader.int32() as any;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2663,17 +3542,27 @@ export const ClientConfiguration = {
 
   toJSON(message: ClientConfiguration): unknown {
     const obj: any = {};
-    message.video !== undefined && (obj.video = message.video ? VideoConfiguration.toJSON(message.video) : undefined);
-    message.screen !== undefined &&
-      (obj.screen = message.screen ? VideoConfiguration.toJSON(message.screen) : undefined);
-    message.resumeConnection !== undefined &&
-      (obj.resumeConnection = clientConfigSettingToJSON(message.resumeConnection));
-    message.disabledCodecs !== undefined &&
-      (obj.disabledCodecs = message.disabledCodecs ? DisabledCodecs.toJSON(message.disabledCodecs) : undefined);
-    message.forceRelay !== undefined && (obj.forceRelay = clientConfigSettingToJSON(message.forceRelay));
+    if (message.video !== undefined) {
+      obj.video = VideoConfiguration.toJSON(message.video);
+    }
+    if (message.screen !== undefined) {
+      obj.screen = VideoConfiguration.toJSON(message.screen);
+    }
+    if (message.resumeConnection !== 0) {
+      obj.resumeConnection = clientConfigSettingToJSON(message.resumeConnection);
+    }
+    if (message.disabledCodecs !== undefined) {
+      obj.disabledCodecs = DisabledCodecs.toJSON(message.disabledCodecs);
+    }
+    if (message.forceRelay !== 0) {
+      obj.forceRelay = clientConfigSettingToJSON(message.forceRelay);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<ClientConfiguration>, I>>(base?: I): ClientConfiguration {
+    return ClientConfiguration.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<ClientConfiguration>, I>>(object: I): ClientConfiguration {
     const message = createBaseClientConfiguration();
     message.video = (object.video !== undefined && object.video !== null)
@@ -2704,19 +3593,24 @@ export const VideoConfiguration = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): VideoConfiguration {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseVideoConfiguration();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.hardwareEncoder = reader.int32() as any;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2727,10 +3621,15 @@ export const VideoConfiguration = {
 
   toJSON(message: VideoConfiguration): unknown {
     const obj: any = {};
-    message.hardwareEncoder !== undefined && (obj.hardwareEncoder = clientConfigSettingToJSON(message.hardwareEncoder));
+    if (message.hardwareEncoder !== 0) {
+      obj.hardwareEncoder = clientConfigSettingToJSON(message.hardwareEncoder);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<VideoConfiguration>, I>>(base?: I): VideoConfiguration {
+    return VideoConfiguration.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<VideoConfiguration>, I>>(object: I): VideoConfiguration {
     const message = createBaseVideoConfiguration();
     message.hardwareEncoder = object.hardwareEncoder ?? 0;
@@ -2754,48 +3653,56 @@ export const DisabledCodecs = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): DisabledCodecs {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDisabledCodecs();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.codecs.push(Codec.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.publish.push(Codec.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): DisabledCodecs {
     return {
-      codecs: Array.isArray(object?.codecs) ? object.codecs.map((e: any) => Codec.fromJSON(e)) : [],
-      publish: Array.isArray(object?.publish) ? object.publish.map((e: any) => Codec.fromJSON(e)) : [],
+      codecs: globalThis.Array.isArray(object?.codecs) ? object.codecs.map((e: any) => Codec.fromJSON(e)) : [],
+      publish: globalThis.Array.isArray(object?.publish) ? object.publish.map((e: any) => Codec.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: DisabledCodecs): unknown {
     const obj: any = {};
-    if (message.codecs) {
-      obj.codecs = message.codecs.map((e) => e ? Codec.toJSON(e) : undefined);
-    } else {
-      obj.codecs = [];
+    if (message.codecs?.length) {
+      obj.codecs = message.codecs.map((e) => Codec.toJSON(e));
     }
-    if (message.publish) {
-      obj.publish = message.publish.map((e) => e ? Codec.toJSON(e) : undefined);
-    } else {
-      obj.publish = [];
+    if (message.publish?.length) {
+      obj.publish = message.publish.map((e) => Codec.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<DisabledCodecs>, I>>(base?: I): DisabledCodecs {
+    return DisabledCodecs.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<DisabledCodecs>, I>>(object: I): DisabledCodecs {
     const message = createBaseDisabledCodecs();
     message.codecs = object.codecs?.map((e) => Codec.fromPartial(e)) || [];
@@ -2851,43 +3758,80 @@ export const RTPDrift = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RTPDrift {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRTPDrift();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.startTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.endTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 3:
+          if (tag !== 25) {
+            break;
+          }
+
           message.duration = reader.double();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.startTimestamp = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.endTimestamp = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.rtpClockTicks = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.driftSamples = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 8:
+          if (tag !== 65) {
+            break;
+          }
+
           message.driftMs = reader.double();
-          break;
+          continue;
         case 9:
+          if (tag !== 73) {
+            break;
+          }
+
           message.clockRate = reader.double();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2896,30 +3840,51 @@ export const RTPDrift = {
     return {
       startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
       endTime: isSet(object.endTime) ? fromJsonTimestamp(object.endTime) : undefined,
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
-      startTimestamp: isSet(object.startTimestamp) ? Number(object.startTimestamp) : 0,
-      endTimestamp: isSet(object.endTimestamp) ? Number(object.endTimestamp) : 0,
-      rtpClockTicks: isSet(object.rtpClockTicks) ? Number(object.rtpClockTicks) : 0,
-      driftSamples: isSet(object.driftSamples) ? Number(object.driftSamples) : 0,
-      driftMs: isSet(object.driftMs) ? Number(object.driftMs) : 0,
-      clockRate: isSet(object.clockRate) ? Number(object.clockRate) : 0,
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
+      startTimestamp: isSet(object.startTimestamp) ? globalThis.Number(object.startTimestamp) : 0,
+      endTimestamp: isSet(object.endTimestamp) ? globalThis.Number(object.endTimestamp) : 0,
+      rtpClockTicks: isSet(object.rtpClockTicks) ? globalThis.Number(object.rtpClockTicks) : 0,
+      driftSamples: isSet(object.driftSamples) ? globalThis.Number(object.driftSamples) : 0,
+      driftMs: isSet(object.driftMs) ? globalThis.Number(object.driftMs) : 0,
+      clockRate: isSet(object.clockRate) ? globalThis.Number(object.clockRate) : 0,
     };
   },
 
   toJSON(message: RTPDrift): unknown {
     const obj: any = {};
-    message.startTime !== undefined && (obj.startTime = message.startTime.toISOString());
-    message.endTime !== undefined && (obj.endTime = message.endTime.toISOString());
-    message.duration !== undefined && (obj.duration = message.duration);
-    message.startTimestamp !== undefined && (obj.startTimestamp = Math.round(message.startTimestamp));
-    message.endTimestamp !== undefined && (obj.endTimestamp = Math.round(message.endTimestamp));
-    message.rtpClockTicks !== undefined && (obj.rtpClockTicks = Math.round(message.rtpClockTicks));
-    message.driftSamples !== undefined && (obj.driftSamples = Math.round(message.driftSamples));
-    message.driftMs !== undefined && (obj.driftMs = message.driftMs);
-    message.clockRate !== undefined && (obj.clockRate = message.clockRate);
+    if (message.startTime !== undefined) {
+      obj.startTime = message.startTime.toISOString();
+    }
+    if (message.endTime !== undefined) {
+      obj.endTime = message.endTime.toISOString();
+    }
+    if (message.duration !== 0) {
+      obj.duration = message.duration;
+    }
+    if (message.startTimestamp !== 0) {
+      obj.startTimestamp = Math.round(message.startTimestamp);
+    }
+    if (message.endTimestamp !== 0) {
+      obj.endTimestamp = Math.round(message.endTimestamp);
+    }
+    if (message.rtpClockTicks !== 0) {
+      obj.rtpClockTicks = Math.round(message.rtpClockTicks);
+    }
+    if (message.driftSamples !== 0) {
+      obj.driftSamples = Math.round(message.driftSamples);
+    }
+    if (message.driftMs !== 0) {
+      obj.driftMs = message.driftMs;
+    }
+    if (message.clockRate !== 0) {
+      obj.clockRate = message.clockRate;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<RTPDrift>, I>>(base?: I): RTPDrift {
+    return RTPDrift.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<RTPDrift>, I>>(object: I): RTPDrift {
     const message = createBaseRTPDrift();
     message.startTime = object.startTime ?? undefined;
@@ -3118,148 +4083,321 @@ export const RTPStats = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RTPStats {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRTPStats();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.startTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.endTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 3:
+          if (tag !== 25) {
+            break;
+          }
+
           message.duration = reader.double();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.packets = reader.uint32();
-          break;
+          continue;
         case 5:
+          if (tag !== 41) {
+            break;
+          }
+
           message.packetRate = reader.double();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.bytes = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 39:
+          if (tag !== 312) {
+            break;
+          }
+
           message.headerBytes = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 7:
+          if (tag !== 57) {
+            break;
+          }
+
           message.bitrate = reader.double();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.packetsLost = reader.uint32();
-          break;
+          continue;
         case 9:
+          if (tag !== 73) {
+            break;
+          }
+
           message.packetLossRate = reader.double();
-          break;
+          continue;
         case 10:
+          if (tag !== 85) {
+            break;
+          }
+
           message.packetLossPercentage = reader.float();
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.packetsDuplicate = reader.uint32();
-          break;
+          continue;
         case 12:
+          if (tag !== 97) {
+            break;
+          }
+
           message.packetDuplicateRate = reader.double();
-          break;
+          continue;
         case 13:
+          if (tag !== 104) {
+            break;
+          }
+
           message.bytesDuplicate = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 40:
+          if (tag !== 320) {
+            break;
+          }
+
           message.headerBytesDuplicate = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 14:
+          if (tag !== 113) {
+            break;
+          }
+
           message.bitrateDuplicate = reader.double();
-          break;
+          continue;
         case 15:
+          if (tag !== 120) {
+            break;
+          }
+
           message.packetsPadding = reader.uint32();
-          break;
+          continue;
         case 16:
+          if (tag !== 129) {
+            break;
+          }
+
           message.packetPaddingRate = reader.double();
-          break;
+          continue;
         case 17:
+          if (tag !== 136) {
+            break;
+          }
+
           message.bytesPadding = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 41:
+          if (tag !== 328) {
+            break;
+          }
+
           message.headerBytesPadding = longToNumber(reader.uint64() as Long);
-          break;
+          continue;
         case 18:
+          if (tag !== 145) {
+            break;
+          }
+
           message.bitratePadding = reader.double();
-          break;
+          continue;
         case 19:
+          if (tag !== 152) {
+            break;
+          }
+
           message.packetsOutOfOrder = reader.uint32();
-          break;
+          continue;
         case 20:
+          if (tag !== 160) {
+            break;
+          }
+
           message.frames = reader.uint32();
-          break;
+          continue;
         case 21:
+          if (tag !== 169) {
+            break;
+          }
+
           message.frameRate = reader.double();
-          break;
+          continue;
         case 22:
+          if (tag !== 177) {
+            break;
+          }
+
           message.jitterCurrent = reader.double();
-          break;
+          continue;
         case 23:
+          if (tag !== 185) {
+            break;
+          }
+
           message.jitterMax = reader.double();
-          break;
+          continue;
         case 24:
+          if (tag !== 194) {
+            break;
+          }
+
           const entry24 = RTPStats_GapHistogramEntry.decode(reader, reader.uint32());
           if (entry24.value !== undefined) {
             message.gapHistogram[entry24.key] = entry24.value;
           }
-          break;
+          continue;
         case 25:
+          if (tag !== 200) {
+            break;
+          }
+
           message.nacks = reader.uint32();
-          break;
+          continue;
         case 37:
+          if (tag !== 296) {
+            break;
+          }
+
           message.nackAcks = reader.uint32();
-          break;
+          continue;
         case 26:
+          if (tag !== 208) {
+            break;
+          }
+
           message.nackMisses = reader.uint32();
-          break;
+          continue;
         case 38:
+          if (tag !== 304) {
+            break;
+          }
+
           message.nackRepeated = reader.uint32();
-          break;
+          continue;
         case 27:
+          if (tag !== 216) {
+            break;
+          }
+
           message.plis = reader.uint32();
-          break;
+          continue;
         case 28:
+          if (tag !== 226) {
+            break;
+          }
+
           message.lastPli = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 29:
+          if (tag !== 232) {
+            break;
+          }
+
           message.firs = reader.uint32();
-          break;
+          continue;
         case 30:
+          if (tag !== 242) {
+            break;
+          }
+
           message.lastFir = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 31:
+          if (tag !== 248) {
+            break;
+          }
+
           message.rttCurrent = reader.uint32();
-          break;
+          continue;
         case 32:
+          if (tag !== 256) {
+            break;
+          }
+
           message.rttMax = reader.uint32();
-          break;
+          continue;
         case 33:
+          if (tag !== 264) {
+            break;
+          }
+
           message.keyFrames = reader.uint32();
-          break;
+          continue;
         case 34:
+          if (tag !== 274) {
+            break;
+          }
+
           message.lastKeyFrame = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 35:
+          if (tag !== 280) {
+            break;
+          }
+
           message.layerLockPlis = reader.uint32();
-          break;
+          continue;
         case 36:
+          if (tag !== 290) {
+            break;
+          }
+
           message.lastLayerLockPli = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 44:
+          if (tag !== 354) {
+            break;
+          }
+
           message.packetDrift = RTPDrift.decode(reader, reader.uint32());
-          break;
+          continue;
         case 45:
+          if (tag !== 362) {
+            break;
+          }
+
           message.reportDrift = RTPDrift.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -3268,49 +4406,49 @@ export const RTPStats = {
     return {
       startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
       endTime: isSet(object.endTime) ? fromJsonTimestamp(object.endTime) : undefined,
-      duration: isSet(object.duration) ? Number(object.duration) : 0,
-      packets: isSet(object.packets) ? Number(object.packets) : 0,
-      packetRate: isSet(object.packetRate) ? Number(object.packetRate) : 0,
-      bytes: isSet(object.bytes) ? Number(object.bytes) : 0,
-      headerBytes: isSet(object.headerBytes) ? Number(object.headerBytes) : 0,
-      bitrate: isSet(object.bitrate) ? Number(object.bitrate) : 0,
-      packetsLost: isSet(object.packetsLost) ? Number(object.packetsLost) : 0,
-      packetLossRate: isSet(object.packetLossRate) ? Number(object.packetLossRate) : 0,
-      packetLossPercentage: isSet(object.packetLossPercentage) ? Number(object.packetLossPercentage) : 0,
-      packetsDuplicate: isSet(object.packetsDuplicate) ? Number(object.packetsDuplicate) : 0,
-      packetDuplicateRate: isSet(object.packetDuplicateRate) ? Number(object.packetDuplicateRate) : 0,
-      bytesDuplicate: isSet(object.bytesDuplicate) ? Number(object.bytesDuplicate) : 0,
-      headerBytesDuplicate: isSet(object.headerBytesDuplicate) ? Number(object.headerBytesDuplicate) : 0,
-      bitrateDuplicate: isSet(object.bitrateDuplicate) ? Number(object.bitrateDuplicate) : 0,
-      packetsPadding: isSet(object.packetsPadding) ? Number(object.packetsPadding) : 0,
-      packetPaddingRate: isSet(object.packetPaddingRate) ? Number(object.packetPaddingRate) : 0,
-      bytesPadding: isSet(object.bytesPadding) ? Number(object.bytesPadding) : 0,
-      headerBytesPadding: isSet(object.headerBytesPadding) ? Number(object.headerBytesPadding) : 0,
-      bitratePadding: isSet(object.bitratePadding) ? Number(object.bitratePadding) : 0,
-      packetsOutOfOrder: isSet(object.packetsOutOfOrder) ? Number(object.packetsOutOfOrder) : 0,
-      frames: isSet(object.frames) ? Number(object.frames) : 0,
-      frameRate: isSet(object.frameRate) ? Number(object.frameRate) : 0,
-      jitterCurrent: isSet(object.jitterCurrent) ? Number(object.jitterCurrent) : 0,
-      jitterMax: isSet(object.jitterMax) ? Number(object.jitterMax) : 0,
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
+      packets: isSet(object.packets) ? globalThis.Number(object.packets) : 0,
+      packetRate: isSet(object.packetRate) ? globalThis.Number(object.packetRate) : 0,
+      bytes: isSet(object.bytes) ? globalThis.Number(object.bytes) : 0,
+      headerBytes: isSet(object.headerBytes) ? globalThis.Number(object.headerBytes) : 0,
+      bitrate: isSet(object.bitrate) ? globalThis.Number(object.bitrate) : 0,
+      packetsLost: isSet(object.packetsLost) ? globalThis.Number(object.packetsLost) : 0,
+      packetLossRate: isSet(object.packetLossRate) ? globalThis.Number(object.packetLossRate) : 0,
+      packetLossPercentage: isSet(object.packetLossPercentage) ? globalThis.Number(object.packetLossPercentage) : 0,
+      packetsDuplicate: isSet(object.packetsDuplicate) ? globalThis.Number(object.packetsDuplicate) : 0,
+      packetDuplicateRate: isSet(object.packetDuplicateRate) ? globalThis.Number(object.packetDuplicateRate) : 0,
+      bytesDuplicate: isSet(object.bytesDuplicate) ? globalThis.Number(object.bytesDuplicate) : 0,
+      headerBytesDuplicate: isSet(object.headerBytesDuplicate) ? globalThis.Number(object.headerBytesDuplicate) : 0,
+      bitrateDuplicate: isSet(object.bitrateDuplicate) ? globalThis.Number(object.bitrateDuplicate) : 0,
+      packetsPadding: isSet(object.packetsPadding) ? globalThis.Number(object.packetsPadding) : 0,
+      packetPaddingRate: isSet(object.packetPaddingRate) ? globalThis.Number(object.packetPaddingRate) : 0,
+      bytesPadding: isSet(object.bytesPadding) ? globalThis.Number(object.bytesPadding) : 0,
+      headerBytesPadding: isSet(object.headerBytesPadding) ? globalThis.Number(object.headerBytesPadding) : 0,
+      bitratePadding: isSet(object.bitratePadding) ? globalThis.Number(object.bitratePadding) : 0,
+      packetsOutOfOrder: isSet(object.packetsOutOfOrder) ? globalThis.Number(object.packetsOutOfOrder) : 0,
+      frames: isSet(object.frames) ? globalThis.Number(object.frames) : 0,
+      frameRate: isSet(object.frameRate) ? globalThis.Number(object.frameRate) : 0,
+      jitterCurrent: isSet(object.jitterCurrent) ? globalThis.Number(object.jitterCurrent) : 0,
+      jitterMax: isSet(object.jitterMax) ? globalThis.Number(object.jitterMax) : 0,
       gapHistogram: isObject(object.gapHistogram)
         ? Object.entries(object.gapHistogram).reduce<{ [key: number]: number }>((acc, [key, value]) => {
-          acc[Number(key)] = Number(value);
+          acc[globalThis.Number(key)] = Number(value);
           return acc;
         }, {})
         : {},
-      nacks: isSet(object.nacks) ? Number(object.nacks) : 0,
-      nackAcks: isSet(object.nackAcks) ? Number(object.nackAcks) : 0,
-      nackMisses: isSet(object.nackMisses) ? Number(object.nackMisses) : 0,
-      nackRepeated: isSet(object.nackRepeated) ? Number(object.nackRepeated) : 0,
-      plis: isSet(object.plis) ? Number(object.plis) : 0,
+      nacks: isSet(object.nacks) ? globalThis.Number(object.nacks) : 0,
+      nackAcks: isSet(object.nackAcks) ? globalThis.Number(object.nackAcks) : 0,
+      nackMisses: isSet(object.nackMisses) ? globalThis.Number(object.nackMisses) : 0,
+      nackRepeated: isSet(object.nackRepeated) ? globalThis.Number(object.nackRepeated) : 0,
+      plis: isSet(object.plis) ? globalThis.Number(object.plis) : 0,
       lastPli: isSet(object.lastPli) ? fromJsonTimestamp(object.lastPli) : undefined,
-      firs: isSet(object.firs) ? Number(object.firs) : 0,
+      firs: isSet(object.firs) ? globalThis.Number(object.firs) : 0,
       lastFir: isSet(object.lastFir) ? fromJsonTimestamp(object.lastFir) : undefined,
-      rttCurrent: isSet(object.rttCurrent) ? Number(object.rttCurrent) : 0,
-      rttMax: isSet(object.rttMax) ? Number(object.rttMax) : 0,
-      keyFrames: isSet(object.keyFrames) ? Number(object.keyFrames) : 0,
+      rttCurrent: isSet(object.rttCurrent) ? globalThis.Number(object.rttCurrent) : 0,
+      rttMax: isSet(object.rttMax) ? globalThis.Number(object.rttMax) : 0,
+      keyFrames: isSet(object.keyFrames) ? globalThis.Number(object.keyFrames) : 0,
       lastKeyFrame: isSet(object.lastKeyFrame) ? fromJsonTimestamp(object.lastKeyFrame) : undefined,
-      layerLockPlis: isSet(object.layerLockPlis) ? Number(object.layerLockPlis) : 0,
+      layerLockPlis: isSet(object.layerLockPlis) ? globalThis.Number(object.layerLockPlis) : 0,
       lastLayerLockPli: isSet(object.lastLayerLockPli) ? fromJsonTimestamp(object.lastLayerLockPli) : undefined,
       packetDrift: isSet(object.packetDrift) ? RTPDrift.fromJSON(object.packetDrift) : undefined,
       reportDrift: isSet(object.reportDrift) ? RTPDrift.fromJSON(object.reportDrift) : undefined,
@@ -3319,59 +4457,147 @@ export const RTPStats = {
 
   toJSON(message: RTPStats): unknown {
     const obj: any = {};
-    message.startTime !== undefined && (obj.startTime = message.startTime.toISOString());
-    message.endTime !== undefined && (obj.endTime = message.endTime.toISOString());
-    message.duration !== undefined && (obj.duration = message.duration);
-    message.packets !== undefined && (obj.packets = Math.round(message.packets));
-    message.packetRate !== undefined && (obj.packetRate = message.packetRate);
-    message.bytes !== undefined && (obj.bytes = Math.round(message.bytes));
-    message.headerBytes !== undefined && (obj.headerBytes = Math.round(message.headerBytes));
-    message.bitrate !== undefined && (obj.bitrate = message.bitrate);
-    message.packetsLost !== undefined && (obj.packetsLost = Math.round(message.packetsLost));
-    message.packetLossRate !== undefined && (obj.packetLossRate = message.packetLossRate);
-    message.packetLossPercentage !== undefined && (obj.packetLossPercentage = message.packetLossPercentage);
-    message.packetsDuplicate !== undefined && (obj.packetsDuplicate = Math.round(message.packetsDuplicate));
-    message.packetDuplicateRate !== undefined && (obj.packetDuplicateRate = message.packetDuplicateRate);
-    message.bytesDuplicate !== undefined && (obj.bytesDuplicate = Math.round(message.bytesDuplicate));
-    message.headerBytesDuplicate !== undefined && (obj.headerBytesDuplicate = Math.round(message.headerBytesDuplicate));
-    message.bitrateDuplicate !== undefined && (obj.bitrateDuplicate = message.bitrateDuplicate);
-    message.packetsPadding !== undefined && (obj.packetsPadding = Math.round(message.packetsPadding));
-    message.packetPaddingRate !== undefined && (obj.packetPaddingRate = message.packetPaddingRate);
-    message.bytesPadding !== undefined && (obj.bytesPadding = Math.round(message.bytesPadding));
-    message.headerBytesPadding !== undefined && (obj.headerBytesPadding = Math.round(message.headerBytesPadding));
-    message.bitratePadding !== undefined && (obj.bitratePadding = message.bitratePadding);
-    message.packetsOutOfOrder !== undefined && (obj.packetsOutOfOrder = Math.round(message.packetsOutOfOrder));
-    message.frames !== undefined && (obj.frames = Math.round(message.frames));
-    message.frameRate !== undefined && (obj.frameRate = message.frameRate);
-    message.jitterCurrent !== undefined && (obj.jitterCurrent = message.jitterCurrent);
-    message.jitterMax !== undefined && (obj.jitterMax = message.jitterMax);
-    obj.gapHistogram = {};
-    if (message.gapHistogram) {
-      Object.entries(message.gapHistogram).forEach(([k, v]) => {
-        obj.gapHistogram[k] = Math.round(v);
-      });
+    if (message.startTime !== undefined) {
+      obj.startTime = message.startTime.toISOString();
     }
-    message.nacks !== undefined && (obj.nacks = Math.round(message.nacks));
-    message.nackAcks !== undefined && (obj.nackAcks = Math.round(message.nackAcks));
-    message.nackMisses !== undefined && (obj.nackMisses = Math.round(message.nackMisses));
-    message.nackRepeated !== undefined && (obj.nackRepeated = Math.round(message.nackRepeated));
-    message.plis !== undefined && (obj.plis = Math.round(message.plis));
-    message.lastPli !== undefined && (obj.lastPli = message.lastPli.toISOString());
-    message.firs !== undefined && (obj.firs = Math.round(message.firs));
-    message.lastFir !== undefined && (obj.lastFir = message.lastFir.toISOString());
-    message.rttCurrent !== undefined && (obj.rttCurrent = Math.round(message.rttCurrent));
-    message.rttMax !== undefined && (obj.rttMax = Math.round(message.rttMax));
-    message.keyFrames !== undefined && (obj.keyFrames = Math.round(message.keyFrames));
-    message.lastKeyFrame !== undefined && (obj.lastKeyFrame = message.lastKeyFrame.toISOString());
-    message.layerLockPlis !== undefined && (obj.layerLockPlis = Math.round(message.layerLockPlis));
-    message.lastLayerLockPli !== undefined && (obj.lastLayerLockPli = message.lastLayerLockPli.toISOString());
-    message.packetDrift !== undefined &&
-      (obj.packetDrift = message.packetDrift ? RTPDrift.toJSON(message.packetDrift) : undefined);
-    message.reportDrift !== undefined &&
-      (obj.reportDrift = message.reportDrift ? RTPDrift.toJSON(message.reportDrift) : undefined);
+    if (message.endTime !== undefined) {
+      obj.endTime = message.endTime.toISOString();
+    }
+    if (message.duration !== 0) {
+      obj.duration = message.duration;
+    }
+    if (message.packets !== 0) {
+      obj.packets = Math.round(message.packets);
+    }
+    if (message.packetRate !== 0) {
+      obj.packetRate = message.packetRate;
+    }
+    if (message.bytes !== 0) {
+      obj.bytes = Math.round(message.bytes);
+    }
+    if (message.headerBytes !== 0) {
+      obj.headerBytes = Math.round(message.headerBytes);
+    }
+    if (message.bitrate !== 0) {
+      obj.bitrate = message.bitrate;
+    }
+    if (message.packetsLost !== 0) {
+      obj.packetsLost = Math.round(message.packetsLost);
+    }
+    if (message.packetLossRate !== 0) {
+      obj.packetLossRate = message.packetLossRate;
+    }
+    if (message.packetLossPercentage !== 0) {
+      obj.packetLossPercentage = message.packetLossPercentage;
+    }
+    if (message.packetsDuplicate !== 0) {
+      obj.packetsDuplicate = Math.round(message.packetsDuplicate);
+    }
+    if (message.packetDuplicateRate !== 0) {
+      obj.packetDuplicateRate = message.packetDuplicateRate;
+    }
+    if (message.bytesDuplicate !== 0) {
+      obj.bytesDuplicate = Math.round(message.bytesDuplicate);
+    }
+    if (message.headerBytesDuplicate !== 0) {
+      obj.headerBytesDuplicate = Math.round(message.headerBytesDuplicate);
+    }
+    if (message.bitrateDuplicate !== 0) {
+      obj.bitrateDuplicate = message.bitrateDuplicate;
+    }
+    if (message.packetsPadding !== 0) {
+      obj.packetsPadding = Math.round(message.packetsPadding);
+    }
+    if (message.packetPaddingRate !== 0) {
+      obj.packetPaddingRate = message.packetPaddingRate;
+    }
+    if (message.bytesPadding !== 0) {
+      obj.bytesPadding = Math.round(message.bytesPadding);
+    }
+    if (message.headerBytesPadding !== 0) {
+      obj.headerBytesPadding = Math.round(message.headerBytesPadding);
+    }
+    if (message.bitratePadding !== 0) {
+      obj.bitratePadding = message.bitratePadding;
+    }
+    if (message.packetsOutOfOrder !== 0) {
+      obj.packetsOutOfOrder = Math.round(message.packetsOutOfOrder);
+    }
+    if (message.frames !== 0) {
+      obj.frames = Math.round(message.frames);
+    }
+    if (message.frameRate !== 0) {
+      obj.frameRate = message.frameRate;
+    }
+    if (message.jitterCurrent !== 0) {
+      obj.jitterCurrent = message.jitterCurrent;
+    }
+    if (message.jitterMax !== 0) {
+      obj.jitterMax = message.jitterMax;
+    }
+    if (message.gapHistogram) {
+      const entries = Object.entries(message.gapHistogram);
+      if (entries.length > 0) {
+        obj.gapHistogram = {};
+        entries.forEach(([k, v]) => {
+          obj.gapHistogram[k] = Math.round(v);
+        });
+      }
+    }
+    if (message.nacks !== 0) {
+      obj.nacks = Math.round(message.nacks);
+    }
+    if (message.nackAcks !== 0) {
+      obj.nackAcks = Math.round(message.nackAcks);
+    }
+    if (message.nackMisses !== 0) {
+      obj.nackMisses = Math.round(message.nackMisses);
+    }
+    if (message.nackRepeated !== 0) {
+      obj.nackRepeated = Math.round(message.nackRepeated);
+    }
+    if (message.plis !== 0) {
+      obj.plis = Math.round(message.plis);
+    }
+    if (message.lastPli !== undefined) {
+      obj.lastPli = message.lastPli.toISOString();
+    }
+    if (message.firs !== 0) {
+      obj.firs = Math.round(message.firs);
+    }
+    if (message.lastFir !== undefined) {
+      obj.lastFir = message.lastFir.toISOString();
+    }
+    if (message.rttCurrent !== 0) {
+      obj.rttCurrent = Math.round(message.rttCurrent);
+    }
+    if (message.rttMax !== 0) {
+      obj.rttMax = Math.round(message.rttMax);
+    }
+    if (message.keyFrames !== 0) {
+      obj.keyFrames = Math.round(message.keyFrames);
+    }
+    if (message.lastKeyFrame !== undefined) {
+      obj.lastKeyFrame = message.lastKeyFrame.toISOString();
+    }
+    if (message.layerLockPlis !== 0) {
+      obj.layerLockPlis = Math.round(message.layerLockPlis);
+    }
+    if (message.lastLayerLockPli !== undefined) {
+      obj.lastLayerLockPli = message.lastLayerLockPli.toISOString();
+    }
+    if (message.packetDrift !== undefined) {
+      obj.packetDrift = RTPDrift.toJSON(message.packetDrift);
+    }
+    if (message.reportDrift !== undefined) {
+      obj.reportDrift = RTPDrift.toJSON(message.reportDrift);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<RTPStats>, I>>(base?: I): RTPStats {
+    return RTPStats.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<RTPStats>, I>>(object: I): RTPStats {
     const message = createBaseRTPStats();
     message.startTime = object.startTime ?? undefined;
@@ -3403,7 +4629,7 @@ export const RTPStats = {
     message.gapHistogram = Object.entries(object.gapHistogram ?? {}).reduce<{ [key: number]: number }>(
       (acc, [key, value]) => {
         if (value !== undefined) {
-          acc[Number(key)] = Number(value);
+          acc[globalThis.Number(key)] = globalThis.Number(value);
         }
         return acc;
       },
@@ -3449,37 +4675,56 @@ export const RTPStats_GapHistogramEntry = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RTPStats_GapHistogramEntry {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRTPStats_GapHistogramEntry();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.key = reader.int32();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.value = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): RTPStats_GapHistogramEntry {
-    return { key: isSet(object.key) ? Number(object.key) : 0, value: isSet(object.value) ? Number(object.value) : 0 };
+    return {
+      key: isSet(object.key) ? globalThis.Number(object.key) : 0,
+      value: isSet(object.value) ? globalThis.Number(object.value) : 0,
+    };
   },
 
   toJSON(message: RTPStats_GapHistogramEntry): unknown {
     const obj: any = {};
-    message.key !== undefined && (obj.key = Math.round(message.key));
-    message.value !== undefined && (obj.value = Math.round(message.value));
+    if (message.key !== 0) {
+      obj.key = Math.round(message.key);
+    }
+    if (message.value !== 0) {
+      obj.value = Math.round(message.value);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<RTPStats_GapHistogramEntry>, I>>(base?: I): RTPStats_GapHistogramEntry {
+    return RTPStats_GapHistogramEntry.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<RTPStats_GapHistogramEntry>, I>>(object: I): RTPStats_GapHistogramEntry {
     const message = createBaseRTPStats_GapHistogramEntry();
     message.key = object.key ?? 0;
@@ -3504,40 +4749,56 @@ export const TimedVersion = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TimedVersion {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTimedVersion();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.unixMicro = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.ticks = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): TimedVersion {
     return {
-      unixMicro: isSet(object.unixMicro) ? Number(object.unixMicro) : 0,
-      ticks: isSet(object.ticks) ? Number(object.ticks) : 0,
+      unixMicro: isSet(object.unixMicro) ? globalThis.Number(object.unixMicro) : 0,
+      ticks: isSet(object.ticks) ? globalThis.Number(object.ticks) : 0,
     };
   },
 
   toJSON(message: TimedVersion): unknown {
     const obj: any = {};
-    message.unixMicro !== undefined && (obj.unixMicro = Math.round(message.unixMicro));
-    message.ticks !== undefined && (obj.ticks = Math.round(message.ticks));
+    if (message.unixMicro !== 0) {
+      obj.unixMicro = Math.round(message.unixMicro);
+    }
+    if (message.ticks !== 0) {
+      obj.ticks = Math.round(message.ticks);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<TimedVersion>, I>>(base?: I): TimedVersion {
+    return TimedVersion.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<TimedVersion>, I>>(object: I): TimedVersion {
     const message = createBaseTimedVersion();
     message.unixMicro = object.unixMicro ?? 0;
@@ -3545,25 +4806,6 @@ export const TimedVersion = {
     return message;
   },
 };
-
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
-})();
 
 function bytesFromBase64(b64: string): Uint8Array {
   if (globalThis.Buffer) {
@@ -3584,7 +4826,7 @@ function base64FromBytes(arr: Uint8Array): string {
   } else {
     const bin: string[] = [];
     arr.forEach((byte) => {
-      bin.push(String.fromCharCode(byte));
+      bin.push(globalThis.String.fromCharCode(byte));
     });
     return globalThis.btoa(bin.join(""));
   }
@@ -3593,7 +4835,8 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
@@ -3608,23 +4851,23 @@ function toTimestamp(date: Date): Timestamp {
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = t.seconds * 1_000;
-  millis += t.nanos / 1_000_000;
-  return new Date(millis);
+  let millis = (t.seconds || 0) * 1_000;
+  millis += (t.nanos || 0) / 1_000_000;
+  return new globalThis.Date(millis);
 }
 
 function fromJsonTimestamp(o: any): Date {
-  if (o instanceof Date) {
+  if (o instanceof globalThis.Date) {
     return o;
   } else if (typeof o === "string") {
-    return new Date(o);
+    return new globalThis.Date(o);
   } else {
     return fromTimestamp(Timestamp.fromJSON(o));
   }
 }
 
 function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+  if (long.gt(globalThis.Number.MAX_SAFE_INTEGER)) {
     throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   return long.toNumber();

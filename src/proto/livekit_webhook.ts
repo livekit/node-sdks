@@ -13,21 +13,33 @@ export interface WebhookEvent {
    * track_published, track_unpublished, egress_started, egress_updated, egress_ended,
    * ingress_started, ingress_ended
    */
-  event?: string;
-  room?: Room;
+  event?: string | undefined;
+  room?:
+    | Room
+    | undefined;
   /** set when event is participant_* or track_* */
-  participant?: ParticipantInfo;
+  participant?:
+    | ParticipantInfo
+    | undefined;
   /** set when event is egress_* */
-  egressInfo?: EgressInfo;
+  egressInfo?:
+    | EgressInfo
+    | undefined;
   /** set when event is ingress_* */
-  ingressInfo?: IngressInfo;
+  ingressInfo?:
+    | IngressInfo
+    | undefined;
   /** set when event is track_* */
-  track?: TrackInfo;
+  track?:
+    | TrackInfo
+    | undefined;
   /** unique event uuid */
-  id?: string;
+  id?:
+    | string
+    | undefined;
   /** timestamp in seconds */
-  createdAt?: number;
-  numDropped?: number;
+  createdAt?: number | undefined;
+  numDropped?: number | undefined;
 }
 
 function createBaseWebhookEvent(): WebhookEvent {
@@ -77,78 +89,133 @@ export const WebhookEvent = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): WebhookEvent {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWebhookEvent();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.event = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.room = Room.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.participant = ParticipantInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.egressInfo = EgressInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.ingressInfo = IngressInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.track = TrackInfo.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.id = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.createdAt = longToNumber(reader.int64() as Long);
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.numDropped = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): WebhookEvent {
     return {
-      event: isSet(object.event) ? String(object.event) : "",
+      event: isSet(object.event) ? globalThis.String(object.event) : "",
       room: isSet(object.room) ? Room.fromJSON(object.room) : undefined,
       participant: isSet(object.participant) ? ParticipantInfo.fromJSON(object.participant) : undefined,
       egressInfo: isSet(object.egressInfo) ? EgressInfo.fromJSON(object.egressInfo) : undefined,
       ingressInfo: isSet(object.ingressInfo) ? IngressInfo.fromJSON(object.ingressInfo) : undefined,
       track: isSet(object.track) ? TrackInfo.fromJSON(object.track) : undefined,
-      id: isSet(object.id) ? String(object.id) : "",
-      createdAt: isSet(object.createdAt) ? Number(object.createdAt) : 0,
-      numDropped: isSet(object.numDropped) ? Number(object.numDropped) : 0,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
+      numDropped: isSet(object.numDropped) ? globalThis.Number(object.numDropped) : 0,
     };
   },
 
   toJSON(message: WebhookEvent): unknown {
     const obj: any = {};
-    message.event !== undefined && (obj.event = message.event);
-    message.room !== undefined && (obj.room = message.room ? Room.toJSON(message.room) : undefined);
-    message.participant !== undefined &&
-      (obj.participant = message.participant ? ParticipantInfo.toJSON(message.participant) : undefined);
-    message.egressInfo !== undefined &&
-      (obj.egressInfo = message.egressInfo ? EgressInfo.toJSON(message.egressInfo) : undefined);
-    message.ingressInfo !== undefined &&
-      (obj.ingressInfo = message.ingressInfo ? IngressInfo.toJSON(message.ingressInfo) : undefined);
-    message.track !== undefined && (obj.track = message.track ? TrackInfo.toJSON(message.track) : undefined);
-    message.id !== undefined && (obj.id = message.id);
-    message.createdAt !== undefined && (obj.createdAt = Math.round(message.createdAt));
-    message.numDropped !== undefined && (obj.numDropped = Math.round(message.numDropped));
+    if (message.event !== undefined && message.event !== "") {
+      obj.event = message.event;
+    }
+    if (message.room !== undefined) {
+      obj.room = Room.toJSON(message.room);
+    }
+    if (message.participant !== undefined) {
+      obj.participant = ParticipantInfo.toJSON(message.participant);
+    }
+    if (message.egressInfo !== undefined) {
+      obj.egressInfo = EgressInfo.toJSON(message.egressInfo);
+    }
+    if (message.ingressInfo !== undefined) {
+      obj.ingressInfo = IngressInfo.toJSON(message.ingressInfo);
+    }
+    if (message.track !== undefined) {
+      obj.track = TrackInfo.toJSON(message.track);
+    }
+    if (message.id !== undefined && message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.createdAt !== undefined && message.createdAt !== 0) {
+      obj.createdAt = Math.round(message.createdAt);
+    }
+    if (message.numDropped !== undefined && message.numDropped !== 0) {
+      obj.numDropped = Math.round(message.numDropped);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<WebhookEvent>, I>>(base?: I): WebhookEvent {
+    return WebhookEvent.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<WebhookEvent>, I>>(object: I): WebhookEvent {
     const message = createBaseWebhookEvent();
     message.event = object.event ?? "";
@@ -172,29 +239,11 @@ export const WebhookEvent = {
   },
 };
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
-})();
-
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
@@ -203,7 +252,7 @@ export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+  if (long.gt(globalThis.Number.MAX_SAFE_INTEGER)) {
     throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   return long.toNumber();

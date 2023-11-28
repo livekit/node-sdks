@@ -267,6 +267,7 @@ export enum ConnectionQuality {
   POOR = 0,
   GOOD = 1,
   EXCELLENT = 2,
+  DISCONNECTED = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -281,6 +282,9 @@ export function connectionQualityFromJSON(object: any): ConnectionQuality {
     case 2:
     case "EXCELLENT":
       return ConnectionQuality.EXCELLENT;
+    case 3:
+    case "DISCONNECTED":
+      return ConnectionQuality.DISCONNECTED;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -296,6 +300,8 @@ export function connectionQualityToJSON(object: ConnectionQuality): string {
       return "GOOD";
     case ConnectionQuality.EXCELLENT:
       return "EXCELLENT";
+    case ConnectionQuality.DISCONNECTED:
+      return "DISCONNECTED";
     case ConnectionQuality.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -540,6 +546,8 @@ export interface ParticipantPermission {
   recorder: boolean;
   /** indicates that participant can update own metadata */
   canUpdateMetadata: boolean;
+  /** indicates that participant is an agent */
+  agent: boolean;
 }
 
 export interface ParticipantInfo {
@@ -705,7 +713,6 @@ export interface DataPacket {
   kind: DataPacket_Kind;
   user?: UserPacket | undefined;
   speaker?: ActiveSpeakerUpdate | undefined;
-  persistableUser?: PersistableUserPacket | undefined;
 }
 
 export enum DataPacket_Kind {
@@ -765,26 +772,6 @@ export interface UserPacket {
   destinationIdentities: string[];
   /** topic under which the message was published */
   topic?: string | undefined;
-}
-
-export interface PersistableUserPacket {
-  /** participant ID of user that sent the message */
-  participantSid: string;
-  participantIdentity: string;
-  participantName: string;
-  /** user defined payload */
-  payload: Uint8Array;
-  /** the ID of the participants who will receive the message (sent to all by default) */
-  destinationSids: string[];
-  /** identities of participants who will receive the message (sent to all by default) */
-  destinationIdentities: string[];
-  /** topic under which the message was published */
-  topic?: string | undefined;
-  timestamp: number;
-}
-
-export interface PersistableUserData {
-  packets: PersistableUserPacket[];
 }
 
 export interface ParticipantTracks {
@@ -1425,6 +1412,7 @@ function createBaseParticipantPermission(): ParticipantPermission {
     hidden: false,
     recorder: false,
     canUpdateMetadata: false,
+    agent: false,
   };
 }
 
@@ -1452,6 +1440,9 @@ export const ParticipantPermission = {
     }
     if (message.canUpdateMetadata === true) {
       writer.uint32(80).bool(message.canUpdateMetadata);
+    }
+    if (message.agent === true) {
+      writer.uint32(88).bool(message.agent);
     }
     return writer;
   },
@@ -1522,6 +1513,13 @@ export const ParticipantPermission = {
 
           message.canUpdateMetadata = reader.bool();
           continue;
+        case 11:
+          if (tag !== 88) {
+            break;
+          }
+
+          message.agent = reader.bool();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1542,6 +1540,7 @@ export const ParticipantPermission = {
       hidden: isSet(object.hidden) ? globalThis.Boolean(object.hidden) : false,
       recorder: isSet(object.recorder) ? globalThis.Boolean(object.recorder) : false,
       canUpdateMetadata: isSet(object.canUpdateMetadata) ? globalThis.Boolean(object.canUpdateMetadata) : false,
+      agent: isSet(object.agent) ? globalThis.Boolean(object.agent) : false,
     };
   },
 
@@ -1568,6 +1567,9 @@ export const ParticipantPermission = {
     if (message.canUpdateMetadata === true) {
       obj.canUpdateMetadata = message.canUpdateMetadata;
     }
+    if (message.agent === true) {
+      obj.agent = message.agent;
+    }
     return obj;
   },
 
@@ -1583,6 +1585,7 @@ export const ParticipantPermission = {
     message.hidden = object.hidden ?? false;
     message.recorder = object.recorder ?? false;
     message.canUpdateMetadata = object.canUpdateMetadata ?? false;
+    message.agent = object.agent ?? false;
     return message;
   },
 };
@@ -2396,7 +2399,7 @@ export const VideoLayer = {
 };
 
 function createBaseDataPacket(): DataPacket {
-  return { kind: 0, user: undefined, speaker: undefined, persistableUser: undefined };
+  return { kind: 0, user: undefined, speaker: undefined };
 }
 
 export const DataPacket = {
@@ -2409,9 +2412,6 @@ export const DataPacket = {
     }
     if (message.speaker !== undefined) {
       ActiveSpeakerUpdate.encode(message.speaker, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.persistableUser !== undefined) {
-      PersistableUserPacket.encode(message.persistableUser, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -2444,13 +2444,6 @@ export const DataPacket = {
 
           message.speaker = ActiveSpeakerUpdate.decode(reader, reader.uint32());
           continue;
-        case 4:
-          if (tag !== 34) {
-            break;
-          }
-
-          message.persistableUser = PersistableUserPacket.decode(reader, reader.uint32());
-          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2465,9 +2458,6 @@ export const DataPacket = {
       kind: isSet(object.kind) ? dataPacket_KindFromJSON(object.kind) : 0,
       user: isSet(object.user) ? UserPacket.fromJSON(object.user) : undefined,
       speaker: isSet(object.speaker) ? ActiveSpeakerUpdate.fromJSON(object.speaker) : undefined,
-      persistableUser: isSet(object.persistableUser)
-        ? PersistableUserPacket.fromJSON(object.persistableUser)
-        : undefined,
     };
   },
 
@@ -2481,9 +2471,6 @@ export const DataPacket = {
     }
     if (message.speaker !== undefined) {
       obj.speaker = ActiveSpeakerUpdate.toJSON(message.speaker);
-    }
-    if (message.persistableUser !== undefined) {
-      obj.persistableUser = PersistableUserPacket.toJSON(message.persistableUser);
     }
     return obj;
   },
@@ -2499,9 +2486,6 @@ export const DataPacket = {
       : undefined;
     message.speaker = (object.speaker !== undefined && object.speaker !== null)
       ? ActiveSpeakerUpdate.fromPartial(object.speaker)
-      : undefined;
-    message.persistableUser = (object.persistableUser !== undefined && object.persistableUser !== null)
-      ? PersistableUserPacket.fromPartial(object.persistableUser)
       : undefined;
     return message;
   },
@@ -2798,244 +2782,6 @@ export const UserPacket = {
     message.destinationSids = object.destinationSids?.map((e) => e) || [];
     message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
     message.topic = object.topic ?? undefined;
-    return message;
-  },
-};
-
-function createBasePersistableUserPacket(): PersistableUserPacket {
-  return {
-    participantSid: "",
-    participantIdentity: "",
-    participantName: "",
-    payload: new Uint8Array(0),
-    destinationSids: [],
-    destinationIdentities: [],
-    topic: undefined,
-    timestamp: 0,
-  };
-}
-
-export const PersistableUserPacket = {
-  encode(message: PersistableUserPacket, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.participantSid !== "") {
-      writer.uint32(10).string(message.participantSid);
-    }
-    if (message.participantIdentity !== "") {
-      writer.uint32(42).string(message.participantIdentity);
-    }
-    if (message.participantName !== "") {
-      writer.uint32(66).string(message.participantName);
-    }
-    if (message.payload.length !== 0) {
-      writer.uint32(18).bytes(message.payload);
-    }
-    for (const v of message.destinationSids) {
-      writer.uint32(26).string(v!);
-    }
-    for (const v of message.destinationIdentities) {
-      writer.uint32(50).string(v!);
-    }
-    if (message.topic !== undefined) {
-      writer.uint32(34).string(message.topic);
-    }
-    if (message.timestamp !== 0) {
-      writer.uint32(56).int64(message.timestamp);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): PersistableUserPacket {
-    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePersistableUserPacket();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          if (tag !== 10) {
-            break;
-          }
-
-          message.participantSid = reader.string();
-          continue;
-        case 5:
-          if (tag !== 42) {
-            break;
-          }
-
-          message.participantIdentity = reader.string();
-          continue;
-        case 8:
-          if (tag !== 66) {
-            break;
-          }
-
-          message.participantName = reader.string();
-          continue;
-        case 2:
-          if (tag !== 18) {
-            break;
-          }
-
-          message.payload = reader.bytes();
-          continue;
-        case 3:
-          if (tag !== 26) {
-            break;
-          }
-
-          message.destinationSids.push(reader.string());
-          continue;
-        case 6:
-          if (tag !== 50) {
-            break;
-          }
-
-          message.destinationIdentities.push(reader.string());
-          continue;
-        case 4:
-          if (tag !== 34) {
-            break;
-          }
-
-          message.topic = reader.string();
-          continue;
-        case 7:
-          if (tag !== 56) {
-            break;
-          }
-
-          message.timestamp = longToNumber(reader.int64() as Long);
-          continue;
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skipType(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): PersistableUserPacket {
-    return {
-      participantSid: isSet(object.participantSid) ? globalThis.String(object.participantSid) : "",
-      participantIdentity: isSet(object.participantIdentity) ? globalThis.String(object.participantIdentity) : "",
-      participantName: isSet(object.participantName) ? globalThis.String(object.participantName) : "",
-      payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(0),
-      destinationSids: globalThis.Array.isArray(object?.destinationSids)
-        ? object.destinationSids.map((e: any) => globalThis.String(e))
-        : [],
-      destinationIdentities: globalThis.Array.isArray(object?.destinationIdentities)
-        ? object.destinationIdentities.map((e: any) => globalThis.String(e))
-        : [],
-      topic: isSet(object.topic) ? globalThis.String(object.topic) : undefined,
-      timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0,
-    };
-  },
-
-  toJSON(message: PersistableUserPacket): unknown {
-    const obj: any = {};
-    if (message.participantSid !== "") {
-      obj.participantSid = message.participantSid;
-    }
-    if (message.participantIdentity !== "") {
-      obj.participantIdentity = message.participantIdentity;
-    }
-    if (message.participantName !== "") {
-      obj.participantName = message.participantName;
-    }
-    if (message.payload.length !== 0) {
-      obj.payload = base64FromBytes(message.payload);
-    }
-    if (message.destinationSids?.length) {
-      obj.destinationSids = message.destinationSids;
-    }
-    if (message.destinationIdentities?.length) {
-      obj.destinationIdentities = message.destinationIdentities;
-    }
-    if (message.topic !== undefined) {
-      obj.topic = message.topic;
-    }
-    if (message.timestamp !== 0) {
-      obj.timestamp = Math.round(message.timestamp);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<PersistableUserPacket>, I>>(base?: I): PersistableUserPacket {
-    return PersistableUserPacket.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PersistableUserPacket>, I>>(object: I): PersistableUserPacket {
-    const message = createBasePersistableUserPacket();
-    message.participantSid = object.participantSid ?? "";
-    message.participantIdentity = object.participantIdentity ?? "";
-    message.participantName = object.participantName ?? "";
-    message.payload = object.payload ?? new Uint8Array(0);
-    message.destinationSids = object.destinationSids?.map((e) => e) || [];
-    message.destinationIdentities = object.destinationIdentities?.map((e) => e) || [];
-    message.topic = object.topic ?? undefined;
-    message.timestamp = object.timestamp ?? 0;
-    return message;
-  },
-};
-
-function createBasePersistableUserData(): PersistableUserData {
-  return { packets: [] };
-}
-
-export const PersistableUserData = {
-  encode(message: PersistableUserData, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.packets) {
-      PersistableUserPacket.encode(v!, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): PersistableUserData {
-    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePersistableUserData();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          if (tag !== 10) {
-            break;
-          }
-
-          message.packets.push(PersistableUserPacket.decode(reader, reader.uint32()));
-          continue;
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skipType(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): PersistableUserData {
-    return {
-      packets: globalThis.Array.isArray(object?.packets)
-        ? object.packets.map((e: any) => PersistableUserPacket.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: PersistableUserData): unknown {
-    const obj: any = {};
-    if (message.packets?.length) {
-      obj.packets = message.packets.map((e) => PersistableUserPacket.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<PersistableUserData>, I>>(base?: I): PersistableUserData {
-    return PersistableUserData.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PersistableUserData>, I>>(object: I): PersistableUserData {
-    const message = createBasePersistableUserData();
-    message.packets = object.packets?.map((e) => PersistableUserPacket.fromPartial(e)) || [];
     return message;
   },
 };

@@ -582,6 +582,7 @@ export interface S3Upload {
   forcePathStyle?: boolean | undefined;
   metadata?: { [key: string]: string } | undefined;
   tagging?: string | undefined;
+  contentDisposition?: string | undefined;
 }
 
 export interface S3Upload_MetadataEntry {
@@ -642,6 +643,10 @@ export interface EncodingOptions {
   audioBitrate?:
     | number
     | undefined;
+  /** quality setting on audio encoder */
+  audioQuality?:
+    | number
+    | undefined;
   /** (default 44100) */
   audioFrequency?:
     | number
@@ -652,6 +657,10 @@ export interface EncodingOptions {
     | undefined;
   /** (default 4500) */
   videoBitrate?:
+    | number
+    | undefined;
+  /** quality setting on video encoder */
+  videoQuality?:
     | number
     | undefined;
   /** in seconds (default 4s for streaming, segment duration for segmented output, encoder default for files) */
@@ -667,12 +676,6 @@ export interface UpdateStreamRequest {
   egressId?: string | undefined;
   addOutputUrls?: string[] | undefined;
   removeOutputUrls?: string[] | undefined;
-}
-
-export interface UpdateOutputsRequest {
-  egressId?: string | undefined;
-  addImageOutputs?: ImageOutput[] | undefined;
-  removeImageOutputs?: ImageOutput[] | undefined;
 }
 
 export interface ListEgressRequest {
@@ -800,7 +803,6 @@ export interface SegmentsInfo {
   segmentCount?: number | undefined;
   startedAt?: number | undefined;
   endedAt?: number | undefined;
-  dataEventLocation?: string | undefined;
 }
 
 export interface ImagesInfo {
@@ -2735,6 +2737,7 @@ function createBaseS3Upload(): S3Upload {
     forcePathStyle: false,
     metadata: {},
     tagging: "",
+    contentDisposition: "",
   };
 }
 
@@ -2763,6 +2766,9 @@ export const S3Upload = {
     });
     if (message.tagging !== undefined && message.tagging !== "") {
       writer.uint32(66).string(message.tagging);
+    }
+    if (message.contentDisposition !== undefined && message.contentDisposition !== "") {
+      writer.uint32(74).string(message.contentDisposition);
     }
     return writer;
   },
@@ -2833,6 +2839,13 @@ export const S3Upload = {
 
           message.tagging = reader.string();
           continue;
+        case 9:
+          if (tag !== 74) {
+            break;
+          }
+
+          message.contentDisposition = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2857,6 +2870,7 @@ export const S3Upload = {
         }, {})
         : {},
       tagging: isSet(object.tagging) ? globalThis.String(object.tagging) : "",
+      contentDisposition: isSet(object.contentDisposition) ? globalThis.String(object.contentDisposition) : "",
     };
   },
 
@@ -2892,6 +2906,9 @@ export const S3Upload = {
     if (message.tagging !== undefined && message.tagging !== "") {
       obj.tagging = message.tagging;
     }
+    if (message.contentDisposition !== undefined && message.contentDisposition !== "") {
+      obj.contentDisposition = message.contentDisposition;
+    }
     return obj;
   },
 
@@ -2913,6 +2930,7 @@ export const S3Upload = {
       return acc;
     }, {});
     message.tagging = object.tagging ?? "";
+    message.contentDisposition = object.contentDisposition ?? "";
     return message;
   },
 };
@@ -3357,9 +3375,11 @@ function createBaseEncodingOptions(): EncodingOptions {
     framerate: 0,
     audioCodec: 0,
     audioBitrate: 0,
+    audioQuality: 0,
     audioFrequency: 0,
     videoCodec: 0,
     videoBitrate: 0,
+    videoQuality: 0,
     keyFrameInterval: 0,
   };
 }
@@ -3384,6 +3404,9 @@ export const EncodingOptions = {
     if (message.audioBitrate !== undefined && message.audioBitrate !== 0) {
       writer.uint32(48).int32(message.audioBitrate);
     }
+    if (message.audioQuality !== undefined && message.audioQuality !== 0) {
+      writer.uint32(88).int32(message.audioQuality);
+    }
     if (message.audioFrequency !== undefined && message.audioFrequency !== 0) {
       writer.uint32(56).int32(message.audioFrequency);
     }
@@ -3392,6 +3415,9 @@ export const EncodingOptions = {
     }
     if (message.videoBitrate !== undefined && message.videoBitrate !== 0) {
       writer.uint32(72).int32(message.videoBitrate);
+    }
+    if (message.videoQuality !== undefined && message.videoQuality !== 0) {
+      writer.uint32(96).int32(message.videoQuality);
     }
     if (message.keyFrameInterval !== undefined && message.keyFrameInterval !== 0) {
       writer.uint32(81).double(message.keyFrameInterval);
@@ -3448,6 +3474,13 @@ export const EncodingOptions = {
 
           message.audioBitrate = reader.int32();
           continue;
+        case 11:
+          if (tag !== 88) {
+            break;
+          }
+
+          message.audioQuality = reader.int32();
+          continue;
         case 7:
           if (tag !== 56) {
             break;
@@ -3468,6 +3501,13 @@ export const EncodingOptions = {
           }
 
           message.videoBitrate = reader.int32();
+          continue;
+        case 12:
+          if (tag !== 96) {
+            break;
+          }
+
+          message.videoQuality = reader.int32();
           continue;
         case 10:
           if (tag !== 81) {
@@ -3493,9 +3533,11 @@ export const EncodingOptions = {
       framerate: isSet(object.framerate) ? globalThis.Number(object.framerate) : 0,
       audioCodec: isSet(object.audioCodec) ? audioCodecFromJSON(object.audioCodec) : 0,
       audioBitrate: isSet(object.audioBitrate) ? globalThis.Number(object.audioBitrate) : 0,
+      audioQuality: isSet(object.audioQuality) ? globalThis.Number(object.audioQuality) : 0,
       audioFrequency: isSet(object.audioFrequency) ? globalThis.Number(object.audioFrequency) : 0,
       videoCodec: isSet(object.videoCodec) ? videoCodecFromJSON(object.videoCodec) : 0,
       videoBitrate: isSet(object.videoBitrate) ? globalThis.Number(object.videoBitrate) : 0,
+      videoQuality: isSet(object.videoQuality) ? globalThis.Number(object.videoQuality) : 0,
       keyFrameInterval: isSet(object.keyFrameInterval) ? globalThis.Number(object.keyFrameInterval) : 0,
     };
   },
@@ -3520,6 +3562,9 @@ export const EncodingOptions = {
     if (message.audioBitrate !== undefined && message.audioBitrate !== 0) {
       obj.audioBitrate = Math.round(message.audioBitrate);
     }
+    if (message.audioQuality !== undefined && message.audioQuality !== 0) {
+      obj.audioQuality = Math.round(message.audioQuality);
+    }
     if (message.audioFrequency !== undefined && message.audioFrequency !== 0) {
       obj.audioFrequency = Math.round(message.audioFrequency);
     }
@@ -3528,6 +3573,9 @@ export const EncodingOptions = {
     }
     if (message.videoBitrate !== undefined && message.videoBitrate !== 0) {
       obj.videoBitrate = Math.round(message.videoBitrate);
+    }
+    if (message.videoQuality !== undefined && message.videoQuality !== 0) {
+      obj.videoQuality = Math.round(message.videoQuality);
     }
     if (message.keyFrameInterval !== undefined && message.keyFrameInterval !== 0) {
       obj.keyFrameInterval = message.keyFrameInterval;
@@ -3546,9 +3594,11 @@ export const EncodingOptions = {
     message.framerate = object.framerate ?? 0;
     message.audioCodec = object.audioCodec ?? 0;
     message.audioBitrate = object.audioBitrate ?? 0;
+    message.audioQuality = object.audioQuality ?? 0;
     message.audioFrequency = object.audioFrequency ?? 0;
     message.videoCodec = object.videoCodec ?? 0;
     message.videoBitrate = object.videoBitrate ?? 0;
+    message.videoQuality = object.videoQuality ?? 0;
     message.keyFrameInterval = object.keyFrameInterval ?? 0;
     return message;
   },
@@ -3721,103 +3771,6 @@ export const UpdateStreamRequest = {
     message.egressId = object.egressId ?? "";
     message.addOutputUrls = object.addOutputUrls?.map((e) => e) || [];
     message.removeOutputUrls = object.removeOutputUrls?.map((e) => e) || [];
-    return message;
-  },
-};
-
-function createBaseUpdateOutputsRequest(): UpdateOutputsRequest {
-  return { egressId: "", addImageOutputs: [], removeImageOutputs: [] };
-}
-
-export const UpdateOutputsRequest = {
-  encode(message: UpdateOutputsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.egressId !== undefined && message.egressId !== "") {
-      writer.uint32(10).string(message.egressId);
-    }
-    if (message.addImageOutputs !== undefined && message.addImageOutputs.length !== 0) {
-      for (const v of message.addImageOutputs) {
-        ImageOutput.encode(v!, writer.uint32(18).fork()).ldelim();
-      }
-    }
-    if (message.removeImageOutputs !== undefined && message.removeImageOutputs.length !== 0) {
-      for (const v of message.removeImageOutputs) {
-        ImageOutput.encode(v!, writer.uint32(26).fork()).ldelim();
-      }
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateOutputsRequest {
-    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateOutputsRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          if (tag !== 10) {
-            break;
-          }
-
-          message.egressId = reader.string();
-          continue;
-        case 2:
-          if (tag !== 18) {
-            break;
-          }
-
-          message.addImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          continue;
-        case 3:
-          if (tag !== 26) {
-            break;
-          }
-
-          message.removeImageOutputs!.push(ImageOutput.decode(reader, reader.uint32()));
-          continue;
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skipType(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): UpdateOutputsRequest {
-    return {
-      egressId: isSet(object.egressId) ? globalThis.String(object.egressId) : "",
-      addImageOutputs: globalThis.Array.isArray(object?.addImageOutputs)
-        ? object.addImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
-        : [],
-      removeImageOutputs: globalThis.Array.isArray(object?.removeImageOutputs)
-        ? object.removeImageOutputs.map((e: any) => ImageOutput.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: UpdateOutputsRequest): unknown {
-    const obj: any = {};
-    if (message.egressId !== undefined && message.egressId !== "") {
-      obj.egressId = message.egressId;
-    }
-    if (message.addImageOutputs?.length) {
-      obj.addImageOutputs = message.addImageOutputs.map((e) => ImageOutput.toJSON(e));
-    }
-    if (message.removeImageOutputs?.length) {
-      obj.removeImageOutputs = message.removeImageOutputs.map((e) => ImageOutput.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<UpdateOutputsRequest>, I>>(base?: I): UpdateOutputsRequest {
-    return UpdateOutputsRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<UpdateOutputsRequest>, I>>(object: I): UpdateOutputsRequest {
-    const message = createBaseUpdateOutputsRequest();
-    message.egressId = object.egressId ?? "";
-    message.addImageOutputs = object.addImageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
-    message.removeImageOutputs = object.removeImageOutputs?.map((e) => ImageOutput.fromPartial(e)) || [];
     return message;
   },
 };
@@ -4766,7 +4719,6 @@ function createBaseSegmentsInfo(): SegmentsInfo {
     segmentCount: 0,
     startedAt: 0,
     endedAt: 0,
-    dataEventLocation: "",
   };
 }
 
@@ -4798,9 +4750,6 @@ export const SegmentsInfo = {
     }
     if (message.endedAt !== undefined && message.endedAt !== 0) {
       writer.uint32(56).int64(message.endedAt);
-    }
-    if (message.dataEventLocation !== undefined && message.dataEventLocation !== "") {
-      writer.uint32(82).string(message.dataEventLocation);
     }
     return writer;
   },
@@ -4875,13 +4824,6 @@ export const SegmentsInfo = {
 
           message.endedAt = longToNumber(reader.int64() as Long);
           continue;
-        case 10:
-          if (tag !== 82) {
-            break;
-          }
-
-          message.dataEventLocation = reader.string();
-          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -4902,7 +4844,6 @@ export const SegmentsInfo = {
       segmentCount: isSet(object.segmentCount) ? globalThis.Number(object.segmentCount) : 0,
       startedAt: isSet(object.startedAt) ? globalThis.Number(object.startedAt) : 0,
       endedAt: isSet(object.endedAt) ? globalThis.Number(object.endedAt) : 0,
-      dataEventLocation: isSet(object.dataEventLocation) ? globalThis.String(object.dataEventLocation) : "",
     };
   },
 
@@ -4935,9 +4876,6 @@ export const SegmentsInfo = {
     if (message.endedAt !== undefined && message.endedAt !== 0) {
       obj.endedAt = Math.round(message.endedAt);
     }
-    if (message.dataEventLocation !== undefined && message.dataEventLocation !== "") {
-      obj.dataEventLocation = message.dataEventLocation;
-    }
     return obj;
   },
 
@@ -4955,7 +4893,6 @@ export const SegmentsInfo = {
     message.segmentCount = object.segmentCount ?? 0;
     message.startedAt = object.startedAt ?? 0;
     message.endedAt = object.endedAt ?? 0;
-    message.dataEventLocation = object.dataEventLocation ?? "";
     return message;
   },
 };
@@ -5295,8 +5232,6 @@ export interface Egress {
   UpdateLayout(request: UpdateLayoutRequest): Promise<EgressInfo>;
   /** add or remove stream endpoints */
   UpdateStream(request: UpdateStreamRequest): Promise<EgressInfo>;
-  /** add or remove outputs */
-  UpdateOutputs(request: UpdateOutputsRequest): Promise<EgressInfo>;
   /** list available egress */
   ListEgress(request: ListEgressRequest): Promise<ListEgressResponse>;
   /** stop a recording or stream */

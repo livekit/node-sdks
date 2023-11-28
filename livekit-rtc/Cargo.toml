@@ -1,0 +1,21 @@
+[package]
+edition = "2021"
+name = "livekit-rtc-node"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "2.12.2", default-features = false, features = ["napi6"] }
+napi-derive = "2.12.2"
+livekit-ffi = { path = "../../client-sdk-rust/livekit-ffi" }
+prost = "0.12"
+prost-types = "0.12"
+log = "0.4.20"
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true

@@ -1,0 +1,10 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  livekit-rtc-node:
+    specifier: link:../../livekit-rtc-node
+    version: link:../../livekit-rtc-node

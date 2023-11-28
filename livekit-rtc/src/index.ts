@@ -1,0 +1,2 @@
+export { Room } from './room'
+

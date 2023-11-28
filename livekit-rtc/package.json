@@ -1,0 +1,36 @@
+{
+  "name": "livekit-node",
+  "version": "0.0.1",
+  "main": "lib/src/index.js",
+  "types": "src/index.ts",
+  "napi": {
+    "name": "livekit-node",
+    "triples": {}
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.4.2"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.5",
+    "@types/node": "^20.9.2",
+    "ava": "^5.1.1",
+    "typed-emitter": "^2.1.0",
+    "typescript": "^5.2.2"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 10"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "universal": "napi universal",
+    "version": "napi version"
+  }
+}

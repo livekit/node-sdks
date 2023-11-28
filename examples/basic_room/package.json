@@ -1,0 +1,15 @@
+{
+  "name": "basic_room",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --incremental"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "livekit-rtc-node": "link:../../livekit-rtc-node"
+  }
+}

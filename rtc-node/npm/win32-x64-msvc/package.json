@@ -1,0 +1,18 @@
+{
+  "name": "@livekit/rtc-node-win32-x64-msvc",
+  "version": "0.0.1",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "rtc-node.win32-x64-msvc.node",
+  "files": [
+    "rtc-node.win32-x64-msvc.node"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">= 10"
+  }
+}

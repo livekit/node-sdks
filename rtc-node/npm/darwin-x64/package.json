@@ -1,0 +1,18 @@
+{
+  "name": "@livekit/rtc-node-darwin-x64",
+  "version": "0.0.1",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "rtc-node.darwin-x64.node",
+  "files": [
+    "rtc-node.darwin-x64.node"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">= 10"
+  }
+}

@@ -244,7 +244,6 @@ export class FrameCryptor {
       },
     });
 
-
     FfiClient.instance.request(
       new FfiRequest({
         message: {

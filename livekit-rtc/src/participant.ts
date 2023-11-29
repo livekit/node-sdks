@@ -23,8 +23,12 @@ import { LocalTrackPublication, RemoteTrackPublication, TrackPublication } from 
 import { LocalTrack } from './track';
 
 export abstract class Participant {
-  protected info: ParticipantInfo;
-  protected ffi_handle: FfiHandle;
+  /** @internal */
+  info: ParticipantInfo;
+
+  /** @internal */
+  ffi_handle: FfiHandle;
+
   tracks = new Map<string, TrackPublication>();
 
   constructor(owned_info: OwnedParticipant) {

@@ -1,2 +1,1 @@
-export { Room } from './room'
-
+export { Room } from './room';

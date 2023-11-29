@@ -14,10 +14,11 @@ import {
 import { FfiClient, FfiRequest } from './ffi_client';
 
 export class AudioSource {
-  private info: AudioSourceInfo;
-
+  /** @internal */
+  info: AudioSourceInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+
   sampleRate: number;
   numChannels: number;
 
@@ -31,14 +32,12 @@ export class AudioSource {
       numChannels: numChannels,
     });
 
-    let res = FfiClient.instance.request<NewAudioSourceResponse>(
-      new FfiRequest({
-        message: {
-          case: 'newAudioSource',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<NewAudioSourceResponse>({
+      message: {
+        case: 'newAudioSource',
+        value: req,
+      },
+    });
 
     this.info = res.source.info;
     this.ffiHandle = new FfiHandle(res.source.handle.id);
@@ -50,9 +49,9 @@ export class AudioSource {
       buffer: frame.protoInfo(),
     });
 
-    let res = FfiClient.instance.request<CaptureAudioFrameResponse>(
-      new FfiRequest({ message: { case: 'captureAudioFrame', value: req } }),
-    );
+    let res = FfiClient.instance.request<CaptureAudioFrameResponse>({
+      message: { case: 'captureAudioFrame', value: req },
+    });
 
     let cb = await FfiClient.instance.waitFor<CaptureAudioFrameCallback>((ev) => {
       return ev.message.case == 'captureAudioFrame' && ev.message.value.asyncId == res.asyncId;

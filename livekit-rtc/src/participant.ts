@@ -19,7 +19,7 @@ import {
   UpdateLocalNameRequest,
   UpdateLocalNameResponse,
 } from './proto/room_pb';
-import { LocalTrackPublication, RemoteTrackPublication, TrackPublication } from './publication';
+import { LocalTrackPublication, RemoteTrackPublication, TrackPublication } from './track_publication';
 import { LocalTrack } from './track';
 
 export abstract class Participant {
@@ -74,9 +74,9 @@ export class LocalParticipant extends Participant {
     });
     req.destinationSids = sids;
 
-    let res = FfiClient.instance.request<PublishDataResponse>(
-      new FfiRequest({ message: { case: 'publishData', value: req } }),
-    );
+    let res = FfiClient.instance.request<PublishDataResponse>({
+      message: { case: 'publishData', value: req },
+    });
 
     let cb = await FfiClient.instance.waitFor<PublishDataCallback>((ev) => {
       return ev.message.case == 'publishData' && ev.message.value.asyncId == res.asyncId;
@@ -93,9 +93,9 @@ export class LocalParticipant extends Participant {
       metadata: metadata,
     });
 
-    let res = FfiClient.instance.request<UpdateLocalMetadataResponse>(
-      new FfiRequest({ message: { case: 'updateLocalMetadata', value: req } }),
-    );
+    let res = FfiClient.instance.request<UpdateLocalMetadataResponse>({
+      message: { case: 'updateLocalMetadata', value: req },
+    });
 
     await FfiClient.instance.waitFor<UpdateLocalMetadataCallback>((ev) => {
       return ev.message.case == 'updateLocalMetadata' && ev.message.value.asyncId == res.asyncId;
@@ -108,9 +108,9 @@ export class LocalParticipant extends Participant {
       name: name,
     });
 
-    let res = FfiClient.instance.request<UpdateLocalNameResponse>(
-      new FfiRequest({ message: { case: 'updateLocalName', value: req } }),
-    );
+    let res = FfiClient.instance.request<UpdateLocalNameResponse>({
+      message: { case: 'updateLocalName', value: req },
+    });
 
     await FfiClient.instance.waitFor<UpdateLocalNameCallback>((ev) => {
       return ev.message.case == 'updateLocalName' && ev.message.value.asyncId == res.asyncId;
@@ -127,9 +127,9 @@ export class LocalParticipant extends Participant {
       options: options,
     });
 
-    let res = FfiClient.instance.request<PublishTrackResponse>(
-      new FfiRequest({ message: { case: 'publishTrack', value: req } }),
-    );
+    let res = FfiClient.instance.request<PublishTrackResponse>({
+      message: { case: 'publishTrack', value: req },
+    });
 
     let cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
@@ -148,9 +148,9 @@ export class LocalParticipant extends Participant {
       trackSid: trackSid,
     });
 
-    let res = FfiClient.instance.request<UnpublishTrackResponse>(
-      new FfiRequest({ message: { case: 'unpublishTrack', value: req } }),
-    );
+    let res = FfiClient.instance.request<UnpublishTrackResponse>({
+      message: { case: 'unpublishTrack', value: req },
+    });
 
     await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
       return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;

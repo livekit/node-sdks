@@ -47,13 +47,13 @@ export const defaultE2EEOptions: E2EEOptions = {
 };
 
 export class KeyProvider {
-  private roomHandle = 0n;
+  private roomHandle: bigint;
   options: KeyProviderOptions;
 
   /** internal */
-  constructor(roomHandle: bigint, options: KeyProviderOptions) {
+  constructor(roomHandle: bigint, opts: KeyProviderOptions) {
     this.roomHandle = roomHandle;
-    this.options = options;
+    this.options = opts;
   }
 
   setSharedKey(sharedKey: Uint8Array, keyIndex: number) {
@@ -68,14 +68,12 @@ export class KeyProvider {
       },
     });
 
-    FfiClient.instance.request(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    FfiClient.instance.request({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
   }
 
   exportSharedKey(keyIndex: number): Uint8Array {
@@ -89,14 +87,12 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<E2eeResponse>({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
 
     return (res.message.value as GetSharedKeyResponse).key;
   }
@@ -112,14 +108,12 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<E2eeResponse>({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
 
     return (res.message.value as RatchetSharedKeyResponse).newKey;
   }
@@ -136,14 +130,12 @@ export class KeyProvider {
       },
     });
 
-    FfiClient.instance.request(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    FfiClient.instance.request({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
   }
 
   exportKey(participantIdentity: string, keyIndex: number): Uint8Array {
@@ -158,14 +150,12 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<E2eeResponse>({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
 
     return (res.message.value as GetKeyResponse).key;
   }
@@ -182,14 +172,12 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<E2eeResponse>({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
 
     return (res.message.value as RatchetKeyResponse).newKey;
   }
@@ -221,14 +209,12 @@ export class FrameCryptor {
       },
     });
 
-    FfiClient.instance.request(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    FfiClient.instance.request({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
   }
 
   setKeyIndex(keyIndex: number) {
@@ -244,14 +230,12 @@ export class FrameCryptor {
       },
     });
 
-    FfiClient.instance.request(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    FfiClient.instance.request({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
   }
 }
 
@@ -262,12 +246,14 @@ export class E2EEManager {
 
   enabled: boolean;
 
-  constructor(roomHandle: bigint, options?: E2EEOptions) {
+  constructor(roomHandle: bigint, opts?: E2EEOptions) {
     this.roomHandle = roomHandle;
-    this.options = options;
-    this.enabled = options !== undefined;
+    this.enabled = opts !== undefined;
 
-    if (options !== undefined) {
+    if (opts !== undefined) {
+      const options = { ...defaultE2EEOptions, ...opts };
+
+      this.options = options;
       this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
     }
   }
@@ -284,14 +270,12 @@ export class E2EEManager {
       },
     });
 
-    FfiClient.instance.request(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    FfiClient.instance.request({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
   }
 
   frameCryptors(): FrameCryptor[] {
@@ -303,14 +287,12 @@ export class E2EEManager {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>(
-      new FfiRequest({
-        message: {
-          case: 'e2ee',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<E2eeResponse>({
+      message: {
+        case: 'e2ee',
+        value: req,
+      },
+    });
 
     let frameCryptors = (
       res.message.value as E2eeManagerGetFrameCryptorsResponse

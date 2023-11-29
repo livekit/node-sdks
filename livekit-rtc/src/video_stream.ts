@@ -19,10 +19,11 @@ export enum VideoStreamEvent {
 }
 
 export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoStreamCallbacks>) {
-  private info: VideoStreamInfo;
-
+  /** @internal */
+  info: VideoStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+
   track: Track;
 
   constructor(track: Track) {
@@ -34,14 +35,12 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
       trackHandle: track.ffi_handle.handle,
     });
 
-    let res = FfiClient.instance.request<NewVideoStreamResponse>(
-      new FfiRequest({
-        message: {
-          case: 'newVideoStream',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<NewVideoStreamResponse>({
+      message: {
+        case: 'newVideoStream',
+        value: req,
+      },
+    });
 
     this.info = res.stream.info;
     this.ffiHandle = new FfiHandle(res.stream.handle.id);

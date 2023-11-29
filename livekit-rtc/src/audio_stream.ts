@@ -19,10 +19,11 @@ export enum AudioStreamEvent {
 }
 
 export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioStreamCallbacks>) {
-  private info: AudioStreamInfo;
-
+  /** @internal */
+  info: AudioStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+
   track: Track;
 
   constructor(track: Track) {
@@ -34,14 +35,12 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
       trackHandle: track.ffi_handle.handle,
     });
 
-    let res = FfiClient.instance.request<NewAudioStreamResponse>(
-      new FfiRequest({
-        message: {
-          case: 'newAudioStream',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<NewAudioStreamResponse>({
+      message: {
+        case: 'newAudioStream',
+        value: req,
+      },
+    });
 
     this.info = res.stream.info;
     this.ffiHandle = new FfiHandle(res.stream.handle.id);

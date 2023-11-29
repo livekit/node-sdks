@@ -1,4 +1,4 @@
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client';
+import { FfiClient, FfiHandle } from './ffi_client';
 import {
   BiplanarYuvBufferInfo,
   OwnedVideoFrameBuffer,
@@ -87,18 +87,18 @@ export abstract class PlanarYuvBuffer extends VideoFrameBuffer {
     width: number,
     height: number,
     bufferType: VideoFrameBufferType,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-    chroma_width: number,
-    chroma_height: number,
+    strideY: number,
+    strideU: number,
+    strideV: number,
+    chromaWidth: number,
+    chromaHeight: number,
   ) {
     super(data, width, height, bufferType);
-    this.strideY = stride_y;
-    this.strideU = stride_u;
-    this.strideV = stride_v;
-    this.chromaWidth = chroma_width;
-    this.chromaHeight = chroma_height;
+    this.strideY = strideY;
+    this.strideU = strideU;
+    this.strideV = strideV;
+    this.chromaWidth = chromaWidth;
+    this.chromaHeight = chromaHeight;
   }
 
   /** @internal */
@@ -128,23 +128,13 @@ export abstract class PlanarYuv8Buffer extends PlanarYuvBuffer {
     width: number,
     height: number,
     bufferType: VideoFrameBufferType,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-    chroma_width: number,
-    chroma_height: number,
+    strideY: number,
+    strideU: number,
+    strideV: number,
+    chromaWidth: number,
+    chromaHeight: number,
   ) {
-    super(
-      data,
-      width,
-      height,
-      bufferType,
-      stride_y,
-      stride_u,
-      stride_v,
-      chroma_width,
-      chroma_height,
-    );
+    super(data, width, height, bufferType, strideY, strideU, strideV, chromaWidth, chromaHeight);
   }
 
   /** @internal */
@@ -184,22 +174,22 @@ export abstract class PlanarYuv16Buffer extends PlanarYuvBuffer {
     width: number,
     height: number,
     bufferType: VideoFrameBufferType,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-    chroma_width: number,
-    chroma_height: number,
+    strideY: number,
+    strideU: number,
+    strideV: number,
+    chromaWidth: number,
+    chromaHeight: number,
   ) {
     super(
       new Uint8Array(data),
       width,
       height,
       bufferType,
-      stride_y,
-      stride_u,
-      stride_v,
-      chroma_width,
-      chroma_height,
+      strideY,
+      strideU,
+      strideV,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -249,16 +239,16 @@ export abstract class BiplanarYuv8Buffer extends VideoFrameBuffer {
     width: number,
     height: number,
     bufferType: VideoFrameBufferType,
-    stride_y: number,
-    stride_uv: number,
-    chroma_width: number,
-    chroma_height: number,
+    strideY: number,
+    strideUV: number,
+    chromaWidth: number,
+    chromaHeight: number,
   ) {
     super(data, width, height, bufferType);
-    this.strideY = stride_y;
-    this.strideUV = stride_uv;
-    this.chromaWidth = chroma_width;
-    this.chromaHeight = chroma_height;
+    this.strideY = strideY;
+    this.strideUV = strideUV;
+    this.chromaWidth = chromaWidth;
+    this.chromaHeight = chromaHeight;
   }
 
   /** @internal */
@@ -298,22 +288,22 @@ export class I420Buffer extends PlanarYuv8Buffer {
     data: Uint8Array,
     width: number,
     height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
+    strideY: number,
+    strideU: number,
+    strideV: number,
   ) {
-    let chroma_width = ~~((width + 1) / 2);
-    let chroma_height = ~~((height + 1) / 2);
+    let chromaWidth = ~~((width + 1) / 2);
+    let chromaHeight = ~~((height + 1) / 2);
     super(
       data,
       width,
       height,
       VideoFrameBufferType.I420,
-      stride_y,
-      stride_u,
-      stride_v,
-      chroma_width,
-      chroma_height,
+      strideY,
+      strideU,
+      strideV,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -321,33 +311,27 @@ export class I420Buffer extends PlanarYuv8Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): I420Buffer {
     let info = owned.info;
     let yuv = info.buffer.value as PlanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_u = yuv.strideU;
-    let stride_v = yuv.strideV;
-    let nbytes = I420Buffer.calcDataSize(info.width, info.height, stride_y, stride_u, stride_v);
+    let strideY = yuv.strideY;
+    let strideU = yuv.strideU;
+    let strideV = yuv.strideV;
+    let nbytes = I420Buffer.calcDataSize(info.height, strideY, strideU, strideV);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
-    return new I420Buffer(data, info.width, info.height, stride_y, stride_u, stride_v);
+    return new I420Buffer(data, info.width, info.height, strideY, strideU, strideV);
   }
 
-  static calcDataSize(
-    width: number,
-    height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-  ): number {
-    let chroma_height = ~~((height + 1) / 2);
-    return stride_y * height + stride_u * chroma_height + stride_v * chroma_height;
+  static calcDataSize(height: number, strideY: number, strideU: number, strideV: number): number {
+    let chromaHeight = ~~((height + 1) / 2);
+    return strideY * height + strideU * chromaHeight + strideV * chromaHeight;
   }
 
   static create(width: number, height: number): I420Buffer {
-    let stride_y = width;
-    let stride_u = ~~((width + 1) / 2);
-    let stride_v = ~~((width + 1) / 2);
-    let data_size = I420Buffer.calcDataSize(width, height, stride_y, stride_u, stride_v);
-    let data = new Uint8Array(data_size);
-    return new I420Buffer(data, width, height, stride_y, stride_u, stride_v);
+    let strideY = width;
+    let strideU = ~~((width + 1) / 2);
+    let strideV = ~~((width + 1) / 2);
+    let dataSize = I420Buffer.calcDataSize(height, strideY, strideU, strideV);
+    let data = new Uint8Array(dataSize);
+    return new I420Buffer(data, width, height, strideY, strideU, strideV);
   }
 }
 
@@ -363,8 +347,8 @@ export class I420ABuffer extends PlanarYuv8Buffer {
     strideV: number,
     strideA: number,
   ) {
-    let chroma_width = ~~((width + 1) / 2);
-    let chroma_height = ~~((height + 1) / 2);
+    let chromaWidth = ~~((width + 1) / 2);
+    let chromaHeight = ~~((height + 1) / 2);
     super(
       data,
       width,
@@ -373,8 +357,8 @@ export class I420ABuffer extends PlanarYuv8Buffer {
       strideY,
       strideU,
       strideV,
-      chroma_width,
-      chroma_height,
+      chromaWidth,
+      chromaHeight,
     );
     this.strideA = strideA;
   }
@@ -383,27 +367,25 @@ export class I420ABuffer extends PlanarYuv8Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): I420ABuffer {
     let info = owned.info;
     let yuv = info.buffer.value as PlanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_u = yuv.strideU;
-    let stride_v = yuv.strideV;
-    let stride_a = yuv.strideA;
-    let nbytes = I420ABuffer.calcDataSize(info.height, stride_y, stride_u, stride_v, stride_a);
+    let strideY = yuv.strideY;
+    let strideU = yuv.strideU;
+    let strideV = yuv.strideV;
+    let strideA = yuv.strideA;
+    let nbytes = I420ABuffer.calcDataSize(info.height, strideY, strideU, strideV, strideA);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
-    return new I420ABuffer(data, info.width, info.height, stride_y, stride_u, stride_v, stride_a);
+    return new I420ABuffer(data, info.width, info.height, strideY, strideU, strideV, strideA);
   }
 
   static calcDataSize(
     height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-    stride_a: number,
+    strideY: number,
+    strideU: number,
+    strideV: number,
+    strideA: number,
   ): number {
-    let chroma_height = ~~((height + 1) / 2);
-    return (
-      stride_y * height + stride_u * chroma_height + stride_v * chroma_height + stride_a * height
-    );
+    let chromaHeight = ~~((height + 1) / 2);
+    return strideY * height + strideU * chromaHeight + strideV * chromaHeight + strideA * height;
   }
 
   dataA(): Uint8Array {
@@ -428,8 +410,8 @@ export class I422Buffer extends PlanarYuv8Buffer {
     strideU: number,
     strideV: number,
   ) {
-    let chroma_width = ~~((width + 1) / 2);
-    let chroma_height = height;
+    let chromaWidth = ~~((width + 1) / 2);
+    let chromaHeight = height;
     super(
       data,
       width,
@@ -438,8 +420,8 @@ export class I422Buffer extends PlanarYuv8Buffer {
       strideY,
       strideU,
       strideV,
-      chroma_width,
-      chroma_height,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -447,22 +429,17 @@ export class I422Buffer extends PlanarYuv8Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): I422Buffer {
     let info = owned.info;
     let yuv = info.buffer.value as PlanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_u = yuv.strideU;
-    let stride_v = yuv.strideV;
-    let nbytes = I422Buffer.calcDataSize(info.height, stride_y, stride_u, stride_v);
+    let strideY = yuv.strideY;
+    let strideU = yuv.strideU;
+    let strideV = yuv.strideV;
+    let nbytes = I422Buffer.calcDataSize(info.height, strideY, strideU, strideV);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
-    return new I422Buffer(data, info.width, info.height, stride_y, stride_u, stride_v);
+    return new I422Buffer(data, info.width, info.height, strideY, strideU, strideV);
   }
 
-  static calcDataSize(
-    height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-  ): number {
-    return stride_y * height + stride_u * height + stride_v * height;
+  static calcDataSize(height: number, strideY: number, strideU: number, strideV: number): number {
+    return strideY * height + strideU * height + strideV * height;
   }
 }
 
@@ -475,8 +452,8 @@ export class I444Buffer extends PlanarYuv8Buffer {
     strideU: number,
     strideV: number,
   ) {
-    let chroma_width = width;
-    let chroma_height = height;
+    let chromaWidth = width;
+    let chromaHeight = height;
     super(
       data,
       width,
@@ -485,8 +462,8 @@ export class I444Buffer extends PlanarYuv8Buffer {
       strideY,
       strideU,
       strideV,
-      chroma_width,
-      chroma_height,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -494,22 +471,17 @@ export class I444Buffer extends PlanarYuv8Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): I444Buffer {
     let info = owned.info;
     let yuv = info.buffer.value as PlanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_u = yuv.strideU;
-    let stride_v = yuv.strideV;
-    let nbytes = I444Buffer.calcDataSize(info.height, stride_y, stride_u, stride_v);
+    let strideY = yuv.strideY;
+    let strideU = yuv.strideU;
+    let strideV = yuv.strideV;
+    let nbytes = I444Buffer.calcDataSize(info.height, strideY, strideU, strideV);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
-    return new I444Buffer(data, info.width, info.height, stride_y, stride_u, stride_v);
+    return new I444Buffer(data, info.width, info.height, strideY, strideU, strideV);
   }
 
-  static calcDataSize(
-    height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-  ): number {
-    return stride_y * height + stride_u * height + stride_v * height;
+  static calcDataSize(height: number, strideY: number, strideU: number, strideV: number): number {
+    return strideY * height + strideU * height + strideV * height;
   }
 }
 
@@ -522,8 +494,8 @@ export class I010Buffer extends PlanarYuv16Buffer {
     strideU: number,
     strideV: number,
   ) {
-    let chroma_width = ~~((width + 1) / 2);
-    let chroma_height = ~~((height + 1) / 2);
+    let chromaWidth = ~~((width + 1) / 2);
+    let chromaHeight = ~~((height + 1) / 2);
     super(
       data,
       width,
@@ -532,8 +504,8 @@ export class I010Buffer extends PlanarYuv16Buffer {
       strideY,
       strideU,
       strideV,
-      chroma_width,
-      chroma_height,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -541,37 +513,32 @@ export class I010Buffer extends PlanarYuv16Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): I010Buffer {
     let info = owned.info;
     let yuv = info.buffer.value as PlanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_u = yuv.strideU;
-    let stride_v = yuv.strideV;
-    let nbytes = I010Buffer.calcDataSize(info.height, stride_y, stride_u, stride_v);
+    let strideY = yuv.strideY;
+    let strideU = yuv.strideU;
+    let strideV = yuv.strideV;
+    let nbytes = I010Buffer.calcDataSize(info.height, strideY, strideU, strideV);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
     return new I010Buffer(
       new Uint16Array(data),
       info.width,
       info.height,
-      stride_y,
-      stride_u,
-      stride_v,
+      strideY,
+      strideU,
+      strideV,
     );
   }
 
-  static calcDataSize(
-    height: number,
-    stride_y: number,
-    stride_u: number,
-    stride_v: number,
-  ): number {
-    let chroma_height = ~~((height + 1) / 2);
-    return (stride_y * height + stride_u * chroma_height + stride_v * chroma_height) * 2;
+  static calcDataSize(height: number, strideY: number, strideU: number, strideV: number): number {
+    let chromaHeight = ~~((height + 1) / 2);
+    return (strideY * height + strideU * chromaHeight + strideV * chromaHeight) * 2;
   }
 }
 
 export class NV12Buffer extends BiplanarYuv8Buffer {
   constructor(data: Uint8Array, width: number, height: number, strideY: number, strideUV: number) {
-    let chroma_width = ~~((width + 1) / 2);
-    let chroma_height = ~~((height + 1) / 2);
+    let chromaWidth = ~~((width + 1) / 2);
+    let chromaHeight = ~~((height + 1) / 2);
     super(
       data,
       width,
@@ -579,8 +546,8 @@ export class NV12Buffer extends BiplanarYuv8Buffer {
       VideoFrameBufferType.NV12,
       strideY,
       strideUV,
-      chroma_width,
-      chroma_height,
+      chromaWidth,
+      chromaHeight,
     );
   }
 
@@ -588,17 +555,17 @@ export class NV12Buffer extends BiplanarYuv8Buffer {
   static fromOwnedInfo(owned: OwnedVideoFrameBuffer): NV12Buffer {
     let info = owned.info;
     let yuv = info.buffer.value as BiplanarYuvBufferInfo;
-    let stride_y = yuv.strideY;
-    let stride_uv = yuv.strideUv;
-    let nbytes = NV12Buffer.calcDataSize(info.height, stride_y, stride_uv);
+    let strideY = yuv.strideY;
+    let strideUV = yuv.strideUv;
+    let nbytes = NV12Buffer.calcDataSize(info.height, strideY, strideUV);
     let data = FfiClient.instance.copyBuffer(yuv.dataYPtr, nbytes);
     new FfiHandle(owned.handle.id).dispose();
-    return new NV12Buffer(data, info.width, info.height, stride_y, stride_uv);
+    return new NV12Buffer(data, info.width, info.height, strideY, strideUV);
   }
 
-  static calcDataSize(height: number, stride_y: number, stride_uv: number): number {
-    let chroma_height = ~~((height + 1) / 2);
-    return stride_y * height + stride_uv * chroma_height;
+  static calcDataSize(height: number, strideY: number, strideUV: number): number {
+    let chromaHeight = ~~((height + 1) / 2);
+    return strideY * height + strideUV * chromaHeight;
   }
 }
 
@@ -642,14 +609,12 @@ export class ArgbFrame {
       },
     });
 
-    let resp = FfiClient.instance.request<ToI420Response>(
-      new FfiRequest({
-        message: {
-          case: 'toI420',
-          value: req,
-        },
-      }),
-    );
+    let resp = FfiClient.instance.request<ToI420Response>({
+      message: {
+        case: 'toI420',
+        value: req,
+      },
+    });
     return I420Buffer.fromOwnedInfo(resp.buffer);
   }
 }

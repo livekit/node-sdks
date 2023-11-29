@@ -8,6 +8,7 @@ import {
   livekitCopyBuffer,
   livekitRetrievePtr,
 } from './native';
+import { PartialMessage } from '@bufbuild/protobuf';
 
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest };
 
@@ -38,8 +39,9 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     }, true);
   }
 
-  request<T>(req: FfiRequest): T {
-    let req_data = req.toBinary();
+  request<T>(req: PartialMessage<FfiRequest>): T {
+    let request = new FfiRequest(req);
+    let req_data = request.toBinary();
     let res_data = livekitFfiRequest(req_data);
     return FfiResponse.fromBinary(res_data).message.value as T;
   }

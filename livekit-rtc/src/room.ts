@@ -1,7 +1,7 @@
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { FfiEvent, FfiRequest } from './proto/ffi_pb';
+import { FfiEvent } from './proto/ffi_pb';
 import { LocalParticipant, Participant, RemoteParticipant } from './participant';
 import {
   ConnectCallback,
@@ -11,22 +11,33 @@ import {
   ConnectionState,
   ContinualGatheringPolicy,
   DataPacketKind,
+  DisconnectResponse,
   IceServer,
   IceTransportType,
   RoomInfo,
 } from './proto/room_pb';
-import { E2EEManager, E2EEOptions } from './e2ee';
+import { E2EEManager, E2EEOptions, defaultE2EEOptions } from './e2ee';
 import { OwnedParticipant } from './proto/participant_pb';
-import { LocalTrackPublication, RemoteTrackPublication, TrackPublication } from './publication';
+import {
+  LocalTrackPublication,
+  RemoteTrackPublication,
+  TrackPublication,
+} from './track_publication';
 import { LocalTrack, RemoteAudioTrack, RemoteTrack, RemoteVideoTrack } from './track';
 import { TrackKind } from './proto/track_pb';
 import { EncryptionState } from './proto/e2ee_pb';
 
-export class RtcConfiguration {
-  iceTransportType: IceTransportType = IceTransportType.TRANSPORT_ALL;
-  continualGatheringPolicy: ContinualGatheringPolicy = ContinualGatheringPolicy.GATHER_CONTINUALLY;
-  iceServers: IceServer[] = [];
+export interface RtcConfiguration {
+  iceTransportType: IceTransportType;
+  continualGatheringPolicy: ContinualGatheringPolicy;
+  iceServers: IceServer[];
 }
+
+export const defaultRtcConfiguration: RtcConfiguration = {
+  iceTransportType: IceTransportType.TRANSPORT_ALL,
+  continualGatheringPolicy: ContinualGatheringPolicy.GATHER_CONTINUALLY,
+  iceServers: [],
+};
 
 export interface RoomOptions {
   autoSubscribe: boolean;
@@ -35,15 +46,17 @@ export interface RoomOptions {
   rtcConfig?: RtcConfiguration;
 }
 
-export class ConnectError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export const defaultRoomOptions: RoomOptions = {
+  autoSubscribe: true,
+  dynacast: false,
+  e2ee: undefined,
+  rtcConfig: undefined,
+};
 
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info: RoomInfo;
   private ffiHandle?: FfiHandle;
+
   e2eeManager: E2EEManager;
   connection_state: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
@@ -73,21 +86,33 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     );
   }
 
-  async connect(url: string, token: string, options: RoomOptions) {
+  async connect(url: string, token: string, opts: RoomOptions) {
+    const options = { ...defaultRoomOptions, ...opts };
+
     let req = new ConnectRequest({
       url: url,
       token: token,
-      options: options,
+      options: {
+        autoSubscribe: options.autoSubscribe,
+        dynacast: options.dynacast,
+        e2ee: {
+          encryptionType: options.e2ee?.encryptionType,
+          keyProviderOptions: {
+            failureTolerance: options.e2ee?.keyProviderOptions?.failureTolerance,
+            ratchetSalt: options.e2ee?.keyProviderOptions?.ratchetSalt,
+            ratchetWindowSize: options.e2ee?.keyProviderOptions?.ratchetWindowSize,
+            sharedKey: options.e2ee?.keyProviderOptions?.sharedKey,
+          },
+        },
+      },
     });
 
-    let res = FfiClient.instance.request<ConnectResponse>(
-      new FfiRequest({
-        message: {
-          case: 'connect',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<ConnectResponse>({
+      message: {
+        case: 'connect',
+        value: req,
+      },
+    });
 
     let cb = await FfiClient.instance.waitFor<ConnectCallback>((ev: FfiEvent) => {
       return ev.message.case == 'connect' && ev.message.value.asyncId == res.asyncId;
@@ -121,7 +146,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return;
     }
 
-    let req = new FfiRequest({
+    FfiClient.instance.request<DisconnectResponse>({
       message: {
         case: 'disconnect',
         value: {
@@ -129,8 +154,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         },
       },
     });
-
-    FfiClient.instance.request(req);
   }
 
   onFfiEvent(ffiEvent: FfiEvent) {
@@ -269,6 +292,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     let participant = new RemoteParticipant(ownedInfo);
     this.participants.set(ownedInfo.info.sid, participant);
     return participant;
+  }
+}
+
+export class ConnectError extends Error {
+  constructor(message: string) {
+    super(message);
   }
 }
 

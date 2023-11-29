@@ -83,8 +83,8 @@ export class RemoteTrackPublication extends TrackPublication {
       publicationHandle: this.ffiHandle.handle,
     });
 
-    FfiClient.instance.request<SetSubscribedResponse>(
-      new FfiRequest({ message: { case: 'setSubscribed', value: req } }),
-    );
+    FfiClient.instance.request<SetSubscribedResponse>({
+      message: { case: 'setSubscribed', value: req },
+    });
   }
 }

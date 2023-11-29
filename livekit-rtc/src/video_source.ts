@@ -10,10 +10,11 @@ import {
 import { VideoFrame } from './video_frame';
 
 export class VideoSource {
-  private info: VideoSourceInfo;
-
+  /** @internal */
+  info: VideoSourceInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+
   width: number;
   height: number;
 
@@ -29,14 +30,12 @@ export class VideoSource {
       },
     });
 
-    let res = FfiClient.instance.request<NewVideoSourceResponse>(
-      new FfiRequest({
-        message: {
-          case: 'newVideoSource',
-          value: req,
-        },
-      }),
-    );
+    let res = FfiClient.instance.request<NewVideoSourceResponse>({
+      message: {
+        case: 'newVideoSource',
+        value: req,
+      },
+    });
 
     this.info = res.source.info;
     this.ffiHandle = new FfiHandle(res.source.handle.id);
@@ -55,8 +54,8 @@ export class VideoSource {
       },
     });
 
-    FfiClient.instance.request<CaptureVideoFrameResponse>(
-      new FfiRequest({ message: { case: 'captureVideoFrame', value: req } }),
-    );
+    FfiClient.instance.request<CaptureVideoFrameResponse>({
+      message: { case: 'captureVideoFrame', value: req },
+    });
   }
 }

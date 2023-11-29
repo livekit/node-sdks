@@ -47,6 +47,6 @@ export {
   TrackPublishOptions,
   ConnectionState,
 } from './proto/room_pb';
-export { EncryptionType, EncryptionState} from './proto/e2ee_pb';
+export { EncryptionType, EncryptionState } from './proto/e2ee_pb';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb';
 export { VideoFormatType, VideoFrameBufferType, VideoRotation } from './proto/video_frame_pb';

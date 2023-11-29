@@ -56,9 +56,9 @@ export class LocalAudioTrack extends Track {
       sourceHandle: source.ffiHandle.handle,
     });
 
-    let res = FfiClient.instance.request<CreateAudioTrackResponse>(
-      { message: { case: 'createAudioTrack', value: req } },
-    );
+    let res = FfiClient.instance.request<CreateAudioTrackResponse>({
+      message: { case: 'createAudioTrack', value: req },
+    });
 
     return new LocalAudioTrack(res.track);
   }
@@ -75,9 +75,9 @@ export class LocalVideoTrack extends Track {
       sourceHandle: source.ffiHandle.handle,
     });
 
-    let res = FfiClient.instance.request<CreateVideoTrackResponse>(
-      { message: { case: 'createVideoTrack', value: req } },
-    );
+    let res = FfiClient.instance.request<CreateVideoTrackResponse>({
+      message: { case: 'createVideoTrack', value: req },
+    });
 
     return new LocalVideoTrack(res.track);
   }

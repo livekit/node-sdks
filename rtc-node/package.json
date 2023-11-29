@@ -1,11 +1,21 @@
 {
-  "name": "livekit-node",
+  "name": "@livekit/rtc-node",
   "version": "0.0.1",
-  "main": "lib/src/index.js",
+  "main": "lib/index.js",
   "types": "src/index.ts",
   "napi": {
-    "name": "livekit-node",
-    "triples": {}
+    "name": "rtc-node",
+    "npmClient": "pnpm",
+    "triples": {
+      "defaults": false,
+      "additional": [
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+	"aarch64-unknown-linux-gnu",
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc"
+      ]
+    }
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -14,22 +24,18 @@
   "devDependencies": {
     "@napi-rs/cli": "^2.16.5",
     "@types/node": "^20.9.2",
-    "ava": "^5.1.1",
     "typed-emitter": "^2.1.0",
-    "typescript": "^5.2.2"
-  },
-  "ava": {
-    "timeout": "3m"
+    "typescript": "^5.2.2",
+    "prettier": "^3.0.3"
   },
   "engines": {
     "node": ">= 10"
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js",
+    "build": "tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js --pipe \"prettier -w\"",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
     "universal": "napi universal",
     "version": "napi version"
   }

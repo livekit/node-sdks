@@ -23,7 +23,7 @@
     "camelcase-keys": "^7.0.0",
     "jose": "^5.1.2",
     "long": "^5.0.0",
-    "protobufjs": "^6.10.2"
+    "protobufjs": "^7.2.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.10",

@@ -2,7 +2,7 @@ import * as jose from 'jose';
 import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
-const defaultTTL = `${6 * 60 * 60}s`;
+const defaultTTL = `6h`;
 
 export interface AccessTokenOptions {
   /**
@@ -118,7 +118,6 @@ export class AccessToken {
       .setNotBefore(0);
     if (this.identity) {
       jwt.setSubject(this.identity);
-      jwt.setJti(this.identity);
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }

@@ -84,7 +84,7 @@ describe('adding grants should not overwrite existing grants', () => {
     const { payload }: jose.JWTVerifyResult<ClaimGrants> = await jose.jwtVerify(
       await t.toJwt(),
       EncodedTestSecret,
-      { issuer: 'me' },
+      { issuer: testApiKey },
     );
     expect(payload.video?.roomCreate).toBeTruthy();
     expect(payload.video?.roomJoin).toBeTruthy();

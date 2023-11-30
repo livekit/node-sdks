@@ -111,7 +111,7 @@ export class AccessToken {
     // TODO: check for video grant validity
 
     const secret = new TextEncoder().encode(this.apiSecret);
-    const jwt = new jose.SignJWT(this.grants as jose.JWTPayload)
+    const jwt = new jose.SignJWT(this.grants)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuer(this.apiKey)
       .setExpirationTime(this.ttl)

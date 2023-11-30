@@ -1,8 +1,8 @@
-import * as jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { ClaimGrants, VideoGrant } from './grants';
 
 // 6 hours
-const defaultTTL = 6 * 60 * 60;
+const defaultTTL = `${6 * 60 * 60}s`;
 
 export interface AccessTokenOptions {
   /**
@@ -37,7 +37,7 @@ export class AccessToken {
 
   identity?: string;
 
-  ttl?: number | string;
+  ttl: number | string;
 
   /**
    * Creates a new AccessToken
@@ -61,12 +61,14 @@ export class AccessToken {
           'the API secret to generate a token. See https://docs.livekit.io/client/connect/',
       );
     }
-
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.grants = {};
     this.identity = options?.identity;
     this.ttl = options?.ttl || defaultTTL;
+    if (typeof this.ttl === 'number') {
+      this.ttl = `${this.ttl}s`;
+    }
     if (options?.metadata) {
       this.metadata = options.metadata;
     }
@@ -105,21 +107,23 @@ export class AccessToken {
   /**
    * @returns JWT encoded token
    */
-  toJwt(): string {
+  async toJwt(): Promise<string> {
     // TODO: check for video grant validity
 
-    const opts: jwt.SignOptions = {
-      issuer: this.apiKey,
-      expiresIn: this.ttl,
-      notBefore: 0,
-    };
+    const secret = new TextEncoder().encode(this.apiSecret);
+    const jwt = new jose.SignJWT(this.grants as jose.JWTPayload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuer(this.apiKey)
+      .setExpirationTime(this.ttl)
+      .setNotBefore(0);
     if (this.identity) {
-      opts.subject = this.identity;
-      opts.jwtid = this.identity;
+      jwt.setSubject(this.identity);
+      jwt.setJti(this.identity);
     } else if (this.grants.video?.roomJoin) {
       throw Error('identity is required for join but not set');
     }
-    return jwt.sign(this.grants, this.apiSecret, opts);
+    const signed = await jwt.sign(secret);
+    return signed;
   }
 }
 
@@ -133,12 +137,13 @@ export class TokenVerifier {
     this.apiSecret = apiSecret;
   }
 
-  verify(token: string): ClaimGrants {
-    const decoded = jwt.verify(token, this.apiSecret, { issuer: this.apiKey });
-    if (!decoded) {
+  async verify(token: string): Promise<ClaimGrants> {
+    const secret = new TextEncoder().encode(this.apiSecret);
+    const { payload } = await jose.jwtVerify(token, secret, { issuer: this.apiKey });
+    if (!payload) {
       throw Error('invalid token');
     }
 
-    return decoded as ClaimGrants;
+    return payload as ClaimGrants;
   }
 }

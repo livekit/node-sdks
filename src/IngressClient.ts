@@ -149,7 +149,7 @@ export class IngressClient extends ServiceBase {
       svc,
       'CreateIngress',
       req,
-      this.authHeader({ ingressAdmin: true }),
+      await this.authHeader({ ingressAdmin: true }),
     );
     return IngressInfo.fromJSON(data);
   }
@@ -180,7 +180,7 @@ export class IngressClient extends ServiceBase {
       svc,
       'UpdateIngress',
       req,
-      this.authHeader({ ingressAdmin: true }),
+      await this.authHeader({ ingressAdmin: true }),
     );
     return IngressInfo.fromJSON(data);
   }
@@ -205,7 +205,7 @@ export class IngressClient extends ServiceBase {
       svc,
       'ListIngress',
       ListIngressRequest.toJSON(req),
-      this.authHeader({ ingressAdmin: true }),
+      await this.authHeader({ ingressAdmin: true }),
     );
     return ListIngressResponse.fromJSON(data).items ?? [];
   }
@@ -218,7 +218,7 @@ export class IngressClient extends ServiceBase {
       svc,
       'DeleteIngress',
       DeleteIngressRequest.toJSON({ ingressId }),
-      this.authHeader({ ingressAdmin: true }),
+      await this.authHeader({ ingressAdmin: true }),
     );
     return IngressInfo.fromJSON(data);
   }

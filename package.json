@@ -19,13 +19,14 @@
     "test": "jest"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^1.3.0",
     "axios": "^1.3.6",
     "camelcase-keys": "^7.0.0",
     "jose": "^5.1.2",
-    "long": "^5.0.0",
-    "protobufjs": "^7.2.4"
+    "long": "^5.0.0"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^1.3.0",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.10.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
@@ -38,7 +39,6 @@
     "ts-jest": "^29.1.1",
     "ts-loader": "^8.0.11",
     "ts-node": "^9.1.1",
-    "ts-proto": "^1.131.0",
     "typedoc": "^0.22.13",
     "typescript": "4.3.x",
     "webpack": "^5.9.0",

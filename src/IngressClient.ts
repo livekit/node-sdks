@@ -8,7 +8,7 @@ import {
   ListIngressRequest,
   ListIngressResponse,
   UpdateIngressRequest,
-} from './proto/livekit_ingress';
+} from './proto/livekit_ingress_pb';
 import ServiceBase from './ServiceBase';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -133,7 +133,7 @@ export class IngressClient extends ServiceBase {
       video = opts.video;
     }
 
-    const req = CreateIngressRequest.toJSON({
+    const req = new CreateIngressRequest({
       inputType,
       name,
       roomName,
@@ -143,7 +143,7 @@ export class IngressClient extends ServiceBase {
       url,
       audio,
       video,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -151,7 +151,7 @@ export class IngressClient extends ServiceBase {
       req,
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJSON(data);
+    return IngressInfo.fromJson(data);
   }
 
   /**
@@ -165,7 +165,7 @@ export class IngressClient extends ServiceBase {
     const participantIdentity: string = opts.participantIdentity || '';
     const { audio, video, bypassTranscoding } = opts;
 
-    const req = UpdateIngressRequest.toJSON({
+    const req = new UpdateIngressRequest({
       ingressId,
       name,
       roomName,
@@ -174,7 +174,7 @@ export class IngressClient extends ServiceBase {
       bypassTranscoding,
       audio,
       video,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -182,7 +182,7 @@ export class IngressClient extends ServiceBase {
       req,
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJSON(data);
+    return IngressInfo.fromJson(data);
   }
 
   /**
@@ -195,7 +195,7 @@ export class IngressClient extends ServiceBase {
    */
   async listIngress(opts?: ListIngressOptions): Promise<Array<IngressInfo>>;
   async listIngress(arg?: string | ListIngressOptions): Promise<Array<IngressInfo>> {
-    let req: ListIngressRequest = {};
+    let req: Partial<ListIngressRequest> = {};
     if (typeof arg === 'string') {
       req.roomName = arg;
     } else if (arg) {
@@ -204,10 +204,10 @@ export class IngressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'ListIngress',
-      ListIngressRequest.toJSON(req),
+      new ListIngressRequest(req).toJson(),
       await this.authHeader({ ingressAdmin: true }),
     );
-    return ListIngressResponse.fromJSON(data).items ?? [];
+    return ListIngressResponse.fromJson(data).items ?? [];
   }
 
   /**
@@ -217,9 +217,9 @@ export class IngressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'DeleteIngress',
-      DeleteIngressRequest.toJSON({ ingressId }),
+      new DeleteIngressRequest({ ingressId }).toJson(),
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJSON(data);
+    return IngressInfo.fromJson(data);
   }
 }

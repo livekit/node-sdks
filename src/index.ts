@@ -15,7 +15,7 @@ export {
   SegmentedFileProtocol,
   StreamOutput,
   StreamProtocol,
-} from './proto/livekit_egress';
+} from './proto/livekit_egress_pb';
 export {
   IngressAudioEncodingOptions,
   IngressAudioEncodingPreset,
@@ -26,7 +26,7 @@ export {
   IngressVideoEncodingOptions,
   IngressVideoEncodingPreset,
   IngressVideoOptions,
-} from './proto/livekit_ingress';
+} from './proto/livekit_ingress_pb';
 export {
   DataPacket_Kind,
   ParticipantInfo,
@@ -35,5 +35,5 @@ export {
   Room,
   TrackInfo,
   TrackType,
-} from './proto/livekit_models';
-export type { WebhookEvent } from './proto/livekit_webhook';
+} from './proto/livekit_models_pb';
+export type { WebhookEvent } from './proto/livekit_webhook_pb';

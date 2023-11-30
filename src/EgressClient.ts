@@ -16,7 +16,7 @@ import {
   UpdateLayoutRequest,
   UpdateStreamRequest,
   WebEgressRequest,
-} from './proto/livekit_egress';
+} from './proto/livekit_egress_pb';
 import ServiceBase from './ServiceBase';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
 
@@ -174,7 +174,7 @@ export class EgressClient extends ServiceBase {
 
     const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
       this.getOutputParams(output, options);
-    const req = RoomCompositeEgressRequest.toJSON({
+    const req = new RoomCompositeEgressRequest({
       roomName,
       layout,
       audioOnly,
@@ -188,7 +188,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -196,7 +196,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -214,7 +214,7 @@ export class EgressClient extends ServiceBase {
     const awaitStartSignal = opts?.awaitStartSignal || false;
     const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
       this.getOutputParams(output, opts?.encodingOptions);
-    const req = WebEgressRequest.toJSON({
+    const req = new WebEgressRequest({
       url,
       audioOnly,
       videoOnly,
@@ -227,7 +227,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -235,7 +235,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -255,7 +255,7 @@ export class EgressClient extends ServiceBase {
       output,
       opts?.encodingOptions,
     );
-    const req = ParticipantEgressRequest.toJSON({
+    const req = new ParticipantEgressRequest({
       roomName,
       identity,
       preset,
@@ -263,7 +263,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -271,7 +271,7 @@ export class EgressClient extends ServiceBase {
       req,
       this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -318,7 +318,7 @@ export class EgressClient extends ServiceBase {
 
     const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
       this.getOutputParams(output, options);
-    const req = TrackCompositeEgressRequest.toJSON({
+    const req = new TrackCompositeEgressRequest({
       roomName,
       audioTrackId,
       videoTrackId,
@@ -330,7 +330,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -338,7 +338,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   private isEncodedOutputs(output: any): output is EncodedOutputs {
@@ -434,12 +434,12 @@ export class EgressClient extends ServiceBase {
       file = <DirectFileOutput>output;
     }
 
-    const req = TrackEgressRequest.toJSON({
+    const req = new TrackEgressRequest({
       roomName,
       trackId,
       file,
       websocketUrl,
-    });
+    }).toJson();
 
     const data = await this.rpc.request(
       svc,
@@ -447,7 +447,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -458,10 +458,10 @@ export class EgressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'UpdateLayout',
-      UpdateLayoutRequest.toJSON({ egressId, layout }),
+      new UpdateLayoutRequest({ egressId, layout }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -480,10 +480,10 @@ export class EgressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'UpdateStream',
-      UpdateStreamRequest.toJSON({ egressId, addOutputUrls, removeOutputUrls }),
+      new UpdateStreamRequest({ egressId, addOutputUrls, removeOutputUrls }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 
   /**
@@ -500,7 +500,7 @@ export class EgressClient extends ServiceBase {
    * @param roomName list egress for one room only
    */
   async listEgress(options?: string | ListEgressOptions): Promise<Array<EgressInfo>> {
-    let req: ListEgressRequest = {};
+    let req: Partial<ListEgressRequest> = {};
     if (typeof options === 'string') {
       req.roomName = options;
     } else if (options !== undefined) {
@@ -510,10 +510,10 @@ export class EgressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'ListEgress',
-      ListEgressRequest.toJSON(req),
+      new ListEgressRequest(req).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return ListEgressResponse.fromJSON(data).items ?? [];
+    return ListEgressResponse.fromJson(data).items ?? [];
   }
 
   /**
@@ -523,9 +523,9 @@ export class EgressClient extends ServiceBase {
     const data = await this.rpc.request(
       svc,
       'StopEgress',
-      StopEgressRequest.toJSON({ egressId }),
+      new StopEgressRequest({ egressId }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJSON(data);
+    return EgressInfo.fromJson(data);
   }
 }

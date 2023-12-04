@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
 
 // twirp RPC adapter for client implementation
@@ -20,8 +19,6 @@ export class TwirpRpc {
 
   prefix: string;
 
-  instance: AxiosInstance;
-
   constructor(host: string, pkg: string, prefix?: string) {
     if (host.startsWith('ws')) {
       host = host.replace('ws', 'http');
@@ -29,18 +26,22 @@ export class TwirpRpc {
     this.host = host;
     this.pkg = pkg;
     this.prefix = prefix || defaultPrefix;
-    this.instance = axios.create({
-      baseURL: host,
-    });
   }
 
   request(service: string, method: string, data: any, headers?: any): Promise<any> {
+    const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
+    const url = new URL(path, this.host);
     return new Promise<any>((resolve, reject) => {
-      const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
-      this.instance
-        .post(path, data, { headers })
-        .then((res) => {
-          resolve(camelcaseKeys(res.data, { deep: true }));
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          ...headers,
+        },
+        body: JSON.stringify(data),
+      })
+        .then(async (res) => {
+          resolve(camelcaseKeys(await res.json(), { deep: true }));
         })
         .catch(reject);
     });

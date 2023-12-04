@@ -36,4 +36,4 @@ export {
   TrackInfo,
   TrackType,
 } from './proto/livekit_models_pb';
-export type { WebhookEvent } from './proto/livekit_webhook_pb';
+export type { WebhookEvent } from './proto/livekit_webhook_pb.js';

@@ -172,19 +172,22 @@ export class EgressClient extends ServiceBase {
     videoOnly ??= false;
     customBaseUrl ??= '';
 
-    const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
-      this.getOutputParams(output, options);
+    const {
+      output: legacyOutput,
+      options: egressOptions,
+      fileOutputs,
+      streamOutputs,
+      segmentOutputs,
+    } = this.getOutputParams(output, options);
+
     const req = new RoomCompositeEgressRequest({
       roomName,
       layout,
       audioOnly,
       videoOnly,
       customBaseUrl,
-      file,
-      stream,
-      segments,
-      preset,
-      advanced,
+      output: legacyOutput,
+      options: egressOptions,
       fileOutputs,
       streamOutputs,
       segmentOutputs,
@@ -212,18 +215,21 @@ export class EgressClient extends ServiceBase {
     const audioOnly = opts?.audioOnly || false;
     const videoOnly = opts?.videoOnly || false;
     const awaitStartSignal = opts?.awaitStartSignal || false;
-    const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
-      this.getOutputParams(output, opts?.encodingOptions);
+    const {
+      output: legacyOutput,
+      options,
+      fileOutputs,
+      streamOutputs,
+      segmentOutputs,
+    } = this.getOutputParams(output, opts?.encodingOptions);
+
     const req = new WebEgressRequest({
       url,
       audioOnly,
       videoOnly,
       awaitStartSignal,
-      file,
-      stream,
-      segments,
-      preset,
-      advanced,
+      output: legacyOutput,
+      options,
       fileOutputs,
       streamOutputs,
       segmentOutputs,
@@ -251,15 +257,14 @@ export class EgressClient extends ServiceBase {
     output: EncodedOutputs,
     opts?: ParticipantEgressOptions,
   ): Promise<EgressInfo> {
-    const { preset, advanced, fileOutputs, streamOutputs, segmentOutputs } = this.getOutputParams(
+    const { options, fileOutputs, streamOutputs, segmentOutputs } = this.getOutputParams(
       output,
       opts?.encodingOptions,
     );
     const req = new ParticipantEgressRequest({
       roomName,
       identity,
-      preset,
-      advanced,
+      options,
       fileOutputs,
       streamOutputs,
       segmentOutputs,
@@ -316,17 +321,19 @@ export class EgressClient extends ServiceBase {
     audioTrackId ??= '';
     videoTrackId ??= '';
 
-    const { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs } =
-      this.getOutputParams(output, options);
+    const {
+      output: legacyOutput,
+      options: egressOptions,
+      fileOutputs,
+      streamOutputs,
+      segmentOutputs,
+    } = this.getOutputParams(output, options);
     const req = new TrackCompositeEgressRequest({
       roomName,
       audioTrackId,
       videoTrackId,
-      file,
-      stream,
-      segments,
-      preset,
-      advanced,
+      output: legacyOutput,
+      options: egressOptions,
       fileOutputs,
       streamOutputs,
       segmentOutputs,
@@ -372,7 +379,7 @@ export class EgressClient extends ServiceBase {
 
   private getOutputParams(
     output: EncodedOutputs | EncodedFileOutput | StreamOutput | SegmentedFileOutput,
-    options?: EncodingOptionsPreset | EncodingOptions,
+    opts?: EncodingOptionsPreset | EncodingOptions,
   ) {
     let file: EncodedFileOutput | undefined;
     let fileOutputs: Array<EncodedFileOutput> | undefined;
@@ -380,8 +387,6 @@ export class EgressClient extends ServiceBase {
     let streamOutputs: Array<StreamOutput> | undefined;
     let segments: SegmentedFileOutput | undefined;
     let segmentOutputs: Array<SegmentedFileOutput> | undefined;
-    let preset: EncodingOptionsPreset | undefined;
-    let advanced: EncodingOptions | undefined;
 
     if (this.isEncodedOutputs(output)) {
       if (output.file !== undefined) {
@@ -404,15 +409,68 @@ export class EgressClient extends ServiceBase {
       streamOutputs = [stream];
     }
 
-    if (options) {
-      if (typeof options === 'number') {
-        preset = <EncodingOptionsPreset>options;
+    let legacyOutput:
+      | {
+          value: EncodedFileOutput;
+          case: 'file';
+        }
+      | {
+          value: StreamOutput;
+          case: 'stream';
+        }
+      | {
+          value: SegmentedFileOutput;
+          case: 'segments';
+        }
+      | undefined;
+
+    if (file) {
+      legacyOutput = {
+        case: 'file',
+        value: file,
+      };
+    } else if (stream) {
+      legacyOutput = {
+        case: 'stream',
+        value: stream,
+      };
+    } else if (segments) {
+      legacyOutput = {
+        case: 'segments',
+        value: segments,
+      };
+    }
+    let egressOptions:
+      | {
+          value: EncodingOptionsPreset;
+          case: 'preset';
+        }
+      | {
+          value: EncodingOptions;
+          case: 'advanced';
+        }
+      | undefined;
+    if (opts) {
+      if (typeof opts === 'number') {
+        egressOptions = {
+          case: 'preset',
+          value: opts,
+        };
       } else {
-        advanced = <EncodingOptions>options;
+        egressOptions = {
+          case: 'advanced',
+          value: <EncodingOptions>opts,
+        };
       }
     }
 
-    return { file, stream, segments, preset, advanced, fileOutputs, streamOutputs, segmentOutputs };
+    return {
+      output: legacyOutput,
+      options: egressOptions,
+      fileOutputs,
+      streamOutputs,
+      segmentOutputs,
+    };
   }
 
   /**
@@ -425,20 +483,33 @@ export class EgressClient extends ServiceBase {
     output: DirectFileOutput | string,
     trackId: string,
   ): Promise<EgressInfo> {
-    let file: DirectFileOutput | undefined;
-    let websocketUrl: string | undefined;
+    let legacyOutput:
+      | {
+          value: DirectFileOutput;
+          case: 'file';
+        }
+      | {
+          value: string;
+          case: 'websocketUrl';
+        }
+      | undefined;
 
     if (typeof output === 'string') {
-      websocketUrl = output;
+      legacyOutput = {
+        case: 'websocketUrl',
+        value: output,
+      };
     } else {
-      file = <DirectFileOutput>output;
+      legacyOutput = {
+        case: 'file',
+        value: output,
+      };
     }
 
     const req = new TrackEgressRequest({
       roomName,
       trackId,
-      file,
-      websocketUrl,
+      output: legacyOutput,
     }).toJson();
 
     const data = await this.rpc.request(

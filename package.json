@@ -35,13 +35,9 @@
     "eslint-plugin-import": "^2.24.0",
     "jsdom": "^23.0.1",
     "prettier": "^2.6.2",
-    "ts-loader": "^8.0.11",
-    "ts-node": "^9.1.1",
-    "typedoc": "^0.22.13",
-    "typescript": "4.3.x",
+    "typedoc": "^0.25.4",
+    "typescript": "4.6.x",
     "vite": "^5.0.5",
-    "vitest": "^0.34.6",
-    "webpack": "^5.9.0",
-    "webpack-cli": "^4.2.0"
+    "vitest": "^0.34.6"
   }
 }

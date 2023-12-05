@@ -2,4 +2,4 @@
 'livekit-server-sdk': major
 ---
 
-Require node 18 as minimumg version
+Require node 18 as minimum version

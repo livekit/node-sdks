@@ -11,11 +11,12 @@ describe('webhook receiver', () => {
   const sha = 'CoEQz1chqJ9bnZRcORddjplkvpjmPujmLTR42DbefYI=';
   const t = new AccessToken(testApiKey, testSecret);
   t.sha256 = sha;
-  const token = t.toJwt();
+
   const receiver = new WebhookReceiver(testApiKey, testSecret);
 
-  it('should receive and decode WebhookEvent', () => {
-    const event = receiver.receive(body, token);
+  it('should receive and decode WebhookEvent', async () => {
+    const token = await t.toJwt();
+    const event = await receiver.receive(body, token);
     expect(event).toBeTruthy();
     expect(event.room?.name).toBe('mytestroom');
     expect(event.event).toBe('room_started');

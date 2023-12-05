@@ -11,8 +11,8 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*"],
-  "exclude": ["vite.config.js", "src/**/*.test.ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "vite.config.ts"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "excludeInternal": true,

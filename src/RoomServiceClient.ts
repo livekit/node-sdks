@@ -1,5 +1,5 @@
-import type { DataPacket_Kind, TrackInfo } from './proto/livekit_models_pb';
-import { ParticipantInfo, ParticipantPermission, Room } from './proto/livekit_models_pb';
+import type { DataPacket_Kind, TrackInfo } from './proto/livekit_models_pb.js';
+import { ParticipantInfo, ParticipantPermission, Room } from './proto/livekit_models_pb.js';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -15,9 +15,9 @@ import {
   UpdateParticipantRequest,
   UpdateRoomMetadataRequest,
   UpdateSubscriptionsRequest,
-} from './proto/livekit_room_pb';
-import ServiceBase from './ServiceBase';
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC';
+} from './proto/livekit_room_pb.js';
+import ServiceBase from './ServiceBase.js';
+import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
 
 /**
  * Options for when creating a room

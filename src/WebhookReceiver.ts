@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { TokenVerifier } from './AccessToken';
+import { TokenVerifier } from './AccessToken.js';
 import { WebhookEvent } from './proto/livekit_webhook_pb.js';
 
 export const authorizeHeader = 'Authorize';

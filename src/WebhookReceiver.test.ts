@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { AccessToken } from './AccessToken';
+import { AccessToken } from './AccessToken.js';
 import { WebhookEvent } from './proto/livekit_webhook_pb.js';
-import { WebhookReceiver } from './WebhookReceiver';
+import { WebhookReceiver } from './WebhookReceiver.js';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';

@@ -1,9 +1,9 @@
-export * from './AccessToken';
-export * from './EgressClient';
-export * from './IngressClient';
-export * from './RoomServiceClient';
-export * from './WebhookReceiver';
-export * from './grants';
+export * from './AccessToken.js';
+export * from './EgressClient.js';
+export * from './IngressClient.js';
+export * from './RoomServiceClient.js';
+export * from './WebhookReceiver.js';
+export * from './grants.js';
 export {
   DirectFileOutput,
   EgressInfo,
@@ -15,7 +15,7 @@ export {
   SegmentedFileProtocol,
   StreamOutput,
   StreamProtocol,
-} from './proto/livekit_egress_pb';
+} from './proto/livekit_egress_pb.js';
 export {
   IngressAudioEncodingOptions,
   IngressAudioEncodingPreset,
@@ -26,7 +26,7 @@ export {
   IngressVideoEncodingOptions,
   IngressVideoEncodingPreset,
   IngressVideoOptions,
-} from './proto/livekit_ingress_pb';
+} from './proto/livekit_ingress_pb.js';
 export {
   DataPacket_Kind,
   ParticipantInfo,
@@ -35,5 +35,5 @@ export {
   Room,
   TrackInfo,
   TrackType,
-} from './proto/livekit_models_pb';
+} from './proto/livekit_models_pb.js';
 export type { WebhookEvent } from './proto/livekit_webhook_pb.js';

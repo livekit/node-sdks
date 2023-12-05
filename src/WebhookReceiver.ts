@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { TokenVerifier } from './AccessToken';
-import { WebhookEvent } from './proto/livekit_webhook';
+import { TokenVerifier } from './AccessToken.js';
+import { WebhookEvent } from './proto/livekit_webhook_pb.js';
 
 export const authorizeHeader = 'Authorize';
 
@@ -38,6 +38,6 @@ export class WebhookReceiver {
       }
     }
 
-    return WebhookEvent.fromJSON(JSON.parse(body));
+    return WebhookEvent.fromJson(JSON.parse(body));
   }
 }

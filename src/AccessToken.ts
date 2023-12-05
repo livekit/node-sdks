@@ -1,5 +1,5 @@
 import * as jose from 'jose';
-import { ClaimGrants, VideoGrant } from './grants';
+import { ClaimGrants, VideoGrant } from './grants.js';
 
 // 6 hours
 const defaultTTL = `6h`;

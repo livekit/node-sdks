@@ -1,6 +1,7 @@
-import { AccessToken } from './AccessToken';
-import { WebhookEvent } from './proto/livekit_webhook';
-import { WebhookReceiver } from './WebhookReceiver';
+import { describe, expect, it } from 'vitest';
+import { AccessToken } from './AccessToken.js';
+import { WebhookEvent } from './proto/livekit_webhook_pb.js';
+import { WebhookReceiver } from './WebhookReceiver.js';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';
@@ -34,7 +35,7 @@ describe('decoding json payload', () => {
       extra: 'extra',
     };
 
-    const event = WebhookEvent.fromJSON(obj);
+    const event = new WebhookEvent(obj);
     expect(event).toBeTruthy();
     expect(event.room?.name).toBe('mytestroom');
   });

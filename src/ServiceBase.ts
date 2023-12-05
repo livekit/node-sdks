@@ -1,5 +1,5 @@
-import { AccessToken } from './AccessToken';
-import { VideoGrant } from './grants';
+import { AccessToken } from './AccessToken.js';
+import { VideoGrant } from './grants.js';
 
 /**
  * Utilities to handle authentication

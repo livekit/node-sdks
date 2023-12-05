@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import * as jose from 'jose';
 import { AccessToken, TokenVerifier } from './AccessToken';
 import { ClaimGrants } from './grants';

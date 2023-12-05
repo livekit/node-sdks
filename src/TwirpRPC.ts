@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
+import type { JsonValue } from '@bufbuild/protobuf';
 
 // twirp RPC adapter for client implementation
 
@@ -7,7 +8,7 @@ const defaultPrefix = '/twirp';
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
-  request(service: string, method: string, data: any, headers?: any): Promise<string>;
+  request(service: string, method: string, data: JsonValue, headers?: any): Promise<string>;
 }
 
 /**

@@ -40,5 +40,8 @@
     "typescript": "4.6.x",
     "vite": "^5.0.5",
     "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

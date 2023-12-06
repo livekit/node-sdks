@@ -7,40 +7,40 @@
   "repository": "git@github.com:livekit/server-sdk-js.git",
   "author": "David Zhao <david@davidzhao.com>",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project tsconfig.json",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
+    "changeset": "changeset",
+    "ci:publish": "pnpm build && changeset publish",
     "proto": "./generate-proto.sh",
     "lint": "eslint .",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
-    "prepare": "pnpm build",
-    "test": "jest"
+    "test": "vitest run"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^1.3.0",
     "camelcase-keys": "^7.0.0",
-    "jsonwebtoken": "^9.0.0",
-    "long": "^5.0.0",
-    "protobufjs": "^7.2.4"
+    "jose": "^5.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
-    "@types/jsonwebtoken": "^9.0.0",
+    "@bufbuild/protoc-gen-es": "^1.3.0",
+    "@changesets/cli": "^2.27.1",
+    "@types/node": "^20.10.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.24.0",
-    "jest": "^26.6.3",
     "prettier": "^2.6.2",
-    "ts-jest": "^26.4.4",
-    "ts-loader": "^8.0.11",
-    "ts-node": "^9.1.1",
-    "ts-proto": "^1.131.0",
-    "typedoc": "^0.22.13",
-    "typescript": "4.2.x",
-    "webpack": "^5.9.0",
-    "webpack-cli": "^4.2.0"
+    "typedoc": "^0.25.4",
+    "typescript": "4.6.x",
+    "vite": "^5.0.5",
+    "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

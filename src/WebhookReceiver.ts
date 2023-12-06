@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { TokenVerifier } from './AccessToken';
-import { WebhookEvent } from './proto/livekit_webhook';
+import { TokenVerifier } from './AccessToken.js';
+import { WebhookEvent } from './proto/livekit_webhook_pb.js';
 
 export const authorizeHeader = 'Authorize';
 
@@ -18,13 +18,17 @@ export class WebhookReceiver {
    * @param skipAuth true to skip auth validation
    * @returns
    */
-  receive(body: string, authHeader?: string, skipAuth: boolean = false): WebhookEvent {
+  async receive(
+    body: string,
+    authHeader?: string,
+    skipAuth: boolean = false,
+  ): Promise<WebhookEvent> {
     // verify token
     if (!skipAuth) {
       if (!authHeader) {
         throw new Error('authorization header is empty');
       }
-      const claims = this.verifier.verify(authHeader);
+      const claims = await this.verifier.verify(authHeader);
       // confirm sha
       const hash = crypto.createHash('sha256');
       hash.update(body);
@@ -34,6 +38,6 @@ export class WebhookReceiver {
       }
     }
 
-    return WebhookEvent.fromJSON(JSON.parse(body));
+    return WebhookEvent.fromJson(JSON.parse(body));
   }
 }

@@ -1,3 +1,5 @@
+import { JWTPayload } from 'jose';
+
 export enum TrackSource {
   CAMERA = 'camera',
   MICROPHONE = 'microphone',
@@ -60,7 +62,7 @@ export interface VideoGrant {
 }
 
 /** @internal */
-export interface ClaimGrants {
+export interface ClaimGrants extends JWTPayload {
   name?: string;
   video?: VideoGrant;
   metadata?: string;

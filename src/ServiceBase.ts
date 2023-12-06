@@ -1,5 +1,5 @@
-import { AccessToken } from './AccessToken';
-import { VideoGrant } from './grants';
+import { AccessToken } from './AccessToken.js';
+import { VideoGrant } from './grants.js';
 
 /**
  * Utilities to handle authentication
@@ -22,11 +22,11 @@ export default class ServiceBase {
     this.ttl = ttl || '10m';
   }
 
-  authHeader(grant: VideoGrant): any {
+  async authHeader(grant: VideoGrant): Promise<any> {
     const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
     at.addGrant(grant);
     return {
-      Authorization: `Bearer ${at.toJwt()}`,
+      Authorization: `Bearer ${await at.toJwt()}`,
     };
   }
 }

@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { TokenVerifier } from './AccessToken.js';
 import { WebhookEvent } from './proto/livekit_webhook_pb.js';
 
@@ -30,10 +29,15 @@ export class WebhookReceiver {
       }
       const claims = await this.verifier.verify(authHeader);
       // confirm sha
-      const hash = crypto.createHash('sha256');
-      hash.update(body);
+      const encoder = new TextEncoder();
+      const hash = await crypto.subtle.digest('SHA-256', encoder.encode(body));
+      const hashDecoded = btoa(
+        Array.from(new Uint8Array(hash))
+          .map((v) => String.fromCharCode(v))
+          .join(''),
+      );
 
-      if (claims.sha256 !== hash.digest('base64')) {
+      if (claims.sha256 !== hashDecoded) {
         throw new Error('sha256 checksum of body does not match');
       }
     }

@@ -35,13 +35,12 @@ jobs:
       - name: Prettier
         run: pnpm format:check
 
-      - name: Test
+      - name: Test Node
         run: pnpm test
-  test-bun:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-      - run: bun build ./src/index.ts
-      # - run: bun run test # there's wip to support bun for vitest, but as of now it's not compatible. 
+
+      - name: Test browser
+        run: pnpm test:browser
+      
+      - name: Test edge runtime
+        run: pnpm test:edge
+ 

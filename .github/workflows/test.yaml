@@ -38,11 +38,10 @@ jobs:
       - name: Test
         run: pnpm test
   test-bun:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
       - run: bun install
-      - run: bun run test
+      - run: bun run build
+      # - run: bun run test # there's wip to support bun for vitest, but as of now it's not compatible. 

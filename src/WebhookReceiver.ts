@@ -30,7 +30,7 @@ export class WebhookReceiver {
       const claims = await this.verifier.verify(authHeader);
       // confirm sha
       const encoder = new TextEncoder();
-      const hash = await globalThis.crypto.subtle.digest('SHA-256', encoder.encode(body));
+      const hash = await crypto.subtle.digest('SHA-256', encoder.encode(body));
       const hashDecoded = btoa(
         Array.from(new Uint8Array(hash))
           .map((v) => String.fromCharCode(v))

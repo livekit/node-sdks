@@ -42,7 +42,11 @@ export class TwirpRpc {
         body: JSON.stringify(data),
       })
         .then(async (res) => {
-          resolve(camelcaseKeys(await res.json(), { deep: true }));
+          if (res.ok) {
+            resolve(camelcaseKeys(await res.json(), { deep: true }));
+          } else {
+            reject(res.statusText);
+          }
         })
         .catch(reject);
     });

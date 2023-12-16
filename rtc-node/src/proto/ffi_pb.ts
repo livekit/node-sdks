@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
-import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, RoomEvent, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse, UpdateLocalMetadataCallback, UpdateLocalMetadataRequest, UpdateLocalMetadataResponse, UpdateLocalNameCallback, UpdateLocalNameRequest, UpdateLocalNameResponse } from "./room_pb.js";
+import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, RoomEvent, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse, UpdateLocalMetadataCallback, UpdateLocalMetadataRequest, UpdateLocalMetadataResponse, UpdateLocalNameCallback, UpdateLocalNameRequest, UpdateLocalNameResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, TrackEvent } from "./track_pb.js";
 import { AllocVideoBufferRequest, AllocVideoBufferResponse, CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, ToArgbRequest, ToArgbResponse, ToI420Request, ToI420Response, VideoStreamEvent } from "./video_frame_pb.js";
 import { AllocAudioBufferRequest, AllocAudioBufferResponse, AudioStreamEvent, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
@@ -74,12 +74,6 @@ export class FfiRequest extends Message<FfiRequest> {
    * @generated from oneof livekit.proto.FfiRequest.message
    */
   message: {
-    /**
-     * @generated from field: livekit.proto.InitializeRequest initialize = 1;
-     */
-    value: InitializeRequest;
-    case: "initialize";
-  } | {
     /**
      * @generated from field: livekit.proto.DisposeRequest dispose = 2;
      */
@@ -137,21 +131,27 @@ export class FfiRequest extends Message<FfiRequest> {
     case: "updateLocalName";
   } | {
     /**
+     * @generated from field: livekit.proto.GetSessionStatsRequest get_session_stats = 11;
+     */
+    value: GetSessionStatsRequest;
+    case: "getSessionStats";
+  } | {
+    /**
      * Track
      *
-     * @generated from field: livekit.proto.CreateVideoTrackRequest create_video_track = 11;
+     * @generated from field: livekit.proto.CreateVideoTrackRequest create_video_track = 12;
      */
     value: CreateVideoTrackRequest;
     case: "createVideoTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.CreateAudioTrackRequest create_audio_track = 12;
+     * @generated from field: livekit.proto.CreateAudioTrackRequest create_audio_track = 13;
      */
     value: CreateAudioTrackRequest;
     case: "createAudioTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.GetStatsRequest get_stats = 13;
+     * @generated from field: livekit.proto.GetStatsRequest get_stats = 14;
      */
     value: GetStatsRequest;
     case: "getStats";
@@ -159,37 +159,37 @@ export class FfiRequest extends Message<FfiRequest> {
     /**
      * Video
      *
-     * @generated from field: livekit.proto.AllocVideoBufferRequest alloc_video_buffer = 14;
+     * @generated from field: livekit.proto.AllocVideoBufferRequest alloc_video_buffer = 15;
      */
     value: AllocVideoBufferRequest;
     case: "allocVideoBuffer";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoStreamRequest new_video_stream = 15;
+     * @generated from field: livekit.proto.NewVideoStreamRequest new_video_stream = 16;
      */
     value: NewVideoStreamRequest;
     case: "newVideoStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoSourceRequest new_video_source = 16;
+     * @generated from field: livekit.proto.NewVideoSourceRequest new_video_source = 17;
      */
     value: NewVideoSourceRequest;
     case: "newVideoSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureVideoFrameRequest capture_video_frame = 17;
+     * @generated from field: livekit.proto.CaptureVideoFrameRequest capture_video_frame = 18;
      */
     value: CaptureVideoFrameRequest;
     case: "captureVideoFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.ToI420Request to_i420 = 18;
+     * @generated from field: livekit.proto.ToI420Request to_i420 = 19;
      */
     value: ToI420Request;
     case: "toI420";
   } | {
     /**
-     * @generated from field: livekit.proto.ToArgbRequest to_argb = 19;
+     * @generated from field: livekit.proto.ToArgbRequest to_argb = 20;
      */
     value: ToArgbRequest;
     case: "toArgb";
@@ -197,43 +197,43 @@ export class FfiRequest extends Message<FfiRequest> {
     /**
      * Audio
      *
-     * @generated from field: livekit.proto.AllocAudioBufferRequest alloc_audio_buffer = 20;
+     * @generated from field: livekit.proto.AllocAudioBufferRequest alloc_audio_buffer = 21;
      */
     value: AllocAudioBufferRequest;
     case: "allocAudioBuffer";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioStreamRequest new_audio_stream = 21;
+     * @generated from field: livekit.proto.NewAudioStreamRequest new_audio_stream = 22;
      */
     value: NewAudioStreamRequest;
     case: "newAudioStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioSourceRequest new_audio_source = 22;
+     * @generated from field: livekit.proto.NewAudioSourceRequest new_audio_source = 23;
      */
     value: NewAudioSourceRequest;
     case: "newAudioSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureAudioFrameRequest capture_audio_frame = 23;
+     * @generated from field: livekit.proto.CaptureAudioFrameRequest capture_audio_frame = 24;
      */
     value: CaptureAudioFrameRequest;
     case: "captureAudioFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioResamplerRequest new_audio_resampler = 24;
+     * @generated from field: livekit.proto.NewAudioResamplerRequest new_audio_resampler = 25;
      */
     value: NewAudioResamplerRequest;
     case: "newAudioResampler";
   } | {
     /**
-     * @generated from field: livekit.proto.RemixAndResampleRequest remix_and_resample = 25;
+     * @generated from field: livekit.proto.RemixAndResampleRequest remix_and_resample = 26;
      */
     value: RemixAndResampleRequest;
     case: "remixAndResample";
   } | {
     /**
-     * @generated from field: livekit.proto.E2eeRequest e2ee = 26;
+     * @generated from field: livekit.proto.E2eeRequest e2ee = 27;
      */
     value: E2eeRequest;
     case: "e2ee";
@@ -247,7 +247,6 @@ export class FfiRequest extends Message<FfiRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.FfiRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "initialize", kind: "message", T: InitializeRequest, oneof: "message" },
     { no: 2, name: "dispose", kind: "message", T: DisposeRequest, oneof: "message" },
     { no: 3, name: "connect", kind: "message", T: ConnectRequest, oneof: "message" },
     { no: 4, name: "disconnect", kind: "message", T: DisconnectRequest, oneof: "message" },
@@ -257,22 +256,23 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 8, name: "set_subscribed", kind: "message", T: SetSubscribedRequest, oneof: "message" },
     { no: 9, name: "update_local_metadata", kind: "message", T: UpdateLocalMetadataRequest, oneof: "message" },
     { no: 10, name: "update_local_name", kind: "message", T: UpdateLocalNameRequest, oneof: "message" },
-    { no: 11, name: "create_video_track", kind: "message", T: CreateVideoTrackRequest, oneof: "message" },
-    { no: 12, name: "create_audio_track", kind: "message", T: CreateAudioTrackRequest, oneof: "message" },
-    { no: 13, name: "get_stats", kind: "message", T: GetStatsRequest, oneof: "message" },
-    { no: 14, name: "alloc_video_buffer", kind: "message", T: AllocVideoBufferRequest, oneof: "message" },
-    { no: 15, name: "new_video_stream", kind: "message", T: NewVideoStreamRequest, oneof: "message" },
-    { no: 16, name: "new_video_source", kind: "message", T: NewVideoSourceRequest, oneof: "message" },
-    { no: 17, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameRequest, oneof: "message" },
-    { no: 18, name: "to_i420", kind: "message", T: ToI420Request, oneof: "message" },
-    { no: 19, name: "to_argb", kind: "message", T: ToArgbRequest, oneof: "message" },
-    { no: 20, name: "alloc_audio_buffer", kind: "message", T: AllocAudioBufferRequest, oneof: "message" },
-    { no: 21, name: "new_audio_stream", kind: "message", T: NewAudioStreamRequest, oneof: "message" },
-    { no: 22, name: "new_audio_source", kind: "message", T: NewAudioSourceRequest, oneof: "message" },
-    { no: 23, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameRequest, oneof: "message" },
-    { no: 24, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerRequest, oneof: "message" },
-    { no: 25, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
-    { no: 26, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
+    { no: 11, name: "get_session_stats", kind: "message", T: GetSessionStatsRequest, oneof: "message" },
+    { no: 12, name: "create_video_track", kind: "message", T: CreateVideoTrackRequest, oneof: "message" },
+    { no: 13, name: "create_audio_track", kind: "message", T: CreateAudioTrackRequest, oneof: "message" },
+    { no: 14, name: "get_stats", kind: "message", T: GetStatsRequest, oneof: "message" },
+    { no: 15, name: "alloc_video_buffer", kind: "message", T: AllocVideoBufferRequest, oneof: "message" },
+    { no: 16, name: "new_video_stream", kind: "message", T: NewVideoStreamRequest, oneof: "message" },
+    { no: 17, name: "new_video_source", kind: "message", T: NewVideoSourceRequest, oneof: "message" },
+    { no: 18, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameRequest, oneof: "message" },
+    { no: 19, name: "to_i420", kind: "message", T: ToI420Request, oneof: "message" },
+    { no: 20, name: "to_argb", kind: "message", T: ToArgbRequest, oneof: "message" },
+    { no: 21, name: "alloc_audio_buffer", kind: "message", T: AllocAudioBufferRequest, oneof: "message" },
+    { no: 22, name: "new_audio_stream", kind: "message", T: NewAudioStreamRequest, oneof: "message" },
+    { no: 23, name: "new_audio_source", kind: "message", T: NewAudioSourceRequest, oneof: "message" },
+    { no: 24, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameRequest, oneof: "message" },
+    { no: 25, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerRequest, oneof: "message" },
+    { no: 26, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
+    { no: 27, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -302,12 +302,6 @@ export class FfiResponse extends Message<FfiResponse> {
    * @generated from oneof livekit.proto.FfiResponse.message
    */
   message: {
-    /**
-     * @generated from field: livekit.proto.InitializeResponse initialize = 1;
-     */
-    value: InitializeResponse;
-    case: "initialize";
-  } | {
     /**
      * @generated from field: livekit.proto.DisposeResponse dispose = 2;
      */
@@ -365,21 +359,27 @@ export class FfiResponse extends Message<FfiResponse> {
     case: "updateLocalName";
   } | {
     /**
+     * @generated from field: livekit.proto.GetSessionStatsResponse get_session_stats = 11;
+     */
+    value: GetSessionStatsResponse;
+    case: "getSessionStats";
+  } | {
+    /**
      * Track
      *
-     * @generated from field: livekit.proto.CreateVideoTrackResponse create_video_track = 11;
+     * @generated from field: livekit.proto.CreateVideoTrackResponse create_video_track = 12;
      */
     value: CreateVideoTrackResponse;
     case: "createVideoTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.CreateAudioTrackResponse create_audio_track = 12;
+     * @generated from field: livekit.proto.CreateAudioTrackResponse create_audio_track = 13;
      */
     value: CreateAudioTrackResponse;
     case: "createAudioTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.GetStatsResponse get_stats = 13;
+     * @generated from field: livekit.proto.GetStatsResponse get_stats = 14;
      */
     value: GetStatsResponse;
     case: "getStats";
@@ -387,37 +387,37 @@ export class FfiResponse extends Message<FfiResponse> {
     /**
      * Video
      *
-     * @generated from field: livekit.proto.AllocVideoBufferResponse alloc_video_buffer = 14;
+     * @generated from field: livekit.proto.AllocVideoBufferResponse alloc_video_buffer = 15;
      */
     value: AllocVideoBufferResponse;
     case: "allocVideoBuffer";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoStreamResponse new_video_stream = 15;
+     * @generated from field: livekit.proto.NewVideoStreamResponse new_video_stream = 16;
      */
     value: NewVideoStreamResponse;
     case: "newVideoStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoSourceResponse new_video_source = 16;
+     * @generated from field: livekit.proto.NewVideoSourceResponse new_video_source = 17;
      */
     value: NewVideoSourceResponse;
     case: "newVideoSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureVideoFrameResponse capture_video_frame = 17;
+     * @generated from field: livekit.proto.CaptureVideoFrameResponse capture_video_frame = 18;
      */
     value: CaptureVideoFrameResponse;
     case: "captureVideoFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.ToI420Response to_i420 = 18;
+     * @generated from field: livekit.proto.ToI420Response to_i420 = 19;
      */
     value: ToI420Response;
     case: "toI420";
   } | {
     /**
-     * @generated from field: livekit.proto.ToArgbResponse to_argb = 19;
+     * @generated from field: livekit.proto.ToArgbResponse to_argb = 20;
      */
     value: ToArgbResponse;
     case: "toArgb";
@@ -425,43 +425,43 @@ export class FfiResponse extends Message<FfiResponse> {
     /**
      * Audio
      *
-     * @generated from field: livekit.proto.AllocAudioBufferResponse alloc_audio_buffer = 20;
+     * @generated from field: livekit.proto.AllocAudioBufferResponse alloc_audio_buffer = 21;
      */
     value: AllocAudioBufferResponse;
     case: "allocAudioBuffer";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioStreamResponse new_audio_stream = 21;
+     * @generated from field: livekit.proto.NewAudioStreamResponse new_audio_stream = 22;
      */
     value: NewAudioStreamResponse;
     case: "newAudioStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioSourceResponse new_audio_source = 22;
+     * @generated from field: livekit.proto.NewAudioSourceResponse new_audio_source = 23;
      */
     value: NewAudioSourceResponse;
     case: "newAudioSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureAudioFrameResponse capture_audio_frame = 23;
+     * @generated from field: livekit.proto.CaptureAudioFrameResponse capture_audio_frame = 24;
      */
     value: CaptureAudioFrameResponse;
     case: "captureAudioFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioResamplerResponse new_audio_resampler = 24;
+     * @generated from field: livekit.proto.NewAudioResamplerResponse new_audio_resampler = 25;
      */
     value: NewAudioResamplerResponse;
     case: "newAudioResampler";
   } | {
     /**
-     * @generated from field: livekit.proto.RemixAndResampleResponse remix_and_resample = 25;
+     * @generated from field: livekit.proto.RemixAndResampleResponse remix_and_resample = 26;
      */
     value: RemixAndResampleResponse;
     case: "remixAndResample";
   } | {
     /**
-     * @generated from field: livekit.proto.E2eeResponse e2ee = 26;
+     * @generated from field: livekit.proto.E2eeResponse e2ee = 27;
      */
     value: E2eeResponse;
     case: "e2ee";
@@ -475,7 +475,6 @@ export class FfiResponse extends Message<FfiResponse> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.FfiResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "initialize", kind: "message", T: InitializeResponse, oneof: "message" },
     { no: 2, name: "dispose", kind: "message", T: DisposeResponse, oneof: "message" },
     { no: 3, name: "connect", kind: "message", T: ConnectResponse, oneof: "message" },
     { no: 4, name: "disconnect", kind: "message", T: DisconnectResponse, oneof: "message" },
@@ -485,22 +484,23 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 8, name: "set_subscribed", kind: "message", T: SetSubscribedResponse, oneof: "message" },
     { no: 9, name: "update_local_metadata", kind: "message", T: UpdateLocalMetadataResponse, oneof: "message" },
     { no: 10, name: "update_local_name", kind: "message", T: UpdateLocalNameResponse, oneof: "message" },
-    { no: 11, name: "create_video_track", kind: "message", T: CreateVideoTrackResponse, oneof: "message" },
-    { no: 12, name: "create_audio_track", kind: "message", T: CreateAudioTrackResponse, oneof: "message" },
-    { no: 13, name: "get_stats", kind: "message", T: GetStatsResponse, oneof: "message" },
-    { no: 14, name: "alloc_video_buffer", kind: "message", T: AllocVideoBufferResponse, oneof: "message" },
-    { no: 15, name: "new_video_stream", kind: "message", T: NewVideoStreamResponse, oneof: "message" },
-    { no: 16, name: "new_video_source", kind: "message", T: NewVideoSourceResponse, oneof: "message" },
-    { no: 17, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameResponse, oneof: "message" },
-    { no: 18, name: "to_i420", kind: "message", T: ToI420Response, oneof: "message" },
-    { no: 19, name: "to_argb", kind: "message", T: ToArgbResponse, oneof: "message" },
-    { no: 20, name: "alloc_audio_buffer", kind: "message", T: AllocAudioBufferResponse, oneof: "message" },
-    { no: 21, name: "new_audio_stream", kind: "message", T: NewAudioStreamResponse, oneof: "message" },
-    { no: 22, name: "new_audio_source", kind: "message", T: NewAudioSourceResponse, oneof: "message" },
-    { no: 23, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameResponse, oneof: "message" },
-    { no: 24, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerResponse, oneof: "message" },
-    { no: 25, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
-    { no: 26, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
+    { no: 11, name: "get_session_stats", kind: "message", T: GetSessionStatsResponse, oneof: "message" },
+    { no: 12, name: "create_video_track", kind: "message", T: CreateVideoTrackResponse, oneof: "message" },
+    { no: 13, name: "create_audio_track", kind: "message", T: CreateAudioTrackResponse, oneof: "message" },
+    { no: 14, name: "get_stats", kind: "message", T: GetStatsResponse, oneof: "message" },
+    { no: 15, name: "alloc_video_buffer", kind: "message", T: AllocVideoBufferResponse, oneof: "message" },
+    { no: 16, name: "new_video_stream", kind: "message", T: NewVideoStreamResponse, oneof: "message" },
+    { no: 17, name: "new_video_source", kind: "message", T: NewVideoSourceResponse, oneof: "message" },
+    { no: 18, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameResponse, oneof: "message" },
+    { no: 19, name: "to_i420", kind: "message", T: ToI420Response, oneof: "message" },
+    { no: 20, name: "to_argb", kind: "message", T: ToArgbResponse, oneof: "message" },
+    { no: 21, name: "alloc_audio_buffer", kind: "message", T: AllocAudioBufferResponse, oneof: "message" },
+    { no: 22, name: "new_audio_stream", kind: "message", T: NewAudioStreamResponse, oneof: "message" },
+    { no: 23, name: "new_audio_source", kind: "message", T: NewAudioSourceResponse, oneof: "message" },
+    { no: 24, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameResponse, oneof: "message" },
+    { no: 25, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerResponse, oneof: "message" },
+    { no: 26, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
+    { no: 27, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -621,6 +621,12 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: LogBatch;
     case: "logs";
+  } | {
+    /**
+     * @generated from field: livekit.proto.GetSessionStatsCallback get_session_stats = 16;
+     */
+    value: GetSessionStatsCallback;
+    case: "getSessionStats";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -646,6 +652,7 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 13, name: "update_local_name", kind: "message", T: UpdateLocalNameCallback, oneof: "message" },
     { no: 14, name: "get_stats", kind: "message", T: GetStatsCallback, oneof: "message" },
     { no: 15, name: "logs", kind: "message", T: LogBatch, oneof: "message" },
+    { no: 16, name: "get_session_stats", kind: "message", T: GetSessionStatsCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {
@@ -662,85 +669,6 @@ export class FfiEvent extends Message<FfiEvent> {
 
   static equals(a: FfiEvent | PlainMessage<FfiEvent> | undefined, b: FfiEvent | PlainMessage<FfiEvent> | undefined): boolean {
     return proto3.util.equals(FfiEvent, a, b);
-  }
-}
-
-/**
- * Setup the callback where the foreign language can receive events
- * and responses to asynchronous requests
- *
- * @generated from message livekit.proto.InitializeRequest
- */
-export class InitializeRequest extends Message<InitializeRequest> {
-  /**
-   * @generated from field: uint64 event_callback_ptr = 1;
-   */
-  eventCallbackPtr = protoInt64.zero;
-
-  /**
-   * When true, the FfiServer will forward logs using LogRecord
-   *
-   * @generated from field: bool capture_logs = 2;
-   */
-  captureLogs = false;
-
-  constructor(data?: PartialMessage<InitializeRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.InitializeRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "event_callback_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "capture_logs", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): InitializeRequest {
-    return new InitializeRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): InitializeRequest {
-    return new InitializeRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): InitializeRequest {
-    return new InitializeRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: InitializeRequest | PlainMessage<InitializeRequest> | undefined, b: InitializeRequest | PlainMessage<InitializeRequest> | undefined): boolean {
-    return proto3.util.equals(InitializeRequest, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.InitializeResponse
- */
-export class InitializeResponse extends Message<InitializeResponse> {
-  constructor(data?: PartialMessage<InitializeResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.InitializeResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): InitializeResponse {
-    return new InitializeResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): InitializeResponse {
-    return new InitializeResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): InitializeResponse {
-    return new InitializeResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: InitializeResponse | PlainMessage<InitializeResponse> | undefined, b: InitializeResponse | PlainMessage<InitializeResponse> | undefined): boolean {
-    return proto3.util.equals(InitializeResponse, a, b);
   }
 }
 

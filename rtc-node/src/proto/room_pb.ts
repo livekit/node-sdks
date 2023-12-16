@@ -21,6 +21,7 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 import { OwnedParticipant } from "./participant_pb.js";
 import { OwnedTrack, OwnedTrackPublication, TrackSource } from "./track_pb.js";
+import { RtcStats } from "./stats_pb.js";
 import { VideoCodec } from "./video_frame_pb.js";
 import { E2eeOptions, EncryptionState } from "./e2ee_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
@@ -752,6 +753,11 @@ export class PublishDataRequest extends Message<PublishDataRequest> {
    */
   destinationSids: string[] = [];
 
+  /**
+   * @generated from field: optional string topic = 6;
+   */
+  topic?: string;
+
   constructor(data?: PartialMessage<PublishDataRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -765,6 +771,7 @@ export class PublishDataRequest extends Message<PublishDataRequest> {
     { no: 3, name: "data_len", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
     { no: 4, name: "kind", kind: "enum", T: proto3.getEnumType(DataPacketKind) },
     { no: 5, name: "destination_sids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 6, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishDataRequest {
@@ -1175,6 +1182,135 @@ export class SetSubscribedResponse extends Message<SetSubscribedResponse> {
 
   static equals(a: SetSubscribedResponse | PlainMessage<SetSubscribedResponse> | undefined, b: SetSubscribedResponse | PlainMessage<SetSubscribedResponse> | undefined): boolean {
     return proto3.util.equals(SetSubscribedResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.GetSessionStatsRequest
+ */
+export class GetSessionStatsRequest extends Message<GetSessionStatsRequest> {
+  /**
+   * @generated from field: uint64 room_handle = 1;
+   */
+  roomHandle = protoInt64.zero;
+
+  constructor(data?: PartialMessage<GetSessionStatsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.GetSessionStatsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "room_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSessionStatsRequest {
+    return new GetSessionStatsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSessionStatsRequest {
+    return new GetSessionStatsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSessionStatsRequest {
+    return new GetSessionStatsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSessionStatsRequest | PlainMessage<GetSessionStatsRequest> | undefined, b: GetSessionStatsRequest | PlainMessage<GetSessionStatsRequest> | undefined): boolean {
+    return proto3.util.equals(GetSessionStatsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.GetSessionStatsResponse
+ */
+export class GetSessionStatsResponse extends Message<GetSessionStatsResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<GetSessionStatsResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.GetSessionStatsResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSessionStatsResponse {
+    return new GetSessionStatsResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSessionStatsResponse {
+    return new GetSessionStatsResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSessionStatsResponse {
+    return new GetSessionStatsResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSessionStatsResponse | PlainMessage<GetSessionStatsResponse> | undefined, b: GetSessionStatsResponse | PlainMessage<GetSessionStatsResponse> | undefined): boolean {
+    return proto3.util.equals(GetSessionStatsResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.GetSessionStatsCallback
+ */
+export class GetSessionStatsCallback extends Message<GetSessionStatsCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: repeated livekit.proto.RtcStats publisher_stats = 3;
+   */
+  publisherStats: RtcStats[] = [];
+
+  /**
+   * @generated from field: repeated livekit.proto.RtcStats subscriber_stats = 4;
+   */
+  subscriberStats: RtcStats[] = [];
+
+  constructor(data?: PartialMessage<GetSessionStatsCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.GetSessionStatsCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "publisher_stats", kind: "message", T: RtcStats, repeated: true },
+    { no: 4, name: "subscriber_stats", kind: "message", T: RtcStats, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSessionStatsCallback {
+    return new GetSessionStatsCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSessionStatsCallback {
+    return new GetSessionStatsCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSessionStatsCallback {
+    return new GetSessionStatsCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSessionStatsCallback | PlainMessage<GetSessionStatsCallback> | undefined, b: GetSessionStatsCallback | PlainMessage<GetSessionStatsCallback> | undefined): boolean {
+    return proto3.util.equals(GetSessionStatsCallback, a, b);
   }
 }
 
@@ -2619,6 +2755,11 @@ export class DataReceived extends Message<DataReceived> {
    */
   kind = DataPacketKind.KIND_LOSSY;
 
+  /**
+   * @generated from field: optional string topic = 4;
+   */
+  topic?: string;
+
   constructor(data?: PartialMessage<DataReceived>) {
     super();
     proto3.util.initPartial(data, this);
@@ -2630,6 +2771,7 @@ export class DataReceived extends Message<DataReceived> {
     { no: 1, name: "data", kind: "message", T: OwnedBuffer },
     { no: 2, name: "participant_sid", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 3, name: "kind", kind: "enum", T: proto3.getEnumType(DataPacketKind) },
+    { no: 4, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataReceived {

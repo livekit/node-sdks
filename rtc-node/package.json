@@ -1,8 +1,12 @@
 {
   "name": "@livekit/rtc-node",
-  "version": "0.0.1",
+  "description": "LiveKit RTC Node",
+  "version": "0.0.2",
   "main": "lib/index.js",
-  "types": "src/index.ts",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*",
+  ],
   "napi": {
     "name": "rtc-node",
     "triples": {

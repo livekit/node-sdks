@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "livekit-rtc-node": "link:../../livekit-rtc-node"
+    "@livekit/rtc-node": "^0.0.2"
   }
 }

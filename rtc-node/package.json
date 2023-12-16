@@ -2,7 +2,7 @@
   "name": "@livekit/rtc-node",
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -26,12 +26,12 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.4.2"
+    "@bufbuild/protobuf": "^1.4.2",
+    "typed-emitter": "^2.1.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.16.5",
     "@types/node": "^20.9.2",
-    "typed-emitter": "^2.1.0",
     "typescript": "^5.2.2",
     "prettier": "^3.0.3"
   },
@@ -39,8 +39,9 @@
     "node": ">= 10"
   },
   "scripts": {
-    "artifacts": "tsc && napi artifacts",
-    "build": "tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js --pipe \"prettier -w\"",
+    "build:tsc": "tsc && cp src/native.d.ts dist/native.d.ts",
+    "build": "yarn build:tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js --pipe \"prettier -w\"",
+    "artifacts": "yarn build:tsc && napi artifacts",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universal",

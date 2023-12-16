@@ -86,7 +86,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     );
   }
 
-  async connect(url: string, token: string, opts: RoomOptions) {
+  async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
 
     let req = new ConnectRequest({

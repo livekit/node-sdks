@@ -4,11 +4,12 @@
     "esModuleInterop": true,
     "allowJs": true,
     "declaration": true,
+    "declarationMap": true,
     "target": "es2020",
     "lib": ["es2020"],
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/native.d.ts"]
 }

@@ -48,7 +48,7 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 
-  private onEvent(ev: FfiEvent) {
+  private onEvent = (ev: FfiEvent) => {
     if (
       ev.message.case != 'videoStreamEvent' ||
       ev.message.value.streamHandle != this.ffiHandle.handle

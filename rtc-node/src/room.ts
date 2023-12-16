@@ -156,7 +156,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     });
   }
 
-  onFfiEvent(ffiEvent: FfiEvent) {
+  private onFfiEvent = (ffiEvent: FfiEvent) => {
     if (
       ffiEvent.message.case != 'roomEvent' ||
       ffiEvent.message.value.roomHandle != this.ffiHandle.handle

@@ -48,7 +48,7 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 
-  private onEvent(ev: FfiEvent) {
+  private onEvent = (ev: FfiEvent) => {
     if (
       ev.message.case != 'audioStreamEvent' ||
       ev.message.value.streamHandle != this.ffiHandle.handle

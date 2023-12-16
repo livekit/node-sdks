@@ -37,6 +37,5 @@
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universal",
     "version": "napi version"
-  },
-  "packageManager": "yarn@4.0.2"
+  }
 }

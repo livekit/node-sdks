@@ -65,7 +65,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   constructor() {
     super();
-    FfiClient.instance.addListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
   }
 
   get sid(): string {

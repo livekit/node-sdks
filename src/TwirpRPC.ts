@@ -43,7 +43,7 @@ export class TwirpRpc {
     });
 
     if (!response.ok) {
-      throw new Error(response.statusText);
+      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
     }
     const parsedResp = await response.json();
     return camelcaseKeys(parsedResp, { deep: true });

@@ -29,22 +29,23 @@ export class TwirpRpc {
     this.prefix = prefix || defaultPrefix;
   }
 
-  request(service: string, method: string, data: any, headers?: any): Promise<any> {
+  async request(service: string, method: string, data: any, headers?: any): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
     const url = new URL(path, this.host);
-    return new Promise<any>((resolve, reject) => {
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          ...headers,
-        },
-        body: JSON.stringify(data),
-      })
-        .then(async (res) => {
-          resolve(camelcaseKeys(await res.json(), { deep: true }));
-        })
-        .catch(reject);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        ...headers,
+      },
+      body: JSON.stringify(data),
     });
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+    }
+    const parsedResp = await response.json();
+    return camelcaseKeys(parsedResp, { deep: true });
   }
 }

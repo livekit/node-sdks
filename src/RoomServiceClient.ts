@@ -29,7 +29,17 @@ export interface CreateOptions {
   name: string;
 
   /**
-   * number of seconds the room should clean up after being empty
+   * The `emptyTimeout` property represents the number of seconds a room should remain open after being empty.
+   *
+   * Behavior:
+   * 1. When creating a room with an `emptyTimeout` of, for example, 10 minutes:
+   *    - If no participant joins within 20 seconds of room creation, the room will automatically close.
+   *
+   * 2. If a participant joins and later disconnects:
+   *    - The empty timeout countdown begins only after the last participant disconnects.
+   *    - If the last participant disconnects and no new participant joins, the room will continue to exist for the
+   *      specified `emptyTimeout` duration (e.g., 10 minutes) before automatically closing.
+   *    - If a new participant joins before the empty timeout elapses, the countdown is reset, and the room remains open.
    */
   emptyTimeout?: number;
 
@@ -60,7 +70,7 @@ export interface CreateOptions {
 
   /**
    * improves A/V sync when min_playout_delay set to a value larger than 200ms.
-   * It will disables transceiver re-use -- this option is not recommended
+   * It will disable transceiver re-use -- this option is not recommended
    * for rooms with frequent subscription changes
    */
   syncStreams?: boolean;

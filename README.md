@@ -10,9 +10,43 @@
 
 <!--BEGIN_DESCRIPTION-->Use this SDK to manage <a href="https://livekit.io/">LiveKit</a> rooms and create access tokens from your JavaScript/Node.js backend.<!--END_DESCRIPTION-->
 
+> 💡 This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
+> (It theoretically now also runs in every major browser, but that's not recommended due to the security risks involved with exposing your API secrets)
+
+## Migrate from v1.x to v2.x
+
+Because the `jsonwebtoken` lib got replaced with `jose`, there are a couple of APIs that are now async, that weren't before:
+
+```typescript
+const at = new AccessToken('api-key', 'secret-key', {
+  identity: participantName,
+});
+at.addGrant({ roomJoin: true, room: roomName });
+
+// v1
+// const token = at.toJWT();
+
+// v2
+const token = await at.toJwt();
+
+// v1
+// const grants = v.verify(token);
+
+// v2
+const grants = await v.verify(token);
+
+app.post('/webhook-endpoint', async (req, res) => {
+  // v1
+  // const event = receiver.receive(req.body, req.get('Authorization'));
+
+  // v2
+  const event = await receiver.receive(req.body, req.get('Authorization'));
+});
+```
+
 ## Installation
 
-## Pnpm
+### Pnpm
 
 ```
 pnpm add livekit-server-sdk

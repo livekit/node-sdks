@@ -10,9 +10,43 @@
 
 <!--BEGIN_DESCRIPTION-->Use this SDK to manage <a href="https://livekit.io/">LiveKit</a> rooms and create access tokens from your JavaScript/Node.js backend.<!--END_DESCRIPTION-->
 
+> 💡 This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
+> (It theoretically now also runs in every major browser, but that's not recommended due to the security risks involved with exposing your API secrets)
+
+## Migrate from v1.x to v2.x
+
+Because the `jsonwebtoken` lib got replaced with `jose`, there are a couple of APIs that are now async, that weren't before:
+
+```typescript
+const at = new AccessToken('api-key', 'secret-key', {
+  identity: participantName,
+});
+at.addGrant({ roomJoin: true, room: roomName });
+
+// v1
+// const token = at.toJWT();
+
+// v2
+const token = await at.toJwt();
+
+// v1
+// const grants = v.verify(token);
+
+// v2
+const grants = await v.verify(token);
+
+app.post('/webhook-endpoint', async (req, res) => {
+  // v1
+  // const event = receiver.receive(req.body, req.get('Authorization'));
+
+  // v2
+  const event = await receiver.receive(req.body, req.get('Authorization'));
+});
+```
+
 ## Installation
 
-## Pnpm
+### Pnpm
 
 ```
 pnpm add livekit-server-sdk
@@ -39,16 +73,6 @@ You may store credentials in environment variables. If api-key or api-secret is 
 - `LIVEKIT_API_KEY`
 - `LIVEKIT_API_SECRET`
 
-### CommonJS
-
-If your environment doesn't support ES6 imports, replace the import statements in the examples with
-
-```javascript
-const livekitApi = require('livekit-server-sdk');
-const AccessToken = livekitApi.AccessToken;
-const RoomServiceClient = livekitApi.RoomServiceClient;
-```
-
 ### Creating Access Tokens
 
 Creating a token for participant to join a room.
@@ -68,7 +92,7 @@ const at = new AccessToken('api-key', 'secret-key', {
 });
 at.addGrant({ roomJoin: true, room: roomName });
 
-const token = at.toJwt();
+const token = await at.toJwt();
 console.log('access token', token);
 ```
 
@@ -141,9 +165,9 @@ const receiver = new WebhookReceiver('apikey', 'apisecret');
 // if you are using express middleware, ensure that `express.raw` is used for the webhook endpoint
 // app.use(express.raw({type: 'application/webhook+json'}));
 
-app.post('/webhook-endpoint', (req, res) => {
+app.post('/webhook-endpoint', async (req, res) => {
   // event is a WebhookEvent object
-  const event = receiver.receive(req.body, req.get('Authorization'));
+  const event = await receiver.receive(req.body, req.get('Authorization'));
 });
 ```
 

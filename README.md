@@ -10,8 +10,10 @@
 
 <!--BEGIN_DESCRIPTION-->Use this SDK to manage <a href="https://livekit.io/">LiveKit</a> rooms and create access tokens from your JavaScript/Node.js backend.<!--END_DESCRIPTION-->
 
-> 💡 This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
+> [!NOTE]
+> This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
 > (It theoretically now also runs in every major browser, but that's not recommended due to the security risks involved with exposing your API secrets)
+> Read the section below for a detailed overview on what has changed.
 
 ## Migrate from v1.x to v2.x
 

@@ -87,8 +87,8 @@ jobs:
             export PATH=/root/.cargo/bin:\$PATH; \
             yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel -y; \
             curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
-            yum install https://rpm.nodesource.com/pub_18.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y; \
-            yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1; \
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash - \
+            yum install -y nodejs; \
             npm install --global pnpm && pnpm install; \
             cd rtc-node && pnpm build --target ${{ matrix.target }}"
 

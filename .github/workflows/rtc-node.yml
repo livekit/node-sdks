@@ -1,7 +1,7 @@
 name: rtc-node CI
 env:
   APP_NAME: rtc-node
-  MACOSX_DEPLOYMENT_TARGET: '10.13'
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
   CARGO_TERM_COLOR: always
 
 permissions:
@@ -49,13 +49,16 @@ jobs:
         with:
           submodules: true
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Setup node
         uses: actions/setup-node@v4
         if: ${{ !matrix.docker }}
         with:
-          node-version: 18
-          cache: yarn
-          cache-dependency-path: rtc-node/yarn.lock
+          node-version: 20
+          cache: pnpm
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -74,8 +77,7 @@ jobs:
           key: ${{ matrix.target }}-cargo-${{ matrix.os }}
 
       - name: Install dependencies
-        run: yarn install
-        working-directory: rtc-node
+        run: pnpm install
 
       - name: Build (Linux)
         if: ${{ matrix.platform == 'linux' }}
@@ -87,18 +89,18 @@ jobs:
             curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
             yum install https://rpm.nodesource.com/pub_18.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y; \
             yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1; \
-            npm install --global yarn; \
-            cd rtc-node && yarn build --target ${{ matrix.target }}"
+            npm install --global pnpm && pnpm install; \
+            cd rtc-node && pnpm build --target ${{ matrix.target }}"
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}
         env:
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
-        run: cd rtc-node && yarn build --target ${{ matrix.target }}
+        run: cd rtc-node && pnpm build --target ${{ matrix.target }}
 
       - name: Build (Windows)
         if: ${{ matrix.platform == 'windows' }}
-        run: cd rtc-node && yarn build --target ${{ matrix.target }}
+        run: cd rtc-node && pnpm build --target ${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -114,16 +116,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: yarn
-          cache-dependency-path: rtc-node/yarn.lock
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install
-        working-directory: rtc-node
+        run: pnpm install
 
       - name: Download all artifacts
         uses: actions/download-artifact@v3
@@ -131,7 +135,7 @@ jobs:
           path: rtc-node/artifacts
 
       - name: Move artifacts
-        run: yarn artifacts
+        run: pnpm artifacts
         working-directory: rtc-node
 
       - name: List packages
@@ -142,6 +146,6 @@ jobs:
         working-directory: rtc-node
         run: |
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-          npm publish --access public
+          pnpm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

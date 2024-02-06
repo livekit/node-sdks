@@ -1,5 +1,5 @@
-import { AudioSource } from './audio_source';
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client';
+import { AudioSource } from './audio_source.js';
+import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 import {
   CreateAudioTrackRequest,
   CreateAudioTrackResponse,
@@ -9,8 +9,8 @@ import {
   StreamState,
   TrackInfo,
   TrackKind,
-} from './proto/track_pb';
-import { VideoSource } from './video_source';
+} from './proto/track_pb.js';
+import { VideoSource } from './video_source.js';
 
 export abstract class Track {
   /** @internal */

@@ -1,8 +1,8 @@
-import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client';
+import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { FfiEvent } from './proto/ffi_pb';
-import { LocalParticipant, Participant, RemoteParticipant } from './participant';
+import { FfiEvent } from './proto/ffi_pb.js';
+import { LocalParticipant, Participant, RemoteParticipant } from './participant.js';
 import {
   ConnectCallback,
   ConnectRequest,
@@ -15,17 +15,17 @@ import {
   IceServer,
   IceTransportType,
   RoomInfo,
-} from './proto/room_pb';
-import { E2EEManager, E2EEOptions, defaultE2EEOptions } from './e2ee';
-import { OwnedParticipant } from './proto/participant_pb';
+} from './proto/room_pb.js';
+import { E2EEManager, E2EEOptions, defaultE2EEOptions } from './e2ee.js';
+import { OwnedParticipant } from './proto/participant_pb.js';
 import {
   LocalTrackPublication,
   RemoteTrackPublication,
   TrackPublication,
-} from './track_publication';
-import { LocalTrack, RemoteAudioTrack, RemoteTrack, RemoteVideoTrack } from './track';
-import { TrackKind } from './proto/track_pb';
-import { EncryptionState } from './proto/e2ee_pb';
+} from './track_publication.js';
+import { LocalTrack, RemoteAudioTrack, RemoteTrack, RemoteVideoTrack } from './track.js';
+import { TrackKind } from './proto/track_pb.js';
+import { EncryptionState } from './proto/e2ee_pb.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -273,7 +273,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case == 'reconnected') {
       this.emit(RoomEvent.Reconnected);
     }
-  }
+  };
 
   private retrieveParticipant(sid: string): Participant {
     if (this.localParticipant.sid == sid) {

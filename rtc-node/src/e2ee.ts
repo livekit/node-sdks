@@ -1,4 +1,4 @@
-import { FfiClient, FfiRequest } from './ffi_client';
+import { FfiClient, FfiRequest } from './ffi_client.js';
 import {
   E2eeManagerGetFrameCryptorsResponse,
   E2eeManagerSetEnabledRequest,
@@ -17,7 +17,7 @@ import {
   RatchetSharedKeyResponse,
   SetKeyRequest,
   SetSharedKeyRequest,
-} from './proto/e2ee_pb';
+} from './proto/e2ee_pb.js';
 
 const DEFAULT_RATCHET_SALT = new TextEncoder().encode('LKFrameEncryptionKey');
 const DEFAULT_RATCHET_WINDOW_SIZE = 16;

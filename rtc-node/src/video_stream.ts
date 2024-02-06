@@ -1,14 +1,14 @@
-import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ffi_client';
-import { Track } from './track';
+import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ffi_client.js';
+import { Track } from './track.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { VideoFrame, VideoFrameBuffer } from './video_frame';
+import { VideoFrame, VideoFrameBuffer } from './video_frame.js';
 import {
   NewVideoStreamRequest,
   NewVideoStreamResponse,
   VideoStreamInfo,
   VideoStreamType,
-} from './proto/video_frame_pb';
+} from './proto/video_frame_pb.js';
 
 export type VideoStreamCallbacks = {
   frameReceived: (frame: VideoFrame) => void;
@@ -68,7 +68,7 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         break;
     }
-  }
+  };
 
   close() {
     this.ffiHandle.dispose();

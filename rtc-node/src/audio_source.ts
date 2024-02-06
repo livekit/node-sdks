@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { FfiHandle } from './native';
-import { AudioFrame } from './audio_frame';
+import { FfiHandle } from './napi/native.js';
+import { AudioFrame } from './audio_frame.js';
 import {
   AudioSourceInfo,
   AudioSourceType,
@@ -10,8 +10,8 @@ import {
   CaptureAudioFrameResponse,
   NewAudioSourceRequest,
   NewAudioSourceResponse,
-} from './proto/audio_frame_pb';
-import { FfiClient, FfiRequest } from './ffi_client';
+} from './proto/audio_frame_pb.js';
+import { FfiClient, FfiRequest } from './ffi_client.js';
 
 export class AudioSource {
   /** @internal */

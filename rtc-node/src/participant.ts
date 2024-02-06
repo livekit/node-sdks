@@ -1,5 +1,5 @@
-import { FfiClient, FfiClientEvent, FfiHandle, FfiRequest } from './ffi_client';
-import { ParticipantInfo, OwnedParticipant } from './proto/participant_pb';
+import { FfiClient, FfiClientEvent, FfiHandle, FfiRequest } from './ffi_client.js';
+import { ParticipantInfo, OwnedParticipant } from './proto/participant_pb.js';
 import {
   DataPacketKind,
   PublishDataCallback,
@@ -18,9 +18,13 @@ import {
   UpdateLocalNameCallback,
   UpdateLocalNameRequest,
   UpdateLocalNameResponse,
-} from './proto/room_pb';
-import { LocalTrackPublication, RemoteTrackPublication, TrackPublication } from './track_publication';
-import { LocalTrack } from './track';
+} from './proto/room_pb.js';
+import {
+  LocalTrackPublication,
+  RemoteTrackPublication,
+  TrackPublication,
+} from './track_publication.js';
+import { LocalTrack } from './track.js';
 
 export abstract class Participant {
   /** @internal */

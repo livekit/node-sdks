@@ -5,6 +5,7 @@
   "version": "0.0.7",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
     "src",
@@ -30,18 +31,18 @@
     "typed-emitter": "^2.1.0"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.5",
+    "@napi-rs/cli": "^2.18.0",
     "@types/node": "^20.9.2",
     "typescript": "^5.2.2",
     "prettier": "^3.0.3"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">= 18"
   },
   "scripts": {
-    "build:tsc": "tsc && cp src/native.d.ts dist/native.d.ts",
-    "build": "yarn build:tsc && napi build --platform --release --dts src/native.d.ts --js src/native.js --pipe \"prettier -w\"",
-    "artifacts": "yarn build:tsc && napi artifacts",
+    "build:tsc": "tsc && cp src/napi/native.d.ts dist/napi/native.d.ts",
+    "build": "pnpm build:tsc && napi build --platform --release --dts src/napi/native.d.ts --js src/napi/native.js --pipe \"prettier -w\"",
+    "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universal",

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ES2020",
     "esModuleInterop": true,
     "allowJs": true,
     "declaration": true,
@@ -11,5 +11,5 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*", "src/native.d.ts"]
+  "include": ["src/**/*", "src/napi/native.d.ts"]
 }

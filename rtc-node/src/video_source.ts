@@ -1,4 +1,4 @@
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client';
+import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 import {
   CaptureVideoFrameRequest,
   CaptureVideoFrameResponse,
@@ -6,8 +6,8 @@ import {
   NewVideoSourceResponse,
   VideoSourceInfo,
   VideoSourceType,
-} from './proto/video_frame_pb';
-import { VideoFrame } from './video_frame';
+} from './proto/video_frame_pb.js';
+import { VideoFrame } from './video_frame.js';
 
 export class VideoSource {
   /** @internal */

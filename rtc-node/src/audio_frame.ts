@@ -1,5 +1,5 @@
-import { FfiClient, FfiHandle } from './ffi_client';
-import { AudioFrameBufferInfo, OwnedAudioFrameBuffer } from './proto/audio_frame_pb';
+import { FfiClient, FfiHandle } from './ffi_client.js';
+import { AudioFrameBufferInfo, OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
 
 export class AudioFrame {
   data: Uint16Array;

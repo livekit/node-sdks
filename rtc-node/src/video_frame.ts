@@ -1,4 +1,4 @@
-import { FfiClient, FfiHandle } from './ffi_client';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import {
   BiplanarYuvBufferInfo,
   OwnedVideoFrameBuffer,
@@ -9,7 +9,7 @@ import {
   VideoFrameBufferInfo,
   VideoFrameBufferType,
   VideoRotation,
-} from './proto/video_frame_pb';
+} from './proto/video_frame_pb.js';
 
 export class VideoFrame {
   timestampUs: number;

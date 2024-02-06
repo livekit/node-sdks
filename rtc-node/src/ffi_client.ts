@@ -1,4 +1,4 @@
-import { FfiRequest, FfiResponse, FfiEvent } from './proto/ffi_pb';
+import { FfiRequest, FfiResponse, FfiEvent } from './proto/ffi_pb.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
 import {
@@ -7,7 +7,7 @@ import {
   livekitInitialize,
   livekitCopyBuffer,
   livekitRetrievePtr,
-} from './native';
+} from './napi/native.js';
 import { PartialMessage } from '@bufbuild/protobuf';
 
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest };

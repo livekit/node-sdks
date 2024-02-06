@@ -1,12 +1,12 @@
-import { AudioFrame } from './audio_frame';
-import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ffi_client';
+import { AudioFrame } from './audio_frame.js';
+import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ffi_client.js';
 import {
   AudioStreamInfo,
   AudioStreamType,
   NewAudioStreamRequest,
   NewAudioStreamResponse,
-} from './proto/audio_frame_pb';
-import { Track } from './track';
+} from './proto/audio_frame_pb.js';
+import { Track } from './track.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
 
@@ -66,7 +66,7 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         break;
     }
-  }
+  };
 
   close() {
     this.ffiHandle.dispose();

@@ -1,14 +1,14 @@
-import { FfiClient, FfiRequest } from './ffi_client';
-import { FfiHandle } from './native';
-import { EncryptionType } from './proto/e2ee_pb';
-import { SetSubscribedRequest, SetSubscribedResponse } from './proto/room_pb';
+import { FfiClient, FfiRequest } from './ffi_client.js';
+import { FfiHandle } from './napi/native.js';
+import { EncryptionType } from './proto/e2ee_pb.js';
+import { SetSubscribedRequest, SetSubscribedResponse } from './proto/room_pb.js';
 import {
   OwnedTrackPublication,
   TrackKind,
   TrackPublicationInfo,
   TrackSource,
-} from './proto/track_pb';
-import { Track } from './track';
+} from './proto/track_pb.js';
+import { Track } from './track.js';
 
 export abstract class TrackPublication {
   /** @internal */

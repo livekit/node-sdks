@@ -1,0 +1,152 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  examples/basic_room:
+    dependencies:
+      '@livekit/rtc-node':
+        specifier: ^0.0.5
+        version: 0.0.5
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.11.16
+
+  rtc-node:
+    dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^1.4.2
+        version: 1.7.2
+      typed-emitter:
+        specifier: ^2.1.0
+        version: 2.1.0
+    devDependencies:
+      '@napi-rs/cli':
+        specifier: ^2.18.0
+        version: 2.18.0
+      '@types/node':
+        specifier: ^20.9.2
+        version: 20.11.16
+      prettier:
+        specifier: ^3.0.3
+        version: 3.2.5
+      typescript:
+        specifier: ^5.2.2
+        version: 5.3.3
+
+packages:
+
+  /@bufbuild/protobuf@1.7.2:
+    resolution: {integrity: sha512-i5GE2Dk5ekdlK1TR7SugY4LWRrKSfb5T1Qn4unpIMbfxoeGKERKQ59HG3iYewacGD10SR7UzevfPnh6my4tNmQ==}
+    dev: false
+
+  /@livekit/rtc-node-darwin-arm64@0.0.5:
+    resolution: {integrity: sha512-l4jyQG3HjvG1W2SNiTASabdU1A+24iARPHXMcHTgsYN6dYK5wb4WT39kyfH3a7U3XlsrN5gYwcfPwylbSmHAsg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@livekit/rtc-node-darwin-x64@0.0.5:
+    resolution: {integrity: sha512-iheJRI2mSVE8KqWF0nZz9+8BE6dhY2OyMPkMs4N2g9NBgPVcpdRiiFUkXyzmWeE0G8URX86QkpAu1NxJkXfzQg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@livekit/rtc-node-linux-arm64-gnu@0.0.5:
+    resolution: {integrity: sha512-AT4/i2YTwTHF5nBwycBZI3s8drt8nh1BBLwJSxZSqcRBVEXDLlIpdcjleX1LVx86k9A19yDSobuLJGgNxsKhkA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@livekit/rtc-node-linux-x64-gnu@0.0.5:
+    resolution: {integrity: sha512-XisSVwdio4RBl91ieZj9V3AoEiUToOHwUH9tX2mgG5agAAkiZ9+FV11OmhysEq9FMM4eEfvGm2vEH5v070RoWA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@livekit/rtc-node-win32-x64-msvc@0.0.5:
+    resolution: {integrity: sha512-lYdNuSZJZYKk8vepEN6mYA2qrTmLQh7xGHMVM5YsA+6RnGxLjKklTQdoBF8JIoJhx8at9/uds5gaBJpNs5d6LQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@livekit/rtc-node@0.0.5:
+    resolution: {integrity: sha512-xUJQ9JAwnouGse9opXNdh5xB9Cg/hc3VEzfrrT6FDUqcx5UAKFgburlbcepwhgzk7xkij4nftl2GdFt3sPdaoQ==}
+    engines: {node: '>= 10'}
+    dependencies:
+      '@bufbuild/protobuf': 1.7.2
+      typed-emitter: 2.1.0
+    optionalDependencies:
+      '@livekit/rtc-node-darwin-arm64': 0.0.5
+      '@livekit/rtc-node-darwin-x64': 0.0.5
+      '@livekit/rtc-node-linux-arm64-gnu': 0.0.5
+      '@livekit/rtc-node-linux-x64-gnu': 0.0.5
+      '@livekit/rtc-node-win32-x64-msvc': 0.0.5
+    dev: false
+
+  /@napi-rs/cli@2.18.0:
+    resolution: {integrity: sha512-lfSRT7cs3iC4L+kv9suGYQEezn5Nii7Kpu+THsYVI0tA1Vh59LH45p4QADaD7hvIkmOz79eEGtoKQ9nAkAPkzA==}
+    engines: {node: '>= 10'}
+    hasBin: true
+    dev: true
+
+  /@types/node@20.11.16:
+    resolution: {integrity: sha512-gKb0enTmRCzXSSUJDq6/sPcqrfCv2mkkG6Jt/clpn5eiCbKTY+SgZUxo+p8ZKMof5dCp9vHQUAB7wOUTod22wQ==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
+
+  /rxjs@7.8.1:
+    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
+    requiresBuild: true
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+    optional: true
+
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /typed-emitter@2.1.0:
+    resolution: {integrity: sha512-g/KzbYKbH5C2vPkaXGu8DJlHrGKHLsM25Zg9WuC9pMGfuvT+X25tZQWo5fK1BjBm8+UrVE9LDCvaY0CQk+fXDA==}
+    optionalDependencies:
+      rxjs: 7.8.1
+    dev: false
+
+  /typescript@5.3.3:
+    resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    dev: true
+
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: true

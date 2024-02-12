@@ -111,7 +111,7 @@ export class RoomServiceClient extends ServiceBase {
       new CreateRoomRequest(options).toJson(),
       await this.authHeader({ roomCreate: true }),
     );
-    return Room.fromJson(data);
+    return Room.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -127,7 +127,7 @@ export class RoomServiceClient extends ServiceBase {
       new ListRoomsRequest({ names: names ?? [] }).toJson(),
       await this.authHeader({ roomList: true }),
     );
-    const res = ListRoomsResponse.fromJson(data);
+    const res = ListRoomsResponse.fromJson(data, { ignoreUnknownFields: true });
     return res.rooms ?? [];
   }
 
@@ -152,7 +152,7 @@ export class RoomServiceClient extends ServiceBase {
       new UpdateRoomMetadataRequest({ room, metadata }).toJson(),
       await this.authHeader({ roomAdmin: true, room }),
     );
-    return Room.fromJson(data);
+    return Room.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -166,7 +166,7 @@ export class RoomServiceClient extends ServiceBase {
       new ListParticipantsRequest({ room }).toJson(),
       await this.authHeader({ roomAdmin: true, room }),
     );
-    const res = ListParticipantsResponse.fromJson(data);
+    const res = ListParticipantsResponse.fromJson(data, { ignoreUnknownFields: true });
     return res.participants ?? [];
   }
 
@@ -184,7 +184,7 @@ export class RoomServiceClient extends ServiceBase {
       await this.authHeader({ roomAdmin: true, room }),
     );
 
-    return ParticipantInfo.fromJson(data);
+    return ParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -228,7 +228,7 @@ export class RoomServiceClient extends ServiceBase {
       req,
       await this.authHeader({ roomAdmin: true, room }),
     );
-    const res = MuteRoomTrackResponse.fromJson(data);
+    const res = MuteRoomTrackResponse.fromJson(data, { ignoreUnknownFields: true });
     return res.track!;
   }
 
@@ -262,7 +262,7 @@ export class RoomServiceClient extends ServiceBase {
       req.toJson(),
       await this.authHeader({ roomAdmin: true, room }),
     );
-    return ParticipantInfo.fromJson(data);
+    return ParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**

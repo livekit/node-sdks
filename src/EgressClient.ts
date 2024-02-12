@@ -199,7 +199,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -241,7 +241,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -276,7 +276,7 @@ export class EgressClient extends ServiceBase {
       req,
       this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -345,7 +345,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   private isEncodedOutputs(output: any): output is EncodedOutputs {
@@ -518,7 +518,7 @@ export class EgressClient extends ServiceBase {
       req,
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -532,7 +532,7 @@ export class EgressClient extends ServiceBase {
       new UpdateLayoutRequest({ egressId, layout }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -554,7 +554,7 @@ export class EgressClient extends ServiceBase {
       new UpdateStreamRequest({ egressId, addOutputUrls, removeOutputUrls }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -584,7 +584,7 @@ export class EgressClient extends ServiceBase {
       new ListEgressRequest(req).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return ListEgressResponse.fromJson(data).items ?? [];
+    return ListEgressResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
   /**
@@ -597,6 +597,6 @@ export class EgressClient extends ServiceBase {
       new StopEgressRequest({ egressId }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
-    return EgressInfo.fromJson(data);
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 }

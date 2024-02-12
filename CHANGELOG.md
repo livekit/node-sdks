@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.0.1
+
+### Patch Changes
+
+- Ignore unknown fields in protobuf parsing - [#132](https://github.com/livekit/server-sdk-js/pull/132) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.0.0
 
 ### Major Changes

@@ -151,7 +151,7 @@ export class IngressClient extends ServiceBase {
       req,
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJson(data);
+    return IngressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -182,7 +182,7 @@ export class IngressClient extends ServiceBase {
       req,
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJson(data);
+    return IngressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
@@ -207,7 +207,7 @@ export class IngressClient extends ServiceBase {
       new ListIngressRequest(req).toJson(),
       await this.authHeader({ ingressAdmin: true }),
     );
-    return ListIngressResponse.fromJson(data).items ?? [];
+    return ListIngressResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
   /**
@@ -220,6 +220,6 @@ export class IngressClient extends ServiceBase {
       new DeleteIngressRequest({ ingressId }).toJson(),
       await this.authHeader({ ingressAdmin: true }),
     );
-    return IngressInfo.fromJson(data);
+    return IngressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 }

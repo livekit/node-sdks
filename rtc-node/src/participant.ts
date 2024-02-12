@@ -33,7 +33,7 @@ export abstract class Participant {
   /** @internal */
   ffi_handle: FfiHandle;
 
-  tracks = new Map<string, TrackPublication>();
+  trackPublications = new Map<string, TrackPublication>();
 
   constructor(owned_info: OwnedParticipant) {
     this.info = owned_info.info;
@@ -57,26 +57,40 @@ export abstract class Participant {
   }
 }
 
-export class LocalParticipant extends Participant {
-  tracks: Map<string, LocalTrackPublication> = new Map();
+export type DataPublishOptions = {
+  /**
+   * whether to send this as reliable or lossy.
+   * For data that you need delivery guarantee (such as chat messages), use Reliable.
+   * For data that should arrive as quickly as possible, but you are ok with dropped
+   * packets, use Lossy.
+   */
+  reliable?: boolean;
+  /**
+   * the sids of participants who will receive the message, will be sent to every one if empty
+   */
+  destination?: string[] | RemoteParticipant[];
+  /** the topic under which the message gets published */
+  topic?: string;
+};
 
-  async publishData(
-    data: Uint8Array,
-    kind: DataPacketKind,
-    destination_sids: Array<string | RemoteParticipant> = [], // empty = broadcast
-  ) {
+export class LocalParticipant extends Participant {
+  trackPublications: Map<string, LocalTrackPublication> = new Map();
+
+  async publishData(data: Uint8Array, options: DataPublishOptions) {
     let req = new PublishDataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
-      kind: kind,
+      kind: options.reliable ? DataPacketKind.KIND_RELIABLE : DataPacketKind.KIND_LOSSY,
     });
 
-    let sids = destination_sids.map((sid) => {
-      if (typeof sid == 'string') return sid;
-      return sid.sid;
-    });
-    req.destinationSids = sids;
+    if (options.destination) {
+      const sids = options.destination.map((sid: string | RemoteParticipant) => {
+        if (typeof sid == 'string') return sid;
+        return sid.sid;
+      });
+      req.destinationSids = sids;
+    }
 
     let res = FfiClient.instance.request<PublishDataResponse>({
       message: { case: 'publishData', value: req },
@@ -141,7 +155,7 @@ export class LocalParticipant extends Participant {
 
     let track_publication = new LocalTrackPublication(cb.publication);
     track_publication.track = track;
-    this.tracks.set(track_publication.sid, track_publication);
+    this.trackPublications.set(track_publication.sid, track_publication);
 
     return track_publication;
   }
@@ -160,14 +174,14 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    let pub = this.tracks.get(trackSid);
+    let pub = this.trackPublications.get(trackSid);
     pub.track = undefined;
-    this.tracks.delete(trackSid);
+    this.trackPublications.delete(trackSid);
   }
 }
 
 export class RemoteParticipant extends Participant {
-  tracks: Map<string, RemoteTrackPublication> = new Map();
+  trackPublications: Map<string, RemoteTrackPublication> = new Map();
 
   constructor(owned_info: OwnedParticipant) {
     super(owned_info);

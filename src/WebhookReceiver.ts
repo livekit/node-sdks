@@ -77,6 +77,6 @@ export class WebhookReceiver {
       }
     }
 
-    return WebhookEvent.fromJson(JSON.parse(body));
+    return WebhookEvent.fromJson(JSON.parse(body), { ignoreUnknownFields: true });
   }
 }

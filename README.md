@@ -17,6 +17,8 @@
 
 ## Migrate from v1.x to v2.x
 
+### Token generation
+
 Because the `jsonwebtoken` lib got replaced with `jose`, there are a couple of APIs that are now async, that weren't before:
 
 ```typescript
@@ -43,6 +45,47 @@ app.post('/webhook-endpoint', async (req, res) => {
 
   // v2
   const event = await receiver.receive(req.body, req.get('Authorization'));
+});
+```
+
+### Egress API
+
+Egress request types have been updated from interfaces to classes in the latest version. Additionally, `oneof` fields now require an explicit `case` field to specify the value type.
+
+For example, to create a RoomComposite Egress:
+
+```typescript
+// v1
+// const fileOutput = {
+//   fileType: EncodedFileType.MP4,
+//   filepath: 'livekit-demo/room-composite-test.mp4',
+//   s3: {
+//     accessKey: 'aws-access-key',
+//     secret: 'aws-access-secret',
+//     region: 'aws-region',
+//     bucket: 'my-bucket',
+//   },
+// };
+
+// const info = await egressClient.startRoomCompositeEgress('my-room', {
+//   file: fileOutput,
+// });
+
+// v2 - current
+const fileOutput = new EncodedFileOutput({
+  filepath: 'dz/davids-room-test.mp4',
+  output: {
+    case: 's3',
+    value: new S3Upload({
+      accessKey: 'aws-access-key',
+      secret: 'aws-access-secret',
+      bucket: 'my-bucket',
+    }),
+  },
+});
+
+const info = await egressClient.startRoomCompositeEgress('my-room', {
+  file: fileOutput,
 });
 ```
 

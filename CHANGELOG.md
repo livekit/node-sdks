@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.0.2
+
+### Patch Changes
+
+- Fix issue decoding unknown fields in webhook receiver - [#135](https://github.com/livekit/server-sdk-js/pull/135) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.0.1
 
 ### Patch Changes

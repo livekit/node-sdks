@@ -7,7 +7,7 @@
   "repository": "git@github.com:takiuddinahmed/server-sdk-cjs.git",
   "author": "Takiuddin Ahmed <takiuddinahmed@gmail.com>",
   "license": "Apache-2.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "build:watch": "tsc --watch",

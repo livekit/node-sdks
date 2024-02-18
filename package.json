@@ -1,11 +1,11 @@
 {
-  "name": "livekit-server-sdk",
+  "name": "livekit-server-sdk-cjs",
   "version": "2.0.3",
-  "description": "Server-side SDK for LiveKit",
+  "description": "Server-side SDK for LiveKit in commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "git@github.com:livekit/server-sdk-js.git",
-  "author": "David Zhao <david@davidzhao.com>",
+  "repository": "git@github.com:takiuddinahmed/server-sdk-cjs.git",
+  "author": "Takiuddin Ahmed <takiuddinahmed@gmail.com>",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {

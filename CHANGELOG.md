@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.0.3
+
+### Patch Changes
+
+- Export types needed for Egress - [#137](https://github.com/livekit/server-sdk-js/pull/137) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.0.2
 
 ### Patch Changes

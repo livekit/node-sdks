@@ -5,16 +5,25 @@ export * from './RoomServiceClient.js';
 export * from './WebhookReceiver.js';
 export * from './grants.js';
 export {
+  AliOSSUpload,
+  AzureBlobUpload,
   DirectFileOutput,
   EgressInfo,
   EncodedFileOutput,
   EncodedFileType,
   EncodingOptions,
   EncodingOptionsPreset,
+  GCPUpload,
+  ParticipantEgressRequest,
+  RoomCompositeEgressRequest,
+  S3Upload,
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StreamOutput,
   StreamProtocol,
+  TrackCompositeEgressRequest,
+  TrackEgressRequest,
+  WebEgressRequest,
 } from './proto/livekit_egress_pb.js';
 export {
   IngressAudioEncodingOptions,

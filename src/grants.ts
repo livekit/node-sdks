@@ -59,6 +59,9 @@ export interface VideoGrant {
 
   /** participant is recording the room, when set, allows room to indicate it's being recorded */
   recorder?: boolean;
+
+  /** participant acts as a server side participant/bot/agent */
+  agent?: boolean;
 }
 
 /** @internal */

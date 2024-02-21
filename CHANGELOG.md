@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.0.4
+
+### Patch Changes
+
+- Add agent field to VideoGrant - [#141](https://github.com/livekit/server-sdk-js/pull/141) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.0.3
 
 ### Patch Changes

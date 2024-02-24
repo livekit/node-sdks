@@ -4,6 +4,7 @@ import {
   EncodedFileOutput,
   EncodingOptions,
   EncodingOptionsPreset,
+  ImageOutput,
   ListEgressRequest,
   ListEgressResponse,
   ParticipantEgressRequest,
@@ -98,6 +99,7 @@ export interface EncodedOutputs {
   file?: EncodedFileOutput | undefined;
   stream?: StreamOutput | undefined;
   segments?: SegmentedFileOutput | undefined;
+  images?: ImageOutput | undefined;
 }
 
 export interface ListEgressOptions {
@@ -178,6 +180,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     } = this.getOutputParams(output, options);
 
     const req = new RoomCompositeEgressRequest({
@@ -191,6 +194,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -221,6 +225,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     } = this.getOutputParams(output, opts?.encodingOptions);
 
     const req = new WebEgressRequest({
@@ -233,6 +238,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -257,7 +263,7 @@ export class EgressClient extends ServiceBase {
     output: EncodedOutputs,
     opts?: ParticipantEgressOptions,
   ): Promise<EgressInfo> {
-    const { options, fileOutputs, streamOutputs, segmentOutputs } = this.getOutputParams(
+    const { options, fileOutputs, streamOutputs, segmentOutputs, imageOutputs } = this.getOutputParams(
       output,
       opts?.encodingOptions,
     );
@@ -268,6 +274,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -327,6 +334,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     } = this.getOutputParams(output, options);
     const req = new TrackCompositeEgressRequest({
       roomName,
@@ -337,6 +345,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -387,6 +396,7 @@ export class EgressClient extends ServiceBase {
     let streamOutputs: Array<StreamOutput> | undefined;
     let segments: SegmentedFileOutput | undefined;
     let segmentOutputs: Array<SegmentedFileOutput> | undefined;
+    let segmentOutputs: Array<SegmentedFileOutput> | undefined;
 
     if (this.isEncodedOutputs(output)) {
       if (output.file !== undefined) {
@@ -398,6 +408,10 @@ export class EgressClient extends ServiceBase {
       if (output.segments !== undefined) {
         segmentOutputs = [output.segments];
       }
+	  if (output.images !== undefined) {
+        imageOutputs = [output.images];
+      }
+
     } else if (this.isEncodedFileOutput(output)) {
       file = output;
       fileOutputs = [file];
@@ -470,6 +484,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
+	  imageOutputs,
     };
   }
 

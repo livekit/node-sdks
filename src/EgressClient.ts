@@ -396,7 +396,7 @@ export class EgressClient extends ServiceBase {
     let streamOutputs: Array<StreamOutput> | undefined;
     let segments: SegmentedFileOutput | undefined;
     let segmentOutputs: Array<SegmentedFileOutput> | undefined;
-    let segmentOutputs: Array<SegmentedFileOutput> | undefined;
+    let imageOutputs: Array<ImageOutput> | undefined;
 
     if (this.isEncodedOutputs(output)) {
       if (output.file !== undefined) {

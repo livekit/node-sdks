@@ -180,7 +180,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     } = this.getOutputParams(output, options);
 
     const req = new RoomCompositeEgressRequest({
@@ -194,7 +194,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -225,7 +225,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     } = this.getOutputParams(output, opts?.encodingOptions);
 
     const req = new WebEgressRequest({
@@ -238,7 +238,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -274,7 +274,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -334,7 +334,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     } = this.getOutputParams(output, options);
     const req = new TrackCompositeEgressRequest({
       roomName,
@@ -345,7 +345,7 @@ export class EgressClient extends ServiceBase {
       fileOutputs,
       streamOutputs,
       segmentOutputs,
-	  imageOutputs,
+      imageOutputs,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -408,7 +408,7 @@ export class EgressClient extends ServiceBase {
       if (output.segments !== undefined) {
         segmentOutputs = [output.segments];
       }
-	  if (output.images !== undefined) {
+      if (output.images !== undefined) {
         imageOutputs = [output.images];
       }
 
@@ -483,8 +483,8 @@ export class EgressClient extends ServiceBase {
       options: egressOptions,
       fileOutputs,
       streamOutputs,
-      segmentOutputs,
-	  imageOutputs,
+      segmentOutputs, 
+      imageOutputs,
     };
   }
 

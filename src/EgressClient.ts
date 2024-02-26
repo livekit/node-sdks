@@ -263,10 +263,8 @@ export class EgressClient extends ServiceBase {
     output: EncodedOutputs,
     opts?: ParticipantEgressOptions,
   ): Promise<EgressInfo> {
-    const { options, fileOutputs, streamOutputs, segmentOutputs, imageOutputs } = this.getOutputParams(
-      output,
-      opts?.encodingOptions,
-    );
+    const { options, fileOutputs, streamOutputs, segmentOutputs, imageOutputs } =
+      this.getOutputParams(output, opts?.encodingOptions);
     const req = new ParticipantEgressRequest({
       roomName,
       identity,
@@ -411,7 +409,6 @@ export class EgressClient extends ServiceBase {
       if (output.images !== undefined) {
         imageOutputs = [output.images];
       }
-
     } else if (this.isEncodedFileOutput(output)) {
       file = output;
       fileOutputs = [file];
@@ -483,7 +480,7 @@ export class EgressClient extends ServiceBase {
       options: egressOptions,
       fileOutputs,
       streamOutputs,
-      segmentOutputs, 
+      segmentOutputs,
       imageOutputs,
     };
   }

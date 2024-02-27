@@ -14,6 +14,7 @@ export {
   EncodingOptions,
   EncodingOptionsPreset,
   GCPUpload,
+  ImageOutput,
   ParticipantEgressRequest,
   RoomCompositeEgressRequest,
   S3Upload,

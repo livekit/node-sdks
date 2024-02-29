@@ -1,10 +1,27 @@
 import { JWTPayload } from 'jose';
+import { TrackSource } from './proto/livekit_models_pb';
 
-export enum TrackSource {
-  CAMERA = 'camera',
-  MICROPHONE = 'microphone',
-  SCREEN_SHARE = 'screen_share',
-  SCREEN_SHARE_AUDIO = 'screen_share_audio',
+export function trackSourceToString(source: TrackSource) {
+  switch (source) {
+    case TrackSource.CAMERA:
+      return 'camera';
+    case TrackSource.MICROPHONE:
+      return 'microphone';
+    case TrackSource.SCREEN_SHARE:
+      return 'screen_share';
+    case TrackSource.SCREEN_SHARE_AUDIO:
+      return 'screen_share_audio';
+    default:
+      throw new TypeError(`Cannot convert TrackSource ${source} to string`);
+  }
+}
+
+export function claimsToJwtPayload(grant: ClaimGrants): JWTPayload {
+  const claim: Record<string, unknown> = { ...grant };
+  if (Array.isArray(claim.canPublishSources)) {
+    claim.canPublishSources = claim.canPublishSources.map(trackSourceToString);
+  }
+  return claim;
 }
 
 export interface VideoGrant {

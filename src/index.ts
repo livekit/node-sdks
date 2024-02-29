@@ -45,4 +45,5 @@ export {
   Room,
   TrackInfo,
   TrackType,
+  TrackSource,
 } from './proto/livekit_models_pb.js';

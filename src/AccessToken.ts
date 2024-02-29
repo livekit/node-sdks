@@ -1,5 +1,5 @@
 import * as jose from 'jose';
-import { ClaimGrants, VideoGrant } from './grants.js';
+import { ClaimGrants, VideoGrant, claimsToJwtPayload } from './grants.js';
 
 // 6 hours
 const defaultTTL = `6h`;
@@ -111,7 +111,8 @@ export class AccessToken {
     // TODO: check for video grant validity
 
     const secret = new TextEncoder().encode(this.apiSecret);
-    const jwt = new jose.SignJWT(this.grants)
+
+    const jwt = new jose.SignJWT(claimsToJwtPayload(this.grants))
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuer(this.apiKey)
       .setExpirationTime(this.ttl)

@@ -16,10 +16,13 @@ export function trackSourceToString(source: TrackSource) {
   }
 }
 
-export function claimsToJwtPayload(grant: ClaimGrants): JWTPayload {
-  const claim: Record<string, unknown> = { ...grant };
-  if (Array.isArray(claim.canPublishSources)) {
-    claim.canPublishSources = claim.canPublishSources.map(trackSourceToString);
+export function claimsToJwtPayload(
+  grant: ClaimGrants,
+): JWTPayload & { video?: Record<string, unknown> } {
+  const claim: Record<string, any> = { ...grant };
+  // eslint-disable-next-line no-restricted-syntax
+  if (Array.isArray(claim.video?.canPublishSources)) {
+    claim.video.canPublishSources = claim.video.canPublishSources.map(trackSourceToString);
   }
   return claim;
 }

@@ -17,7 +17,7 @@ import {
   UpdateLayoutRequest,
   UpdateStreamRequest,
   WebEgressRequest,
-} from './proto/livekit_egress_pb.js';
+} from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
 

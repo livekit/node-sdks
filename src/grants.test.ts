@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { TrackSource } from '@livekit/protocol';
 import { ClaimGrants, VideoGrant, claimsToJwtPayload } from './grants';
-import { TrackSource } from './proto/livekit_models_pb';
 
 describe('ClaimGrants are parsed correctly', () => {
   it('parses TrackSource correctly to strings', () => {

@@ -8,7 +8,7 @@ import {
   ListIngressRequest,
   ListIngressResponse,
   UpdateIngressRequest,
-} from './proto/livekit_ingress_pb.js';
+} from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
 import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
 

@@ -25,8 +25,6 @@ export {
   TrackCompositeEgressRequest,
   TrackEgressRequest,
   WebEgressRequest,
-} from './proto/livekit_egress_pb.js';
-export {
   IngressAudioEncodingOptions,
   IngressAudioEncodingPreset,
   IngressAudioOptions,
@@ -36,8 +34,6 @@ export {
   IngressVideoEncodingOptions,
   IngressVideoEncodingPreset,
   IngressVideoOptions,
-} from './proto/livekit_ingress_pb.js';
-export {
   DataPacket_Kind,
   ParticipantInfo,
   ParticipantInfo_State,
@@ -46,4 +42,4 @@ export {
   TrackInfo,
   TrackType,
   TrackSource,
-} from './proto/livekit_models_pb.js';
+} from '@livekit/protocol';

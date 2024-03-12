@@ -82,6 +82,7 @@ export class LocalParticipant extends Participant {
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
       kind: options.reliable ? DataPacketKind.KIND_RELIABLE : DataPacketKind.KIND_LOSSY,
+      topic: options.topic,
     });
 
     if (options.destination) {

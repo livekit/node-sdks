@@ -1,6 +1,6 @@
-import { BinaryReadOptions, JsonValue, JsonReadOptions } from '@bufbuild/protobuf';
+import type { BinaryReadOptions, JsonValue, JsonReadOptions } from '@bufbuild/protobuf';
+import { WebhookEvent as ProtoWebhookEvent } from '@livekit/protocol';
 import { TokenVerifier } from './AccessToken.js';
-import { WebhookEvent as ProtoWebhookEvent } from './proto/livekit_webhook_pb.js';
 
 export const authorizeHeader = 'Authorize';
 

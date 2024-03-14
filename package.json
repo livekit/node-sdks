@@ -14,7 +14,6 @@
     "build-docs": "typedoc",
     "changeset": "changeset",
     "ci:publish": "pnpm build && changeset publish",
-    "proto": "./generate-proto.sh",
     "lint": "eslint .",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
@@ -23,12 +22,12 @@
     "test:edge": "vitest --environment edge-runtime run"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.3.0",
+    "@livekit/protocol": "^1.10.3",
     "camelcase-keys": "^7.0.0",
     "jose": "^5.1.2"
   },
   "devDependencies": {
-    "@bufbuild/protoc-gen-es": "^1.3.0",
+    "@bufbuild/protobuf": "^1.7.2",
     "@changesets/cli": "^2.27.1",
     "@edge-runtime/vm": "^3.1.7",
     "@livekit/changesets-changelog-github": "^0.0.4",

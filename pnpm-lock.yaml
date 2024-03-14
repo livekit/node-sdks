@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@bufbuild/protobuf':
-    specifier: ^1.3.0
-    version: 1.5.0
+  '@livekit/protocol':
+    specifier: ^1.10.3
+    version: 1.10.3
   camelcase-keys:
     specifier: ^7.0.0
     version: 7.0.2
@@ -16,9 +16,9 @@ dependencies:
     version: 5.1.3
 
 devDependencies:
-  '@bufbuild/protoc-gen-es':
-    specifier: ^1.3.0
-    version: 1.5.0(@bufbuild/protobuf@1.5.0)
+  '@bufbuild/protobuf':
+    specifier: ^1.7.2
+    version: 1.7.2
   '@changesets/cli':
     specifier: ^2.27.1
     version: 2.27.1
@@ -107,34 +107,8 @@ packages:
       regenerator-runtime: 0.14.0
     dev: true
 
-  /@bufbuild/protobuf@1.5.0:
-    resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==}
-
-  /@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0):
-    resolution: {integrity: sha512-6dPFlw7jhKPNoJUb5+0MPDTMEEbym4AAQZP2sCo4/0J+T2SlAzq5kbuNx92x+SFkOI5V7/iNoPHrxr0TZZ9b2g==}
-    engines: {node: '>=14'}
-    hasBin: true
-    peerDependencies:
-      '@bufbuild/protobuf': 1.5.0
-    peerDependenciesMeta:
-      '@bufbuild/protobuf':
-        optional: true
-    dependencies:
-      '@bufbuild/protobuf': 1.5.0
-      '@bufbuild/protoplugin': 1.5.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@bufbuild/protoplugin@1.5.0:
-    resolution: {integrity: sha512-b07uxUfWUHm91PrN7dMMSmO+2RH21kPo+EhczGDR3PDh2t80e4XCZhf3Z/6SM/+ajhVpbl/WNK+z645jsSnGPg==}
-    dependencies:
-      '@bufbuild/protobuf': 1.5.0
-      '@typescript/vfs': 1.5.0
-      typescript: 4.5.2
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
+  /@bufbuild/protobuf@1.7.2:
+    resolution: {integrity: sha512-i5GE2Dk5ekdlK1TR7SugY4LWRrKSfb5T1Qn4unpIMbfxoeGKERKQ59HG3iYewacGD10SR7UzevfPnh6my4tNmQ==}
 
   /@changesets/apply-release-plan@7.0.0:
     resolution: {integrity: sha512-vfi69JR416qC9hWmFGSxj7N6wA5J222XNBmezSVATPWDVPIF7gkd4d8CpbEbXmRWbVrkoli3oerGS6dcL/BGsQ==}
@@ -595,6 +569,12 @@ packages:
       - encoding
     dev: true
 
+  /@livekit/protocol@1.10.3:
+    resolution: {integrity: sha512-m247Fa67VRo6ojCzmHWA5TBTnjZzB9bTYeRP/yMsMiLz+Ug7EKTRHV0uP17hUocRqoPsbejG+JWq/A5JFrlABg==}
+    dependencies:
+      '@bufbuild/protobuf': 1.7.2
+    dev: false
+
   /@manypkg/find-root@1.1.0:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
     dependencies:
@@ -870,14 +850,6 @@ packages:
     dependencies:
       '@typescript-eslint/types': 4.33.0
       eslint-visitor-keys: 2.1.0
-    dev: true
-
-  /@typescript/vfs@1.5.0:
-    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
-    dependencies:
-      debug: 4.3.4
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /@vitest/expect@1.0.2:
@@ -3807,12 +3779,6 @@ packages:
       minimatch: 9.0.3
       shiki: 0.14.5
       typescript: 4.6.4
-    dev: true
-
-  /typescript@4.5.2:
-    resolution: {integrity: sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
     dev: true
 
   /typescript@4.6.4:

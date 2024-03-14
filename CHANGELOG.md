@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.1.1
+
+### Patch Changes
+
+- Make use of @livekit/protocol package - [#147](https://github.com/livekit/server-sdk-js/pull/147) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.1.0
 
 ### Minor Changes

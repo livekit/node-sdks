@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.1.0
+
+### Minor Changes
+
+- Expose protobuf TrackSource and map TrackSource claims to string - [#145](https://github.com/livekit/server-sdk-js/pull/145) ([@lukasIO](https://github.com/lukasIO))
+
+### Patch Changes
+
+- Add support for Egress Image Output - [#143](https://github.com/livekit/server-sdk-js/pull/143) ([@biglittlebigben](https://github.com/biglittlebigben))
+
 ## 2.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.1.2
+
+### Patch Changes
+
+- Support for departure timeout in CreateRoom - [#150](https://github.com/livekit/server-sdk-js/pull/150) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.1.1
 
 ### Patch Changes

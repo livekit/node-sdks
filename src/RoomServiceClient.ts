@@ -1,8 +1,5 @@
 import type { DataPacket_Kind, TrackInfo } from '@livekit/protocol';
 import {
-  ParticipantInfo,
-  ParticipantPermission,
-  Room,
   CreateRoomRequest,
   DeleteRoomRequest,
   ListParticipantsRequest,
@@ -11,6 +8,9 @@ import {
   ListRoomsResponse,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
+  ParticipantInfo,
+  ParticipantPermission,
+  Room,
   RoomEgress,
   RoomParticipantIdentity,
   SendDataRequest,
@@ -19,7 +19,7 @@ import {
   UpdateSubscriptionsRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
+import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 /**
  * Options for when creating a room
@@ -31,9 +31,14 @@ export interface CreateOptions {
   name: string;
 
   /**
-   * number of seconds the room should clean up after being empty
+   * number of seconds to keep the room open before any participant joins
    */
   emptyTimeout?: number;
+
+  /**
+   * number of seconds to keep the room open after the last participant leaves
+   */
+  departureTimeout?: number;
 
   /**
    * limit to the number of participants in a room at a time

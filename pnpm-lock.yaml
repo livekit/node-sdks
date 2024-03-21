@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@livekit/protocol':
-    specifier: ^1.10.3
-    version: 1.10.3
+    specifier: ^1.12.0
+    version: 1.12.0
   camelcase-keys:
     specifier: ^7.0.0
     version: 7.0.2
@@ -569,8 +569,8 @@ packages:
       - encoding
     dev: true
 
-  /@livekit/protocol@1.10.3:
-    resolution: {integrity: sha512-m247Fa67VRo6ojCzmHWA5TBTnjZzB9bTYeRP/yMsMiLz+Ug7EKTRHV0uP17hUocRqoPsbejG+JWq/A5JFrlABg==}
+  /@livekit/protocol@1.12.0:
+    resolution: {integrity: sha512-AMUWxna4AO/biPaKiu45JYYVHi7sc+sK6pkeNNpqkzL85+eeHkNhkFfENn9YbQKQsVWABkOmcL8p4ZbUjxZkeQ==}
     dependencies:
       '@bufbuild/protobuf': 1.7.2
     dev: false

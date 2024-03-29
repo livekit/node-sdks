@@ -1,6 +1,6 @@
 {
   "name": "@livekit/rtc-node-win32-x64-msvc",
-  "version": "0.0.1",
+  "version": "0.0.7",
   "os": [
     "win32"
   ],

@@ -19,7 +19,9 @@
             xorg.libXext
             xorg.libX11
             libGL
+            clang
           ];
+          LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
         };
       }
     );

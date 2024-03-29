@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 use livekit_ffi::FfiHandleId;
 use livekit_ffi::{proto, server, FFI_SERVER};
 use napi::{

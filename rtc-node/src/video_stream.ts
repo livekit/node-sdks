@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ffi_client.js';
 import { Track } from './track.js';
 import EventEmitter from 'events';

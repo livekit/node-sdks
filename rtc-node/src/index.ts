@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export { Room, RoomEvent, ConnectError, RoomOptions, RtcConfiguration } from './room.js';
 export { Participant, RemoteParticipant, LocalParticipant } from './participant.js';
 export {

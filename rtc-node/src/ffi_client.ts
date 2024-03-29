@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { FfiRequest, FfiResponse, FfiEvent } from './proto/ffi_pb.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';

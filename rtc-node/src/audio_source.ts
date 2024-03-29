@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
 import { FfiHandle } from './napi/native.js';

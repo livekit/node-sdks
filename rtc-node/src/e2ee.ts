@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { FfiClient, FfiRequest } from './ffi_client.js';
 import {
   E2eeManagerGetFrameCryptorsResponse,

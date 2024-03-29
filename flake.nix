@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -20,6 +24,7 @@
             xorg.libX11
             libGL
             clang
+            reuse
           ];
           LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
         };

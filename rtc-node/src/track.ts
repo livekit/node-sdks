@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { AudioSource } from './audio_source.js';
 import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 import {

@@ -40,8 +40,8 @@
     "node": ">= 18"
   },
   "scripts": {
-    "build:tsc": "tsc && cp src/napi/native.d.ts dist/napi/native.d.ts",
-    "build": "pnpm build:tsc && napi build --platform --release --dts src/napi/native.d.ts --js src/napi/native.js --pipe \"prettier -w\"",
+    "build:tsc": "tsc && cp -r src/napi dist/napi",
+    "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",

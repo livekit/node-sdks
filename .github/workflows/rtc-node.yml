@@ -15,8 +15,17 @@ on:
       - main
     tags:
       - rtc-v*
+  pull_request:
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: REUSE-3.0 compliance check
+        uses: fsfe/reuse-action@v3
+  
   build:
     strategy:
       fail-fast: false
@@ -44,6 +53,7 @@ jobs:
 
     name: stable - ${{ matrix.target }} - node@18
     runs-on: ${{ matrix.os }}
+    needs: lint
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,7 +95,7 @@ jobs:
           docker run --rm -v $PWD:/workspace -w /workspace ${{ matrix.build_image }} bash -c "\
             uname -a; \
             export PATH=/root/.cargo/bin:\$PATH; \
-            yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel -y; \
+            yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel clang-devel -y; \
             curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
             curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -; \
             yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
@@ -104,9 +114,10 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
+        if: github.event_name != 'pull-request'
         with:
           name: bindings-${{ matrix.target }}
-          path: rtc-node/${{ env.APP_NAME }}.*.node
+          path: rtc-node/src/napi/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   publish:
     name: Publish

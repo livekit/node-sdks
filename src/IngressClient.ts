@@ -10,7 +10,7 @@ import {
   UpdateIngressRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
+import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'Ingress';
 
@@ -31,6 +31,10 @@ export interface CreateIngressOptions {
    * participant display name
    */
   participantName?: string;
+  /**
+   * metadata to attach to the participant
+   */
+  participantMetadata?: string;
   /**
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
@@ -66,6 +70,10 @@ export interface UpdateIngressOptions {
    * participant display name
    */
   participantName?: string;
+  /**
+   * metadata to attach to the participant
+   */
+  participantMetadata?: string;
   /**
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
@@ -117,6 +125,7 @@ export class IngressClient extends ServiceBase {
     let roomName: string = '';
     let participantName: string = '';
     let participantIdentity: string = '';
+    let participantMetadata: string | undefined;
     let bypassTranscoding: boolean = false;
     let url: string = '';
     let audio: IngressAudioOptions | undefined;
@@ -131,6 +140,7 @@ export class IngressClient extends ServiceBase {
       url = opts.url || '';
       audio = opts.audio;
       video = opts.video;
+      participantMetadata = opts.participantMetadata;
     }
 
     const req = new CreateIngressRequest({
@@ -138,6 +148,7 @@ export class IngressClient extends ServiceBase {
       name,
       roomName,
       participantIdentity,
+      participantMetadata,
       participantName,
       bypassTranscoding,
       url,
@@ -163,6 +174,7 @@ export class IngressClient extends ServiceBase {
     const roomName: string = opts.roomName || '';
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
+    const { participantMetadata } = opts;
     const { audio, video, bypassTranscoding } = opts;
 
     const req = new UpdateIngressRequest({
@@ -171,6 +183,7 @@ export class IngressClient extends ServiceBase {
       roomName,
       participantIdentity,
       participantName,
+      participantMetadata,
       bypassTranscoding,
       audio,
       video,

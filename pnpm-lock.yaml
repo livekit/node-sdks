@@ -20,19 +20,19 @@ importers:
     devDependencies:
       '@bufbuild/protobuf':
         specifier: ^1.7.2
-        version: 1.7.2
+        version: 1.8.0
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.1
       '@edge-runtime/vm':
         specifier: ^3.1.7
-        version: 3.1.7
+        version: 3.2.0
       '@livekit/changesets-changelog-github':
         specifier: ^0.0.4
         version: 0.0.4
       '@types/node':
         specifier: ^20.10.1
-        version: 20.10.3
+        version: 20.12.7
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.7.0
         version: 7.7.0(@typescript-eslint/parser@7.7.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5)
@@ -62,10 +62,10 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.9
-        version: 5.2.9(@types/node@20.10.3)
+        version: 5.2.9(@types/node@20.12.7)
       vitest:
         specifier: ^1.5.0
-        version: 1.5.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)(happy-dom@14.7.1)
+        version: 1.5.0(@edge-runtime/vm@3.2.0)(@types/node@20.12.7)(happy-dom@14.7.1)
 
 packages:
 
@@ -89,8 +89,8 @@ packages:
     resolution: {integrity: sha512-mM8eg4yl5D6i3lu2QKPuPH4FArvJ8KhTofbE7jwMUv9KX5mBvwPAqnV3MlyBNqdp9RyRKP6Yck8TrfYrPvX3bg==}
     engines: {node: '>=6.9.0'}
 
-  '@bufbuild/protobuf@1.7.2':
-    resolution: {integrity: sha512-i5GE2Dk5ekdlK1TR7SugY4LWRrKSfb5T1Qn4unpIMbfxoeGKERKQ59HG3iYewacGD10SR7UzevfPnh6my4tNmQ==}
+  '@bufbuild/protobuf@1.8.0':
+    resolution: {integrity: sha512-qR9FwI8QKIveDnUYutvfzbC21UZJJryYrLuZGjeZ/VGz+vXelUkK+xgkOHsvPEdYEdxtgUUq4313N8QtOehJ1Q==}
 
   '@changesets/apply-release-plan@7.0.0':
     resolution: {integrity: sha512-vfi69JR416qC9hWmFGSxj7N6wA5J222XNBmezSVATPWDVPIF7gkd4d8CpbEbXmRWbVrkoli3oerGS6dcL/BGsQ==}
@@ -150,12 +150,12 @@ packages:
   '@changesets/write@0.3.0':
     resolution: {integrity: sha512-slGLb21fxZVUYbyea+94uFiD6ntQW0M2hIKNznFizDhZPDgn2c/fv1UzzlW43RVzh1BEDuIqW6hzlJ1OflNmcw==}
 
-  '@edge-runtime/primitives@4.0.5':
-    resolution: {integrity: sha512-t7QiN5d/KpXgCvIfSt6Nm9Hj3WVdNgc5CpOD73jasY+9EvTI7Ngdj5cXvjcHrPcmYWJZMySPgeEeoL/1N/Llag==}
+  '@edge-runtime/primitives@4.1.0':
+    resolution: {integrity: sha512-Vw0lbJ2lvRUqc7/soqygUX216Xb8T3WBZ987oywz6aJqRxcwSVWwr9e+Nqo2m9bxobA9mdbWNNoRY6S9eko1EQ==}
     engines: {node: '>=16'}
 
-  '@edge-runtime/vm@3.1.7':
-    resolution: {integrity: sha512-hUMFbDQ/nZN+1TLMi6iMO1QFz9RSV8yGG8S42WFPFma1d7VSNE0eMdJUmwjmtav22/iQkzHMmu6oTSfAvRGS8g==}
+  '@edge-runtime/vm@3.2.0':
+    resolution: {integrity: sha512-0dEVyRLM/lG4gp1R/Ik5bfPl/1wX00xFwd5KcNH602tzBa09oF7pbTKETEhR1GjZ75K6OJnYFu8II2dyMhONMw==}
     engines: {node: '>=16'}
 
   '@esbuild/aix-ppc64@0.20.2':
@@ -454,8 +454,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@20.10.3':
-    resolution: {integrity: sha512-XJavIpZqiXID5Yxnxv3RUDKTN5b81ddNC3ecsA0SoFXz/QU8OGBwZGMomiq0zw+uuqbL/krztv/DINAQ/EV4gg==}
+  '@types/node@20.12.7':
+    resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -2156,7 +2156,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.0
 
-  '@bufbuild/protobuf@1.7.2': {}
+  '@bufbuild/protobuf@1.8.0': {}
 
   '@changesets/apply-release-plan@7.0.0':
     dependencies:
@@ -2315,11 +2315,11 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.8
 
-  '@edge-runtime/primitives@4.0.5': {}
+  '@edge-runtime/primitives@4.1.0': {}
 
-  '@edge-runtime/vm@3.1.7':
+  '@edge-runtime/vm@3.2.0':
     dependencies:
-      '@edge-runtime/primitives': 4.0.5
+      '@edge-runtime/primitives': 4.1.0
 
   '@esbuild/aix-ppc64@0.20.2':
     optional: true
@@ -2441,7 +2441,7 @@ snapshots:
 
   '@livekit/protocol@1.13.0':
     dependencies:
-      '@bufbuild/protobuf': 1.7.2
+      '@bufbuild/protobuf': 1.8.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -2531,7 +2531,7 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
-  '@types/node@20.10.3':
+  '@types/node@20.12.7':
     dependencies:
       undici-types: 5.26.5
 
@@ -4201,13 +4201,13 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite-node@1.5.0(@types/node@20.10.3):
+  vite-node@1.5.0(@types/node@20.12.7):
     dependencies:
       cac: 6.7.14
       debug: 4.3.4
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.2.9(@types/node@20.10.3)
+      vite: 5.2.9(@types/node@20.12.7)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4218,16 +4218,16 @@ snapshots:
       - supports-color
       - terser
 
-  vite@5.2.9(@types/node@20.10.3):
+  vite@5.2.9(@types/node@20.12.7):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.14.3
     optionalDependencies:
-      '@types/node': 20.10.3
+      '@types/node': 20.12.7
       fsevents: 2.3.3
 
-  vitest@1.5.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)(happy-dom@14.7.1):
+  vitest@1.5.0(@edge-runtime/vm@3.2.0)(@types/node@20.12.7)(happy-dom@14.7.1):
     dependencies:
       '@vitest/expect': 1.5.0
       '@vitest/runner': 1.5.0
@@ -4246,12 +4246,12 @@ snapshots:
       strip-literal: 2.1.0
       tinybench: 2.5.1
       tinypool: 0.8.4
-      vite: 5.2.9(@types/node@20.10.3)
-      vite-node: 1.5.0(@types/node@20.10.3)
+      vite: 5.2.9(@types/node@20.12.7)
+      vite-node: 1.5.0(@types/node@20.12.7)
       why-is-node-running: 2.2.2
     optionalDependencies:
-      '@edge-runtime/vm': 3.1.7
-      '@types/node': 20.10.3
+      '@edge-runtime/vm': 3.2.0
+      '@types/node': 20.12.7
       happy-dom: 14.7.1
     transitivePeerDependencies:
       - less

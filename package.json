@@ -32,17 +32,17 @@
     "@edge-runtime/vm": "^3.1.7",
     "@livekit/changesets-changelog-github": "^0.0.4",
     "@types/node": "^20.10.1",
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-typescript": "^12.3.1",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.24.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
     "happy-dom": "^14.0.0",
     "prettier": "^3.0.0",
-    "typedoc": "^0.25.4",
+    "typedoc": "^0.25.13",
     "typescript": "5.4.x",
-    "vite": "^5.0.5",
-    "vitest": "^1.0.2"
+    "vite": "^5.2.9",
+    "vitest": "^1.5.0"
   },
   "engines": {
     "node": ">=19"

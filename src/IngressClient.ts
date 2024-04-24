@@ -36,7 +36,8 @@ export interface CreateIngressOptions {
    */
   participantMetadata?: string;
   /**
-   * whether to skip transcoding and forward the input media directly. Only supported by WHIP [deprecated]
+   * @deprecated use `enableTranscoding` instead.
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
   bypassTranscoding?: boolean;
   /**
@@ -80,7 +81,8 @@ export interface UpdateIngressOptions {
    */
   participantMetadata?: string;
   /**
-   * whether to skip transcoding and forward the input media directly. Only supported by WHIP [deprecated]
+   * @deprecated use `enableTranscoding` instead
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
    */
   bypassTranscoding?: boolean | undefined;
   /**

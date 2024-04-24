@@ -163,6 +163,7 @@ export class IngressClient extends ServiceBase {
       participantMetadata,
       participantName,
       bypassTranscoding,
+      enableTranscoding,
       url,
       audio,
       video,

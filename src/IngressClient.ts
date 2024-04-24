@@ -36,10 +36,6 @@ export interface CreateIngressOptions {
    */
   participantMetadata?: string;
   /**
-   * metadata to attach to the participant
-   */
-  participantMetadata?: string;
-  /**
    * whether to skip transcoding and forward the input media directly. Only supported by WHIP [deprecated]
    */
   bypassTranscoding?: boolean;
@@ -48,10 +44,6 @@ export interface CreateIngressOptions {
    * Transcoding is required for all input types except WHIP. For WHIP, the default is to not transcode.
    */
   enableTranscoding?: boolean | undefined;
-  /**
-   * url of the media to pull for ingresses of type URL
-   */
-  url?: string;
   /**
    * url of the media to pull for ingresses of type URL
    */
@@ -83,10 +75,6 @@ export interface UpdateIngressOptions {
    * participant display name
    */
   participantName?: string;
-  /**
-   * metadata to attach to the participant
-   */
-  participantMetadata?: string;
   /**
    * metadata to attach to the participant
    */
@@ -210,7 +198,6 @@ export class IngressClient extends ServiceBase {
       participantMetadata,
       bypassTranscoding,
       enableTranscoding,
-      url,
       audio,
       video,
     }).toJson();

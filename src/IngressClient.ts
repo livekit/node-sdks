@@ -36,9 +36,22 @@ export interface CreateIngressOptions {
    */
   participantMetadata?: string;
   /**
-   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
+   * metadata to attach to the participant
+   */
+  participantMetadata?: string;
+  /**
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP [deprecated]
    */
   bypassTranscoding?: boolean;
+  /**
+   * whether to enable transcoding or forward the input media directly.
+   * Transcoding is required for all input types except WHIP. For WHIP, the default is to not transcode.
+   */
+  enableTranscoding?: boolean | undefined;
+  /**
+   * url of the media to pull for ingresses of type URL
+   */
+  url?: string;
   /**
    * url of the media to pull for ingresses of type URL
    */
@@ -75,9 +88,18 @@ export interface UpdateIngressOptions {
    */
   participantMetadata?: string;
   /**
-   * whether to skip transcoding and forward the input media directly. Only supported by WHIP
+   * metadata to attach to the participant
+   */
+  participantMetadata?: string;
+  /**
+   * whether to skip transcoding and forward the input media directly. Only supported by WHIP [deprecated]
    */
   bypassTranscoding?: boolean | undefined;
+  /**
+   * whether to enable transcoding or forward the input media directly.
+   * Transcoding is required for all input types except WHIP. For WHIP, the default is to not transcode.
+   */
+  enableTranscoding?: boolean | undefined;
   /**
    * custom audio encoding parameters. optional
    */
@@ -127,6 +149,7 @@ export class IngressClient extends ServiceBase {
     let participantIdentity: string = '';
     let participantMetadata: string | undefined;
     let bypassTranscoding: boolean = false;
+    let enableTranscoding: boolean | undefined
     let url: string = '';
     let audio: IngressAudioOptions | undefined;
     let video: IngressVideoOptions | undefined;
@@ -137,6 +160,7 @@ export class IngressClient extends ServiceBase {
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
       bypassTranscoding = opts.bypassTranscoding || false;
+      enableTranscoding = opts.enableTranscoding;      
       url = opts.url || '';
       audio = opts.audio;
       video = opts.video;
@@ -175,7 +199,7 @@ export class IngressClient extends ServiceBase {
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
     const { participantMetadata } = opts;
-    const { audio, video, bypassTranscoding } = opts;
+    const { audio, video, bypassTranscoding, enableTranscoding } = opts;
 
     const req = new UpdateIngressRequest({
       ingressId,
@@ -185,6 +209,9 @@ export class IngressClient extends ServiceBase {
       participantName,
       participantMetadata,
       bypassTranscoding,
+	  enableTranscoding,
+      url,
+	  enableTranscoding,
       audio,
       video,
     }).toJson();

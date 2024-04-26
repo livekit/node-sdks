@@ -139,7 +139,7 @@ export class IngressClient extends ServiceBase {
     let participantIdentity: string = '';
     let participantMetadata: string | undefined;
     let bypassTranscoding: boolean = false;
-    let enableTranscoding: boolean | undefined
+    let enableTranscoding: boolean | undefined;
     let url: string = '';
     let audio: IngressAudioOptions | undefined;
     let video: IngressVideoOptions | undefined;
@@ -150,7 +150,7 @@ export class IngressClient extends ServiceBase {
       participantName = opts.participantName || '';
       participantIdentity = opts.participantIdentity || '';
       bypassTranscoding = opts.bypassTranscoding || false;
-      enableTranscoding = opts.enableTranscoding;      
+      enableTranscoding = opts.enableTranscoding;
       url = opts.url || '';
       audio = opts.audio;
       video = opts.video;

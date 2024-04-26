@@ -1,5 +1,17 @@
 # livekit-server-sdk
 
+## 2.2.0
+
+### Minor Changes
+
+- Bump minimum engine requirement to node 19 - [#155](https://github.com/livekit/server-sdk-js/pull/155) ([@lukasIO](https://github.com/lukasIO))
+
+- Add support for enableTranscoding - [#171](https://github.com/livekit/server-sdk-js/pull/171) ([@biglittlebigben](https://github.com/biglittlebigben))
+
+### Patch Changes
+
+- Allow user to set participant metadata when creating Ingress - [#152](https://github.com/livekit/server-sdk-js/pull/152) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.1.2
 
 ### Patch Changes

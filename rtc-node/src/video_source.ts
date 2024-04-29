@@ -8,6 +8,7 @@ import {
   CaptureVideoFrameResponse,
   NewVideoSourceRequest,
   NewVideoSourceResponse,
+  VideoRotation,
   VideoSourceInfo,
   VideoSourceType,
 } from './proto/video_frame_pb.js';
@@ -45,17 +46,12 @@ export class VideoSource {
     this.ffiHandle = new FfiHandle(res.source.handle.id);
   }
 
-  captureFrame(frame: VideoFrame) {
+  captureFrame(frame: VideoFrame, timestampUs = 0n, rotation = VideoRotation.VIDEO_ROTATION_0) {
     let req = new CaptureVideoFrameRequest({
       sourceHandle: this.ffiHandle.handle,
-      from: {
-        case: 'info',
-        value: frame.buffer.protoInfo(),
-      },
-      frame: {
-        rotation: frame.rotation,
-        timestampUs: BigInt(frame.timestampUs),
-      },
+      buffer: frame.protoInfo(),
+      rotation,
+      timestampUs,
     });
 
     FfiClient.instance.request<CaptureVideoFrameResponse>({

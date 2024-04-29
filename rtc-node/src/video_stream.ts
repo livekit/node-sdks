@@ -6,16 +6,23 @@ import { FfiClient, FfiClientEvent, FfiEvent, FfiHandle, FfiRequest } from './ff
 import { Track } from './track.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { VideoFrame, VideoFrameBuffer } from './video_frame.js';
+import { VideoFrame } from './video_frame.js';
 import {
   NewVideoStreamRequest,
   NewVideoStreamResponse,
+  VideoRotation,
   VideoStreamInfo,
   VideoStreamType,
 } from './proto/video_frame_pb.js';
 
+export type VideoFrameEvent = {
+  frame: VideoFrame,
+  timestampUs: bigint,
+  rotation: VideoRotation,
+}
+
 export type VideoStreamCallbacks = {
-  frameReceived: (frame: VideoFrame) => void;
+  frameReceived: (evt: VideoFrameEvent) => void;
 };
 
 export enum VideoStreamEvent {
@@ -63,10 +70,10 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
     let streamEvent = ev.message.value.message;
     switch (streamEvent.case) {
       case 'frameReceived':
-        let frameInfo = streamEvent.value.frame;
-        let buffer = VideoFrameBuffer.fromOwnedInfo(streamEvent.value.buffer);
-        let frame = new VideoFrame(Number(frameInfo.timestampUs), frameInfo.rotation, buffer);
-        this.emit(VideoStreamEvent.FrameReceived, frame);
+        let rotation = streamEvent.value.rotation;
+        let timestampUs = streamEvent.value.timestampUs;
+        let frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer);
+        this.emit(VideoStreamEvent.FrameReceived, { frame, timestampUs, rotation });
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);

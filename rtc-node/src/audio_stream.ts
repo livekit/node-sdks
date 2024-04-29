@@ -14,8 +14,12 @@ import { Track } from './track.js';
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
 
+export type AudioFrameEvent = {
+  frame: AudioFrame
+}
+
 export type AudioStreamCallbacks = {
-  frameReceived: (frame: AudioFrame) => void;
+  frameReceived: (frame: AudioFrameEvent) => void;
 };
 
 export enum AudioStreamEvent {
@@ -64,7 +68,7 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
     switch (streamEvent.case) {
       case 'frameReceived':
         let frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame);
-        this.emit(AudioStreamEvent.FrameReceived, frame);
+        this.emit(AudioStreamEvent.FrameReceived, { frame });
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);

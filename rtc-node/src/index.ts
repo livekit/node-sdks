@@ -17,23 +17,10 @@ export {
 } from './track.js';
 export {
   VideoFrame,
-  VideoFrameBuffer,
-  I420Buffer,
-  I422Buffer,
-  I444Buffer,
-  I420ABuffer,
-  NV12Buffer,
-  NativeBuffer,
-  I010Buffer,
-  PlanarYuvBuffer,
-  PlanarYuv8Buffer,
-  PlanarYuv16Buffer,
-  ArgbFrame,
-  BiplanarYuv8Buffer,
 } from './video_frame.js';
 export { AudioFrame } from './audio_frame.js';
-export { AudioStream } from './audio_stream.js';
-export { VideoStream } from './video_stream.js';
+export { AudioStream, AudioFrameEvent } from './audio_stream.js';
+export { VideoStream, VideoFrameEvent } from './video_stream.js';
 export { AudioSource } from './audio_source.js';
 export { VideoSource } from './video_source.js';
 export {
@@ -53,4 +40,4 @@ export {
 } from './proto/room_pb.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
-export { VideoFormatType, VideoFrameBufferType, VideoRotation } from './proto/video_frame_pb.js';
+export { VideoBufferType, VideoRotation } from './proto/video_frame_pb.js';

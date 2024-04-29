@@ -16,20 +16,22 @@ export class VideoFrame {
   width: number;
   height: number;
   type: VideoBufferType;
-  dataPtr: bigint;
 
   constructor(
     data: Uint8Array,
     width: number,
     height: number,
     type: VideoBufferType,
-    dataPtr: bigint,
   ) {
     this.data = data;
     this.width = width;
     this.height = height;
     this.type = type;
-    this.dataPtr = dataPtr;
+  }
+
+  /** @internal */
+  get dataPtr(): bigint {
+    return FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer))
   }
 
   /** @internal */
@@ -38,7 +40,6 @@ export class VideoFrame {
       width: this.width,
       height: this.height,
       type: this.type,
-      dataPtr: this.dataPtr,
     });
 
     switch (this.type) {
@@ -67,7 +68,6 @@ export class VideoFrame {
       info.width,
       info.height,
       info.type,
-      info.dataPtr,
     );
   }
 

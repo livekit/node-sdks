@@ -1,6 +1,7 @@
 export * from './AccessToken.js';
 export * from './EgressClient.js';
 export * from './IngressClient.js';
+export * from './SipClient.js';
 export * from './RoomServiceClient.js';
 export * from './WebhookReceiver.js';
 export * from './grants.js';
@@ -42,4 +43,7 @@ export {
   TrackInfo,
   TrackType,
   TrackSource,
+  SIPTrunkInfo,
+  SIPDispatchRuleInfo,
+  SIPParticipantInfo,
 } from '@livekit/protocol';

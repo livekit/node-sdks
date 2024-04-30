@@ -2,7 +2,7 @@
   "name": "@livekit/rtc-node",
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
-  "version": "0.3.0-rc.1",
+  "version": "0.3.0-rc.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",

@@ -40,6 +40,7 @@ export class VideoFrame {
       width: this.width,
       height: this.height,
       type: this.type,
+      dataPtr: this.dataPtr,
     });
 
     switch (this.type) {

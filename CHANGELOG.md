@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.3.0
+
+### Minor Changes
+
+- Add SIP service. - [#173](https://github.com/livekit/server-sdk-js/pull/173) ([@dennwc](https://github.com/dennwc))
+
 ## 2.2.0
 
 ### Minor Changes

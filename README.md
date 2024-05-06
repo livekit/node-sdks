@@ -13,81 +13,7 @@
 > [!NOTE]
 > This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
 > (It theoretically now also runs in every major browser, but that's not recommended due to the security risks involved with exposing your API secrets)
-> Read the section below for a detailed overview on what has changed.
-
-## Migrate from v1.x to v2.x
-
-### Token generation
-
-Because the `jsonwebtoken` lib got replaced with `jose`, there are a couple of APIs that are now async, that weren't before:
-
-```typescript
-const at = new AccessToken('api-key', 'secret-key', {
-  identity: participantName,
-});
-at.addGrant({ roomJoin: true, room: roomName });
-
-// v1
-// const token = at.toJWT();
-
-// v2
-const token = await at.toJwt();
-
-// v1
-// const grants = v.verify(token);
-
-// v2
-const grants = await v.verify(token);
-
-app.post('/webhook-endpoint', async (req, res) => {
-  // v1
-  // const event = receiver.receive(req.body, req.get('Authorization'));
-
-  // v2
-  const event = await receiver.receive(req.body, req.get('Authorization'));
-});
-```
-
-### Egress API
-
-Egress request types have been updated from interfaces to classes in the latest version. Additionally, `oneof` fields now require an explicit `case` field to specify the value type.
-
-For example, to create a RoomComposite Egress:
-
-```typescript
-// v1
-// const fileOutput = {
-//   fileType: EncodedFileType.MP4,
-//   filepath: 'livekit-demo/room-composite-test.mp4',
-//   s3: {
-//     accessKey: 'aws-access-key',
-//     secret: 'aws-access-secret',
-//     region: 'aws-region',
-//     bucket: 'my-bucket',
-//   },
-// };
-
-// const info = await egressClient.startRoomCompositeEgress('my-room', {
-//   file: fileOutput,
-// });
-
-// v2 - current
-const fileOutput = new EncodedFileOutput({
-  filepath: 'dz/davids-room-test.mp4',
-  output: {
-    case: 's3',
-    value: new S3Upload({
-      accessKey: 'aws-access-key',
-      secret: 'aws-access-secret',
-      bucket: 'my-bucket',
-    }),
-  },
-});
-
-const info = await egressClient.startRoomCompositeEgress('my-room', {
-  file: fileOutput,
-});
-```
+> Read the [migration section](#migrate-from-v1x-to-v2x) below for a detailed overview on what has changed.
 
 ## Installation
 
@@ -213,6 +139,80 @@ const receiver = new WebhookReceiver('apikey', 'apisecret');
 app.post('/webhook-endpoint', async (req, res) => {
   // event is a WebhookEvent object
   const event = await receiver.receive(req.body, req.get('Authorization'));
+});
+```
+
+## Migrate from v1.x to v2.x
+
+### Token generation
+
+Because the `jsonwebtoken` lib got replaced with `jose`, there are a couple of APIs that are now async, that weren't before:
+
+```typescript
+const at = new AccessToken('api-key', 'secret-key', {
+  identity: participantName,
+});
+at.addGrant({ roomJoin: true, room: roomName });
+
+// v1
+// const token = at.toJWT();
+
+// v2
+const token = await at.toJwt();
+
+// v1
+// const grants = v.verify(token);
+
+// v2
+const grants = await v.verify(token);
+
+app.post('/webhook-endpoint', async (req, res) => {
+  // v1
+  // const event = receiver.receive(req.body, req.get('Authorization'));
+
+  // v2
+  const event = await receiver.receive(req.body, req.get('Authorization'));
+});
+```
+
+### Egress API
+
+Egress request types have been updated from interfaces to classes in the latest version. Additionally, `oneof` fields now require an explicit `case` field to specify the value type.
+
+For example, to create a RoomComposite Egress:
+
+```typescript
+// v1
+// const fileOutput = {
+//   fileType: EncodedFileType.MP4,
+//   filepath: 'livekit-demo/room-composite-test.mp4',
+//   s3: {
+//     accessKey: 'aws-access-key',
+//     secret: 'aws-access-secret',
+//     region: 'aws-region',
+//     bucket: 'my-bucket',
+//   },
+// };
+
+// const info = await egressClient.startRoomCompositeEgress('my-room', {
+//   file: fileOutput,
+// });
+
+// v2 - current
+const fileOutput = new EncodedFileOutput({
+  filepath: 'dz/davids-room-test.mp4',
+  output: {
+    case: 's3',
+    value: new S3Upload({
+      accessKey: 'aws-access-key',
+      secret: 'aws-access-secret',
+      bucket: 'my-bucket',
+    }),
+  },
+});
+
+const info = await egressClient.startRoomCompositeEgress('my-room', {
+  file: fileOutput,
 });
 ```
 

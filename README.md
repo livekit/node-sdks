@@ -13,7 +13,7 @@
 > [!NOTE]
 > This is v2 of the server-sdk-js which runs in NodeJS, Deno and Bun!
 > (It theoretically now also runs in every major browser, but that's not recommended due to the security risks involved with exposing your API secrets)
-> Read the [migration section](#-migrate-from-v1x-to-v2x) below for a detailed overview on what has changed.
+> Read the [migration section](#migrate-from-v1x-to-v2x) below for a detailed overview on what has changed.
 
 ## Installation
 

@@ -21,6 +21,8 @@ import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
 const svc = 'SIP';
 
 export interface CreateSipTrunkOptions {
+  name?: string;
+  metadata?: string;
   inbound_addresses?: string[];
   inbound_numbers?: string[];
   inbound_username?: string;
@@ -43,6 +45,8 @@ export interface SipDispatchRuleIndividual {
 }
 
 export interface CreateSipDispatchRuleOptions {
+  name?: string;
+  metadata?: string;
   trunkIds?: string[];
   hidePhoneNumber?: boolean;
 }
@@ -50,6 +54,7 @@ export interface CreateSipDispatchRuleOptions {
 export interface CreateSipParticipantOptions {
   participantIdentity?: string;
   participantName?: string;
+  participantMetadata?: string;
   dtmf?: string;
   playRingtone?: boolean;
 }
@@ -82,6 +87,8 @@ export class SipClient extends ServiceBase {
     let outboundAddress: string = '';
     let outboundUsername: string = '';
     let outboundPassword: string = '';
+    let name: string = '';
+    let metadata: string = '';
 
     if (opts !== undefined) {
       inboundAddresses = opts.inbound_addresses;
@@ -91,9 +98,13 @@ export class SipClient extends ServiceBase {
       outboundAddress = opts.outbound_address || '';
       outboundUsername = opts.outbound_username || '';
       outboundPassword = opts.outbound_password || '';
+      name = opts.name || '';
+      metadata = opts.metadata || '';
     }
 
     const req = new CreateSIPTrunkRequest({
+      name: name,
+      metadata: metadata,
       inboundAddresses: inboundAddresses,
       inboundNumbers: inboundNumbers,
       inboundUsername: inboundUsername,
@@ -142,11 +153,15 @@ export class SipClient extends ServiceBase {
   ): Promise<SIPDispatchRuleInfo> {
     let trunkIds: string[] | undefined;
     let hidePhoneNumber: boolean = false;
+    let name: string = '';
+    let metadata: string = '';
     let ruleProto: SIPDispatchRule | undefined = undefined;
 
     if (opts !== undefined) {
       trunkIds = opts.trunkIds;
       hidePhoneNumber = opts.hidePhoneNumber || false;
+      name = opts.name || '';
+      metadata = opts.metadata || '';
     }
     if (rule.type == 'direct') {
       ruleProto = new SIPDispatchRule({
@@ -174,6 +189,8 @@ export class SipClient extends ServiceBase {
       rule: ruleProto,
       trunkIds: trunkIds,
       hidePhoneNumber: hidePhoneNumber,
+      name: name,
+      metadata: metadata,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -223,12 +240,14 @@ export class SipClient extends ServiceBase {
   ): Promise<SIPParticipantInfo> {
     let participantIdentity: string = '';
     let participantName: string = '';
+    let participantMetadata: string = '';
     let dtmf: string = '';
     let playRingtone: boolean = false;
 
     if (opts !== undefined) {
       participantIdentity = opts.participantIdentity || '';
       participantName = opts.participantName || '';
+      participantMetadata = opts.participantMetadata || '';
       dtmf = opts.dtmf || '';
       playRingtone = opts.playRingtone || false;
     }
@@ -239,6 +258,7 @@ export class SipClient extends ServiceBase {
       roomName: roomName,
       participantIdentity: participantIdentity,
       participantName: participantName,
+      participantMetadata: participantMetadata,
       dtmf: dtmf,
       playRingtone: playRingtone,
     }).toJson();

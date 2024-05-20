@@ -9,6 +9,7 @@ import {
   FfiHandle,
   livekitFfiRequest,
   livekitInitialize,
+  livekitDispose,
   livekitCopyBuffer,
   livekitRetrievePtr,
 } from './napi/native.js';
@@ -56,6 +57,10 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
   retrievePtr(data: Uint8Array): bigint {
     return livekitRetrievePtr(data);
+  }
+
+  async dispose() {
+    return await livekitDispose();
   }
 
   async waitFor<T>(predicate: (ev: FfiEvent) => boolean): Promise<T> {

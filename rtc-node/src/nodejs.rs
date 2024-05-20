@@ -37,6 +37,11 @@ fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
 }
 
 #[napi]
+async fn livekit_dispose() {
+    FFI_SERVER.dispose().await;
+}
+
+#[napi]
 fn livekit_ffi_request(data: Uint8Array) -> Uint8Array {
     let data = data.to_vec();
     let res = match proto::FfiRequest::decode(data.as_slice()) {

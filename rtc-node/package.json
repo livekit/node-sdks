@@ -44,6 +44,7 @@
     "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",
+    "lint": "eslint -f unix \"src/**/*.ts\"",
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universal",
     "version": "napi version"

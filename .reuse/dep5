@@ -4,7 +4,7 @@ Upstream-Contact: LiveKit, Inc. <https://livekit.io>
 Source: https://livekit.io
 
 # trivial files
-Files: .gitignore .gitmodules flake.lock .github/* rtc-node/.gitignore
+Files: .gitignore .gitmodules flake.lock .github/* rtc-node/.gitignore .changesets/*
 Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 
@@ -14,7 +14,7 @@ Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 
 # node project files
-Files: rtc-node/.npmignore rtc-node/.prettierrc rtc-node/package.json rtc-node/tsconfig.json
+Files: rtc-node/.npmignore .prettierrc .eslintrc *.json
 Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 

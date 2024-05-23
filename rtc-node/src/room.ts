@@ -20,14 +20,14 @@ import {
   IceTransportType,
   RoomInfo,
 } from './proto/room_pb.js';
-import { E2EEManager, E2EEOptions, defaultE2EEOptions } from './e2ee.js';
+import { E2EEManager, E2EEOptions } from './e2ee.js';
 import { OwnedParticipant } from './proto/participant_pb.js';
 import {
   LocalTrackPublication,
   RemoteTrackPublication,
   TrackPublication,
 } from './track_publication.js';
-import { LocalTrack, RemoteAudioTrack, RemoteTrack, RemoteVideoTrack } from './track.js';
+import { RemoteAudioTrack, RemoteTrack, RemoteVideoTrack } from './track.js';
 import { TrackKind } from './proto/track_pb.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 
@@ -176,11 +176,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.ParticipantDisconnected, participant);
     } else if (ev.case == 'localTrackPublished') {
       let publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
-      this.emit(RoomEvent.LocalTrackPublished, publication, publication.track);
+      this.emit(RoomEvent.LocalTrackPublished, publication, this.localParticipant);
     } else if (ev.case == 'localTrackUnpublished') {
       let publication = this.localParticipant.trackPublications.get(ev.value.publicationSid);
       this.localParticipant.trackPublications.delete(ev.value.publicationSid);
-      this.emit(RoomEvent.LocalTrackUnpublished, publication);
+      this.emit(RoomEvent.LocalTrackUnpublished, publication, this.localParticipant);
     } else if (ev.case == 'trackPublished') {
       let participant = this.getRemoteParticipantBySid(ev.value.participantSid);
       let publication = new RemoteTrackPublication(ev.value.publication);
@@ -211,7 +211,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.TrackUnsubscribed, publication.track, publication, participant);
     } else if (ev.case == 'trackSubscriptionFailed') {
       let participant = this.getRemoteParticipantBySid(ev.value.participantSid);
-      this.emit(RoomEvent.TrackSubscriptionFailed, participant, ev.value.trackSid, ev.value.error);
+      this.emit(RoomEvent.TrackSubscriptionFailed, ev.value.trackSid, participant, ev.value.error);
     } else if (ev.case == 'trackMuted') {
       let participant = this.retrieveParticipant(ev.value.participantSid);
       let publication = participant.trackPublications.get(ev.value.trackSid);
@@ -219,7 +219,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (publication.track) {
         publication.track.info.muted = true;
       }
-      this.emit(RoomEvent.TrackMuted, participant, publication);
+      this.emit(RoomEvent.TrackMuted, publication, participant);
     } else if (ev.case == 'trackUnmuted') {
       let participant = this.retrieveParticipant(ev.value.participantSid);
       let publication = participant.trackPublications.get(ev.value.trackSid);
@@ -227,47 +227,41 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (publication.track) {
         publication.track.info.muted = false;
       }
-      this.emit(RoomEvent.TrackUnmuted, participant, publication);
+      this.emit(RoomEvent.TrackUnmuted, publication, participant);
     } else if (ev.case == 'activeSpeakersChanged') {
       let activeSpeakers = ev.value.participantSids.map((sid) =>
         this.getRemoteParticipantBySid(sid),
       );
       this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
     } else if (ev.case == 'roomMetadataChanged') {
-      let oldMetadata = this.info.metadata;
       this.info.metadata = ev.value.metadata;
-      this.emit(RoomEvent.RoomMetadataChanged, oldMetadata, this.info.metadata);
+      this.emit(RoomEvent.RoomMetadataChanged, this.info.metadata);
     } else if (ev.case == 'participantMetadataChanged') {
       let participant = this.retrieveParticipant(ev.value.participantSid);
-      let oldMetadata = participant.metadata;
       participant.info.metadata = ev.value.metadata;
-      this.emit(
-        RoomEvent.ParticipantMetadataChanged,
-        participant,
-        oldMetadata,
-        participant.metadata,
-      );
+      this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
     } else if (ev.case == 'participantNameChanged') {
       let participant = this.retrieveParticipant(ev.value.participantSid);
-      let oldName = participant.name;
       participant.info.name = ev.value.name;
-      this.emit(RoomEvent.ParticipantNameChanged, participant, oldName, participant.name);
+      this.emit(RoomEvent.ParticipantNameChanged, participant.name, participant);
     } else if (ev.case == 'connectionQualityChanged') {
       let participant = this.retrieveParticipant(ev.value.participantSid);
-      this.emit(RoomEvent.ConnectionQualityChanged, participant, ev.value.quality);
+      this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
     } else if (ev.case == 'dataReceived') {
       // Can be undefined if the data is sent from a Server SDK
       let participant = this.getRemoteParticipantBySid(ev.value.participantSid);
       let info = ev.value.data;
       let buffer = FfiClient.instance.copyBuffer(info.data.dataPtr, Number(info.data.dataLen));
       new FfiHandle(info.handle.id).dispose();
-      this.emit(RoomEvent.DataReceived, buffer, ev.value.kind, participant);
+      this.emit(RoomEvent.DataReceived, buffer, participant, ev.value.kind, ev.value.topic);
     } else if (ev.case == 'e2eeStateChanged') {
-      let participant = this.retrieveParticipant(ev.value.participantSid);
-      this.emit(RoomEvent.E2EEStateChanged, participant, ev.value.state);
+      if (ev.value.state == EncryptionState.INTERNAL_ERROR) {
+        // throw generic error until Rust SDK is updated to supply the error alongside INTERNAL_ERROR
+        this.emit(RoomEvent.EncryptionError, new Error('internal server error'));
+      }
     } else if (ev.case == 'connectionStateChanged') {
       this.connectionState = ev.value.state;
-      this.emit(RoomEvent.ConenctionStateChanged, this.connectionState);
+      this.emit(RoomEvent.ConnectionStateChanged, this.connectionState);
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {
@@ -311,8 +305,11 @@ export class ConnectError extends Error {
 export type RoomCallbacks = {
   participantConnected: (participant: RemoteParticipant) => void;
   participantDisconnected: (participant: RemoteParticipant) => void;
-  localTrackPublished: (publication: LocalTrackPublication, track: LocalTrack) => void;
-  localTrackUnpublished: (publication: LocalTrackPublication) => void;
+  localTrackPublished: (publication: LocalTrackPublication, participant: LocalParticipant) => void;
+  localTrackUnpublished: (
+    publication: LocalTrackPublication,
+    participant: LocalParticipant,
+  ) => void;
   trackPublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackUnpublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackSubscribed: (
@@ -326,26 +323,27 @@ export type RoomCallbacks = {
     participant: RemoteParticipant,
   ) => void;
   trackSubscriptionFailed: (
+    trackSid: string,
     participant: RemoteParticipant,
-    publicationSid: string,
-    error: string,
+    reason?: string,
   ) => void;
-  trackMuted: (participant: Participant, publication: TrackPublication) => void;
-  trackUnmuted: (participant: Participant, publication: TrackPublication) => void;
-  activeSpeakersChanged: (speakers: RemoteParticipant[]) => void;
-  roomMetadataChanged: (oldMetadata: string, metadata: string) => void;
-  participantMetadataChanged: (
-    participant: Participant,
-    oldMetadata: string,
-    metadata: string,
+  trackMuted: (publication: TrackPublication, participant: Participant) => void;
+  trackUnmuted: (publication: TrackPublication, participant: Participant) => void;
+  activeSpeakersChanged: (speakers: Participant[]) => void;
+  roomMetadataChanged: (metadata: string) => void;
+  participantMetadataChanged: (metadata: string | undefined, participant: Participant) => void;
+  participantNameChanged: (name: string, participant: Participant) => void;
+  connectionQualityChanged: (quality: ConnectionQuality, participant: Participant) => void;
+  dataReceived: (
+    payload: Uint8Array,
+    participant?: RemoteParticipant,
+    kind?: DataPacketKind,
+    topic?: string,
   ) => void;
-  participantNameChanged: (participant: Participant, oldName: string, name: string) => void;
-  connectionQualityChanged: (participant: Participant, quality: ConnectionQuality) => void;
-  dataReceived: (data: Uint8Array, kind: DataPacketKind, participant?: RemoteParticipant) => void;
-  e2eeStateChanged: (participant: Participant, state: EncryptionState) => void;
+  encryptionError: (error: Error) => void;
   connectionStateChanged: (state: ConnectionState) => void;
   connected: () => void;
-  disconnected: () => void;
+  disconnected: (reason?: string) => void;
   reconnecting: () => void;
   reconnected: () => void;
 };
@@ -368,8 +366,8 @@ export enum RoomEvent {
   ParticipantNameChanged = 'participantNameChanged',
   ConnectionQualityChanged = 'connectionQualityChanged',
   DataReceived = 'dataReceived',
-  E2EEStateChanged = 'e2eeStateChanged',
-  ConenctionStateChanged = 'connectionStateChanged',
+  EncryptionError = 'encryptionError',
+  ConnectionStateChanged = 'connectionStateChanged',
   Connected = 'connected',
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',

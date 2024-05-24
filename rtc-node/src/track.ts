@@ -1,20 +1,18 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { AudioSource } from './audio_source.js';
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
-import {
-  CreateAudioTrackRequest,
+import type { AudioSource } from './audio_source.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
+import type {
   CreateAudioTrackResponse,
-  CreateVideoTrackRequest,
   CreateVideoTrackResponse,
   OwnedTrack,
   StreamState,
   TrackInfo,
   TrackKind,
 } from './proto/track_pb.js';
-import { VideoSource } from './video_source.js';
+import { CreateAudioTrackRequest, CreateVideoTrackRequest } from './proto/track_pb.js';
+import type { VideoSource } from './video_source.js';
 
 export abstract class Track {
   /** @internal */
@@ -55,12 +53,12 @@ export class LocalAudioTrack extends Track {
   }
 
   static createAudioTrack(name: string, source: AudioSource): LocalAudioTrack {
-    let req = new CreateAudioTrackRequest({
+    const req = new CreateAudioTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });
 
-    let res = FfiClient.instance.request<CreateAudioTrackResponse>({
+    const res = FfiClient.instance.request<CreateAudioTrackResponse>({
       message: { case: 'createAudioTrack', value: req },
     });
 
@@ -74,12 +72,12 @@ export class LocalVideoTrack extends Track {
   }
 
   static createVideoTrack(name: string, source: VideoSource): LocalVideoTrack {
-    let req = new CreateVideoTrackRequest({
+    const req = new CreateVideoTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });
 
-    let res = FfiClient.instance.request<CreateVideoTrackResponse>({
+    const res = FfiClient.instance.request<CreateVideoTrackResponse>({
       message: { case: 'createVideoTrack', value: req },
     });
 

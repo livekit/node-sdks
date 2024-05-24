@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { FfiClient, FfiRequest } from './ffi_client.js';
+import { FfiClient } from './ffi_client.js';
 import { FfiHandle } from './napi/native.js';
-import { EncryptionType } from './proto/e2ee_pb.js';
-import { SetSubscribedRequest, SetSubscribedResponse } from './proto/room_pb.js';
-import {
+import type { EncryptionType } from './proto/e2ee_pb.js';
+import type { SetSubscribedResponse } from './proto/room_pb.js';
+import { SetSubscribedRequest } from './proto/room_pb.js';
+import type {
   OwnedTrackPublication,
   TrackKind,
   TrackPublicationInfo,
   TrackSource,
 } from './proto/track_pb.js';
-import { Track } from './track.js';
+import type { Track } from './track.js';
 
 export abstract class TrackPublication {
   /** @internal */
@@ -82,7 +82,7 @@ export class RemoteTrackPublication extends TrackPublication {
   }
 
   setSubscribed(subscribed: boolean) {
-    let req = new SetSubscribedRequest({
+    const req = new SetSubscribedRequest({
       subscribe: subscribed,
       publicationHandle: this.ffiHandle.handle,
     });

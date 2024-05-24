@@ -1,14 +1,12 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
+import { FfiClient, FfiRequest } from './ffi_client.js';
+import type { OwnedVideoBuffer, VideoConvertResponse } from './proto/video_frame_pb.js';
 import {
-  OwnedVideoBuffer,
   VideoBufferInfo,
   VideoBufferInfo_ComponentInfo,
   VideoBufferType,
-  VideoConvertResponse,
 } from './proto/video_frame_pb.js';
 
 export class VideoFrame {
@@ -17,12 +15,7 @@ export class VideoFrame {
   height: number;
   type: VideoBufferType;
 
-  constructor(
-    data: Uint8Array,
-    width: number,
-    height: number,
-    type: VideoBufferType,
-  ) {
+  constructor(data: Uint8Array, width: number, height: number, type: VideoBufferType) {
     this.data = data;
     this.width = width;
     this.height = height;
@@ -31,7 +24,7 @@ export class VideoFrame {
 
   /** @internal */
   get dataPtr(): bigint {
-    return FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer))
+    return FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer));
   }
 
   /** @internal */
@@ -60,7 +53,7 @@ export class VideoFrame {
 
   /** @internal */
   static fromOwnedInfo(owned: OwnedVideoBuffer): VideoFrame {
-    let info = owned.info;
+    const info = owned.info;
     return new VideoFrame(
       FfiClient.instance.copyBuffer(
         info.dataPtr,
@@ -73,7 +66,7 @@ export class VideoFrame {
   }
 
   getPlane(planeNth: number): Uint8Array | void {
-    const planeInfos = getPlaneInfos(this.dataPtr, this.type, this.width, this.height)
+    const planeInfos = getPlaneInfos(this.dataPtr, this.type, this.width, this.height);
     if (planeNth >= planeInfos.length) return;
 
     const planeInfo = planeInfos[planeNth];
@@ -91,12 +84,12 @@ export class VideoFrame {
         },
       },
     });
-    const resp = FfiClient.instance.request<VideoConvertResponse>(req)
+    const resp = FfiClient.instance.request<VideoConvertResponse>(req);
     if (resp.error) {
-      throw resp.error
+      throw resp.error;
     }
 
-    return VideoFrame.fromOwnedInfo(resp.buffer)
+    return VideoFrame.fromOwnedInfo(resp.buffer);
   }
 }
 

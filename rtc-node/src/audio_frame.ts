@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import { AudioFrameBufferInfo, OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
+import type { OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
+import { AudioFrameBufferInfo } from './proto/audio_frame_pb.js';
 
 export class AudioFrame {
   data: Uint16Array;
@@ -25,9 +25,9 @@ export class AudioFrame {
 
   /** @internal */
   static fromOwnedInfo(owned: OwnedAudioFrameBuffer): AudioFrame {
-    let info = owned.info;
-    let len = info.numChannels * info.samplesPerChannel * 2; // c_int16
-    let data = FfiClient.instance.copyBuffer(info.dataPtr, len);
+    const info = owned.info;
+    const len = info.numChannels * info.samplesPerChannel * 2; // c_int16
+    const data = FfiClient.instance.copyBuffer(info.dataPtr, len);
     new FfiHandle(owned.handle.id).dispose();
     return new AudioFrame(
       new Uint16Array(data.buffer),

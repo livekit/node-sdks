@@ -15,9 +15,7 @@ export {
   RemoteVideoTrack,
   AudioTrack,
 } from './track.js';
-export {
-  VideoFrame,
-} from './video_frame.js';
+export { VideoFrame } from './video_frame.js';
 export { AudioFrame } from './audio_frame.js';
 export { AudioStream, AudioFrameEvent } from './audio_stream.js';
 export { VideoStream, VideoFrameEvent } from './video_stream.js';

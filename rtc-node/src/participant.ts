@@ -1,34 +1,32 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { FfiClient, FfiClientEvent, FfiHandle, FfiRequest } from './ffi_client.js';
-import { ParticipantInfo, OwnedParticipant } from './proto/participant_pb.js';
-import {
-  DataPacketKind,
+import { FfiClient, FfiHandle } from './ffi_client.js';
+import type { OwnedParticipant, ParticipantInfo } from './proto/participant_pb.js';
+import type {
   PublishDataCallback,
-  PublishDataRequest,
   PublishDataResponse,
   PublishTrackCallback,
-  PublishTrackRequest,
   PublishTrackResponse,
   TrackPublishOptions,
   UnpublishTrackCallback,
-  UnpublishTrackRequest,
   UnpublishTrackResponse,
   UpdateLocalMetadataCallback,
-  UpdateLocalMetadataRequest,
   UpdateLocalMetadataResponse,
   UpdateLocalNameCallback,
-  UpdateLocalNameRequest,
   UpdateLocalNameResponse,
 } from './proto/room_pb.js';
 import {
-  LocalTrackPublication,
-  RemoteTrackPublication,
-  TrackPublication,
-} from './track_publication.js';
-import { LocalTrack } from './track.js';
+  DataPacketKind,
+  PublishDataRequest,
+  PublishTrackRequest,
+  UnpublishTrackRequest,
+  UpdateLocalMetadataRequest,
+  UpdateLocalNameRequest,
+} from './proto/room_pb.js';
+import type { LocalTrack } from './track.js';
+import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
+import { LocalTrackPublication } from './track_publication.js';
 
 export abstract class Participant {
   /** @internal */
@@ -81,7 +79,7 @@ export class LocalParticipant extends Participant {
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
-    let req = new PublishDataRequest({
+    const req = new PublishDataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
@@ -97,11 +95,11 @@ export class LocalParticipant extends Participant {
       req.destinationSids = sids;
     }
 
-    let res = FfiClient.instance.request<PublishDataResponse>({
+    const res = FfiClient.instance.request<PublishDataResponse>({
       message: { case: 'publishData', value: req },
     });
 
-    let cb = await FfiClient.instance.waitFor<PublishDataCallback>((ev) => {
+    const cb = await FfiClient.instance.waitFor<PublishDataCallback>((ev) => {
       return ev.message.case == 'publishData' && ev.message.value.asyncId == res.asyncId;
     });
 
@@ -111,12 +109,12 @@ export class LocalParticipant extends Participant {
   }
 
   async updateMetadata(metadata: string) {
-    let req = new UpdateLocalMetadataRequest({
+    const req = new UpdateLocalMetadataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       metadata: metadata,
     });
 
-    let res = FfiClient.instance.request<UpdateLocalMetadataResponse>({
+    const res = FfiClient.instance.request<UpdateLocalMetadataResponse>({
       message: { case: 'updateLocalMetadata', value: req },
     });
 
@@ -126,12 +124,12 @@ export class LocalParticipant extends Participant {
   }
 
   async updateName(name: string) {
-    let req = new UpdateLocalNameRequest({
+    const req = new UpdateLocalNameRequest({
       localParticipantHandle: this.ffi_handle.handle,
       name: name,
     });
 
-    let res = FfiClient.instance.request<UpdateLocalNameResponse>({
+    const res = FfiClient.instance.request<UpdateLocalNameResponse>({
       message: { case: 'updateLocalName', value: req },
     });
 
@@ -144,21 +142,21 @@ export class LocalParticipant extends Participant {
     track: LocalTrack,
     options: TrackPublishOptions,
   ): Promise<LocalTrackPublication> {
-    let req = new PublishTrackRequest({
+    const req = new PublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackHandle: track.ffi_handle.handle,
       options: options,
     });
 
-    let res = FfiClient.instance.request<PublishTrackResponse>({
+    const res = FfiClient.instance.request<PublishTrackResponse>({
       message: { case: 'publishTrack', value: req },
     });
 
-    let cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
+    const cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    let track_publication = new LocalTrackPublication(cb.publication);
+    const track_publication = new LocalTrackPublication(cb.publication);
     track_publication.track = track;
     this.trackPublications.set(track_publication.sid, track_publication);
 
@@ -166,12 +164,12 @@ export class LocalParticipant extends Participant {
   }
 
   async unpublishTrack(trackSid: string) {
-    let req = new UnpublishTrackRequest({
+    const req = new UnpublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackSid: trackSid,
     });
 
-    let res = FfiClient.instance.request<UnpublishTrackResponse>({
+    const res = FfiClient.instance.request<UnpublishTrackResponse>({
       message: { case: 'unpublishTrack', value: req },
     });
 
@@ -179,7 +177,7 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    let pub = this.trackPublications.get(trackSid);
+    const pub = this.trackPublications.get(trackSid);
     pub.track = undefined;
     this.trackPublications.delete(trackSid);
   }

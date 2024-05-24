@@ -1,24 +1,25 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { FfiClient, FfiRequest } from './ffi_client.js';
-import {
+import { FfiClient } from './ffi_client.js';
+import type {
   E2eeManagerGetFrameCryptorsResponse,
+  E2eeResponse,
+  GetKeyResponse,
+  GetSharedKeyResponse,
+  RatchetKeyResponse,
+  RatchetSharedKeyResponse,
+} from './proto/e2ee_pb.js';
+import {
   E2eeManagerSetEnabledRequest,
   E2eeRequest,
-  E2eeResponse,
   EncryptionType,
   FrameCryptorSetEnabledRequest,
   FrameCryptorSetKeyIndexRequest,
   GetKeyRequest,
-  GetKeyResponse,
   GetSharedKeyRequest,
-  GetSharedKeyResponse,
   RatchetKeyRequest,
-  RatchetKeyResponse,
   RatchetSharedKeyRequest,
-  RatchetSharedKeyResponse,
   SetKeyRequest,
   SetSharedKeyRequest,
 } from './proto/e2ee_pb.js';
@@ -61,7 +62,7 @@ export class KeyProvider {
   }
 
   setSharedKey(sharedKey: Uint8Array, keyIndex: number) {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'setSharedKey',
@@ -81,7 +82,7 @@ export class KeyProvider {
   }
 
   exportSharedKey(keyIndex: number): Uint8Array {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'getSharedKey',
@@ -91,7 +92,7 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>({
+    const res = FfiClient.instance.request<E2eeResponse>({
       message: {
         case: 'e2ee',
         value: req,
@@ -102,7 +103,7 @@ export class KeyProvider {
   }
 
   ratchetSharedKey(keyIndex: number): Uint8Array {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'ratchetSharedKey',
@@ -112,7 +113,7 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>({
+    const res = FfiClient.instance.request<E2eeResponse>({
       message: {
         case: 'e2ee',
         value: req,
@@ -123,7 +124,7 @@ export class KeyProvider {
   }
 
   setKey(participantIdentity: string, keyIndex: number) {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'setKey',
@@ -143,7 +144,7 @@ export class KeyProvider {
   }
 
   exportKey(participantIdentity: string, keyIndex: number): Uint8Array {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'getKey',
@@ -154,7 +155,7 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>({
+    const res = FfiClient.instance.request<E2eeResponse>({
       message: {
         case: 'e2ee',
         value: req,
@@ -165,7 +166,7 @@ export class KeyProvider {
   }
 
   ratchetKey(participantIdentity: string, keyIndex: number): Uint8Array {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'ratchetKey',
@@ -176,7 +177,7 @@ export class KeyProvider {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>({
+    const res = FfiClient.instance.request<E2eeResponse>({
       message: {
         case: 'e2ee',
         value: req,
@@ -202,7 +203,7 @@ export class FrameCryptor {
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'cryptorSetEnabled',
@@ -223,7 +224,7 @@ export class FrameCryptor {
 
   setKeyIndex(keyIndex: number) {
     this.keyIndex = keyIndex;
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'cryptorSetKeyIndex',
@@ -264,7 +265,7 @@ export class E2EEManager {
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'managerSetEnabled',
@@ -283,7 +284,7 @@ export class E2EEManager {
   }
 
   frameCryptors(): FrameCryptor[] {
-    let req = new E2eeRequest({
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'managerGetFrameCryptors',
@@ -291,14 +292,14 @@ export class E2EEManager {
       },
     });
 
-    let res = FfiClient.instance.request<E2eeResponse>({
+    const res = FfiClient.instance.request<E2eeResponse>({
       message: {
         case: 'e2ee',
         value: req,
       },
     });
 
-    let frameCryptors = (
+    const frameCryptors = (
       res.message.value as E2eeManagerGetFrameCryptorsResponse
     ).frameCryptors.map(
       (cryptor) =>

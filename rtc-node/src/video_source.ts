@@ -1,18 +1,19 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
+import type {
+  CaptureVideoFrameResponse,
+  NewVideoSourceResponse,
+  VideoSourceInfo,
+} from './proto/video_frame_pb.js';
 import {
   CaptureVideoFrameRequest,
-  CaptureVideoFrameResponse,
   NewVideoSourceRequest,
-  NewVideoSourceResponse,
   VideoRotation,
-  VideoSourceInfo,
   VideoSourceType,
 } from './proto/video_frame_pb.js';
-import { VideoFrame } from './video_frame.js';
+import type { VideoFrame } from './video_frame.js';
 
 export class VideoSource {
   /** @internal */
@@ -27,7 +28,7 @@ export class VideoSource {
     this.width = width;
     this.height = height;
 
-    let req = new NewVideoSourceRequest({
+    const req = new NewVideoSourceRequest({
       type: VideoSourceType.VIDEO_SOURCE_NATIVE,
       resolution: {
         width: width,
@@ -35,7 +36,7 @@ export class VideoSource {
       },
     });
 
-    let res = FfiClient.instance.request<NewVideoSourceResponse>({
+    const res = FfiClient.instance.request<NewVideoSourceResponse>({
       message: {
         case: 'newVideoSource',
         value: req,
@@ -47,7 +48,7 @@ export class VideoSource {
   }
 
   captureFrame(frame: VideoFrame, timestampUs = 0n, rotation = VideoRotation.VIDEO_ROTATION_0) {
-    let req = new CaptureVideoFrameRequest({
+    const req = new CaptureVideoFrameRequest({
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),
       rotation,

@@ -1,21 +1,20 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import EventEmitter from 'events';
-import TypedEmitter from 'typed-emitter';
+import type { AudioFrame } from './audio_frame.js';
+import { FfiClient } from './ffi_client.js';
 import { FfiHandle } from './napi/native.js';
-import { AudioFrame } from './audio_frame.js';
-import {
+import type {
   AudioSourceInfo,
-  AudioSourceType,
   CaptureAudioFrameCallback,
-  CaptureAudioFrameRequest,
   CaptureAudioFrameResponse,
-  NewAudioSourceRequest,
   NewAudioSourceResponse,
 } from './proto/audio_frame_pb.js';
-import { FfiClient, FfiRequest } from './ffi_client.js';
+import {
+  AudioSourceType,
+  CaptureAudioFrameRequest,
+  NewAudioSourceRequest,
+} from './proto/audio_frame_pb.js';
 
 export class AudioSource {
   /** @internal */
@@ -30,13 +29,13 @@ export class AudioSource {
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
 
-    let req = new NewAudioSourceRequest({
+    const req = new NewAudioSourceRequest({
       type: AudioSourceType.AUDIO_SOURCE_NATIVE,
       sampleRate: sampleRate,
       numChannels: numChannels,
     });
 
-    let res = FfiClient.instance.request<NewAudioSourceResponse>({
+    const res = FfiClient.instance.request<NewAudioSourceResponse>({
       message: {
         case: 'newAudioSource',
         value: req,
@@ -48,16 +47,16 @@ export class AudioSource {
   }
 
   async captureFrame(frame: AudioFrame) {
-    let req = new CaptureAudioFrameRequest({
+    const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),
     });
 
-    let res = FfiClient.instance.request<CaptureAudioFrameResponse>({
+    const res = FfiClient.instance.request<CaptureAudioFrameResponse>({
       message: { case: 'captureAudioFrame', value: req },
     });
 
-    let cb = await FfiClient.instance.waitFor<CaptureAudioFrameCallback>((ev) => {
+    const cb = await FfiClient.instance.waitFor<CaptureAudioFrameCallback>((ev) => {
       return ev.message.case == 'captureAudioFrame' && ev.message.value.asyncId == res.asyncId;
     });
 

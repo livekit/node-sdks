@@ -4,7 +4,7 @@ Upstream-Contact: LiveKit, Inc. <https://livekit.io>
 Source: https://livekit.io
 
 # trivial files
-Files: .gitignore .gitmodules flake.lock .github/* rtc-node/.gitignore .changesets/*
+Files: .gitignore .gitmodules flake.lock .github/* rtc-node/.gitignore .changeset/*
 Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 

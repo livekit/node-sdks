@@ -1,5 +1,6 @@
 {
   "name": "@livekit/rtc-node-linux-x64-gnu",
+  "author": "LiveKit",
   "version": "0.2.0",
   "os": [
     "linux"

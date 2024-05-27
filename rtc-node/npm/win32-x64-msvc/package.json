@@ -1,5 +1,6 @@
 {
   "name": "@livekit/rtc-node-win32-x64-msvc",
+  "author": "LiveKit",
   "version": "0.2.0",
   "os": [
     "win32"

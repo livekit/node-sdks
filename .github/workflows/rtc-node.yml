@@ -133,11 +133,12 @@ jobs:
           name: bindings-${{ matrix.target }}
           path: rtc-node/src/napi/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
+
+  release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/rtc-v')
+    if: github.ref == 'refs/heads/main'
+    name: Release
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -154,24 +155,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download all artifacts
+        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: actions/download-artifact@v3
         with:
           path: rtc-node/artifacts
 
       - name: Move artifacts
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm artifacts
         working-directory: rtc-node
 
       - name: List packages
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: ls -R ./rtc-node/npm
         shell: bash
 
       - name: Publish
-        working-directory: rtc-node
-        run: |
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-          pnpm publish --access public \
-            --no-git-checks # https://github.com/pnpm/pnpm/issues/5894
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        # You can do something when a publish should happen.
+        run: pnpm ci:publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

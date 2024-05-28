@@ -14,7 +14,7 @@ Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 
 # node project files
-Files: rtc-node/.npmignore .npmrc .prettierrc .prettierignore .eslintrc *.json
+Files: rtc-node/.npmignore .prettierrc .prettierignore .eslintrc *.json
 Copyright: 2024 LiveKit, Inc.
 License: Apache-2.0
 

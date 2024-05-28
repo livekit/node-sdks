@@ -151,31 +151,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download all artifacts
-        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: actions/download-artifact@v3
         with:
           path: rtc-node/artifacts
 
       - name: Move artifacts
-        if: steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm artifacts
         working-directory: rtc-node
 
       - name: List packages
-        if: steps.changesets.outputs.hasChangesets == 'false'
         run: ls -R ./rtc-node/npm
         shell: bash
 
-      - name: Publish
-        if: steps.changesets.outputs.hasChangesets == 'false'
-        # You can do something when a publish should happen.
-        run: pnpm ci:publish
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm ci:publish
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

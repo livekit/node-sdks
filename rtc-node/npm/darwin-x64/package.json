@@ -2,6 +2,11 @@
   "name": "@livekit/rtc-node-darwin-x64",
   "author": "LiveKit",
   "version": "0.4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/livekit/node-sdks-temp.git",
+    "directory": "rtc-node/darwin-x64"
+  },
   "os": [
     "darwin"
   ],

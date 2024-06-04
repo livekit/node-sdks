@@ -92,8 +92,8 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            rtc-node/.cargo-cache
-            rtc-node/target/
+            packages/rtc-node/.cargo-cache
+            packages/rtc-node/target/
           key: ${{ matrix.target }}-cargo-${{ matrix.os }}
 
       - name: Install dependencies
@@ -110,24 +110,24 @@ jobs:
             curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
             yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
             npm install --global pnpm && pnpm install; \
-            cd rtc-node && pnpm build --target ${{ matrix.target }}"
+            cd packages/rtc-node && pnpm build --target ${{ matrix.target }}"
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}
         env:
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
-        run: cd rtc-node && pnpm build --target ${{ matrix.target }}
+        run: cd packages/rtc-node && pnpm build --target ${{ matrix.target }}
 
       - name: Build (Windows)
         if: ${{ matrix.platform == 'windows' }}
-        run: cd rtc-node && pnpm build --target ${{ matrix.target }}
+        run: cd packages/rtc-node && pnpm build --target ${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         if: github.event_name != 'pull-request'
         with:
           name: bindings-${{ matrix.target }}
-          path: rtc-node/src/napi/${{ env.APP_NAME }}.*.node
+          path: packages/rtc-node/src/napi/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
 
   release:
@@ -154,14 +154,14 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: rtc-node/artifacts
+          path: packages/rtc-node/artifacts
 
       - name: Move artifacts
         run: pnpm artifacts
         working-directory: rtc-node
 
       - name: List packages
-        run: ls -R ./rtc-node/npm
+        run: ls -R ./packages/rtc-node/npm
         shell: bash
 
       - name: Create Release Pull Request or Publish to npm

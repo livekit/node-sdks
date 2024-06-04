@@ -76,13 +76,13 @@ importers:
     dependencies:
       '@livekit/rtc-node':
         specifier: workspace:*
-        version: link:../../rtc-node
+        version: link:../../packages/rtc-node
     devDependencies:
       '@types/node':
         specifier: ^20.10.4
         version: 20.11.16
 
-  rtc-node:
+  packages/rtc-node:
     dependencies:
       '@bufbuild/protobuf':
         specifier: ^1.4.2
@@ -104,15 +104,15 @@ importers:
         specifier: ^5.2.2
         version: 5.4.5
 
-  rtc-node/npm/darwin-arm64: {}
+  packages/rtc-node/npm/darwin-arm64: {}
 
-  rtc-node/npm/darwin-x64: {}
+  packages/rtc-node/npm/darwin-x64: {}
 
-  rtc-node/npm/linux-arm64-gnu: {}
+  packages/rtc-node/npm/linux-arm64-gnu: {}
 
-  rtc-node/npm/linux-x64-gnu: {}
+  packages/rtc-node/npm/linux-x64-gnu: {}
 
-  rtc-node/npm/win32-x64-msvc: {}
+  packages/rtc-node/npm/win32-x64-msvc: {}
 
 packages:
 

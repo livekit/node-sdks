@@ -19,7 +19,7 @@ import {
   WebEgressRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
+import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'Egress';
 

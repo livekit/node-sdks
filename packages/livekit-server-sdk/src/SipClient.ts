@@ -1,22 +1,22 @@
 import {
-  SIPTrunkInfo,
-  CreateSIPTrunkRequest,
-  ListSIPTrunkRequest,
-  ListSIPTrunkResponse,
-  DeleteSIPTrunkRequest,
-  SIPDispatchRule,
-  SIPDispatchRuleInfo,
   CreateSIPDispatchRuleRequest,
+  CreateSIPParticipantRequest,
+  CreateSIPTrunkRequest,
+  DeleteSIPDispatchRuleRequest,
+  DeleteSIPTrunkRequest,
   ListSIPDispatchRuleRequest,
   ListSIPDispatchRuleResponse,
-  DeleteSIPDispatchRuleRequest,
-  SIPParticipantInfo,
+  ListSIPTrunkRequest,
+  ListSIPTrunkResponse,
+  SIPDispatchRule,
   SIPDispatchRuleDirect,
   SIPDispatchRuleIndividual,
-  CreateSIPParticipantRequest,
+  SIPDispatchRuleInfo,
+  SIPParticipantInfo,
+  SIPTrunkInfo,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { livekitPackage, Rpc, TwirpRpc } from './TwirpRPC.js';
+import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'SIP';
 
@@ -120,7 +120,7 @@ export class SipClient extends ServiceBase {
   }
 
   async listSipTrunk(): Promise<Array<SIPTrunkInfo>> {
-    let req: Partial<ListSIPTrunkRequest> = {};
+    const req: Partial<ListSIPTrunkRequest> = {};
     const data = await this.rpc.request(
       svc,
       'ListSIPTrunk',
@@ -203,7 +203,7 @@ export class SipClient extends ServiceBase {
   }
 
   async listSipDispatchRule(): Promise<Array<SIPDispatchRuleInfo>> {
-    let req: Partial<ListSIPDispatchRuleRequest> = {};
+    const req: Partial<ListSIPDispatchRuleRequest> = {};
     const data = await this.rpc.request(
       svc,
       'ListSIPDispatchRule',

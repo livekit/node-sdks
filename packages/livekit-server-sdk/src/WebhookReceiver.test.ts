@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AccessToken } from './AccessToken.js';
-import { WebhookReceiver, WebhookEvent } from './WebhookReceiver.js';
+import { WebhookEvent, WebhookReceiver } from './WebhookReceiver.js';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { TrackSource } from '@livekit/protocol';
+import { describe, expect, it } from 'vitest';
 import { ClaimGrants, VideoGrant, claimsToJwtPayload } from './grants';
 
 describe('ClaimGrants are parsed correctly', () => {

@@ -1,5 +1,5 @@
-import { JWTPayload } from 'jose';
 import { TrackSource } from '@livekit/protocol';
+import { JWTPayload } from 'jose';
 
 export function trackSourceToString(source: TrackSource) {
   switch (source) {

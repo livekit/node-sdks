@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import * as jose from 'jose';
+import { describe, expect, it } from 'vitest';
 import { AccessToken, TokenVerifier } from './AccessToken';
 import { ClaimGrants } from './grants';
 

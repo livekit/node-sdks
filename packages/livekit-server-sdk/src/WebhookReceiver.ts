@@ -1,4 +1,4 @@
-import type { BinaryReadOptions, JsonValue, JsonReadOptions } from '@bufbuild/protobuf';
+import type { BinaryReadOptions, JsonReadOptions, JsonValue } from '@bufbuild/protobuf';
 import { WebhookEvent as ProtoWebhookEvent } from '@livekit/protocol';
 import { TokenVerifier } from './AccessToken.js';
 

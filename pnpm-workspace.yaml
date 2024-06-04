@@ -1,4 +1,0 @@
-packages:
-  - 'examples/*'
-  - 'packages/*'
-  #- "packages/rtc-node/npm/*"

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import { TrackSource } from '@livekit/protocol';
 import { describe, expect, it } from 'vitest';
 import { ClaimGrants, VideoGrant, claimsToJwtPayload } from './grants';

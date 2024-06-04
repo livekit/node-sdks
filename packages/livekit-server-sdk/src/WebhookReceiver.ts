@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import type { BinaryReadOptions, JsonReadOptions, JsonValue } from '@bufbuild/protobuf';
 import { WebhookEvent as ProtoWebhookEvent } from '@livekit/protocol';
 import { TokenVerifier } from './AccessToken.js';

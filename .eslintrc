@@ -1,19 +1,27 @@
 {
-  "plugins": ["@typescript-eslint/eslint-plugin", "eslint-plugin-tsdoc"],
+  "plugins": ["react", "@typescript-eslint", "eslint-plugin-tsdoc"],
   "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
     "turbo",
-    "prettier",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended"
+    "prettier"
   ],
   "env": {
+    "browser": true,
     "node": true
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
-    "ecmaFeatures": {}
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "settings": {},
+  "settings": {
+    "react": {
+      "version": "18"
+    }
+  },
   "rules": {
     "tsdoc/syntax": "warn",
     "space-before-function-parens": 0,

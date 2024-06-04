@@ -1,0 +1,174 @@
+name: rtc-node CI
+env:
+  APP_NAME: rtc-node
+  MACOSX_DEPLOYMENT_TARGET: '10.13'
+  CARGO_TERM_COLOR: always
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - rtc-v*
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: REUSE-3.0 compliance check
+        uses: fsfe/reuse-action@v3
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint
+        run: pnpm lint
+      - name: Prettier
+        run: pnpm format:check
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-11
+            platform: macos
+            target: x86_64-apple-darwin
+            macosx_deployment_target: '10.15'
+          - os: macos-11
+            platform: macos
+            target: aarch64-apple-darwin
+            macosx_deployment_target: '11.0'
+          - os: windows-2019
+            platform: windows
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-20.04
+            platform: linux
+            target: x86_64-unknown-linux-gnu
+            build_image: quay.io/pypa/manylinux_2_28_x86_64
+          - os: buildjet-4vcpu-ubuntu-2204-arm
+            platform: linux
+            target: aarch64-unknown-linux-gnu
+            build_image: quay.io/pypa/manylinux_2_28_aarch64
+
+    name: stable - ${{ matrix.target }} - node@20
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        if: ${{ !matrix.docker }}
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            packages/rtc-node/.cargo-cache
+            packages/rtc-node/target/
+          key: ${{ matrix.target }}-cargo-${{ matrix.os }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build (Linux)
+        if: ${{ matrix.platform == 'linux' }}
+        run: |
+          docker run --rm -v $PWD:/workspace -w /workspace ${{ matrix.build_image }} bash -c "\
+            uname -a; \
+            export PATH=/root/.cargo/bin:\$PATH; \
+            yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel clang-devel -y; \
+            curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+            curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
+            yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
+            npm install --global pnpm && pnpm install; \
+            cd packages/rtc-node && pnpm build --target ${{ matrix.target }}"
+
+      - name: Build (macOS)
+        if: ${{ matrix.platform == 'macos' }}
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
+        run: cd packages/rtc-node && pnpm build --target ${{ matrix.target }}
+
+      - name: Build (Windows)
+        if: ${{ matrix.platform == 'windows' }}
+        run: cd packages/rtc-node && pnpm build --target ${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull-request'
+        with:
+          name: bindings-${{ matrix.target }}
+          path: packages/rtc-node/src/napi/${{ env.APP_NAME }}.*.node
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/rtc-node/artifacts
+
+      - name: Move artifacts
+        run: pnpm artifacts
+        working-directory: rtc-node
+
+      - name: List packages
+        run: ls -R ./packages/rtc-node/npm
+        shell: bash
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm ci:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

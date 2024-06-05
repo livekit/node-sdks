@@ -3,7 +3,7 @@
   "changelog": [
     "@livekit/changesets-changelog-github",
     {
-      "repo": "livekit/node-sdks-temp"
+      "repo": "livekit/node-sdks"
     }
   ],
   "commit": false,

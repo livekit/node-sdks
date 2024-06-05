@@ -131,3 +131,6 @@ dist
 
 # turbo
 .turbo
+
+# ts-docs
+packages/*/docs

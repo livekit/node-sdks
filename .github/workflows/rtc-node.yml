@@ -1,4 +1,4 @@
-name: rtc-node CI
+name: Test, build, release
 env:
   APP_NAME: rtc-node
   MACOSX_DEPLOYMENT_TARGET: '10.13'
@@ -12,31 +12,69 @@ on:
     tags:
       - rtc-v*
   pull_request:
+    paths:
+      - 'packages/rtc-node/**'
+    branches:
+      - main
 
 jobs:
   lint:
-    name: Lint & Format
+    name: Lint & Test
     runs-on: ubuntu-latest
+    outputs:
+      rtc_build: ${{ steps.changes.outputs.rtc_build }}
+      server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+
+      - uses: pnpm/action-setup@v2
         with:
           version: 9
-      - name: Setup node
+
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
+          cache: 'pnpm'
+
       - name: REUSE-3.0 compliance check
         uses: fsfe/reuse-action@v3
+
       - name: Install dependencies
         run: pnpm install
+
       - name: Lint
         run: pnpm lint
+
       - name: Prettier
         run: pnpm format:check
 
+      - name: Test Node env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test
+
+      - name: Test browser env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test:browser
+
+      - name: Test edge runtime env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test:edge
+
+      - uses: dorny/paths-filter@v3
+        id: paths
+        with:
+          filters: |
+            rtc-node:
+              - 'packages/rtc-node/**'
+            server-sdk:
+              - 'packages/livekit-server-sdk/**'
+
+      - name: Store change outputs
+        id: changes
+        run: |
+          echo "rtc_build=${{ steps.paths.outputs.rtc-node == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+          echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+
   build:
+    if: ${{ needs.lint.outputs.rtc_build == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +189,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build server SDK
+        run: pnpm --filter=livekit-server-sdk build
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -172,3 +213,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build Server SDK Docs
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm --filter=livekit-server-sdk build-docs
+
+      - name: S3 Upload Server SDK Docs
+        if: steps.changesets.outputs.published == 'true'
+        run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: 'us-east-1'

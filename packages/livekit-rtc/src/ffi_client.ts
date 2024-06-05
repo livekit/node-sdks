@@ -7,7 +7,6 @@ import type TypedEmitter from 'typed-emitter';
 import {
   FfiHandle,
   livekitCopyBuffer,
-  livekitDispose,
   livekitFfiRequest,
   livekitInitialize,
   livekitRetrievePtr,
@@ -56,10 +55,6 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
   retrievePtr(data: Uint8Array): bigint {
     return livekitRetrievePtr(data);
-  }
-
-  async dispose() {
-    return await livekitDispose();
   }
 
   async waitFor<T>(predicate: (ev: FfiEvent) => boolean): Promise<T> {

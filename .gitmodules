@@ -1,3 +1,3 @@
-[submodule "rtc-node/rust-sdks"]
-	path = packages/rtc-node/rust-sdks
+[submodule "livekit-rtc/rust-sdks"]
+	path = packages/livekit-rtc/rust-sdks
 	url = https://github.com/livekit/rust-sdks

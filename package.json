@@ -6,7 +6,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "turbo run build",
-    "build:rtc-node": "turbo run build --filter=@livekit/rtc-node...",
+    "build:livekit-rtc": "turbo run build --filter=@livekit/rtc-node...",
     "build:artifacts": "turbo run artifacts --filter=@livekit/rtc-node...",
     "ci:publish": "changeset publish",
     "api:check": "turbo run api:check",

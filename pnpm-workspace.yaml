@@ -1,4 +1,4 @@
 packages:
   - 'examples/*'
   - 'packages/*'
-  - 'packages/rtc-node/npm/*'
+  - 'packages/livekit-rtc/npm/*'

@@ -4,8 +4,8 @@
   "version": "0.4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/livekit/node-sdks-temp.git",
-    "directory": "rtc-node/win32-x64-msvc"
+    "url": "https://github.com/livekit/node-sdks.git",
+    "directory": "packages/livekit-rtc/win32-x64-msvc"
   },
   "os": [
     "win32"
@@ -13,9 +13,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "rtc-node.win32-x64-msvc.node",
+  "main": "livekit-rtc.win32-x64-msvc.node",
   "files": [
-    "rtc-node.win32-x64-msvc.node"
+    "livekit-rtc.win32-x64-msvc.node"
   ],
   "license": "Apache-2.0",
   "engines": {

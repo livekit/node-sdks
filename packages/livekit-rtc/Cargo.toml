@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "rtc-node"
+name = "livekit-rtc"
 version = "0.0.1"
 
 [lib]

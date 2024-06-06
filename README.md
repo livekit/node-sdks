@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
 - **Packages**:
   - [Server SDK](/packages/livekit-server-sdk/README.md)
-  - [Node real-time SDK](/packages/rtc-node/README.md)
+  - [Node real-time SDK](/packages/livekit-rtc/README.md)
 - **Examples**
   - [Webhooks HTTP (server SDK)](/examples/webhooks-http/README.md)
   - [Webhooks NextJS (server SDK)](/examples/webhooks-nextjs/README.md)

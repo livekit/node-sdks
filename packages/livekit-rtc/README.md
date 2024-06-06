@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # 📹🎙️Node.js real-time SDK for LiveKit
 
-[![npm](https://img.shields.io/npm/v/%40livekit%2Frtc-node.svg)](https://npmjs.com/package/@livekit/rtc-node)
-[![rtc-node CI](https://github.com/livekit/node-sdks/actions/workflows/rtc-node.yml/badge.svg?branch=main)](https://github.com/livekit/node-sdks/actions/workflows/rtc-node.yml)
+[![npm](https://img.shields.io/npm/v/%40livekit%2Flivekit-rtc.svg)](https://npmjs.com/package/@livekit/rtc-node)
+[![livekit-rtc CI](https://github.com/livekit/node-sdks/actions/workflows/livekit-rtc.yml/badge.svg?branch=main)](https://github.com/livekit/node-sdks/actions/workflows/livekit-rtc.yml)
 
 Use this SDK to add real-time video, audio and data features to your Node app. By connecting to a self- or cloud-hosted <a href="https://livekit.io/">LiveKit</a> server, you can quickly build applications like interactive live streaming or video calls with just a few lines of code.
 

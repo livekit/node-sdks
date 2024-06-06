@@ -4,6 +4,6 @@
 .eslintrc
 .reuse/dep5
 node_modules
-packages/rtc-node/src/napi
-packages/rtc-node/src/proto
-packages/rtc-node/target
+packages/livekit-rtc/src/napi
+packages/livekit-rtc/src/proto
+packages/livekit-rtc/target

@@ -46,7 +46,7 @@
     "node": ">= 18"
   },
   "scripts": {
-    "build:tsc": "tsc && cp -r src/napi dist/napi",
+    "build:tsc": "tsc && cp -r src/napi dist/",
     "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",

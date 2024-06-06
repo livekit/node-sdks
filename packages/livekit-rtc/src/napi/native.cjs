@@ -271,17 +271,10 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`);
 }
 
-const {
-  livekitInitialize,
-  livekitDispose,
-  livekitFfiRequest,
-  livekitRetrievePtr,
-  livekitCopyBuffer,
-  FfiHandle,
-} = nativeBinding;
+const { livekitInitialize, livekitFfiRequest, livekitRetrievePtr, livekitCopyBuffer, FfiHandle } =
+  nativeBinding;
 
 module.exports.livekitInitialize = livekitInitialize;
-module.exports.livekitDispose = livekitDispose;
 module.exports.livekitFfiRequest = livekitFfiRequest;
 module.exports.livekitRetrievePtr = livekitRetrievePtr;
 module.exports.livekitCopyBuffer = livekitCopyBuffer;

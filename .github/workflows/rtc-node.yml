@@ -1,6 +1,6 @@
 name: Test, build, release
 env:
-  APP_NAME: livekit-rtc
+  APP_NAME: rtc-node
   MACOSX_DEPLOYMENT_TARGET: '10.13'
   CARGO_TERM_COLOR: always
 
@@ -199,7 +199,7 @@ jobs:
 
       - name: Move artifacts
         run: pnpm artifacts
-        working-directory: livekit-rtc
+        working-directory: packages/livekit-rtc
 
       - name: List packages
         run: ls -R ./packages/livekit-rtc/npm

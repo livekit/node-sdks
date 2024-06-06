@@ -1,8 +1,7 @@
 {
-  "name": "basic_room",
+  "name": "example-basic-room",
   "author": "LiveKit",
   "private": "true",
-  "version": "1.0.1",
   "description": "",
   "type": "module",
   "main": "index.ts",

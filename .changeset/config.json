@@ -8,6 +8,7 @@
   ],
   "commit": false,
   "fixed": [["@livekit/rtc-node", "@livekit/rtc-node-*"]],
+  "ignore": ["example-*"],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declarationDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "vite.config.ts"],
+  "typedocOptions": {
+    "entryPoints": ["src/index.ts"],
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeExternals": true,
+    "includeVersion": true,
+    "name": "LiveKit JS Server SDK",
+    "out": "docs",
+    "theme": "default"
+  },
+  "ts-node": {
+    "esm": true
+  }
+}

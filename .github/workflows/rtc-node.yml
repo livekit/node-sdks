@@ -1,0 +1,227 @@
+name: Test, build, release
+env:
+  APP_NAME: rtc-node
+  MACOSX_DEPLOYMENT_TARGET: '10.13'
+  CARGO_TERM_COLOR: always
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - rtc-v*
+  pull_request:
+    paths:
+      - 'packages/livekit-rtc/**'
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    outputs:
+      rtc_build: ${{ steps.changes.outputs.rtc_build }}
+      server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: REUSE-3.0 compliance check
+        uses: fsfe/reuse-action@v3
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Prettier
+        run: pnpm format:check
+
+      - name: Test Node env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test
+
+      - name: Test browser env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test:browser
+
+      - name: Test edge runtime env livekit-server-sdk
+        run: pnpm --filter="livekit-server-sdk" test:edge
+
+      - uses: dorny/paths-filter@v3
+        id: paths
+        with:
+          filters: |
+            livekit-rtc:
+              - 'packages/livekit-rtc/**'
+            server-sdk:
+              - 'packages/livekit-server-sdk/**'
+
+      - name: Store change outputs
+        id: changes
+        run: |
+          echo "rtc_build=${{ steps.paths.outputs.livekit-rtc == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+          echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+
+  build:
+    if: ${{ needs.lint.outputs.rtc_build == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-11
+            platform: macos
+            target: x86_64-apple-darwin
+            macosx_deployment_target: '10.15'
+          - os: macos-11
+            platform: macos
+            target: aarch64-apple-darwin
+            macosx_deployment_target: '11.0'
+          - os: windows-2019
+            platform: windows
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-20.04
+            platform: linux
+            target: x86_64-unknown-linux-gnu
+            build_image: quay.io/pypa/manylinux_2_28_x86_64
+          - os: buildjet-4vcpu-ubuntu-2204-arm
+            platform: linux
+            target: aarch64-unknown-linux-gnu
+            build_image: quay.io/pypa/manylinux_2_28_aarch64
+
+    name: stable - ${{ matrix.target }} - node@20
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        if: ${{ !matrix.docker }}
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            packages/livekit-rtc/.cargo-cache
+            packages/livekit-rtc/target/
+          key: ${{ matrix.target }}-cargo-${{ matrix.os }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build (Linux)
+        if: ${{ matrix.platform == 'linux' }}
+        run: |
+          docker run --rm -v $PWD:/workspace -w /workspace ${{ matrix.build_image }} bash -c "\
+            uname -a; \
+            export PATH=/root/.cargo/bin:\$PATH; \
+            yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel clang-devel -y; \
+            curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+            curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
+            yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
+            npm install --global pnpm && pnpm install; \
+            cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
+
+      - name: Build (macOS)
+        if: ${{ matrix.platform == 'macos' }}
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
+        run: cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}
+
+      - name: Build (Windows)
+        if: ${{ matrix.platform == 'windows' }}
+        run: cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull-request'
+        with:
+          name: bindings-${{ matrix.target }}
+          path: packages/livekit-rtc/src/napi/${{ env.APP_NAME }}.*.node
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build server SDK
+        run: pnpm --filter=livekit-server-sdk build
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/livekit-rtc/artifacts
+
+      - name: Move artifacts
+        run: pnpm artifacts
+        working-directory: packages/livekit-rtc
+
+      - name: List packages
+        run: ls -R ./packages/livekit-rtc/npm
+        shell: bash
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm ci:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build Server SDK Docs
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm --filter=livekit-server-sdk build-docs
+
+      - name: S3 Upload Server SDK Docs
+        if: steps.changesets.outputs.published == 'true'
+        run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: 'us-east-1'

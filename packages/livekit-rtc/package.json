@@ -1,0 +1,57 @@
+{
+  "name": "@livekit/rtc-node",
+  "description": "LiveKit RTC Node",
+  "license": "Apache-2.0",
+  "author": "LiveKit",
+  "version": "0.4.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/livekit/node-sdks.git",
+    "directory": "packages/livekit-rtc"
+  },
+  "files": [
+    "dist",
+    "src",
+    "build.rs",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "napi": {
+    "name": "rtc-node",
+    "triples": {
+      "defaults": false,
+      "additional": [
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-gnu",
+        "x86_64-pc-windows-msvc"
+      ]
+    }
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.4.2",
+    "typed-emitter": "^2.1.0"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0",
+    "@types/node": "^20.9.2",
+    "typescript": "^5.2.2",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "build:tsc": "tsc && cp -r src/napi dist/napi",
+    "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
+    "artifacts": "pnpm build:tsc && napi artifacts",
+    "build:debug": "napi build --platform",
+    "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
+    "universal": "napi universal",
+    "version": "napi version"
+  }
+}

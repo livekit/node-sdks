@@ -1,8 +1,9 @@
-.github/
-dist/
-docs/
-node_modules/
-protocol/
-src/proto/
-yarn.lock
-pnpm-lock.json
+**/dist/
+.turbo
+.changeset
+.eslintrc
+.reuse/dep5
+node_modules
+packages/livekit-rtc/src/napi
+packages/livekit-rtc/src/proto
+packages/livekit-rtc/target

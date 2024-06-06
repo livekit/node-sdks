@@ -5,7 +5,7 @@ const nextConfig = {
   serverRuntimeConfig: {
     livekitApiKey: 'your-api-key',
     livekitApiSecret: 'your-api-secret',
-  }
-}
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,0 +1,21 @@
+{
+  "name": "basic_room",
+  "author": "LiveKit",
+  "private": "true",
+  "version": "1.0.1",
+  "description": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --incremental",
+    "lint": "eslint -f unix \"**/*.ts\""
+  },
+  "keywords": [],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@livekit/rtc-node": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4"
+  }
+}

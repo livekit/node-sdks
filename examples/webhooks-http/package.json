@@ -7,6 +7,6 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "livekit-server-sdk": "^1.0.2"
+    "livekit-server-sdk": "workspace:*"
   }
 }

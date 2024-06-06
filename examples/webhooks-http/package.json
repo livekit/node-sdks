@@ -1,6 +1,5 @@
 {
-  "name": "webhooks-http",
-  "version": "1.0.0",
+  "name": "example-webhooks-http",
   "description": "example using livekit-server-sdk to handle webhooks with Node HTTP",
   "main": "webhook.js",
   "author": "David Zhao",

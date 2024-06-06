@@ -1,6 +1,5 @@
 {
-  "name": "webhooks-nextjs",
-  "version": "0.1.0",
+  "name": "example-webhooks-nextjs",
   "private": true,
   "scripts": {
     "dev": "next dev",

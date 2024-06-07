@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.4.1
+
+### Patch Changes
+
+- Re-hide dispose, allow ThreadsafeFunction to exit - [#187](https://github.com/livekit/node-sdks/pull/187) ([@nbsp](https://github.com/nbsp))
+
 ## 0.4.0
 
 ### Minor Changes

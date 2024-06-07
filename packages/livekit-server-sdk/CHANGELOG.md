@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.4.0
+
+### Minor Changes
+
+- Accept new SIP metadata. - [#182](https://github.com/livekit/node-sdks/pull/182) ([@dennwc](https://github.com/dennwc))
+
+### Patch Changes
+
+- Update dependency @livekit/protocol to v1.17.0 - [#185](https://github.com/livekit/node-sdks/pull/185) ([@renovate](https://github.com/apps/renovate))
+
 ## 2.3.0
 
 ### Minor Changes

@@ -12,6 +12,7 @@ on:
   pull_request:
     paths:
       - 'packages/**'
+      - 'examples/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.reuse/dep5'

@@ -23,7 +23,6 @@ Use this SDK to add real-time video, audio and data features to your Node app. B
 
 ```typescript
 import {
-  dispose,
   RemoteParticipant,
   RemoteTrack,
   RemoteTrackPublication,

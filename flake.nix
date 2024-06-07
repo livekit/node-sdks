@@ -17,7 +17,7 @@
       in {
         devShell = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            nodePackages.pnpm
+            corepack
             cargo
             rustc
             xorg.libXext

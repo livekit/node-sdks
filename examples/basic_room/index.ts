@@ -26,7 +26,7 @@ options.source = TrackSource.SOURCE_MICROPHONE;
 
 // read file into Uint16Array
 const sample = readFileSync(join(import.meta.dirname, '../speex.wav'));
-var buffer = new Uint16Array(sample.buffer);
+const buffer = new Uint16Array(sample.buffer);
 
 await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2))

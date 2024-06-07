@@ -8,6 +8,7 @@ import {
   TrackSource,
 } from '@livekit/rtc-node';
 import { AccessToken } from 'livekit-server-sdk';
+import { join } from 'node:path';
 
 // create access token from API credentials
 const token = await new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET).toJwt()
@@ -24,7 +25,7 @@ const options = new TrackPublishOptions();
 options.source = TrackSource.SOURCE_MICROPHONE;
 
 // read file into Uint16Array
-const sample = readFileSync('../speex.wav');
+const sample = readFileSync(join(import.meta.dirname, '../speex.wav'));
 var buffer = new Uint16Array(sample.buffer);
 
 await room.localParticipant.publishTrack(track, options);

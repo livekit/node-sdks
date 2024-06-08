@@ -208,15 +208,28 @@ switch (platform) {
         }
         break;
       case 'arm':
-        localFileExisted = existsSync(join(__dirname, 'rtc-node.linux-arm-gnueabihf.node'));
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./rtc-node.linux-arm-gnueabihf.node');
-          } else {
-            nativeBinding = require('@livekit/rtc-node-linux-arm-gnueabihf');
+        if (isMusl()) {
+          localFileExisted = existsSync(join(__dirname, 'rtc-node.linux-arm-musleabihf.node'));
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rtc-node.linux-arm-musleabihf.node');
+            } else {
+              nativeBinding = require('@livekit/rtc-node-linux-arm-musleabihf');
+            }
+          } catch (e) {
+            loadError = e;
           }
-        } catch (e) {
-          loadError = e;
+        } else {
+          localFileExisted = existsSync(join(__dirname, 'rtc-node.linux-arm-gnueabihf.node'));
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rtc-node.linux-arm-gnueabihf.node');
+            } else {
+              nativeBinding = require('@livekit/rtc-node-linux-arm-gnueabihf');
+            }
+          } catch (e) {
+            loadError = e;
+          }
         }
         break;
       case 'riscv64':
@@ -271,11 +284,18 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`);
 }
 
-const { livekitInitialize, livekitFfiRequest, livekitRetrievePtr, livekitCopyBuffer, FfiHandle } =
-  nativeBinding;
+const {
+  livekitInitialize,
+  livekitFfiRequest,
+  livekitRetrievePtr,
+  livekitCopyBuffer,
+  WrappedThreadsafeFunction,
+  FfiHandle,
+} = nativeBinding;
 
 module.exports.livekitInitialize = livekitInitialize;
 module.exports.livekitFfiRequest = livekitFfiRequest;
 module.exports.livekitRetrievePtr = livekitRetrievePtr;
 module.exports.livekitCopyBuffer = livekitCopyBuffer;
+module.exports.WrappedThreadsafeFunction = WrappedThreadsafeFunction;
 module.exports.FfiHandle = FfiHandle;

@@ -25,6 +25,8 @@
             libGL
             clang
             reuse
+            iconv
+            nodejs
           ];
           LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
         };

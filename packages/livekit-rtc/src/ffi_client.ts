@@ -36,7 +36,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
   constructor() {
     super();
 
-    global.tsfn = livekitInitialize((event_data: Uint8Array) => {
+    livekitInitialize((event_data: Uint8Array) => {
       const event = FfiEvent.fromBinary(event_data);
       this.emit(FfiClientEvent.FfiEvent, event);
     }, true);

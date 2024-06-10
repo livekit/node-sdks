@@ -11,5 +11,4 @@ export const {
   livekitRetrievePtr,
   livekitFfiRequest,
   FfiHandle,
-  WrappedThreadsafeFunction,
 } = native;

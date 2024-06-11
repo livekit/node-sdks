@@ -15,26 +15,15 @@
   "files": [
     "dist",
     "src",
-    "build.rs",
     "Cargo.toml",
     "Cargo.lock"
   ],
-  "napi": {
-    "binaryName": "rtc-node",
-    "targets": [
-      "aarch64-apple-darwin",
-      "x86_64-apple-darwin",
-      "aarch64-unknown-linux-gnu",
-      "x86_64-unknown-linux-gnu",
-      "x86_64-pc-windows-msvc"
-    ]
-  },
   "dependencies": {
     "@bufbuild/protobuf": "^1.4.2",
     "typed-emitter": "^2.1.0"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^3.0.0-alpha.55",
+    "@neon-rs/cli": "0.1.73",
     "@types/node": "^20.9.2",
     "typescript": "^5.2.2",
     "prettier": "^3.0.3"
@@ -44,11 +33,10 @@
   },
   "scripts": {
     "build:tsc": "tsc && cp -r src/napi dist/",
-    "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" --output-dir src/napi",
-    "artifacts": "pnpm build:tsc && napi artifacts",
-    "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
-    "universal": "napi universal",
-    "version": "napi version"
+    "cargo-build": "cargo build --message-format=json > cargo.log",
+    "postcargo-build": "neon dist < cargo.log",
+    "debug": "npm run cargo-build --",
+    "build": "pnpm run build:tsc && npm run cargo-build -- --release"
   }
 }

@@ -7,16 +7,10 @@ version = "0.0.1"
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { git = "https://github.com/napi-rs/napi-rs", rev = "3bd548d31797a78719f3c297e3df8d29824bddab", version = "3.0.0-alpha.2", features = ["napi8", "async"] }
-napi-derive = { git = "https://github.com/napi-rs/napi-rs", rev = "3bd548d31797a78719f3c297e3df8d29824bddab", version = "3.0.0-alpha.1" }
 livekit-ffi = { path = "./rust-sdks/livekit-ffi" }
+neon = { version = "1", features = ["napi-8"] }
 prost = "0.12"
 prost-types = "0.12"
-log = "0.4.20"
-tokio = { version = "1.37.0", features = ["full"] }
-
-[build-dependencies]
-napi-build = { git = "https://github.com/napi-rs/napi-rs", rev = "3bd548d31797a78719f3c297e3df8d29824bddab", version = "2.1.3" }
 
 [profile.release]
 lto = true

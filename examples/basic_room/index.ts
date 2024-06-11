@@ -27,18 +27,23 @@ const room = new Room();
 await room.connect(process.env.LIVEKIT_URL, jwt, { autoSubscribe: true, dynacast: true });
 console.log('connected to room', room);
 
+// read relevant metadata from wav file
+// this example assumes valid encoding little-endian
+const sample = readFileSync(join(import.meta.dirname, '../speex.wav'));
+const channels = sample.readUInt16LE(22);
+const sampleRate = sample.readUInt32LE(24);
+const dataSize = sample.readUInt32LE(40) / 2;
+
 // set up audio track
-const source = new AudioSource(16000, 1);
+const source = new AudioSource(sampleRate, channels);
 const track = LocalAudioTrack.createAudioTrack('audio', source);
 const options = new TrackPublishOptions();
 options.source = TrackSource.SOURCE_MICROPHONE;
 
-// read file into Uint16Array
-const sample = readFileSync(join(import.meta.dirname, '../speex.wav'));
-const buffer = new Uint16Array(sample.buffer);
-
+const buffer = new Uint16Array(sample.buffer.slice(44));
 await room.localParticipant.publishTrack(track, options);
-await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2))
+await new Promise((resolve) => setTimeout(resolve, 1000)) // wait a bit so the start doesn't cut off
+await source.captureFrame(new AudioFrame(buffer, sampleRate, channels, dataSize))
 
 await room.disconnect();
 await dispose();

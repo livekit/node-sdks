@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.4.2
+
+### Patch Changes
+
+- ffi_client: wire up livekit_dispose - [#200](https://github.com/livekit/node-sdks/pull/200) ([@nbsp](https://github.com/nbsp))
+
 ## 0.4.1
 
 ### Patch Changes

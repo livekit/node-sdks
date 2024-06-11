@@ -6,6 +6,7 @@ import {
   Room,
   TrackPublishOptions,
   TrackSource,
+  dispose,
 } from '@livekit/rtc-node';
 import { AccessToken } from 'livekit-server-sdk';
 import { join } from 'node:path';
@@ -40,3 +41,4 @@ await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2))
 
 await room.disconnect();
+await dispose();

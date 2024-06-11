@@ -16,16 +16,14 @@ use prost::Message;
 use std::sync::Arc;
 
 #[napi(ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean")]
-fn livekit_initialize(env: Env, cb: JsFunction, capture_logs: bool) {
-    let mut tsfn: ThreadsafeFunction<proto::FfiEvent, ErrorStrategy::Fatal> = cb
+fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
+    let tsfn: ThreadsafeFunction<proto::FfiEvent, ErrorStrategy::Fatal> = cb
         .create_threadsafe_function(0, |ctx: ThreadSafeCallContext<proto::FfiEvent>| {
             let data = ctx.value.encode_to_vec();
             let buf = Uint8Array::new(data);
             Ok(vec![buf])
         })
         .unwrap();
-
-    let _ = tsfn.unref(&env);
 
     FFI_SERVER.setup(server::FfiConfig {
         callback_fn: Arc::new(move |event| {
@@ -75,6 +73,11 @@ fn livekit_copy_buffer(ptr: BigInt, len: u32) -> Uint8Array {
     let (_, ptr, _) = ptr.get_u64();
     let data = unsafe { std::slice::from_raw_parts(ptr as *const u8, len as usize) };
     Uint8Array::with_data_copied(data)
+}
+
+#[napi]
+async fn livekit_dispose() {
+    FFI_SERVER.dispose().await;
 }
 
 #[napi(custom_finalize)]

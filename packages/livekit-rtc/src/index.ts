@@ -39,3 +39,4 @@ export {
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoRotation } from './proto/video_frame_pb.js';
+export { dispose } from './ffi_client.js';

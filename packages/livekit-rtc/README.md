@@ -28,6 +28,7 @@ import {
   RemoteTrackPublication,
   Room,
   RoomEvent,
+  dispose,
 } from '@livekit/rtc-node';
 
 const room = new Room();
@@ -42,6 +43,7 @@ room
 
 process.on('SIGINT', () => {
   await room.disconnect();
+  await dispose();
 });
 ```
 

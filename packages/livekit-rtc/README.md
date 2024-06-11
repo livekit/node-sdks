@@ -23,12 +23,12 @@ Use this SDK to add real-time video, audio and data features to your Node app. B
 
 ```typescript
 import {
-  dispose,
   RemoteParticipant,
   RemoteTrack,
   RemoteTrackPublication,
   Room,
   RoomEvent,
+  dispose,
 } from '@livekit/rtc-node';
 
 const room = new Room();
@@ -43,6 +43,7 @@ room
 
 process.on('SIGINT', () => {
   await room.disconnect();
+  await dispose();
 });
 ```
 

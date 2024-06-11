@@ -6,6 +6,7 @@
 import native from './native.cjs';
 
 export const {
+  livekitDispose,
   livekitInitialize,
   livekitCopyBuffer,
   livekitRetrievePtr,

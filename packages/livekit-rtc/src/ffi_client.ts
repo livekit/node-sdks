@@ -7,13 +7,14 @@ import type TypedEmitter from 'typed-emitter';
 import {
   FfiHandle,
   livekitCopyBuffer,
+  livekitDispose,
   livekitFfiRequest,
   livekitInitialize,
   livekitRetrievePtr,
 } from './napi/native.js';
 import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
 
-export { FfiHandle, FfiEvent, FfiResponse, FfiRequest };
+export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
 
 export type FfiClientCallbacks = {
   ffi_event: (event: FfiEvent) => void;

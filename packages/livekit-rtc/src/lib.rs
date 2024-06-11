@@ -71,7 +71,7 @@ pub struct FfiHandle {
 }
 
 impl FfiHandle {
-    pub fn new(mut cx: FunctionContext) -> JsResult<JsBox<Self>> {
+    fn new(mut cx: FunctionContext) -> JsResult<JsBox<Self>> {
         let handle = cx.argument::<JsBigInt>(0)?.to_u64(&mut cx).unwrap();
         Ok(cx.boxed(Self {
             handle,
@@ -79,22 +79,29 @@ impl FfiHandle {
         }))
     }
 
-    pub fn dispose(&mut self) {
-        if !self.disposed {
-            self.disposed = true;
-            FFI_SERVER.drop_handle(self.handle);
+    fn dispose(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+        let this = cx.this::<JsBox<FfiHandle>>()?;
+        if !this.disposed {
+            let bool = cx.boolean(true);
+            this.set(&mut cx, "disposed", bool)?;
+            FFI_SERVER.drop_handle(this.handle);
         }
+        Ok(cx.undefined())
     }
 
-    pub fn handle(self, mut cx: FunctionContext) -> JsResult<JsBigInt> {
-        let handle = self.handle.clone();
+    pub fn handle(mut cx: FunctionContext) -> JsResult<JsBigInt> {
+        let this = cx.this::<JsBox<FfiHandle>>()?;
+        let handle = this.handle.clone();
         Ok(JsBigInt::from_u64(&mut cx, handle))
     }
 }
 
 impl Finalize for FfiHandle {
     fn finalize<'a, C: Context<'a>>(mut self, cx: &mut C) {
-        self.dispose();
+        if !self.disposed {
+            self.disposed = true;
+            FFI_SERVER.drop_handle(self.handle);
+        }
     }
 }
 
@@ -104,5 +111,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("livekitFfiRequest", livekit_ffi_request)?;
     cx.export_function("livekitRetrievePtr", livekit_retrieve_ptr)?;
     cx.export_function("livekitCopyBuffer", livekit_copy_buffer)?;
+    cx.export_function("ffiHandleNew", FfiHandle::new)?;
+    cx.export_function("ffiHandleDispose", FfiHandle::dispose)?;
+    cx.export_function("ffiHandleHandle", FfiHandle::handle)?;
     Ok(())
 }

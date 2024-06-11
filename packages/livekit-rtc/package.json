@@ -36,7 +36,7 @@
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
     "cargo-build": "cargo build --message-format=json > cargo.log",
     "postcargo-build": "neon dist < cargo.log",
-    "debug": "npm run cargo-build --",
-    "build": "pnpm run build:tsc && npm run cargo-build -- --release"
+    "debug": "pnpm run cargo-build --",
+    "build": "pnpm run cargo-build --release && pnpm run build:tsc"
   }
 }

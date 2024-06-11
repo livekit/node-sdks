@@ -3,43 +3,56 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use livekit_ffi::{proto, server, FFI_SERVER};
-use neon::{prelude::*, types::{*, buffer::TypedArray}};
+use neon::{
+    prelude::*,
+    types::{buffer::TypedArray, *},
+};
 use prost::Message;
 use std::sync::Arc;
 
 fn livekit_initialize(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let cb = cx.argument::<JsFunction>(0)?.root(&mut cx);
+    let event_callback = Arc::new(cx.argument::<JsFunction>(0)?.root(&mut cx));
     let capture_logs = cx.argument::<JsBoolean>(1)?.value(&mut cx);
-    let channel = cx.channel();
+    let mut channel = cx.channel();
+    channel.unref(&mut cx);
 
-    std::thread::spawn(move || {
-        FFI_SERVER.setup(server::FfiConfig {
-            callback_fn: Arc::new(move |event| {
-                // TODO(nbsp): blehhhh fix this
-                // let event = event.encode_to_vec().as_slice().as_ref().clone();
-                // let event = JsUint8Array::from_slice(&mut cx, event).unwrap();
-                channel.send(move |mut cx| {
-                    // let cb = cb.into_inner(&mut cx);
-                    // cb.call_with(&mut cx).arg(event);
-                    Ok(())
-                });
-            }),
-            capture_logs
-        })
+    FFI_SERVER.setup(server::FfiConfig {
+        callback_fn: Arc::new(move |event| {
+            let event_callback = event_callback.clone();
+            let _ = channel.send(move |mut cx| {
+                let encoded_event = event.encode_to_vec();
+                let js_event = JsUint8Array::from_slice(&mut cx, &encoded_event)?;
+                let event_callback = event_callback.to_inner(&mut cx);
+
+                let this = cx.undefined();
+                event_callback.call(&mut cx, this, vec![js_event.upcast()])?;
+
+                Ok(())
+            });
+        }),
+        capture_logs,
     });
 
     Ok(cx.undefined())
 }
 
 fn livekit_ffi_request(mut cx: FunctionContext) -> JsResult<JsUint8Array> {
-    let data = cx.argument::<JsUint8Array>(0)?.root(&mut cx).into_inner(&mut cx);
+    let data = cx
+        .argument::<JsUint8Array>(0)?
+        .root(&mut cx)
+        .into_inner(&mut cx);
     let res = proto::FfiRequest::decode(data.as_slice(&mut cx)).unwrap();
-    let res = server::requests::handle_request(&FFI_SERVER, res).unwrap().encode_to_vec();
+    let res = server::requests::handle_request(&FFI_SERVER, res)
+        .unwrap()
+        .encode_to_vec();
     Ok(JsUint8Array::from_slice(&mut cx, &res)?)
 }
 
 fn livekit_retrieve_ptr(mut cx: FunctionContext) -> JsResult<JsBigInt> {
-    let handle = cx.argument::<JsUint8Array>(0)?.root(&mut cx).into_inner(&mut cx);
+    let handle = cx
+        .argument::<JsUint8Array>(0)?
+        .root(&mut cx)
+        .into_inner(&mut cx);
     let ptr = handle.as_slice(&mut cx).as_ptr() as u64;
     Ok(JsBigInt::from_u64(&mut cx, ptr))
 }

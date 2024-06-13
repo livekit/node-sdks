@@ -37,7 +37,7 @@
     "@livekit/changesets-changelog-github": "^0.0.4",
     "@types/node": "^20.10.1",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "eslint": "^8.56.0",
+    "eslint": "^9.0.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.4.4
+
+### Patch Changes
+
+- Explicitly add native modules as optional dependencies - [#204](https://github.com/livekit/node-sdks/pull/204) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.4.3
 
 ### Patch Changes

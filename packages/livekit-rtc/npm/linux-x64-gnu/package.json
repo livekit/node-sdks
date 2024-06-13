@@ -13,9 +13,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "livekit-rtc.linux-x64-gnu.node",
+  "main": "rtc-node.linux-x64-gnu.node",
   "files": [
-    "livekit-rtc.linux-x64-gnu.node"
+    "rtc-node.linux-x64-gnu.node"
   ],
   "license": "Apache-2.0",
   "engines": {

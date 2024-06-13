@@ -13,9 +13,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "livekit-rtc.darwin-x64.node",
+  "main": "rtc-node.darwin-x64.node",
   "files": [
-    "livekit-rtc.darwin-x64.node"
+    "rtc-node.darwin-x64.node"
   ],
   "license": "Apache-2.0",
   "engines": {

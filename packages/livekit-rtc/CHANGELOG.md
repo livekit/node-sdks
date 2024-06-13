@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.4.3
+
+### Patch Changes
+
+- Fix naming of binary artifacts - [#202](https://github.com/livekit/node-sdks/pull/202) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.4.2
 
 ### Patch Changes

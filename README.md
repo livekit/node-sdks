@@ -25,12 +25,12 @@ Use this SDK to add real-time video, audio and data features to your Node app. B
 ## Monorepo Navigation
 
 - **Packages**:
-  - [Server SDK](/packages/livekit-server-sdk/README.md)
-  - [Node real-time SDK](/packages/livekit-rtc/README.md)
+  - [Server SDK](/packages/livekit-server-sdk) - to interact with server APIs.
+  - [Node realtime SDK](/packages/livekit-rtc) - to connect to LiveKit as a server-side participant, and to publish and subscribe to audio, video, and data.
 - **Examples**
   - [Webhooks HTTP (server SDK)](/examples/webhooks-http/README.md)
   - [Webhooks NextJS (server SDK)](/examples/webhooks-nextjs/README.md)
-  - [Publishing to a room (real-time SDK)](/examples/publish-wav/)
+  - [Publishing to a room (realtime SDK)](/examples/publish-wav/)
 
 <br/>
 <br/>

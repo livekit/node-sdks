@@ -75,7 +75,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)(happy-dom@14.12.0)
 
-  examples/basic_room:
+  examples/publish-wav:
     dependencies:
       '@livekit/rtc-node':
         specifier: workspace:*

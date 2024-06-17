@@ -75,7 +75,7 @@ await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2
 
 ## Examples
 
-- [`basic_room`](https://github.com/livekit/node-sdks/tree/main/examples/basic_room): connect to a room
+- [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a wave file
 
 ## Getting help / Contributing
 

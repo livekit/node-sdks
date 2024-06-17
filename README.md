@@ -30,7 +30,7 @@ Use this SDK to add real-time video, audio and data features to your Node app. B
 - **Examples**
   - [Webhooks HTTP (server SDK)](/examples/webhooks-http/README.md)
   - [Webhooks NextJS (server SDK)](/examples/webhooks-nextjs/README.md)
-  - [Basic Room (real-time SDK)](/examples/basic_room/)
+  - [Publishing to a room (real-time SDK)](/examples/publish-wav/)
 
 <br/>
 <br/>

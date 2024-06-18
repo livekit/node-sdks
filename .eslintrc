@@ -1,7 +1,6 @@
 {
-  "plugins": ["react", "@typescript-eslint", "eslint-plugin-tsdoc"],
+  "plugins": ["@typescript-eslint", "eslint-plugin-tsdoc"],
   "extends": [
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "turbo",
     "prettier"
@@ -17,11 +16,7 @@
       "jsx": true
     }
   },
-  "settings": {
-    "react": {
-      "version": "18"
-    }
-  },
+  
   "rules": {
     "tsdoc/syntax": "warn",
     "space-before-function-parens": 0,

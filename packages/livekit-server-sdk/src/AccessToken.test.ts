@@ -4,7 +4,7 @@
 import * as jose from 'jose';
 import { describe, expect, it } from 'vitest';
 import { AccessToken, TokenVerifier } from './AccessToken';
-import { ClaimGrants } from './grants';
+import type { ClaimGrants } from './grants';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';
@@ -63,7 +63,9 @@ describe('verify token is valid', () => {
   it('can decode encoded token', async () => {
     const t = new AccessToken(testApiKey, testSecret);
     t.sha256 = 'abcdefg';
+    t.kind = 'agent';
     t.addGrant({ roomCreate: true });
+    t.attributes = { foo: 'bar', live: 'kit' };
 
     const v = new TokenVerifier(testApiKey, testSecret);
     const decoded = await v.verify(await t.toJwt());
@@ -71,6 +73,8 @@ describe('verify token is valid', () => {
     expect(decoded).not.toBe(undefined);
     expect(decoded.sha256).toEqual('abcdefg');
     expect(decoded.video?.roomCreate).toBeTruthy();
+    expect(decoded.kind).toEqual('agent');
+    expect(decoded.attributes).toEqual(t.attributes);
   });
 });
 

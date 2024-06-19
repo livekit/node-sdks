@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as jose from 'jose';
-import { ClaimGrants, VideoGrant, claimsToJwtPayload } from './grants.js';
+import type { ClaimGrants, VideoGrant } from './grants.js';
+import { claimsToJwtPayload } from './grants.js';
 
 // 6 hours
 const defaultTTL = `6h`;
@@ -82,10 +83,22 @@ export class AccessToken {
 
   /**
    * Adds a video grant to this token.
-   * @param grant
+   * @param grant -
    */
   addGrant(grant: VideoGrant) {
     this.grants.video = { ...(this.grants.video ?? {}), ...grant };
+  }
+
+  get name(): string | undefined {
+    return this.grants.name;
+  }
+
+  set name(name: string) {
+    this.grants.name = name;
+  }
+
+  get metadata(): string | undefined {
+    return this.grants.metadata;
   }
 
   /**
@@ -95,8 +108,20 @@ export class AccessToken {
     this.grants.metadata = md;
   }
 
-  set name(name: string) {
-    this.grants.name = name;
+  get attributes(): Record<string, string> | undefined {
+    return this.grants.attributes;
+  }
+
+  set attributes(attrs: Record<string, string>) {
+    this.grants.attributes = attrs;
+  }
+
+  get kind(): string | undefined {
+    return this.grants.kind;
+  }
+
+  set kind(kind: string) {
+    this.grants.kind = kind;
   }
 
   get sha256(): string | undefined {

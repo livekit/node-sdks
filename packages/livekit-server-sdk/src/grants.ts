@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { TrackSource } from '@livekit/protocol';
-import { JWTPayload } from 'jose';
+import type { JWTPayload } from 'jose';
 
 export function trackSourceToString(source: TrackSource) {
   switch (source) {
@@ -83,7 +83,7 @@ export interface VideoGrant {
   /** participant is recording the room, when set, allows room to indicate it's being recorded */
   recorder?: boolean;
 
-  /** participant acts as a server side participant/bot/agent */
+  /** participant allowed to connect to LiveKit as Agent Framework worker */
   agent?: boolean;
 }
 
@@ -91,6 +91,8 @@ export interface VideoGrant {
 export interface ClaimGrants extends JWTPayload {
   name?: string;
   video?: VideoGrant;
+  kind?: string;
   metadata?: string;
+  attributes?: Record<string, string>;
   sha256?: string;
 }

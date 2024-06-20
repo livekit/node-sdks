@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataPacket_Kind, TrackInfo } from '@livekit/protocol';
+import type { DataPacket_Kind, RoomEgress, TrackInfo } from '@livekit/protocol';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -14,7 +14,6 @@ import {
   ParticipantInfo,
   ParticipantPermission,
   Room,
-  RoomEgress,
   RoomParticipantIdentity,
   SendDataRequest,
   UpdateParticipantRequest,
@@ -22,7 +21,8 @@ import {
   UpdateSubscriptionsRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import type { Rpc } from './TwirpRPC.js';
+import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 /**
  * Options for when creating a room
@@ -40,6 +40,7 @@ export interface CreateOptions {
 
   /**
    * number of seconds to keep the room open after the last participant leaves
+   * this option is helpful to give a grace period for participants to re-join
    */
   departureTimeout?: number;
 

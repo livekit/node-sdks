@@ -26,6 +26,7 @@
             libGL
             clang
             reuse
+            git-lfs
           ];
           LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
         };

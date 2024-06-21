@@ -6,12 +6,12 @@ import type { OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
 import { AudioFrameBufferInfo } from './proto/audio_frame_pb.js';
 
 export class AudioFrame {
-  data: Uint16Array;
+  data: Int16Array;
   sampleRate: number;
   channels: number;
   samplesPerChannel: number;
 
-  constructor(data: Uint16Array, sampleRate: number, channels: number, samplesPerChannel: number) {
+  constructor(data: Int16Array, sampleRate: number, channels: number, samplesPerChannel: number) {
     this.data = data;
     this.sampleRate = sampleRate;
     this.channels = channels;
@@ -19,7 +19,7 @@ export class AudioFrame {
   }
 
   static create(sampleRate: number, channels: number, samplesPerChannel: number): AudioFrame {
-    const data = new Uint16Array(channels * samplesPerChannel);
+    const data = new Int16Array(channels * samplesPerChannel);
     return new AudioFrame(data, sampleRate, channels, samplesPerChannel);
   }
 
@@ -30,7 +30,7 @@ export class AudioFrame {
     const data = FfiClient.instance.copyBuffer(info.dataPtr, len);
     new FfiHandle(owned.handle.id).dispose();
     return new AudioFrame(
-      new Uint16Array(data.buffer),
+      new Int16Array(data.buffer),
       info.sampleRate,
       info.numChannels,
       info.samplesPerChannel,

@@ -42,7 +42,7 @@ const dataSize = sample.readUInt32LE(40) / 2;
 const source = new AudioSource(sampleRate, channels);
 const track = LocalAudioTrack.createAudioTrack('audio', source);
 const options = new TrackPublishOptions();
-const buffer = new Uint16Array(sample.buffer);
+const buffer = new Int16Array(sample.buffer);
 options.source = TrackSource.SOURCE_MICROPHONE;
 await room.localParticipant.publishTrack(track, options);
 await new Promise((resolve) => setTimeout(resolve, 1000)); // wait a bit so the start doesn't cut off

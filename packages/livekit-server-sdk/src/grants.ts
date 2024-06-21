@@ -87,10 +87,19 @@ export interface VideoGrant {
   agent?: boolean;
 }
 
+export interface SIPGrant {
+  /** manage sip resources */
+  admin?: boolean;
+
+  /** make outbound calls */
+  call?: boolean;
+}
+
 /** @internal */
 export interface ClaimGrants extends JWTPayload {
   name?: string;
   video?: VideoGrant;
+  sip?: SIPGrant;
   kind?: string;
   metadata?: string;
   attributes?: Record<string, string>;

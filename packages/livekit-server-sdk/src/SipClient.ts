@@ -3,19 +3,28 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   CreateSIPDispatchRuleRequest,
+  CreateSIPInboundTrunkRequest,
+  CreateSIPOutboundTrunkRequest,
   CreateSIPParticipantRequest,
   CreateSIPTrunkRequest,
   DeleteSIPDispatchRuleRequest,
   DeleteSIPTrunkRequest,
   ListSIPDispatchRuleRequest,
   ListSIPDispatchRuleResponse,
+  ListSIPInboundTrunkRequest,
+  ListSIPInboundTrunkResponse,
+  ListSIPOutboundTrunkRequest,
+  ListSIPOutboundTrunkResponse,
   ListSIPTrunkRequest,
   ListSIPTrunkResponse,
   SIPDispatchRule,
   SIPDispatchRuleDirect,
   SIPDispatchRuleIndividual,
   SIPDispatchRuleInfo,
+  SIPInboundTrunkInfo,
+  SIPOutboundTrunkInfo,
   SIPParticipantInfo,
+  SIPTransport,
   SIPTrunkInfo,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
@@ -23,6 +32,9 @@ import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'SIP';
 
+/**
+ * @deprecated use CreateSipInboundTrunkOptions or CreateSipOutboundTrunkOptions
+ */
 export interface CreateSipTrunkOptions {
   name?: string;
   metadata?: string;
@@ -33,6 +45,19 @@ export interface CreateSipTrunkOptions {
   outbound_address?: string;
   outbound_username?: string;
   outbound_password?: string;
+}
+export interface CreateSipInboundTrunkOptions {
+  metadata?: string;
+  allowed_addresses?: string[];
+  allowed_numbers?: string[];
+  auth_username?: string;
+  auth_password?: string;
+}
+export interface CreateSipOutboundTrunkOptions {
+  metadata?: string;
+  transport: SIPTransport;
+  auth_username?: string;
+  auth_password?: string;
 }
 
 export interface SipDispatchRuleDirect {
@@ -60,6 +85,7 @@ export interface CreateSipParticipantOptions {
   participantMetadata?: string;
   dtmf?: string;
   playRingtone?: boolean;
+  hidePhoneNumber?: boolean;
 }
 
 /**
@@ -81,6 +107,7 @@ export class SipClient extends ServiceBase {
   /**
    * @param number phone number of the trunk
    * @param opts CreateSipTrunkOptions
+   * @deprecated use createSipInboundTrunk or createSipOutboundTrunk
    */
   async createSipTrunk(number: string, opts?: CreateSipTrunkOptions): Promise<SIPTrunkInfo> {
     let inboundAddresses: string[] | undefined;
@@ -118,19 +145,139 @@ export class SipClient extends ServiceBase {
       outboundPassword: outboundPassword,
     }).toJson();
 
-    const data = await this.rpc.request(svc, 'CreateSIPTrunk', req, await this.authHeader({}));
+    const data = await this.rpc.request(
+      svc,
+      'CreateSIPTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
     return SIPTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
+  /**
+   @param name human-readable name of the trunk
+   * @param numbers phone numbers of the trunk
+   * @param opts CreateSipTrunkOptions
+   */
+  async createSipInboundTrunk(
+    name: string,
+    numbers: string[],
+    opts?: CreateSipInboundTrunkOptions,
+  ): Promise<SIPInboundTrunkInfo> {
+    let allowedAddresses: string[] | undefined;
+    let allowedNumbers: string[] | undefined;
+    let authUsername: string = '';
+    let authPassword: string = '';
+    let metadata: string = '';
+
+    if (opts !== undefined) {
+      allowedAddresses = opts.allowed_addresses;
+      allowedNumbers = opts.allowed_numbers;
+      authUsername = opts.auth_username || '';
+      authPassword = opts.auth_password || '';
+      metadata = opts.metadata || '';
+    }
+
+    const req = new CreateSIPInboundTrunkRequest({
+      trunk: new SIPInboundTrunkInfo({
+        name: name,
+        numbers: numbers,
+        metadata: metadata,
+        allowedAddresses: allowedAddresses,
+        allowedNumbers: allowedNumbers,
+        authUsername: authUsername,
+        authPassword: authPassword,
+      }),
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'CreateSIPInboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+    return SIPInboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * @param name human-readable name of the trunk
+   * @param address hostname and port of the SIP server to dial
+   * @param numbers phone numbers of the trunk
+   * @param opts CreateSipTrunkOptions
+   */
+  async createSipOutboundTrunk(
+    name: string,
+    address: string,
+    numbers: string[],
+    opts?: CreateSipOutboundTrunkOptions,
+  ): Promise<SIPOutboundTrunkInfo> {
+    let authUsername: string = '';
+    let authPassword: string = '';
+    let transport: SIPTransport = SIPTransport.SIP_TRANSPORT_AUTO;
+    let metadata: string = '';
+
+    if (opts !== undefined) {
+      authUsername = opts.auth_username || '';
+      authPassword = opts.auth_password || '';
+      transport = opts.transport || SIPTransport.SIP_TRANSPORT_AUTO;
+      metadata = opts.metadata || '';
+    }
+
+    const req = new CreateSIPOutboundTrunkRequest({
+      trunk: new SIPOutboundTrunkInfo({
+        name: name,
+        address: address,
+        numbers: numbers,
+        metadata: metadata,
+        transport: transport,
+        authUsername: authUsername,
+        authPassword: authPassword,
+      }),
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'CreateSIPOutboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+    return SIPOutboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * @deprecated use listSipInboundTrunk or listSipOutboundTrunk
+   */
   async listSipTrunk(): Promise<Array<SIPTrunkInfo>> {
     const req: Partial<ListSIPTrunkRequest> = {};
     const data = await this.rpc.request(
       svc,
       'ListSIPTrunk',
       new ListSIPTrunkRequest(req).toJson(),
-      await this.authHeader({}),
+      await this.authHeader({}, { admin: true }),
     );
     return ListSIPTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
+  }
+
+  async listSipInboundTrunk(): Promise<Array<SIPInboundTrunkInfo>> {
+    const req: Partial<ListSIPInboundTrunkRequest> = {};
+    const data = await this.rpc.request(
+      svc,
+      'ListSIPInboundTrunk',
+      new ListSIPInboundTrunkRequest(req).toJson(),
+      await this.authHeader({}, { admin: true }),
+    );
+    return ListSIPInboundTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
+  }
+
+  async listSipOutboundTrunk(): Promise<Array<SIPOutboundTrunkInfo>> {
+    const req: Partial<ListSIPOutboundTrunkRequest> = {};
+    const data = await this.rpc.request(
+      svc,
+      'ListSIPOutboundTrunk',
+      new ListSIPOutboundTrunkRequest(req).toJson(),
+      await this.authHeader({}, { admin: true }),
+    );
+    return ListSIPOutboundTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
   /**
@@ -141,7 +288,7 @@ export class SipClient extends ServiceBase {
       svc,
       'DeleteSIPTrunk',
       new DeleteSIPTrunkRequest({ sipTrunkId }).toJson(),
-      await this.authHeader({}),
+      await this.authHeader({}, { admin: true }),
     );
     return SIPTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
   }
@@ -200,7 +347,7 @@ export class SipClient extends ServiceBase {
       svc,
       'CreateSIPDispatchRule',
       req,
-      await this.authHeader({}),
+      await this.authHeader({}, { admin: true }),
     );
     return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
   }
@@ -211,7 +358,7 @@ export class SipClient extends ServiceBase {
       svc,
       'ListSIPDispatchRule',
       new ListSIPDispatchRuleRequest(req).toJson(),
-      await this.authHeader({}),
+      await this.authHeader({}, { admin: true }),
     );
     return ListSIPDispatchRuleResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
@@ -224,7 +371,7 @@ export class SipClient extends ServiceBase {
       svc,
       'DeleteSIPDispatchRule',
       new DeleteSIPDispatchRuleRequest({ sipDispatchRuleId }).toJson(),
-      await this.authHeader({}),
+      await this.authHeader({}, { admin: true }),
     );
     return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
   }
@@ -246,6 +393,7 @@ export class SipClient extends ServiceBase {
     let participantMetadata: string = '';
     let dtmf: string = '';
     let playRingtone: boolean = false;
+    let hidePhoneNumber: boolean = false;
 
     if (opts !== undefined) {
       participantIdentity = opts.participantIdentity || '';
@@ -253,6 +401,7 @@ export class SipClient extends ServiceBase {
       participantMetadata = opts.participantMetadata || '';
       dtmf = opts.dtmf || '';
       playRingtone = opts.playRingtone || false;
+      hidePhoneNumber = opts.hidePhoneNumber || false;
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -264,13 +413,14 @@ export class SipClient extends ServiceBase {
       participantMetadata: participantMetadata,
       dtmf: dtmf,
       playRingtone: playRingtone,
+      hidePhoneNumber: hidePhoneNumber,
     }).toJson();
 
     const data = await this.rpc.request(
       svc,
       'CreateSIPParticipant',
       req,
-      await this.authHeader({}),
+      await this.authHeader({}, { call: true }),
     );
     return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }

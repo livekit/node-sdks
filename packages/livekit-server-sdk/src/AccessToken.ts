@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as jose from 'jose';
-import type { ClaimGrants, VideoGrant } from './grants.js';
+import type { ClaimGrants, SIPGrant, VideoGrant } from './grants.js';
 import { claimsToJwtPayload } from './grants.js';
 
 // 6 hours
@@ -87,6 +87,14 @@ export class AccessToken {
    */
   addGrant(grant: VideoGrant) {
     this.grants.video = { ...(this.grants.video ?? {}), ...grant };
+  }
+
+  /**
+   * Adds a SIP grant to this token.
+   * @param grant -
+   */
+  addSIPGrant(grant: SIPGrant) {
+    this.grants.sip = { ...(this.grants.sip ?? {}), ...grant };
   }
 
   get name(): string | undefined {

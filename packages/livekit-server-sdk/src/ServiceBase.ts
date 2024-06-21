@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AccessToken } from './AccessToken.js';
-import { VideoGrant } from './grants.js';
+import { SIPGrant, VideoGrant } from './grants.js';
 
 /**
  * Utilities to handle authentication
@@ -25,9 +25,12 @@ export default class ServiceBase {
     this.ttl = ttl || '10m';
   }
 
-  async authHeader(grant: VideoGrant): Promise<any> {
+  async authHeader(grant: VideoGrant, sip?: SIPGrant): Promise<any> {
     const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
     at.addGrant(grant);
+    if (sip) {
+      at.addSIPGrant(sip);
+    }
     return {
       Authorization: `Bearer ${await at.toJwt()}`,
     };

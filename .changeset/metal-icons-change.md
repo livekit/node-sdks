@@ -1,5 +1,4 @@
 ---
-"example-publish-wav": patch
 "@livekit/rtc-node": minor
 ---
 

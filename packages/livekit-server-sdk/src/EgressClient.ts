@@ -282,7 +282,7 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartParticipantEgress',
       req,
-      this.authHeader({ roomRecord: true }),
+      await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }

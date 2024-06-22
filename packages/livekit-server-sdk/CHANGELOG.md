@@ -1,5 +1,17 @@
 # livekit-server-sdk
 
+## 2.5.0
+
+### Minor Changes
+
+- Support new SIP Inbound/Outbound Trunks and grants. - [#219](https://github.com/livekit/node-sdks/pull/219) ([@dennwc](https://github.com/dennwc))
+
+### Patch Changes
+
+- Added kind and attributes to AccessToken generation - [#215](https://github.com/livekit/node-sdks/pull/215) ([@davidzhao](https://github.com/davidzhao))
+
+- Adds missing await to startParticipantEgress #221 - [#220](https://github.com/livekit/node-sdks/pull/220) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.4.0
 
 ### Minor Changes

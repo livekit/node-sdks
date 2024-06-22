@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.5.0
+
+### Minor Changes
+
+- livekit-rtc/audio_frame: Uint16Array -> Int16Array - [#218](https://github.com/livekit/node-sdks/pull/218) ([@nbsp](https://github.com/nbsp))
+
 ## 0.4.4
 
 ### Patch Changes

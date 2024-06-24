@@ -2,16 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from './AccessToken.js';
-export * from './EgressClient.js';
-export * from './IngressClient.js';
-export * from './SipClient.js';
-export * from './RoomServiceClient.js';
-export * from './WebhookReceiver.js';
-export * from './grants.js';
 export {
   AliOSSUpload,
+  AutoParticipantEgress,
+  AutoTrackEgress,
   AzureBlobUpload,
+  DataPacket_Kind,
   DirectFileOutput,
   EgressInfo,
   EncodedFileOutput,
@@ -20,16 +16,6 @@ export {
   EncodingOptionsPreset,
   GCPUpload,
   ImageOutput,
-  ParticipantEgressRequest,
-  RoomCompositeEgressRequest,
-  S3Upload,
-  SegmentedFileOutput,
-  SegmentedFileProtocol,
-  StreamOutput,
-  StreamProtocol,
-  TrackCompositeEgressRequest,
-  TrackEgressRequest,
-  WebEgressRequest,
   IngressAudioEncodingOptions,
   IngressAudioEncodingPreset,
   IngressAudioOptions,
@@ -39,15 +25,32 @@ export {
   IngressVideoEncodingOptions,
   IngressVideoEncodingPreset,
   IngressVideoOptions,
-  DataPacket_Kind,
+  ParticipantEgressRequest,
   ParticipantInfo,
   ParticipantInfo_State,
   ParticipantPermission,
   Room,
-  TrackInfo,
-  TrackType,
-  TrackSource,
-  SIPTrunkInfo,
+  RoomCompositeEgressRequest,
+  RoomEgress,
+  S3Upload,
   SIPDispatchRuleInfo,
   SIPParticipantInfo,
+  SIPTrunkInfo,
+  SegmentedFileOutput,
+  SegmentedFileProtocol,
+  StreamOutput,
+  StreamProtocol,
+  TrackCompositeEgressRequest,
+  TrackEgressRequest,
+  TrackInfo,
+  TrackSource,
+  TrackType,
+  WebEgressRequest,
 } from '@livekit/protocol';
+export * from './AccessToken.js';
+export * from './EgressClient.js';
+export * from './IngressClient.js';
+export * from './RoomServiceClient.js';
+export * from './SipClient.js';
+export * from './WebhookReceiver.js';
+export * from './grants.js';

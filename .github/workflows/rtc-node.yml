@@ -16,6 +16,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.reuse/dep5'
+      - '.github/workflows'
     branches:
       - main
 

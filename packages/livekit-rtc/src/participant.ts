@@ -156,6 +156,10 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+
     const track_publication = new LocalTrackPublication(cb.publication);
     track_publication.track = track;
     this.trackPublications.set(track_publication.sid, track_publication);
@@ -173,9 +177,13 @@ export class LocalParticipant extends Participant {
       message: { case: 'unpublishTrack', value: req },
     });
 
-    await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
+    const cb = await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
       return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
     });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
 
     const pub = this.trackPublications.get(trackSid);
     pub.track = undefined;

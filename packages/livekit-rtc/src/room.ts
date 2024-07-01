@@ -157,7 +157,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       },
     });
 
-    FfiClient.instance.removeAllListeners();
+    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
   }
 

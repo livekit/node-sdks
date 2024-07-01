@@ -16,6 +16,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.reuse/dep5'
+      - '.github/workflows'
     branches:
       - main
 
@@ -79,11 +80,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-11
+          - os: macos-14-large
             platform: macos
             target: x86_64-apple-darwin
             macosx_deployment_target: '10.15'
-          - os: macos-11
+          - os: macos-14
             platform: macos
             target: aarch64-apple-darwin
             macosx_deployment_target: '11.0'

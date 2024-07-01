@@ -36,6 +36,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
   constructor() {
     super();
+    this.setMaxListeners(0);
 
     livekitInitialize((event_data: Uint8Array) => {
       const event = FfiEvent.fromBinary(event_data);

@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.5.1
+
+### Patch Changes
+
+- only remove onFfiEvent from Room conn - [`b48d8aca359407a4e1e85ec350597579e2bb504a`](https://github.com/livekit/node-sdks/commit/b48d8aca359407a4e1e85ec350597579e2bb504a) ([@nbsp](https://github.com/nbsp))
+
+- livekit-rtc: remove FfiClient listener cap - [#225](https://github.com/livekit/node-sdks/pull/225) ([@nbsp](https://github.com/nbsp))
+
 ## 0.5.0
 
 ### Minor Changes

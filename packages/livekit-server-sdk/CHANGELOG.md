@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.5.1
+
+### Patch Changes
+
+- Export RoomEgress to make it possible to use AutoEgress - [#222](https://github.com/livekit/node-sdks/pull/222) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.5.0
 
 ### Minor Changes

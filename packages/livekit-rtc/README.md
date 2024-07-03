@@ -65,9 +65,12 @@ const track = LocalAudioTrack.createAudioTrack('audio', source);
 const options = new TrackPublishOptions();
 options.source = TrackSource.SOURCE_MICROPHONE;
 
-// read file into Uint16Array
+// note: if converting from Uint8Array to Int16Array, *do not* use buffer.slice!
+// it is marked unstable by Node and can cause undefined behaviour, such as massive chunks of
+// noise being added to the end.
+// it is recommended to use buffer.subarray instead.
 const sample = readFileSync(pathToFile);
-var buffer = new Uint16Array(sample.buffer);
+var buffer = new Int16Array(sample.buffer);
 
 await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2));

@@ -134,3 +134,6 @@ dist
 
 # ts-docs
 packages/*/docs
+
+# direnv
+.direnv

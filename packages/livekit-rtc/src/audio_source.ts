@@ -25,7 +25,7 @@ export class AudioSource {
   sampleRate: number;
   numChannels: number;
 
-  constructor(sampleRate: number, numChannels: number) {
+  constructor(sampleRate: number, numChannels: number, enableQueue?: boolean) {
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
 
@@ -33,6 +33,7 @@ export class AudioSource {
       type: AudioSourceType.AUDIO_SOURCE_NATIVE,
       sampleRate: sampleRate,
       numChannels: numChannels,
+      enableQueue: enableQueue,
     });
 
     const res = FfiClient.instance.request<NewAudioSourceResponse>({

@@ -8,21 +8,20 @@ import type {
   PublishDataResponse,
   PublishTrackCallback,
   PublishTrackResponse,
+  SetLocalMetadataCallback,
+  SetLocalMetadataResponse,
+  SetLocalNameCallback,
+  SetLocalNameResponse,
   TrackPublishOptions,
   UnpublishTrackCallback,
   UnpublishTrackResponse,
-  UpdateLocalMetadataCallback,
-  UpdateLocalMetadataResponse,
-  UpdateLocalNameCallback,
-  UpdateLocalNameResponse,
 } from './proto/room_pb.js';
 import {
-  DataPacketKind,
   PublishDataRequest,
   PublishTrackRequest,
+  SetLocalMetadataRequest,
+  SetLocalNameRequest,
   UnpublishTrackRequest,
-  UpdateLocalMetadataRequest,
-  UpdateLocalNameRequest,
 } from './proto/room_pb.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
@@ -68,9 +67,9 @@ export type DataPublishOptions = {
    */
   reliable?: boolean;
   /**
-   * the sids of participants who will receive the message, will be sent to every one if empty
+   * the participants who will receive the message, will be sent to every one if empty
    */
-  destination?: string[] | RemoteParticipant[];
+  destination?: RemoteParticipant[];
   /** the topic under which the message gets published */
   topic?: string;
 };
@@ -83,16 +82,15 @@ export class LocalParticipant extends Participant {
       localParticipantHandle: this.ffi_handle.handle,
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
-      kind: options.reliable ? DataPacketKind.KIND_RELIABLE : DataPacketKind.KIND_LOSSY,
+      reliable: options.reliable,
       topic: options.topic,
     });
 
     if (options.destination) {
-      const sids = options.destination.map((sid: string | RemoteParticipant) => {
-        if (typeof sid == 'string') return sid;
-        return sid.sid;
+      const participantIdentities = options.destination.map((participant: RemoteParticipant) => {
+        return participant.identity;
       });
-      req.destinationSids = sids;
+      req.destinationIdentities = participantIdentities;
     }
 
     const res = FfiClient.instance.request<PublishDataResponse>({
@@ -108,33 +106,33 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  async updateMetadata(metadata: string) {
-    const req = new UpdateLocalMetadataRequest({
+  async setMetadata(metadata: string) {
+    const req = new SetLocalMetadataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       metadata: metadata,
     });
 
-    const res = FfiClient.instance.request<UpdateLocalMetadataResponse>({
-      message: { case: 'updateLocalMetadata', value: req },
+    const res = FfiClient.instance.request<SetLocalMetadataResponse>({
+      message: { case: 'setLocalMetadata', value: req },
     });
 
-    await FfiClient.instance.waitFor<UpdateLocalMetadataCallback>((ev) => {
-      return ev.message.case == 'updateLocalMetadata' && ev.message.value.asyncId == res.asyncId;
+    await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
+      return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
   }
 
-  async updateName(name: string) {
-    const req = new UpdateLocalNameRequest({
+  async setName(name: string) {
+    const req = new SetLocalNameRequest({
       localParticipantHandle: this.ffi_handle.handle,
       name: name,
     });
 
-    const res = FfiClient.instance.request<UpdateLocalNameResponse>({
-      message: { case: 'updateLocalName', value: req },
+    const res = FfiClient.instance.request<SetLocalNameResponse>({
+      message: { case: 'setLocalName', value: req },
     });
 
-    await FfiClient.instance.waitFor<UpdateLocalNameCallback>((ev) => {
-      return ev.message.case == 'updateLocalName' && ev.message.value.asyncId == res.asyncId;
+    await FfiClient.instance.waitFor<SetLocalNameCallback>((ev) => {
+      return ev.message.case == 'setLocalName' && ev.message.value.asyncId == res.asyncId;
     });
   }
 

@@ -10,6 +10,8 @@ import type {
   PublishSipDtmfResponse,
   PublishTrackCallback,
   PublishTrackResponse,
+  SetLocalAttributesCallback,
+  SetLocalAttributesResponse,
   SetLocalMetadataCallback,
   SetLocalMetadataResponse,
   SetLocalNameCallback,
@@ -22,6 +24,7 @@ import {
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
+  SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
   UnpublishTrackRequest,
@@ -149,6 +152,21 @@ export class LocalParticipant extends Participant {
 
     await FfiClient.instance.waitFor<SetLocalNameCallback>((ev) => {
       return ev.message.case == 'setLocalName' && ev.message.value.asyncId == res.asyncId;
+    });
+  }
+
+  async setAttributes(attributes: Record<string, string>) {
+    const req = new SetLocalAttributesRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      attributes: attributes,
+    });
+
+    const res = FfiClient.instance.request<SetLocalAttributesResponse>({
+      message: { case: 'setLocalAttributes', value: req },
+    });
+
+    await FfiClient.instance.waitFor<SetLocalAttributesCallback>((ev) => {
+      return ev.message.case == 'setLocalAttributes' && ev.message.value.asyncId == res.asyncId;
     });
   }
 

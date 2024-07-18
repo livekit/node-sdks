@@ -31,6 +31,7 @@ import type { RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
+import { diffAttributes } from './utils.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -248,6 +249,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       participant.info.name = ev.value.name;
       this.emit(RoomEvent.ParticipantNameChanged, participant.name, participant);
+    } else if (ev.case == 'participantAttributesChanged') {
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
+      const changedAttributes = diffAttributes(participant.info.attributes, ev.value.attributes);
+      participant.info.attributes = ev.value.attributes;
+      this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
     } else if (ev.case == 'connectionQualityChanged') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
@@ -353,6 +359,10 @@ export type RoomCallbacks = {
   roomMetadataChanged: (metadata: string) => void;
   participantMetadataChanged: (metadata: string | undefined, participant: Participant) => void;
   participantNameChanged: (name: string, participant: Participant) => void;
+  participantAttributesChanged: (
+    changedAttributes: Record<string, string>,
+    participant: Participant,
+  ) => void;
   connectionQualityChanged: (quality: ConnectionQuality, participant: Participant) => void;
   dataReceived: (
     payload: Uint8Array,
@@ -385,6 +395,7 @@ export enum RoomEvent {
   RoomMetadataChanged = 'roomMetadataChanged',
   ParticipantMetadataChanged = 'participantMetadataChanged',
   ParticipantNameChanged = 'participantNameChanged',
+  ParticipantAttributesChanged = 'participantAttributesChanged',
   ConnectionQualityChanged = 'connectionQualityChanged',
   DataReceived = 'dataReceived',
   DtmfReceived = 'dtmfReceived',

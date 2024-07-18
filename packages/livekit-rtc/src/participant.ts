@@ -62,6 +62,10 @@ export abstract class Participant {
   get metadata(): string {
     return this.info.metadata;
   }
+
+  get attributes(): Record<string, string> {
+    return this.info.attributes;
+  }
 }
 
 export type DataPublishOptions = {

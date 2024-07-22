@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.6.0
+
+### Minor Changes
+
+- Added ability to update Participant attributes - [#242](https://github.com/livekit/node-sdks/pull/242) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.5.1
 
 ### Patch Changes

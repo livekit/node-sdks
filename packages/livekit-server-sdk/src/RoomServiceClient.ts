@@ -254,24 +254,52 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Updates a participant's state or permissions
-   * @param room
-   * @param identity
+   * @param room - target room
+   * @param identity - participant identity
    * @param options - participant fields to update
    */
   async updateParticipant(
     room: string,
     identity: string,
     options: UpdateParticipantOptions,
+  ): Promise<ParticipantInfo>;
+  /**
+   * Updates a participant's state or permissions
+   * @param room - target room
+   * @param identity - participant identity
+   * @param options - participant fields to update
+   */
+  async updateParticipant(
+    room: string,
+    identity: string,
+    metadata?: string,
+    permission?: Partial<ParticipantPermission>,
+    name?: string,
+  ): Promise<ParticipantInfo>;
+  async updateParticipant(
+    room: string,
+    identity: string,
+    metadataOrOptions?: string | UpdateParticipantOptions,
+    maybePermission?: Partial<ParticipantPermission>,
+    maybeName?: string,
   ): Promise<ParticipantInfo> {
+    const hasOptions = typeof metadataOrOptions === 'object';
+    const metadata = hasOptions ? metadataOrOptions?.metadata : metadataOrOptions;
+    const permission = hasOptions ? metadataOrOptions.permission : maybePermission;
+    const name = hasOptions ? metadataOrOptions.name : maybeName;
+    const attributes: Record<string, string> | undefined = hasOptions
+      ? metadataOrOptions.attributes
+      : {};
+
     const req = new UpdateParticipantRequest({
       room,
       identity,
-      attributes: options.attributes,
-      metadata: options.metadata ?? '',
-      name: options.name ?? '',
+      attributes,
+      metadata,
+      name,
     });
-    if (options.permission) {
-      req.permission = new ParticipantPermission(options.permission);
+    if (permission) {
+      req.permission = new ParticipantPermission(permission);
     }
     const data = await this.rpc.request(
       svc,

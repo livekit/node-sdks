@@ -90,6 +90,15 @@ export type SendDataOptions = {
   topic?: string;
 };
 
+export type UpdateParticipantOptions = {
+  /** only attributes you'd want to update should be set, set value to empty string to remove it */
+  attributes?: { [key: string]: string };
+  metadata?: string;
+  /** permissions are updated atomically - all desired permissions would need to be set */
+  permission?: Partial<ParticipantPermission>;
+  name?: string;
+};
+
 const svc = 'RoomService';
 
 /**
@@ -100,9 +109,9 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    *
-   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     super(apiKey, secret);
@@ -127,8 +136,8 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * List active rooms
-   * @param names when undefined or empty, list all rooms.
-   *              otherwise returns rooms with matching names
+   * @param names - when undefined or empty, list all rooms.
+   *                otherwise returns rooms with matching names
    * @returns
    */
   async listRooms(names?: string[]): Promise<Room[]> {
@@ -244,28 +253,25 @@ export class RoomServiceClient extends ServiceBase {
   }
 
   /**
-   * Updates a participant's metadata or permissions
+   * Updates a participant's state or permissions
    * @param room
    * @param identity
-   * @param metadata optional, metadata to update
-   * @param permission optional, new permissions to assign to participant
-   * @param name optional, new name for participant
+   * @param options - participant fields to update
    */
   async updateParticipant(
     room: string,
     identity: string,
-    metadata?: string,
-    permission?: Partial<ParticipantPermission>,
-    name?: string,
+    options: UpdateParticipantOptions,
   ): Promise<ParticipantInfo> {
     const req = new UpdateParticipantRequest({
       room,
       identity,
-      metadata: metadata || '',
-      name: name || '',
+      attributes: options.attributes,
+      metadata: options.metadata ?? '',
+      name: options.name ?? '',
     });
-    if (permission) {
-      req.permission = new ParticipantPermission(permission);
+    if (options.permission) {
+      req.permission = new ParticipantPermission(options.permission);
     }
     const data = await this.rpc.request(
       svc,

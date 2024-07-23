@@ -1,5 +1,21 @@
 # @livekit/rtc-node
 
+## 0.6.0
+
+### Minor Changes
+
+- Update rust-sdk dependency to latest - [#239](https://github.com/livekit/node-sdks/pull/239) ([@lukasIO](https://github.com/lukasIO))
+
+### Patch Changes
+
+- Add publishDtmf method on local participant - [#239](https://github.com/livekit/node-sdks/pull/239) ([@lukasIO](https://github.com/lukasIO))
+
+- doc: add warning about buffer.slice - [#232](https://github.com/livekit/node-sdks/pull/232) ([@nbsp](https://github.com/nbsp))
+
+- Add support for setting and listening to participant attribute changes - [#239](https://github.com/livekit/node-sdks/pull/239) ([@lukasIO](https://github.com/lukasIO))
+
+- Add enableQueue argument to AudioSource constructor - [#239](https://github.com/livekit/node-sdks/pull/239) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.5.1
 
 ### Patch Changes

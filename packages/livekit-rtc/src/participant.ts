@@ -112,6 +112,7 @@ export class LocalParticipant extends Participant {
 
   async publishDtmf(code: number, digit: string) {
     const req = new PublishSipDtmfRequest({
+      localParticipantHandle: this.ffi_handle.handle,
       code,
       digit,
     });

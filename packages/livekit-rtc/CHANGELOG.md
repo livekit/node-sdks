@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.6.1
+
+### Patch Changes
+
+- Update rust SDKs - [#246](https://github.com/livekit/node-sdks/pull/246) ([@lukasIO](https://github.com/lukasIO))
+
+- properly call SipDtmf FFI request - [#244](https://github.com/livekit/node-sdks/pull/244) ([@nbsp](https://github.com/nbsp))
+
 ## 0.6.0
 
 ### Minor Changes

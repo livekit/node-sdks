@@ -2379,6 +2379,12 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: DataPacketReceived;
     case: "dataPacketReceived";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TranscriptionReceived transcription_received = 28;
+     */
+    value: TranscriptionReceived;
+    case: "transcriptionReceived";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2415,6 +2421,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 25, name: "e2ee_state_changed", kind: "message", T: E2eeStateChanged, oneof: "message" },
     { no: 26, name: "eos", kind: "message", T: RoomEOS, oneof: "message" },
     { no: 27, name: "data_packet_received", kind: "message", T: DataPacketReceived, oneof: "message" },
+    { no: 28, name: "transcription_received", kind: "message", T: TranscriptionReceived, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -3198,14 +3205,14 @@ export class ParticipantAttributesChanged extends Message<ParticipantAttributesC
   participantIdentity = "";
 
   /**
-   * @generated from field: map<string, string> old_attributes = 2;
-   */
-  oldAttributes: { [key: string]: string } = {};
-
-  /**
-   * @generated from field: map<string, string> attributes = 3;
+   * @generated from field: map<string, string> attributes = 2;
    */
   attributes: { [key: string]: string } = {};
+
+  /**
+   * @generated from field: map<string, string> changed_attributes = 3;
+   */
+  changedAttributes: { [key: string]: string } = {};
 
   constructor(data?: PartialMessage<ParticipantAttributesChanged>) {
     super();
@@ -3216,8 +3223,8 @@ export class ParticipantAttributesChanged extends Message<ParticipantAttributesC
   static readonly typeName = "livekit.proto.ParticipantAttributesChanged";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "old_attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
-    { no: 3, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 2, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 3, name: "changed_attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantAttributesChanged {
@@ -3470,6 +3477,55 @@ export class DataPacketReceived extends Message<DataPacketReceived> {
 
   static equals(a: DataPacketReceived | PlainMessage<DataPacketReceived> | undefined, b: DataPacketReceived | PlainMessage<DataPacketReceived> | undefined): boolean {
     return proto3.util.equals(DataPacketReceived, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.TranscriptionReceived
+ */
+export class TranscriptionReceived extends Message<TranscriptionReceived> {
+  /**
+   * @generated from field: optional string participant_identity = 1;
+   */
+  participantIdentity?: string;
+
+  /**
+   * @generated from field: optional string track_sid = 2;
+   */
+  trackSid?: string;
+
+  /**
+   * @generated from field: repeated livekit.proto.TranscriptionSegment segments = 3;
+   */
+  segments: TranscriptionSegment[] = [];
+
+  constructor(data?: PartialMessage<TranscriptionReceived>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.TranscriptionReceived";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 2, name: "track_sid", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "segments", kind: "message", T: TranscriptionSegment, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TranscriptionReceived {
+    return new TranscriptionReceived().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TranscriptionReceived {
+    return new TranscriptionReceived().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TranscriptionReceived {
+    return new TranscriptionReceived().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TranscriptionReceived | PlainMessage<TranscriptionReceived> | undefined, b: TranscriptionReceived | PlainMessage<TranscriptionReceived> | undefined): boolean {
+    return proto3.util.equals(TranscriptionReceived, a, b);
   }
 }
 

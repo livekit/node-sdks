@@ -31,7 +31,6 @@ import type { RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import { diffAttributes } from './utils.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -251,9 +250,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.ParticipantNameChanged, participant.name, participant);
     } else if (ev.case == 'participantAttributesChanged') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
-      const changedAttributes = diffAttributes(participant.info.attributes, ev.value.attributes);
       participant.info.attributes = ev.value.attributes;
-      this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
+      if (Object.keys(ev.value.changedAttributes).length > 0) {
+        this.emit(RoomEvent.ParticipantAttributesChanged, ev.value.changedAttributes, participant);
+      }
     } else if (ev.case == 'connectionQualityChanged') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);

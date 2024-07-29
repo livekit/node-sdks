@@ -8,7 +8,7 @@ export function livekitFfiRequest(data: Uint8Array): Uint8Array;
 export function livekitRetrievePtr(handle: Uint8Array): bigint;
 export function livekitCopyBuffer(ptr: bigint, len: number): Uint8Array;
 export function livekitDispose(): Promise<void>;
-export class FfiHandle {
+export declare class FfiHandle {
   constructor(handle: bigint);
   dispose(): void;
   get handle(): bigint;

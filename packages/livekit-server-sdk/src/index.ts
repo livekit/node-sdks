@@ -10,6 +10,7 @@ export {
   DataPacket_Kind,
   DirectFileOutput,
   EgressInfo,
+  EgressStatus,
   EncodedFileOutput,
   EncodedFileType,
   EncodingOptions,

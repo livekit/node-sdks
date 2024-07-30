@@ -125,8 +125,8 @@ importers:
   packages/livekit-rtc:
     dependencies:
       '@bufbuild/protobuf':
-        specifier: ^1.4.2
-        version: 1.10.0
+        specifier: ^2.0.0
+        version: 2.0.0
       typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
@@ -183,8 +183,8 @@ importers:
         version: 5.4.0
     devDependencies:
       '@bufbuild/protobuf':
-        specifier: ^1.7.2
-        version: 1.10.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.7
@@ -289,6 +289,9 @@ packages:
 
   '@bufbuild/protobuf@1.10.0':
     resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
+
+  '@bufbuild/protobuf@2.0.0':
+    resolution: {integrity: sha512-sw2JhwJyvyL0zlhG61aDzOVryEfJg2PDZFSV7i7IdC7nAE41WuXCru3QWLGiP87At0BMzKOoKO/FqEGoKygGZQ==}
 
   '@changesets/apply-release-plan@7.0.4':
     resolution: {integrity: sha512-HLFwhKWayKinWAul0Vj+76jVx1Pc2v55MGPVjZ924Y/ROeSsBMFutv9heHmCUj48lJyRfOTJG5+ar+29FUky/A==}
@@ -2919,6 +2922,8 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@bufbuild/protobuf@1.10.0': {}
+
+  '@bufbuild/protobuf@2.0.0': {}
 
   '@changesets/apply-release-plan@7.0.4':
     dependencies:

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.6.2
+
+### Patch Changes
+
+- correctly calculate VideoFrame stride - [#253](https://github.com/livekit/node-sdks/pull/253) ([@nbsp](https://github.com/nbsp))
+
 ## 0.6.1
 
 ### Patch Changes

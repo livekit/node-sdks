@@ -42,8 +42,10 @@ export class VideoFrame {
       case VideoBufferType.ABGR:
       case VideoBufferType.BGRA:
         info.stride = this.width * 4;
+        break;
       case VideoBufferType.RGB24:
         info.stride = this.width * 3;
+        break;
     }
 
     info.components.push(...getPlaneInfos(this.dataPtr, this.type, this.width, this.height));

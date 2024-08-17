@@ -1,20 +1,22 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
+import type {
   DirectFileOutput,
-  EgressInfo,
   EncodedFileOutput,
   EncodingOptions,
   EncodingOptionsPreset,
   ImageOutput,
+  SegmentedFileOutput,
+  StreamOutput,
+} from '@livekit/protocol';
+import {
+  EgressInfo,
   ListEgressRequest,
   ListEgressResponse,
   ParticipantEgressRequest,
   RoomCompositeEgressRequest,
-  SegmentedFileOutput,
   StopEgressRequest,
-  StreamOutput,
   TrackCompositeEgressRequest,
   TrackEgressRequest,
   UpdateLayoutRequest,
@@ -22,7 +24,8 @@ import {
   WebEgressRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import type { Rpc } from './TwirpRPC.js';
+import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'Egress';
 

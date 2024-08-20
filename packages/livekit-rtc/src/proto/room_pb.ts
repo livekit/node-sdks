@@ -151,6 +151,100 @@ proto3.util.setEnumType(DataPacketKind, "livekit.proto.DataPacketKind", [
 ]);
 
 /**
+ * @generated from enum livekit.proto.DisconnectReason
+ */
+export enum DisconnectReason {
+  /**
+   * @generated from enum value: UNKNOWN_REASON = 0;
+   */
+  UNKNOWN_REASON = 0,
+
+  /**
+   * the client initiated the disconnect
+   *
+   * @generated from enum value: CLIENT_INITIATED = 1;
+   */
+  CLIENT_INITIATED = 1,
+
+  /**
+   * another participant with the same identity has joined the room
+   *
+   * @generated from enum value: DUPLICATE_IDENTITY = 2;
+   */
+  DUPLICATE_IDENTITY = 2,
+
+  /**
+   * the server instance is shutting down
+   *
+   * @generated from enum value: SERVER_SHUTDOWN = 3;
+   */
+  SERVER_SHUTDOWN = 3,
+
+  /**
+   * RoomService.RemoveParticipant was called
+   *
+   * @generated from enum value: PARTICIPANT_REMOVED = 4;
+   */
+  PARTICIPANT_REMOVED = 4,
+
+  /**
+   * RoomService.DeleteRoom was called
+   *
+   * @generated from enum value: ROOM_DELETED = 5;
+   */
+  ROOM_DELETED = 5,
+
+  /**
+   * the client is attempting to resume a session, but server is not aware of it
+   *
+   * @generated from enum value: STATE_MISMATCH = 6;
+   */
+  STATE_MISMATCH = 6,
+
+  /**
+   * client was unable to connect fully
+   *
+   * @generated from enum value: JOIN_FAILURE = 7;
+   */
+  JOIN_FAILURE = 7,
+
+  /**
+   * Cloud-only, the server requested Participant to migrate the connection elsewhere
+   *
+   * @generated from enum value: MIGRATION = 8;
+   */
+  MIGRATION = 8,
+
+  /**
+   * the signal websocket was closed unexpectedly
+   *
+   * @generated from enum value: SIGNAL_CLOSE = 9;
+   */
+  SIGNAL_CLOSE = 9,
+
+  /**
+   * the room was closed, due to all Standard and Ingress participants having left
+   *
+   * @generated from enum value: ROOM_CLOSED = 10;
+   */
+  ROOM_CLOSED = 10,
+}
+// Retrieve enum metadata with: proto3.getEnumType(DisconnectReason)
+proto3.util.setEnumType(DisconnectReason, "livekit.proto.DisconnectReason", [
+  { no: 0, name: "UNKNOWN_REASON" },
+  { no: 1, name: "CLIENT_INITIATED" },
+  { no: 2, name: "DUPLICATE_IDENTITY" },
+  { no: 3, name: "SERVER_SHUTDOWN" },
+  { no: 4, name: "PARTICIPANT_REMOVED" },
+  { no: 5, name: "ROOM_DELETED" },
+  { no: 6, name: "STATE_MISMATCH" },
+  { no: 7, name: "JOIN_FAILURE" },
+  { no: 8, name: "MIGRATION" },
+  { no: 9, name: "SIGNAL_CLOSE" },
+  { no: 10, name: "ROOM_CLOSED" },
+]);
+
+/**
  * Connect to a new LiveKit room
  *
  * @generated from message livekit.proto.ConnectRequest
@@ -1857,6 +1951,11 @@ export class TrackPublishOptions extends Message<TrackPublishOptions> {
    */
   source = TrackSource.SOURCE_UNKNOWN;
 
+  /**
+   * @generated from field: string stream = 8;
+   */
+  stream = "";
+
   constructor(data?: PartialMessage<TrackPublishOptions>) {
     super();
     proto3.util.initPartial(data, this);
@@ -1872,6 +1971,7 @@ export class TrackPublishOptions extends Message<TrackPublishOptions> {
     { no: 5, name: "red", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 6, name: "simulcast", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 7, name: "source", kind: "enum", T: proto3.getEnumType(TrackSource) },
+    { no: 8, name: "stream", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TrackPublishOptions {
@@ -2251,91 +2351,97 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "localTrackUnpublished";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackPublished track_published = 6;
+     * @generated from field: livekit.proto.LocalTrackSubscribed local_track_subscribed = 6;
+     */
+    value: LocalTrackSubscribed;
+    case: "localTrackSubscribed";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TrackPublished track_published = 7;
      */
     value: TrackPublished;
     case: "trackPublished";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackUnpublished track_unpublished = 7;
+     * @generated from field: livekit.proto.TrackUnpublished track_unpublished = 8;
      */
     value: TrackUnpublished;
     case: "trackUnpublished";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackSubscribed track_subscribed = 8;
+     * @generated from field: livekit.proto.TrackSubscribed track_subscribed = 9;
      */
     value: TrackSubscribed;
     case: "trackSubscribed";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackUnsubscribed track_unsubscribed = 9;
+     * @generated from field: livekit.proto.TrackUnsubscribed track_unsubscribed = 10;
      */
     value: TrackUnsubscribed;
     case: "trackUnsubscribed";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackSubscriptionFailed track_subscription_failed = 10;
+     * @generated from field: livekit.proto.TrackSubscriptionFailed track_subscription_failed = 11;
      */
     value: TrackSubscriptionFailed;
     case: "trackSubscriptionFailed";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackMuted track_muted = 11;
+     * @generated from field: livekit.proto.TrackMuted track_muted = 12;
      */
     value: TrackMuted;
     case: "trackMuted";
   } | {
     /**
-     * @generated from field: livekit.proto.TrackUnmuted track_unmuted = 12;
+     * @generated from field: livekit.proto.TrackUnmuted track_unmuted = 13;
      */
     value: TrackUnmuted;
     case: "trackUnmuted";
   } | {
     /**
-     * @generated from field: livekit.proto.ActiveSpeakersChanged active_speakers_changed = 13;
+     * @generated from field: livekit.proto.ActiveSpeakersChanged active_speakers_changed = 14;
      */
     value: ActiveSpeakersChanged;
     case: "activeSpeakersChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.RoomMetadataChanged room_metadata_changed = 14;
+     * @generated from field: livekit.proto.RoomMetadataChanged room_metadata_changed = 15;
      */
     value: RoomMetadataChanged;
     case: "roomMetadataChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.RoomSidChanged room_sid_changed = 15;
+     * @generated from field: livekit.proto.RoomSidChanged room_sid_changed = 16;
      */
     value: RoomSidChanged;
     case: "roomSidChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ParticipantMetadataChanged participant_metadata_changed = 16;
+     * @generated from field: livekit.proto.ParticipantMetadataChanged participant_metadata_changed = 17;
      */
     value: ParticipantMetadataChanged;
     case: "participantMetadataChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ParticipantNameChanged participant_name_changed = 17;
+     * @generated from field: livekit.proto.ParticipantNameChanged participant_name_changed = 18;
      */
     value: ParticipantNameChanged;
     case: "participantNameChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ParticipantAttributesChanged participant_attributes_changed = 18;
+     * @generated from field: livekit.proto.ParticipantAttributesChanged participant_attributes_changed = 19;
      */
     value: ParticipantAttributesChanged;
     case: "participantAttributesChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ConnectionQualityChanged connection_quality_changed = 19;
+     * @generated from field: livekit.proto.ConnectionQualityChanged connection_quality_changed = 20;
      */
     value: ConnectionQualityChanged;
     case: "connectionQualityChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ConnectionStateChanged connection_state_changed = 20;
+     * @generated from field: livekit.proto.ConnectionStateChanged connection_state_changed = 21;
      */
     value: ConnectionStateChanged;
     case: "connectionStateChanged";
@@ -2400,21 +2506,22 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 3, name: "participant_disconnected", kind: "message", T: ParticipantDisconnected, oneof: "message" },
     { no: 4, name: "local_track_published", kind: "message", T: LocalTrackPublished, oneof: "message" },
     { no: 5, name: "local_track_unpublished", kind: "message", T: LocalTrackUnpublished, oneof: "message" },
-    { no: 6, name: "track_published", kind: "message", T: TrackPublished, oneof: "message" },
-    { no: 7, name: "track_unpublished", kind: "message", T: TrackUnpublished, oneof: "message" },
-    { no: 8, name: "track_subscribed", kind: "message", T: TrackSubscribed, oneof: "message" },
-    { no: 9, name: "track_unsubscribed", kind: "message", T: TrackUnsubscribed, oneof: "message" },
-    { no: 10, name: "track_subscription_failed", kind: "message", T: TrackSubscriptionFailed, oneof: "message" },
-    { no: 11, name: "track_muted", kind: "message", T: TrackMuted, oneof: "message" },
-    { no: 12, name: "track_unmuted", kind: "message", T: TrackUnmuted, oneof: "message" },
-    { no: 13, name: "active_speakers_changed", kind: "message", T: ActiveSpeakersChanged, oneof: "message" },
-    { no: 14, name: "room_metadata_changed", kind: "message", T: RoomMetadataChanged, oneof: "message" },
-    { no: 15, name: "room_sid_changed", kind: "message", T: RoomSidChanged, oneof: "message" },
-    { no: 16, name: "participant_metadata_changed", kind: "message", T: ParticipantMetadataChanged, oneof: "message" },
-    { no: 17, name: "participant_name_changed", kind: "message", T: ParticipantNameChanged, oneof: "message" },
-    { no: 18, name: "participant_attributes_changed", kind: "message", T: ParticipantAttributesChanged, oneof: "message" },
-    { no: 19, name: "connection_quality_changed", kind: "message", T: ConnectionQualityChanged, oneof: "message" },
-    { no: 20, name: "connection_state_changed", kind: "message", T: ConnectionStateChanged, oneof: "message" },
+    { no: 6, name: "local_track_subscribed", kind: "message", T: LocalTrackSubscribed, oneof: "message" },
+    { no: 7, name: "track_published", kind: "message", T: TrackPublished, oneof: "message" },
+    { no: 8, name: "track_unpublished", kind: "message", T: TrackUnpublished, oneof: "message" },
+    { no: 9, name: "track_subscribed", kind: "message", T: TrackSubscribed, oneof: "message" },
+    { no: 10, name: "track_unsubscribed", kind: "message", T: TrackUnsubscribed, oneof: "message" },
+    { no: 11, name: "track_subscription_failed", kind: "message", T: TrackSubscriptionFailed, oneof: "message" },
+    { no: 12, name: "track_muted", kind: "message", T: TrackMuted, oneof: "message" },
+    { no: 13, name: "track_unmuted", kind: "message", T: TrackUnmuted, oneof: "message" },
+    { no: 14, name: "active_speakers_changed", kind: "message", T: ActiveSpeakersChanged, oneof: "message" },
+    { no: 15, name: "room_metadata_changed", kind: "message", T: RoomMetadataChanged, oneof: "message" },
+    { no: 16, name: "room_sid_changed", kind: "message", T: RoomSidChanged, oneof: "message" },
+    { no: 17, name: "participant_metadata_changed", kind: "message", T: ParticipantMetadataChanged, oneof: "message" },
+    { no: 18, name: "participant_name_changed", kind: "message", T: ParticipantNameChanged, oneof: "message" },
+    { no: 19, name: "participant_attributes_changed", kind: "message", T: ParticipantAttributesChanged, oneof: "message" },
+    { no: 20, name: "connection_quality_changed", kind: "message", T: ConnectionQualityChanged, oneof: "message" },
+    { no: 21, name: "connection_state_changed", kind: "message", T: ConnectionStateChanged, oneof: "message" },
     { no: 22, name: "disconnected", kind: "message", T: Disconnected, oneof: "message" },
     { no: 23, name: "reconnecting", kind: "message", T: Reconnecting, oneof: "message" },
     { no: 24, name: "reconnected", kind: "message", T: Reconnected, oneof: "message" },
@@ -2681,6 +2788,43 @@ export class LocalTrackUnpublished extends Message<LocalTrackUnpublished> {
 
   static equals(a: LocalTrackUnpublished | PlainMessage<LocalTrackUnpublished> | undefined, b: LocalTrackUnpublished | PlainMessage<LocalTrackUnpublished> | undefined): boolean {
     return proto3.util.equals(LocalTrackUnpublished, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.LocalTrackSubscribed
+ */
+export class LocalTrackSubscribed extends Message<LocalTrackSubscribed> {
+  /**
+   * @generated from field: string track_sid = 2;
+   */
+  trackSid = "";
+
+  constructor(data?: PartialMessage<LocalTrackSubscribed>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.LocalTrackSubscribed";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 2, name: "track_sid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LocalTrackSubscribed {
+    return new LocalTrackSubscribed().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LocalTrackSubscribed {
+    return new LocalTrackSubscribed().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LocalTrackSubscribed {
+    return new LocalTrackSubscribed().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LocalTrackSubscribed | PlainMessage<LocalTrackSubscribed> | undefined, b: LocalTrackSubscribed | PlainMessage<LocalTrackSubscribed> | undefined): boolean {
+    return proto3.util.equals(LocalTrackSubscribed, a, b);
   }
 }
 
@@ -3601,6 +3745,11 @@ export class Connected extends Message<Connected> {
  * @generated from message livekit.proto.Disconnected
  */
 export class Disconnected extends Message<Disconnected> {
+  /**
+   * @generated from field: livekit.proto.DisconnectReason reason = 1;
+   */
+  reason = DisconnectReason.UNKNOWN_REASON;
+
   constructor(data?: PartialMessage<Disconnected>) {
     super();
     proto3.util.initPartial(data, this);
@@ -3609,6 +3758,7 @@ export class Disconnected extends Message<Disconnected> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.Disconnected";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reason", kind: "enum", T: proto3.getEnumType(DisconnectReason) },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Disconnected {

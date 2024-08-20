@@ -16,6 +16,7 @@ import type {
   ConnectResponse,
   ConnectionQuality,
   DataPacketKind,
+  DisconnectReason,
   DisconnectResponse,
   IceServer,
   RoomInfo,
@@ -27,7 +28,7 @@ import {
   IceTransportType,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
-import type { RemoteTrack } from './track.js';
+import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
@@ -185,6 +186,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid);
       this.localParticipant.trackPublications.delete(ev.value.publicationSid);
       this.emit(RoomEvent.LocalTrackUnpublished, publication, this.localParticipant);
+    } else if (ev.case == 'localTrackSubscribed') {
+      const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
+      this.emit(RoomEvent.LocalTrackSubscribed, publication.track);
     } else if (ev.case == 'trackPublished') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       const publication = new RemoteTrackPublication(ev.value.publication);
@@ -295,7 +299,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {
-      this.emit(RoomEvent.Disconnected);
+      this.emit(RoomEvent.Disconnected, ev.value.reason);
     } else if (ev.case == 'reconnecting') {
       this.emit(RoomEvent.Reconnecting);
     } else if (ev.case == 'reconnected') {
@@ -336,6 +340,9 @@ export type RoomCallbacks = {
     publication: LocalTrackPublication,
     participant: LocalParticipant,
   ) => void;
+  localTrackSubscribed: (
+    track: LocalTrack,
+  ) => void;
   trackPublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackUnpublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackSubscribed: (
@@ -374,7 +381,7 @@ export type RoomCallbacks = {
   encryptionError: (error: Error) => void;
   connectionStateChanged: (state: ConnectionState) => void;
   connected: () => void;
-  disconnected: (reason?: string) => void;
+  disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
 };
@@ -384,6 +391,7 @@ export enum RoomEvent {
   ParticipantDisconnected = 'participantDisconnected',
   LocalTrackPublished = 'localTrackPublished',
   LocalTrackUnpublished = 'localTrackUnpublished',
+  LocalTrackSubscribed = 'localTrackSubscribed',
   TrackPublished = 'trackPublished',
   TrackUnpublished = 'trackUnpublished',
   TrackSubscribed = 'trackSubscribed',

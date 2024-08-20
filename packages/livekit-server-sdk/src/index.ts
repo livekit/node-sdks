@@ -16,6 +16,8 @@ export {
   EncodingOptions,
   EncodingOptionsPreset,
   GCPUpload,
+  ImageCodec,
+  ImageFileSuffix,
   ImageOutput,
   IngressAudioEncodingOptions,
   IngressAudioEncodingPreset,
@@ -50,8 +52,8 @@ export {
 } from '@livekit/protocol';
 export * from './AccessToken.js';
 export * from './EgressClient.js';
+export * from './grants.js';
 export * from './IngressClient.js';
 export * from './RoomServiceClient.js';
 export * from './SipClient.js';
 export * from './WebhookReceiver.js';
-export * from './grants.js';

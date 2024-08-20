@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.7.0
+
+### Minor Changes
+
+- bump(ffi): LocalTrackSubscribed, DisconnectReason - [#256](https://github.com/livekit/node-sdks/pull/256) ([@nbsp](https://github.com/nbsp))
+
 ## 0.6.2
 
 ### Patch Changes

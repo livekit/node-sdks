@@ -340,9 +340,7 @@ export type RoomCallbacks = {
     publication: LocalTrackPublication,
     participant: LocalParticipant,
   ) => void;
-  localTrackSubscribed: (
-    track: LocalTrack,
-  ) => void;
+  localTrackSubscribed: (track: LocalTrack) => void;
   trackPublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackUnpublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackSubscribed: (

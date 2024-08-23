@@ -5,6 +5,6 @@ This example demonstrates receiving the first audio track published in a room an
 To run the example:
 
 - Copy .env.example to .env and fill in the values
-- Run `npm install`
-- Run `tsx index.ts`
+- Run `pnpm install && pnpm build` in the root folder of this repo
+- Run `tsx index.ts` in this folder
 - From another client, join the room `test-room` and publish an audio track

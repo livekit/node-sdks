@@ -1,6 +1,6 @@
 # Receive audio example
 
-This example demonstrates receiving the first audio track published in a room and receiving all audio frames until the track is unsubscribed.
+This example demonstrates receiving the first audio track published in a room and writing that audio data to a wav file.
 
 To run the example:
 

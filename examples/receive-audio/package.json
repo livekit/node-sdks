@@ -1,12 +1,11 @@
 {
-  "name": "example-publish-wav",
+  "name": "example-receive-audio",
   "author": "LiveKit",
   "private": "true",
   "description": "",
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc --incremental",
     "lint": "eslint -f unix \"**/*.ts\""
   },
   "keywords": [],

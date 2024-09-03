@@ -70,7 +70,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.0
-        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@14.12.3)
+        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3)
 
   examples/publish-wav:
     dependencies:
@@ -220,8 +220,8 @@ importers:
         specifier: ^20.10.1
         version: 20.16.3
       happy-dom:
-        specifier: ^14.0.0
-        version: 14.12.3
+        specifier: ^15.0.0
+        version: 15.7.3
       prettier:
         specifier: ^3.0.0
         version: 3.3.3
@@ -236,7 +236,7 @@ importers:
         version: 5.4.2(@types/node@20.16.3)
       vitest:
         specifier: ^2.0.0
-        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@14.12.3)
+        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3)
 
 packages:
 
@@ -1882,9 +1882,9 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  happy-dom@14.12.3:
-    resolution: {integrity: sha512-vsYlEs3E9gLwA1Hp+w3qzu+RUDFf4VTT8cyKqVICoZ2k7WM++Qyd2LwzyTi5bqMJFiIC/vNpTDYuxdreENRK/g==}
-    engines: {node: '>=16.0.0'}
+  happy-dom@15.7.3:
+    resolution: {integrity: sha512-w3RUaYNXFJX5LiNVhOJLK4GqCB1bFj1FvELtpon3HrN8gUpS09V0Vvm4/BBRRj7mLUE1+ch8PKv1JxEp/0IHjA==}
+    engines: {node: '>=18.0.0'}
 
   has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -4986,7 +4986,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  happy-dom@14.12.3:
+  happy-dom@15.7.3:
     dependencies:
       entities: 4.5.0
       webidl-conversions: 7.0.0
@@ -6013,7 +6013,7 @@ snapshots:
       '@types/node': 20.16.3
       fsevents: 2.3.3
 
-  vitest@2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@14.12.3):
+  vitest@2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.5
@@ -6037,7 +6037,7 @@ snapshots:
     optionalDependencies:
       '@edge-runtime/vm': 3.2.0
       '@types/node': 20.16.3
-      happy-dom: 14.12.3
+      happy-dom: 15.7.3
     transitivePeerDependencies:
       - less
       - lightningcss

@@ -70,7 +70,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.0
-        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3)
+        version: 2.0.5(@edge-runtime/vm@4.0.3)(@types/node@20.16.3)(happy-dom@15.7.3)
 
   examples/publish-wav:
     dependencies:
@@ -211,8 +211,8 @@ importers:
         specifier: ^2.27.1
         version: 2.27.7
       '@edge-runtime/vm':
-        specifier: ^3.1.7
-        version: 3.2.0
+        specifier: ^4.0.0
+        version: 4.0.3
       '@livekit/changesets-changelog-github':
         specifier: ^0.0.4
         version: 0.0.4
@@ -236,7 +236,7 @@ importers:
         version: 5.4.2(@types/node@20.16.3)
       vitest:
         specifier: ^2.0.0
-        version: 2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3)
+        version: 2.0.5(@edge-runtime/vm@4.0.3)(@types/node@20.16.3)(happy-dom@15.7.3)
 
 packages:
 
@@ -373,12 +373,12 @@ packages:
   '@changesets/write@0.3.1':
     resolution: {integrity: sha512-SyGtMXzH3qFqlHKcvFY2eX+6b0NGiFcNav8AFsYwy5l8hejOeoeTDemu5Yjmke2V5jpzY+pBvM0vCCQ3gdZpfw==}
 
-  '@edge-runtime/primitives@4.1.0':
-    resolution: {integrity: sha512-Vw0lbJ2lvRUqc7/soqygUX216Xb8T3WBZ987oywz6aJqRxcwSVWwr9e+Nqo2m9bxobA9mdbWNNoRY6S9eko1EQ==}
+  '@edge-runtime/primitives@5.1.0':
+    resolution: {integrity: sha512-bs379S/qL7b9B1fXM3xYe+g2orW7Uy0m8oIudiXLcHQyZLsdd0Gfw9STngFDnaAfAcRN5g+/YEMPSsDqiPm0TQ==}
     engines: {node: '>=16'}
 
-  '@edge-runtime/vm@3.2.0':
-    resolution: {integrity: sha512-0dEVyRLM/lG4gp1R/Ik5bfPl/1wX00xFwd5KcNH602tzBa09oF7pbTKETEhR1GjZ75K6OJnYFu8II2dyMhONMw==}
+  '@edge-runtime/vm@4.0.3':
+    resolution: {integrity: sha512-2EKlqxSbZTV4D+XG8DTX+9P1SL+m48ahvNbDuxz+dZkmUZ+ju4hl/m28j7QMbC9kU5S+4HUJCYKCAfA+3gggLw==}
     engines: {node: '>=16'}
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -3314,11 +3314,11 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.8
 
-  '@edge-runtime/primitives@4.1.0': {}
+  '@edge-runtime/primitives@5.1.0': {}
 
-  '@edge-runtime/vm@3.2.0':
+  '@edge-runtime/vm@4.0.3':
     dependencies:
-      '@edge-runtime/primitives': 4.1.0
+      '@edge-runtime/primitives': 5.1.0
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -6013,7 +6013,7 @@ snapshots:
       '@types/node': 20.16.3
       fsevents: 2.3.3
 
-  vitest@2.0.5(@edge-runtime/vm@3.2.0)(@types/node@20.16.3)(happy-dom@15.7.3):
+  vitest@2.0.5(@edge-runtime/vm@4.0.3)(@types/node@20.16.3)(happy-dom@15.7.3):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.5
@@ -6035,7 +6035,7 @@ snapshots:
       vite-node: 2.0.5(@types/node@20.16.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@edge-runtime/vm': 3.2.0
+      '@edge-runtime/vm': 4.0.3
       '@types/node': 20.16.3
       happy-dom: 15.7.3
     transitivePeerDependencies:

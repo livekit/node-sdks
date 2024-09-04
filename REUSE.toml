@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version = 1
+SPDX-PackageName = "node-sdks"
+SPDX-PackageSupplier = "LiveKit, Inc. <https://livekit.io>"
+SPDX-PackageDownloadLocation = "https://github.com/livekit/node-sdks"
+
+# trivial files
+[[annotations]]
+path = [".gitignore", ".gitmodules", "flake.lock", ".github/**", "packages/livekit-rtc/.gitignore", ".changeset/**", "**/CHANGELOG.md", "NOTICE"]
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"
+
+# pnpm files
+[[annotations]]
+path = ["pnpm-workspace.yaml", "pnpm-lock.yaml"]
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"
+
+# project configuration files
+[[annotations]]
+path = ["packages/livekit-rtc/.npmignore", ".prettierrc", ".prettierignore", ".eslintrc", "**.json"]
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"
+
+# Rust NAPI files
+[[annotations]]
+path = ["packages/livekit-rtc/Cargo.toml", "packages/livekit-rtc/Cargo.lock", "packages/livekit-rtc/.cargo/**"]
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"
+
+# FFI protocol files
+[[annotations]]
+path = ["packages/livekit-rtc/src/proto/**", "packages/livekit-rtc/npm/**", "packages/livekit-rtc/src/napi/native.cjs", "packages/livekit-rtc/src/napi/native.d.ts"]
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"
+
+# examples
+[[annotations]]
+path = "examples/**"
+SPDX-FileCopyrightText = "2024 LiveKit, Inc."
+SPDX-License-Identifier = "Apache-2.0"

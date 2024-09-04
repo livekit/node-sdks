@@ -38,8 +38,8 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: REUSE-3.0 compliance check
-        uses: fsfe/reuse-action@v3
+      - name: REUSE-4.0 compliance check
+        uses: fsfe/reuse-action@v4
 
       - name: Install dependencies
         run: pnpm install

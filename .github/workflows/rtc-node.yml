@@ -15,7 +15,7 @@ on:
       - 'examples/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
-      - '.reuse/dep5'
+      - 'REUSE.toml'
       - '.github/workflows'
     branches:
       - main

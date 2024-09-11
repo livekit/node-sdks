@@ -32,7 +32,7 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
   sampleRate: number;
   numChannels: number;
 
-  constructor(track: Track, sampleRate: number, numChannels: number) {
+  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1) {
     super();
     this.track = track;
     this.sampleRate = sampleRate;

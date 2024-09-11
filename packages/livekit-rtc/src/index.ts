@@ -26,6 +26,7 @@ export {
   RemoteTrackPublication,
   LocalTrackPublication,
 } from './track_publication.js';
+export { Transcription, TranscriptionSegment } from './transcription.js';
 export { E2EEManager, E2EEOptions, KeyProviderOptions, KeyProvider, FrameCryptor } from './e2ee.js';
 export {
   ConnectionQuality,

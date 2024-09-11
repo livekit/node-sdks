@@ -19,6 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
+import { TrackSource } from "./track_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
 
 /**
@@ -72,6 +73,16 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
    */
   type = AudioStreamType.AUDIO_STREAM_NATIVE;
 
+  /**
+   * @generated from field: uint32 sample_rate = 3;
+   */
+  sampleRate = 0;
+
+  /**
+   * @generated from field: uint32 num_channels = 4;
+   */
+  numChannels = 0;
+
   constructor(data?: PartialMessage<NewAudioStreamRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -82,6 +93,8 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "track_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
     { no: 2, name: "type", kind: "enum", T: proto3.getEnumType(AudioStreamType) },
+    { no: 3, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 4, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewAudioStreamRequest {
@@ -135,6 +148,104 @@ export class NewAudioStreamResponse extends Message<NewAudioStreamResponse> {
 
   static equals(a: NewAudioStreamResponse | PlainMessage<NewAudioStreamResponse> | undefined, b: NewAudioStreamResponse | PlainMessage<NewAudioStreamResponse> | undefined): boolean {
     return proto3.util.equals(NewAudioStreamResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.AudioStreamFromParticipantRequest
+ */
+export class AudioStreamFromParticipantRequest extends Message<AudioStreamFromParticipantRequest> {
+  /**
+   * @generated from field: uint64 participant_handle = 1;
+   */
+  participantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: livekit.proto.AudioStreamType type = 2;
+   */
+  type = AudioStreamType.AUDIO_STREAM_NATIVE;
+
+  /**
+   * @generated from field: optional livekit.proto.TrackSource track_source = 3;
+   */
+  trackSource?: TrackSource;
+
+  /**
+   * @generated from field: uint32 sample_rate = 5;
+   */
+  sampleRate = 0;
+
+  /**
+   * @generated from field: uint32 num_channels = 6;
+   */
+  numChannels = 0;
+
+  constructor(data?: PartialMessage<AudioStreamFromParticipantRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.AudioStreamFromParticipantRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "type", kind: "enum", T: proto3.getEnumType(AudioStreamType) },
+    { no: 3, name: "track_source", kind: "enum", T: proto3.getEnumType(TrackSource), opt: true },
+    { no: 5, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 6, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AudioStreamFromParticipantRequest {
+    return new AudioStreamFromParticipantRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AudioStreamFromParticipantRequest {
+    return new AudioStreamFromParticipantRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AudioStreamFromParticipantRequest {
+    return new AudioStreamFromParticipantRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AudioStreamFromParticipantRequest | PlainMessage<AudioStreamFromParticipantRequest> | undefined, b: AudioStreamFromParticipantRequest | PlainMessage<AudioStreamFromParticipantRequest> | undefined): boolean {
+    return proto3.util.equals(AudioStreamFromParticipantRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.AudioStreamFromParticipantResponse
+ */
+export class AudioStreamFromParticipantResponse extends Message<AudioStreamFromParticipantResponse> {
+  /**
+   * @generated from field: livekit.proto.OwnedAudioStream stream = 1;
+   */
+  stream?: OwnedAudioStream;
+
+  constructor(data?: PartialMessage<AudioStreamFromParticipantResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.AudioStreamFromParticipantResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "stream", kind: "message", T: OwnedAudioStream },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AudioStreamFromParticipantResponse {
+    return new AudioStreamFromParticipantResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AudioStreamFromParticipantResponse {
+    return new AudioStreamFromParticipantResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AudioStreamFromParticipantResponse {
+    return new AudioStreamFromParticipantResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AudioStreamFromParticipantResponse | PlainMessage<AudioStreamFromParticipantResponse> | undefined, b: AudioStreamFromParticipantResponse | PlainMessage<AudioStreamFromParticipantResponse> | undefined): boolean {
+    return proto3.util.equals(AudioStreamFromParticipantResponse, a, b);
   }
 }
 

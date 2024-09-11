@@ -20,9 +20,9 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
-import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, TrackEvent } from "./track_pb.js";
-import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent } from "./video_frame_pb.js";
-import { AudioStreamEvent, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
+import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
+import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
+import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 
 /**
@@ -169,7 +169,19 @@ export class FfiRequest extends Message<FfiRequest> {
     case: "createAudioTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.GetStatsRequest get_stats = 17;
+     * @generated from field: livekit.proto.LocalTrackMuteRequest local_track_mute = 17;
+     */
+    value: LocalTrackMuteRequest;
+    case: "localTrackMute";
+  } | {
+    /**
+     * @generated from field: livekit.proto.EnableRemoteTrackRequest enable_remote_track = 18;
+     */
+    value: EnableRemoteTrackRequest;
+    case: "enableRemoteTrack";
+  } | {
+    /**
+     * @generated from field: livekit.proto.GetStatsRequest get_stats = 19;
      */
     value: GetStatsRequest;
     case: "getStats";
@@ -177,66 +189,78 @@ export class FfiRequest extends Message<FfiRequest> {
     /**
      * Video
      *
-     * @generated from field: livekit.proto.NewVideoStreamRequest new_video_stream = 18;
+     * @generated from field: livekit.proto.NewVideoStreamRequest new_video_stream = 20;
      */
     value: NewVideoStreamRequest;
     case: "newVideoStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoSourceRequest new_video_source = 19;
+     * @generated from field: livekit.proto.NewVideoSourceRequest new_video_source = 21;
      */
     value: NewVideoSourceRequest;
     case: "newVideoSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureVideoFrameRequest capture_video_frame = 20;
+     * @generated from field: livekit.proto.CaptureVideoFrameRequest capture_video_frame = 22;
      */
     value: CaptureVideoFrameRequest;
     case: "captureVideoFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.VideoConvertRequest video_convert = 21;
+     * @generated from field: livekit.proto.VideoConvertRequest video_convert = 23;
      */
     value: VideoConvertRequest;
     case: "videoConvert";
   } | {
     /**
+     * @generated from field: livekit.proto.VideoStreamFromParticipantRequest video_stream_from_participant = 24;
+     */
+    value: VideoStreamFromParticipantRequest;
+    case: "videoStreamFromParticipant";
+  } | {
+    /**
      * Audio
      *
-     * @generated from field: livekit.proto.NewAudioStreamRequest new_audio_stream = 23;
+     * @generated from field: livekit.proto.NewAudioStreamRequest new_audio_stream = 25;
      */
     value: NewAudioStreamRequest;
     case: "newAudioStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioSourceRequest new_audio_source = 24;
+     * @generated from field: livekit.proto.NewAudioSourceRequest new_audio_source = 26;
      */
     value: NewAudioSourceRequest;
     case: "newAudioSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureAudioFrameRequest capture_audio_frame = 25;
+     * @generated from field: livekit.proto.CaptureAudioFrameRequest capture_audio_frame = 27;
      */
     value: CaptureAudioFrameRequest;
     case: "captureAudioFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioResamplerRequest new_audio_resampler = 26;
+     * @generated from field: livekit.proto.NewAudioResamplerRequest new_audio_resampler = 28;
      */
     value: NewAudioResamplerRequest;
     case: "newAudioResampler";
   } | {
     /**
-     * @generated from field: livekit.proto.RemixAndResampleRequest remix_and_resample = 27;
+     * @generated from field: livekit.proto.RemixAndResampleRequest remix_and_resample = 29;
      */
     value: RemixAndResampleRequest;
     case: "remixAndResample";
   } | {
     /**
-     * @generated from field: livekit.proto.E2eeRequest e2ee = 28;
+     * @generated from field: livekit.proto.E2eeRequest e2ee = 30;
      */
     value: E2eeRequest;
     case: "e2ee";
+  } | {
+    /**
+     * @generated from field: livekit.proto.AudioStreamFromParticipantRequest audio_stream_from_participant = 31;
+     */
+    value: AudioStreamFromParticipantRequest;
+    case: "audioStreamFromParticipant";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -262,17 +286,21 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfRequest, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackRequest, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackRequest, oneof: "message" },
-    { no: 17, name: "get_stats", kind: "message", T: GetStatsRequest, oneof: "message" },
-    { no: 18, name: "new_video_stream", kind: "message", T: NewVideoStreamRequest, oneof: "message" },
-    { no: 19, name: "new_video_source", kind: "message", T: NewVideoSourceRequest, oneof: "message" },
-    { no: 20, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameRequest, oneof: "message" },
-    { no: 21, name: "video_convert", kind: "message", T: VideoConvertRequest, oneof: "message" },
-    { no: 23, name: "new_audio_stream", kind: "message", T: NewAudioStreamRequest, oneof: "message" },
-    { no: 24, name: "new_audio_source", kind: "message", T: NewAudioSourceRequest, oneof: "message" },
-    { no: 25, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameRequest, oneof: "message" },
-    { no: 26, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerRequest, oneof: "message" },
-    { no: 27, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
-    { no: 28, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
+    { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteRequest, oneof: "message" },
+    { no: 18, name: "enable_remote_track", kind: "message", T: EnableRemoteTrackRequest, oneof: "message" },
+    { no: 19, name: "get_stats", kind: "message", T: GetStatsRequest, oneof: "message" },
+    { no: 20, name: "new_video_stream", kind: "message", T: NewVideoStreamRequest, oneof: "message" },
+    { no: 21, name: "new_video_source", kind: "message", T: NewVideoSourceRequest, oneof: "message" },
+    { no: 22, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameRequest, oneof: "message" },
+    { no: 23, name: "video_convert", kind: "message", T: VideoConvertRequest, oneof: "message" },
+    { no: 24, name: "video_stream_from_participant", kind: "message", T: VideoStreamFromParticipantRequest, oneof: "message" },
+    { no: 25, name: "new_audio_stream", kind: "message", T: NewAudioStreamRequest, oneof: "message" },
+    { no: 26, name: "new_audio_source", kind: "message", T: NewAudioSourceRequest, oneof: "message" },
+    { no: 27, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameRequest, oneof: "message" },
+    { no: 28, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerRequest, oneof: "message" },
+    { no: 29, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
+    { no: 30, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
+    { no: 31, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -397,7 +425,19 @@ export class FfiResponse extends Message<FfiResponse> {
     case: "createAudioTrack";
   } | {
     /**
-     * @generated from field: livekit.proto.GetStatsResponse get_stats = 17;
+     * @generated from field: livekit.proto.LocalTrackMuteResponse local_track_mute = 17;
+     */
+    value: LocalTrackMuteResponse;
+    case: "localTrackMute";
+  } | {
+    /**
+     * @generated from field: livekit.proto.EnableRemoteTrackResponse enable_remote_track = 18;
+     */
+    value: EnableRemoteTrackResponse;
+    case: "enableRemoteTrack";
+  } | {
+    /**
+     * @generated from field: livekit.proto.GetStatsResponse get_stats = 19;
      */
     value: GetStatsResponse;
     case: "getStats";
@@ -405,63 +445,75 @@ export class FfiResponse extends Message<FfiResponse> {
     /**
      * Video
      *
-     * @generated from field: livekit.proto.NewVideoStreamResponse new_video_stream = 18;
+     * @generated from field: livekit.proto.NewVideoStreamResponse new_video_stream = 20;
      */
     value: NewVideoStreamResponse;
     case: "newVideoStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewVideoSourceResponse new_video_source = 19;
+     * @generated from field: livekit.proto.NewVideoSourceResponse new_video_source = 21;
      */
     value: NewVideoSourceResponse;
     case: "newVideoSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureVideoFrameResponse capture_video_frame = 20;
+     * @generated from field: livekit.proto.CaptureVideoFrameResponse capture_video_frame = 22;
      */
     value: CaptureVideoFrameResponse;
     case: "captureVideoFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.VideoConvertResponse video_convert = 21;
+     * @generated from field: livekit.proto.VideoConvertResponse video_convert = 23;
      */
     value: VideoConvertResponse;
     case: "videoConvert";
   } | {
     /**
+     * @generated from field: livekit.proto.VideoStreamFromParticipantResponse video_stream_from_participant = 24;
+     */
+    value: VideoStreamFromParticipantResponse;
+    case: "videoStreamFromParticipant";
+  } | {
+    /**
      * Audio
      *
-     * @generated from field: livekit.proto.NewAudioStreamResponse new_audio_stream = 22;
+     * @generated from field: livekit.proto.NewAudioStreamResponse new_audio_stream = 25;
      */
     value: NewAudioStreamResponse;
     case: "newAudioStream";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioSourceResponse new_audio_source = 23;
+     * @generated from field: livekit.proto.NewAudioSourceResponse new_audio_source = 26;
      */
     value: NewAudioSourceResponse;
     case: "newAudioSource";
   } | {
     /**
-     * @generated from field: livekit.proto.CaptureAudioFrameResponse capture_audio_frame = 24;
+     * @generated from field: livekit.proto.CaptureAudioFrameResponse capture_audio_frame = 27;
      */
     value: CaptureAudioFrameResponse;
     case: "captureAudioFrame";
   } | {
     /**
-     * @generated from field: livekit.proto.NewAudioResamplerResponse new_audio_resampler = 25;
+     * @generated from field: livekit.proto.NewAudioResamplerResponse new_audio_resampler = 28;
      */
     value: NewAudioResamplerResponse;
     case: "newAudioResampler";
   } | {
     /**
-     * @generated from field: livekit.proto.RemixAndResampleResponse remix_and_resample = 26;
+     * @generated from field: livekit.proto.RemixAndResampleResponse remix_and_resample = 29;
      */
     value: RemixAndResampleResponse;
     case: "remixAndResample";
   } | {
     /**
-     * @generated from field: livekit.proto.E2eeResponse e2ee = 27;
+     * @generated from field: livekit.proto.AudioStreamFromParticipantResponse audio_stream_from_participant = 30;
+     */
+    value: AudioStreamFromParticipantResponse;
+    case: "audioStreamFromParticipant";
+  } | {
+    /**
+     * @generated from field: livekit.proto.E2eeResponse e2ee = 31;
      */
     value: E2eeResponse;
     case: "e2ee";
@@ -490,17 +542,21 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfResponse, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackResponse, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackResponse, oneof: "message" },
-    { no: 17, name: "get_stats", kind: "message", T: GetStatsResponse, oneof: "message" },
-    { no: 18, name: "new_video_stream", kind: "message", T: NewVideoStreamResponse, oneof: "message" },
-    { no: 19, name: "new_video_source", kind: "message", T: NewVideoSourceResponse, oneof: "message" },
-    { no: 20, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameResponse, oneof: "message" },
-    { no: 21, name: "video_convert", kind: "message", T: VideoConvertResponse, oneof: "message" },
-    { no: 22, name: "new_audio_stream", kind: "message", T: NewAudioStreamResponse, oneof: "message" },
-    { no: 23, name: "new_audio_source", kind: "message", T: NewAudioSourceResponse, oneof: "message" },
-    { no: 24, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameResponse, oneof: "message" },
-    { no: 25, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerResponse, oneof: "message" },
-    { no: 26, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
-    { no: 27, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
+    { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteResponse, oneof: "message" },
+    { no: 18, name: "enable_remote_track", kind: "message", T: EnableRemoteTrackResponse, oneof: "message" },
+    { no: 19, name: "get_stats", kind: "message", T: GetStatsResponse, oneof: "message" },
+    { no: 20, name: "new_video_stream", kind: "message", T: NewVideoStreamResponse, oneof: "message" },
+    { no: 21, name: "new_video_source", kind: "message", T: NewVideoSourceResponse, oneof: "message" },
+    { no: 22, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameResponse, oneof: "message" },
+    { no: 23, name: "video_convert", kind: "message", T: VideoConvertResponse, oneof: "message" },
+    { no: 24, name: "video_stream_from_participant", kind: "message", T: VideoStreamFromParticipantResponse, oneof: "message" },
+    { no: 25, name: "new_audio_stream", kind: "message", T: NewAudioStreamResponse, oneof: "message" },
+    { no: 26, name: "new_audio_source", kind: "message", T: NewAudioSourceResponse, oneof: "message" },
+    { no: 27, name: "capture_audio_frame", kind: "message", T: CaptureAudioFrameResponse, oneof: "message" },
+    { no: 28, name: "new_audio_resampler", kind: "message", T: NewAudioResamplerResponse, oneof: "message" },
+    { no: 29, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
+    { no: 30, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantResponse, oneof: "message" },
+    { no: 31, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

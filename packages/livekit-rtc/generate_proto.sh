@@ -4,7 +4,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This script requires protobuf-compiler and https://github.com/nipunn1313/mypy-protobuf
+# This script requires protobuf-compiler and https://www.npmjs.com/package/@bufbuild/protoc-gen-es
+# `brew install protobuf-c && npm install -g @bufbuild/protoc-gen-es@1.10.0`
 
 FFI_PROTOCOL=./rust-sdks/livekit-ffi/protocol
 FFI_OUT_NODE=./src/proto

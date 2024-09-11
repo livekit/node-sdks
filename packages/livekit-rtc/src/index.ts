@@ -18,7 +18,7 @@ export {
 export { VideoFrame } from './video_frame.js';
 export { AudioFrame } from './audio_frame.js';
 export { AudioStream, AudioStreamEvent, AudioFrameEvent } from './audio_stream.js';
-export { VideoStream, VideoStreamEvent,VideoFrameEvent } from './video_stream.js';
+export { VideoStream, VideoStreamEvent, VideoFrameEvent } from './video_stream.js';
 export { AudioSource } from './audio_source.js';
 export { VideoSource } from './video_source.js';
 export {

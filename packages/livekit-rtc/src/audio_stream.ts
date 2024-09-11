@@ -29,14 +29,20 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
   ffiHandle: FfiHandle;
 
   track: Track;
+  sampleRate: number;
+  numChannels: number;
 
-  constructor(track: Track) {
+  constructor(track: Track, sampleRate: number, numChannels: number) {
     super();
     this.track = track;
+    this.sampleRate = sampleRate;
+    this.numChannels = numChannels;
 
     const req = new NewAudioStreamRequest({
       type: AudioStreamType.AUDIO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
+      sampleRate: sampleRate,
+      numChannels: numChannels,
     });
 
     const res = FfiClient.instance.request<NewAudioStreamResponse>({

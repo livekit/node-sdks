@@ -22,6 +22,44 @@ import { Message, proto3 } from "@bufbuild/protobuf";
 import { FfiOwnedHandle } from "./handle_pb.js";
 
 /**
+ * @generated from enum livekit.proto.ParticipantKind
+ */
+export enum ParticipantKind {
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_STANDARD = 0;
+   */
+  STANDARD = 0,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_INGRESS = 1;
+   */
+  INGRESS = 1,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_EGRESS = 2;
+   */
+  EGRESS = 2,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_SIP = 3;
+   */
+  SIP = 3,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_AGENT = 4;
+   */
+  AGENT = 4,
+}
+// Retrieve enum metadata with: proto3.getEnumType(ParticipantKind)
+proto3.util.setEnumType(ParticipantKind, "livekit.proto.ParticipantKind", [
+  { no: 0, name: "PARTICIPANT_KIND_STANDARD" },
+  { no: 1, name: "PARTICIPANT_KIND_INGRESS" },
+  { no: 2, name: "PARTICIPANT_KIND_EGRESS" },
+  { no: 3, name: "PARTICIPANT_KIND_SIP" },
+  { no: 4, name: "PARTICIPANT_KIND_AGENT" },
+]);
+
+/**
  * @generated from message livekit.proto.ParticipantInfo
  */
 export class ParticipantInfo extends Message<ParticipantInfo> {
@@ -50,6 +88,11 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
    */
   attributes: { [key: string]: string } = {};
 
+  /**
+   * @generated from field: livekit.proto.ParticipantKind kind = 6;
+   */
+  kind = ParticipantKind.STANDARD;
+
   constructor(data?: PartialMessage<ParticipantInfo>) {
     super();
     proto3.util.initPartial(data, this);
@@ -63,6 +106,7 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
     { no: 3, name: "identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "metadata", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 6, name: "kind", kind: "enum", T: proto3.getEnumType(ParticipantKind) },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantInfo {

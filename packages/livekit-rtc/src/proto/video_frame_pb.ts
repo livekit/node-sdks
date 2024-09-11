@@ -19,6 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
+import { TrackSource } from "./track_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
 
 /**
@@ -295,6 +296,106 @@ export class NewVideoStreamResponse extends Message<NewVideoStreamResponse> {
 
   static equals(a: NewVideoStreamResponse | PlainMessage<NewVideoStreamResponse> | undefined, b: NewVideoStreamResponse | PlainMessage<NewVideoStreamResponse> | undefined): boolean {
     return proto3.util.equals(NewVideoStreamResponse, a, b);
+  }
+}
+
+/**
+ * Request a video stream from a participant
+ *
+ * @generated from message livekit.proto.VideoStreamFromParticipantRequest
+ */
+export class VideoStreamFromParticipantRequest extends Message<VideoStreamFromParticipantRequest> {
+  /**
+   * @generated from field: uint64 participant_handle = 1;
+   */
+  participantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: livekit.proto.VideoStreamType type = 2;
+   */
+  type = VideoStreamType.VIDEO_STREAM_NATIVE;
+
+  /**
+   * @generated from field: livekit.proto.TrackSource track_source = 3;
+   */
+  trackSource = TrackSource.SOURCE_UNKNOWN;
+
+  /**
+   * @generated from field: optional livekit.proto.VideoBufferType format = 4;
+   */
+  format?: VideoBufferType;
+
+  /**
+   * @generated from field: bool normalize_stride = 5;
+   */
+  normalizeStride = false;
+
+  constructor(data?: PartialMessage<VideoStreamFromParticipantRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.VideoStreamFromParticipantRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "type", kind: "enum", T: proto3.getEnumType(VideoStreamType) },
+    { no: 3, name: "track_source", kind: "enum", T: proto3.getEnumType(TrackSource) },
+    { no: 4, name: "format", kind: "enum", T: proto3.getEnumType(VideoBufferType), opt: true },
+    { no: 5, name: "normalize_stride", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): VideoStreamFromParticipantRequest {
+    return new VideoStreamFromParticipantRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): VideoStreamFromParticipantRequest {
+    return new VideoStreamFromParticipantRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): VideoStreamFromParticipantRequest {
+    return new VideoStreamFromParticipantRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: VideoStreamFromParticipantRequest | PlainMessage<VideoStreamFromParticipantRequest> | undefined, b: VideoStreamFromParticipantRequest | PlainMessage<VideoStreamFromParticipantRequest> | undefined): boolean {
+    return proto3.util.equals(VideoStreamFromParticipantRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.VideoStreamFromParticipantResponse
+ */
+export class VideoStreamFromParticipantResponse extends Message<VideoStreamFromParticipantResponse> {
+  /**
+   * @generated from field: livekit.proto.OwnedVideoStream stream = 1;
+   */
+  stream?: OwnedVideoStream;
+
+  constructor(data?: PartialMessage<VideoStreamFromParticipantResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.VideoStreamFromParticipantResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "stream", kind: "message", T: OwnedVideoStream },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): VideoStreamFromParticipantResponse {
+    return new VideoStreamFromParticipantResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): VideoStreamFromParticipantResponse {
+    return new VideoStreamFromParticipantResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): VideoStreamFromParticipantResponse {
+    return new VideoStreamFromParticipantResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: VideoStreamFromParticipantResponse | PlainMessage<VideoStreamFromParticipantResponse> | undefined, b: VideoStreamFromParticipantResponse | PlainMessage<VideoStreamFromParticipantResponse> | undefined): boolean {
+    return proto3.util.equals(VideoStreamFromParticipantResponse, a, b);
   }
 }
 

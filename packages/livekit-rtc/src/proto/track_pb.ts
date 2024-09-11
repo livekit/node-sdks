@@ -681,3 +681,167 @@ export class OwnedTrack extends Message<OwnedTrack> {
   }
 }
 
+/**
+ * Mute/UnMute a track
+ *
+ * @generated from message livekit.proto.LocalTrackMuteRequest
+ */
+export class LocalTrackMuteRequest extends Message<LocalTrackMuteRequest> {
+  /**
+   * @generated from field: uint64 track_handle = 1;
+   */
+  trackHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: bool mute = 2;
+   */
+  mute = false;
+
+  constructor(data?: PartialMessage<LocalTrackMuteRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.LocalTrackMuteRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "track_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "mute", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LocalTrackMuteRequest {
+    return new LocalTrackMuteRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LocalTrackMuteRequest {
+    return new LocalTrackMuteRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LocalTrackMuteRequest {
+    return new LocalTrackMuteRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LocalTrackMuteRequest | PlainMessage<LocalTrackMuteRequest> | undefined, b: LocalTrackMuteRequest | PlainMessage<LocalTrackMuteRequest> | undefined): boolean {
+    return proto3.util.equals(LocalTrackMuteRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.LocalTrackMuteResponse
+ */
+export class LocalTrackMuteResponse extends Message<LocalTrackMuteResponse> {
+  /**
+   * @generated from field: bool muted = 1;
+   */
+  muted = false;
+
+  constructor(data?: PartialMessage<LocalTrackMuteResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.LocalTrackMuteResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "muted", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LocalTrackMuteResponse {
+    return new LocalTrackMuteResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LocalTrackMuteResponse {
+    return new LocalTrackMuteResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LocalTrackMuteResponse {
+    return new LocalTrackMuteResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LocalTrackMuteResponse | PlainMessage<LocalTrackMuteResponse> | undefined, b: LocalTrackMuteResponse | PlainMessage<LocalTrackMuteResponse> | undefined): boolean {
+    return proto3.util.equals(LocalTrackMuteResponse, a, b);
+  }
+}
+
+/**
+ * Enable/Disable a remote track
+ *
+ * @generated from message livekit.proto.EnableRemoteTrackRequest
+ */
+export class EnableRemoteTrackRequest extends Message<EnableRemoteTrackRequest> {
+  /**
+   * @generated from field: uint64 track_handle = 1;
+   */
+  trackHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: bool enabled = 2;
+   */
+  enabled = false;
+
+  constructor(data?: PartialMessage<EnableRemoteTrackRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.EnableRemoteTrackRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "track_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EnableRemoteTrackRequest {
+    return new EnableRemoteTrackRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): EnableRemoteTrackRequest {
+    return new EnableRemoteTrackRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): EnableRemoteTrackRequest {
+    return new EnableRemoteTrackRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: EnableRemoteTrackRequest | PlainMessage<EnableRemoteTrackRequest> | undefined, b: EnableRemoteTrackRequest | PlainMessage<EnableRemoteTrackRequest> | undefined): boolean {
+    return proto3.util.equals(EnableRemoteTrackRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.EnableRemoteTrackResponse
+ */
+export class EnableRemoteTrackResponse extends Message<EnableRemoteTrackResponse> {
+  /**
+   * @generated from field: bool enabled = 1;
+   */
+  enabled = false;
+
+  constructor(data?: PartialMessage<EnableRemoteTrackResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.EnableRemoteTrackResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EnableRemoteTrackResponse {
+    return new EnableRemoteTrackResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): EnableRemoteTrackResponse {
+    return new EnableRemoteTrackResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): EnableRemoteTrackResponse {
+    return new EnableRemoteTrackResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: EnableRemoteTrackResponse | PlainMessage<EnableRemoteTrackResponse> | undefined, b: EnableRemoteTrackResponse | PlainMessage<EnableRemoteTrackResponse> | undefined): boolean {
+    return proto3.util.equals(EnableRemoteTrackResponse, a, b);
+  }
+}
+

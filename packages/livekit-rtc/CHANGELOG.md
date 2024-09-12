@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.8.0
+
+### Minor Changes
+
+- publishTranscription - [#266](https://github.com/livekit/node-sdks/pull/266) ([@bcherry](https://github.com/bcherry))
+
+### Patch Changes
+
+- audiostream: add resampling options - [#266](https://github.com/livekit/node-sdks/pull/266) ([@bcherry](https://github.com/bcherry))
+
 ## 0.7.0
 
 ### Minor Changes

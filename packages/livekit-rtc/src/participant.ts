@@ -36,7 +36,7 @@ import {
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
-import type { Transcription, TranscriptionSegment } from './transcription.js';
+import type { Transcription } from './transcription.js';
 
 export abstract class Participant {
   /** @internal */

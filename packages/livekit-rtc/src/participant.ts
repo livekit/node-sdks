@@ -10,6 +10,8 @@ import type {
   PublishSipDtmfResponse,
   PublishTrackCallback,
   PublishTrackResponse,
+  PublishTranscriptionCallback,
+  PublishTranscriptionResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -21,9 +23,11 @@ import type {
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import {
+  TranscriptionSegment as ProtoTranscriptionSegment,
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
+  PublishTranscriptionRequest,
   SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
@@ -32,6 +36,7 @@ import {
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
+import type { Transcription } from './transcription.js';
 
 export abstract class Participant {
   /** @internal */
@@ -123,6 +128,37 @@ export class LocalParticipant extends Participant {
 
     const cb = await FfiClient.instance.waitFor<PublishSipDtmfCallback>((ev) => {
       return ev.message.case == 'publishSipDtmf' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  async publishTranscription(transcription: Transcription) {
+    const req = new PublishTranscriptionRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      participantIdentity: transcription.participantIdentity,
+      segments: transcription.segments.map(
+        (s) =>
+          new ProtoTranscriptionSegment({
+            id: s.id,
+            text: s.text,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            final: s.final,
+            language: s.language,
+          }),
+      ),
+      trackId: transcription.trackSid,
+    });
+
+    const res = FfiClient.instance.request<PublishTranscriptionResponse>({
+      message: { case: 'publishTranscription', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<PublishTranscriptionCallback>((ev) => {
+      return ev.message.case == 'publishTranscription' && ev.message.value.asyncId == res.asyncId;
     });
 
     if (cb.error) {

@@ -12,9 +12,9 @@
   "keywords": [],
   "license": "Apache-2.0",
   "dependencies": {
-    "@livekit/rtc-node": "^0.8.0",
+    "@livekit/rtc-node": "workspace:*",
     "dotenv": "^16.4.5",
-    "livekit-server-sdk": "^2.6.2"
+    "livekit-server-sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

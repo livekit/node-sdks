@@ -75,14 +75,14 @@ importers:
   examples/publish-wav:
     dependencies:
       '@livekit/rtc-node':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: workspace:*
+        version: link:../../packages/livekit-rtc
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
       livekit-server-sdk:
-        specifier: ^2.6.1
-        version: 2.6.1
+        specifier: workspace:*
+        version: link:../../packages/livekit-server-sdk
     devDependencies:
       '@types/node':
         specifier: ^20.10.4
@@ -94,14 +94,14 @@ importers:
   examples/receive-audio:
     dependencies:
       '@livekit/rtc-node':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: workspace:*
+        version: link:../../packages/livekit-rtc
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
       livekit-server-sdk:
-        specifier: ^2.6.1
-        version: 2.6.1
+        specifier: workspace:*
+        version: link:../../packages/livekit-server-sdk
     devDependencies:
       '@types/node':
         specifier: ^20.10.4
@@ -721,40 +721,6 @@ packages:
 
   '@livekit/protocol@1.20.0':
     resolution: {integrity: sha512-2RJQwzBa+MfUoy0zBWuyj8S2MTBxeTgREeG0r/1bNmkAFiBhsdgr87gIvblyqJxffUxJpALMu1Ee0M1XHX+9Ug==}
-
-  '@livekit/rtc-node-darwin-arm64@0.7.0':
-    resolution: {integrity: sha512-74R3POrGWZxRiHHCUhboI/mGCctzDjNS9uucbr+GgfFLAviAXs0ltC19Y08lWiFx1YBMF/mV2pLNF/fj+/Opaw==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@livekit/rtc-node-darwin-x64@0.7.0':
-    resolution: {integrity: sha512-tj3TymM4aBCWaaJHasQXKJZvIjYmTQ34hg1vBlY+fBrx9F10JBAhYZeWpx/tf37p41R6wSnnDrWXW9RnQJivbA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@livekit/rtc-node-linux-arm64-gnu@0.7.0':
-    resolution: {integrity: sha512-PAuaWujIY623lTfVbRFd+tPPOZfzIIseVJDs1IOivUM00uGqlC1SHbbrONp5vR+gSez1TDLyN8MyVy2FopuZRA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@livekit/rtc-node-linux-x64-gnu@0.7.0':
-    resolution: {integrity: sha512-056F2dUJJvzR/s5hPCcSe4pUTx0OX3WPg1qHkB575fjSSY05TcKNeNwVWRMs76EBkwiodKtmccLYLKFJ6rQ7Dw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@livekit/rtc-node-win32-x64-msvc@0.7.0':
-    resolution: {integrity: sha512-vUP/LUTnxHyg3z2Qgc1+YnfuAa+VLqCouWMkgoew5SBSu1+npCn93Q06SSU2Dov3/uw9i5XjHOq9XJjffVWgIQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@livekit/rtc-node@0.7.0':
-    resolution: {integrity: sha512-ITRv6CCfjGC/K7aI3AZnNBD3eQnHPguL0q8SmH52quebwNn1BYW+IZAzoIa4VCNnOlrfCdrGT1DCmZQz61nn0w==}
-    engines: {node: '>= 18'}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -2164,10 +2130,6 @@ packages:
   linkify-it@5.0.0:
     resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
 
-  livekit-server-sdk@2.6.1:
-    resolution: {integrity: sha512-j/8TOlahIyWnycNkuSzTv6q+win4JTbDGNH48iMsZDMnJBks9hhC9UwAO4ES42sAorIAxGkrH58hxt4KdTkZaQ==}
-    engines: {node: '>=19'}
-
   load-yaml-file@0.2.0:
     resolution: {integrity: sha512-OfCBkGEw4nN6JLtgRidPX6QxjBQGQf72q3si2uvqyFEMbycSFFHwAZeXx6cJgFM9wmLrf9zBwCP3Ivqa+LLZPw==}
     engines: {node: '>=6'}
@@ -3533,32 +3495,6 @@ snapshots:
   '@livekit/protocol@1.20.0':
     dependencies:
       '@bufbuild/protobuf': 1.10.0
-
-  '@livekit/rtc-node-darwin-arm64@0.7.0':
-    optional: true
-
-  '@livekit/rtc-node-darwin-x64@0.7.0':
-    optional: true
-
-  '@livekit/rtc-node-linux-arm64-gnu@0.7.0':
-    optional: true
-
-  '@livekit/rtc-node-linux-x64-gnu@0.7.0':
-    optional: true
-
-  '@livekit/rtc-node-win32-x64-msvc@0.7.0':
-    optional: true
-
-  '@livekit/rtc-node@0.7.0':
-    dependencies:
-      '@bufbuild/protobuf': 1.10.0
-      typed-emitter: 2.1.0
-    optionalDependencies:
-      '@livekit/rtc-node-darwin-arm64': 0.7.0
-      '@livekit/rtc-node-darwin-x64': 0.7.0
-      '@livekit/rtc-node-linux-arm64-gnu': 0.7.0
-      '@livekit/rtc-node-linux-x64-gnu': 0.7.0
-      '@livekit/rtc-node-win32-x64-msvc': 0.7.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -5239,12 +5175,6 @@ snapshots:
   linkify-it@5.0.0:
     dependencies:
       uc.micro: 2.1.0
-
-  livekit-server-sdk@2.6.1:
-    dependencies:
-      '@livekit/protocol': 1.20.0
-      camelcase-keys: 9.1.3
-      jose: 5.4.0
 
   load-yaml-file@0.2.0:
     dependencies:

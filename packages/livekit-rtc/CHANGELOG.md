@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.8.1
+
+### Patch Changes
+
+- add waitForSubscription - [#268](https://github.com/livekit/node-sdks/pull/268) ([@bcherry](https://github.com/bcherry))
+
 ## 0.8.0
 
 ### Minor Changes

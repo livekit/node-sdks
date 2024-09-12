@@ -4,8 +4,8 @@
 export interface TranscriptionSegment {
   id: string;
   text: string;
-  startTime: number;
-  endTime: number;
+  startTime: bigint;
+  endTime: bigint;
   language: string;
   final: boolean;
 }

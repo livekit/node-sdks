@@ -135,15 +135,15 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  async publishTranscription(transcription: Transcription): Promise<void> {
+  async publishTranscription(transcription: Transcription) {
     const req = new PublishTranscriptionRequest({
       localParticipantHandle: this.ffi_handle.handle,
       participantIdentity: transcription.participantIdentity,
       segments: transcription.segments.map(s => new ProtoTranscriptionSegment({
         id: s.id,
         text: s.text,
-        startTime: BigInt(s.startTime),
-        endTime: BigInt(s.endTime),
+        startTime: s.startTime,
+        endTime: s.endTime,
         final: s.final,
         language: s.language,
       })),

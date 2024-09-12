@@ -69,8 +69,26 @@ export abstract class TrackPublication {
 }
 
 export class LocalTrackPublication extends TrackPublication {
+  private firstSubscription: Promise<void>;
+  private firstSubscriptionResolver: (() => void) | null = null;
+
   constructor(ownedInfo: OwnedTrackPublication) {
     super(ownedInfo);
+    this.firstSubscription = new Promise<void>((resolve) => {
+      this.firstSubscriptionResolver = resolve;
+    });
+  }
+
+  async waitForSubscription(): Promise<void> {
+    await this.firstSubscription;
+  }
+
+  /** @internal */
+  resolveFirstSubscription(): void {
+    if (this.firstSubscriptionResolver) {
+      this.firstSubscriptionResolver();
+      this.firstSubscriptionResolver = null;
+    }
   }
 }
 

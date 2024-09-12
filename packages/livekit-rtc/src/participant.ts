@@ -23,6 +23,7 @@ import type {
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import {
+  TranscriptionSegment as ProtoTranscriptionSegment,
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
@@ -31,7 +32,6 @@ import {
   SetLocalMetadataRequest,
   SetLocalNameRequest,
   UnpublishTrackRequest,
-  TranscriptionSegment as ProtoTranscriptionSegment,
 } from './proto/room_pb.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
@@ -139,14 +139,17 @@ export class LocalParticipant extends Participant {
     const req = new PublishTranscriptionRequest({
       localParticipantHandle: this.ffi_handle.handle,
       participantIdentity: transcription.participantIdentity,
-      segments: transcription.segments.map(s => new ProtoTranscriptionSegment({
-        id: s.id,
-        text: s.text,
-        startTime: s.startTime,
-        endTime: s.endTime,
-        final: s.final,
-        language: s.language,
-      })),
+      segments: transcription.segments.map(
+        (s) =>
+          new ProtoTranscriptionSegment({
+            id: s.id,
+            text: s.text,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            final: s.final,
+            language: s.language,
+          }),
+      ),
       trackId: transcription.trackSid,
     });
 

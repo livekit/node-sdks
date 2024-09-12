@@ -188,6 +188,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.LocalTrackUnpublished, publication, this.localParticipant);
     } else if (ev.case == 'localTrackSubscribed') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
+      publication.resolveFirstSubscription();
       this.emit(RoomEvent.LocalTrackSubscribed, publication.track);
     } else if (ev.case == 'trackPublished') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);

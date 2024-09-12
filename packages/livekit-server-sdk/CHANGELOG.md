@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.6.2
+
+### Patch Changes
+
+- Include support for SRT Egress - [#266](https://github.com/livekit/node-sdks/pull/266) ([@bcherry](https://github.com/bcherry))
+
 ## 2.6.1
 
 ### Patch Changes

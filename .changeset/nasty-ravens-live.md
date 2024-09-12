@@ -1,5 +1,5 @@
 ---
-"@livekit/rtc-node": patch
+"@livekit/rtc-node": minor
 ---
 
 publishTranscription

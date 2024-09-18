@@ -30,6 +30,8 @@ export class AudioSource {
   currentQueueSize: number;
   /** @internal */
   releaseQueue = new Queue<void>();
+  /** @internal */
+  timeout?: ReturnType<typeof setTimeout> = undefined;
 
   sampleRate: number;
   numChannels: number;
@@ -96,6 +98,9 @@ export class AudioSource {
     this.currentQueueSize -= 0.05
     this.lastCapture = now
 
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
     setTimeout(this.releaseQueue.put, this.currentQueueSize)
     
     const req = new CaptureAudioFrameRequest({

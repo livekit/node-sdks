@@ -8,9 +8,9 @@ import type {
   AudioSourceInfo,
   CaptureAudioFrameCallback,
   CaptureAudioFrameResponse,
+  ClearAudioBufferResponse,
   NewAudioSourceResponse,
-
-  ClearAudioBufferResponse} from './proto/audio_frame_pb.js';
+} from './proto/audio_frame_pb.js';
 import {
   AudioSourceType,
   CaptureAudioFrameRequest,
@@ -84,25 +84,25 @@ export class AudioSource {
 
   async waitForPlayout() {
     await this.releaseQueue.get().then(() => {
-      this.lastCapture = 0
+      this.lastCapture = 0;
       this.currentQueueSize = 0;
-    })
+    });
   }
 
   async captureFrame(frame: AudioFrame) {
-    const now = Date.now()
+    const now = Date.now();
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
-    this.currentQueueSize += frame.samplesPerChannel / frame.sampleRate - elapsed
+    this.currentQueueSize += (frame.samplesPerChannel / frame.sampleRate - elapsed) * 1000;
 
     // remove 50ms to account for processing time (e.g. using wait_for_playout for very small chunks)
-    this.currentQueueSize -= 0.05
-    this.lastCapture = now
+    this.currentQueueSize -= 50;
+    this.lastCapture = now;
 
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
-    setTimeout(this.releaseQueue.put, this.currentQueueSize)
-    
+    setTimeout(this.releaseQueue.put, this.currentQueueSize);
+
     const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),

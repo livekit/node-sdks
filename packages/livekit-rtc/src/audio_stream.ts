@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
-import EventEmitter from 'events';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -10,30 +8,21 @@ import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_fram
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
-export type AudioFrameEvent = {
-  frame: AudioFrame;
-};
-
-export type AudioStreamCallbacks = {
-  frameReceived: (frame: AudioFrameEvent) => void;
-};
-
-export enum AudioStreamEvent {
-  FrameReceived = 'frameReceived',
-}
-
-export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioStreamCallbacks>) {
+export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   info: AudioStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+  /** @internal */
+  eventQueue: (AudioFrame | null)[] = [];
+  /** @internal */
+  queueResolve: ((value: IteratorResult<AudioFrame>) => void) | null = null;
 
   track: Track;
   sampleRate: number;
   numChannels: number;
 
   constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1) {
-    super();
     this.track = track;
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
@@ -70,7 +59,11 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
     switch (streamEvent.case) {
       case 'frameReceived':
         const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame);
-        this.emit(AudioStreamEvent.FrameReceived, { frame });
+        if (this.queueResolve) {
+          this.queueResolve({ done: false, value: frame });
+        } else {
+          this.eventQueue.push(frame);
+        }
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
@@ -78,7 +71,24 @@ export class AudioStream extends (EventEmitter as new () => TypedEmitter<AudioSt
     }
   };
 
+  async next(): Promise<IteratorResult<AudioFrame>> {
+    if (this.eventQueue.length > 0) {
+      const value = this.eventQueue.shift();
+      if (value) {
+        return { done: false, value };
+      } else {
+        return { done: true, value: undefined };
+      }
+    }
+    return new Promise((resolve) => (this.queueResolve = resolve));
+  }
+
   close() {
+    this.eventQueue.push(null);
     this.ffiHandle.dispose();
+  }
+
+  [Symbol.asyncIterator](): AudioStream {
+    return this;
   }
 }

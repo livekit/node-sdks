@@ -29,7 +29,7 @@ export class AudioSource {
   currentQueueSize: number;
   /** @internal */
   release = () => {};
-  waitForPlayout = this.newPromise();
+  promise = this.newPromise();
   /** @internal */
   timeout?: ReturnType<typeof setTimeout> = undefined;
 
@@ -89,10 +89,14 @@ export class AudioSource {
   async newPromise() {
     return new Promise<void>((resolve) => {
       this.release = resolve;
-    }).then(() => {
+    });
+  }
+
+  async waitForPlayout() {
+    return this.promise.then(() => {
       this.lastCapture = 0;
       this.currentQueueSize = 0;
-      this.waitForPlayout = this.newPromise();
+      this.promise = this.newPromise();
     });
   }
 

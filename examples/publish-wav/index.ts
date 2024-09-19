@@ -60,10 +60,9 @@ while (written < dataSize) {
     Math.trunc(frameSize / channels),
   );
   await source.captureFrame(frame);
-  await source.waitForPlayout();
-
   written += frameSize;
 }
+await source.waitForPlayout();
 
 await room.disconnect();
 await dispose();

@@ -17,7 +17,6 @@ import {
   ClearAudioBufferRequest,
   NewAudioSourceRequest,
 } from './proto/audio_frame_pb.js';
-import { Queue } from './utils.js';
 
 export class AudioSource {
   /** @internal */
@@ -29,7 +28,8 @@ export class AudioSource {
   /** @internal */
   currentQueueSize: number;
   /** @internal */
-  releaseQueue = new Queue<void>();
+  release = () => {};
+  waitForPlayout = this.newPromise();
   /** @internal */
   timeout?: ReturnType<typeof setTimeout> = undefined;
 
@@ -82,13 +82,17 @@ export class AudioSource {
       },
     });
 
-    this.releaseQueue.put();
+    this.release();
   }
 
-  async waitForPlayout() {
-    await this.releaseQueue.get().then(() => {
+  /** @internal */
+  async newPromise() {
+    return new Promise<void>((resolve) => {
+      this.release = resolve;
+    }).then(() => {
       this.lastCapture = 0;
       this.currentQueueSize = 0;
+      this.waitForPlayout = this.newPromise();
     });
   }
 
@@ -105,7 +109,7 @@ export class AudioSource {
 
     // remove 50ms to account for processing time
     // (e.g. using wait_for_playout for very small chunks)
-    this.timeout = setTimeout(this.releaseQueue.put, this.currentQueueSize - 50);
+    this.timeout = setTimeout(this.release, this.currentQueueSize - 50);
 
     const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,

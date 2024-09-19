@@ -104,7 +104,7 @@ export class AudioSource {
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
-    setTimeout(this.releaseQueue.put, this.currentQueueSize);
+    this.timeout = setTimeout(this.releaseQueue.put, this.currentQueueSize);
 
     const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,

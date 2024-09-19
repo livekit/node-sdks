@@ -44,12 +44,11 @@ const track = LocalAudioTrack.createAudioTrack('audio', source);
 const options = new TrackPublishOptions();
 const buffer = new Int16Array(sample.buffer);
 options.source = TrackSource.SOURCE_MICROPHONE;
-await room.localParticipant.publishTrack(track, options);
-await new Promise((resolve) => setTimeout(resolve, 1000)); // wait a bit so the start doesn't cut off
+await room.localParticipant.publishTrack(track, options).then((pub) => pub.waitForSubscription());
 
 let written = 44; // start of WAVE data stream
 const FRAME_DURATION = 1; // write 1s of audio at a time
-const numSamples = sampleRate / FRAME_DURATION;
+const numSamples = sampleRate * FRAME_DURATION;
 while (written < dataSize) {
   const available = dataSize - written;
   const frameSize = Math.min(numSamples, available);
@@ -61,6 +60,7 @@ while (written < dataSize) {
     Math.trunc(frameSize / channels),
   );
   await source.captureFrame(frame);
+  await source.waitForPlayout();
 
   written += frameSize;
 }

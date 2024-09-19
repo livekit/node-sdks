@@ -97,14 +97,15 @@ export class AudioSource {
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
     this.currentQueueSize += (frame.samplesPerChannel / frame.sampleRate - elapsed) * 1000;
 
-    // remove 50ms to account for processing time (e.g. using wait_for_playout for very small chunks)
-    this.currentQueueSize -= 50;
     this.lastCapture = now;
 
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
-    this.timeout = setTimeout(this.releaseQueue.put, this.currentQueueSize);
+
+    // remove 50ms to account for processing time
+    // (e.g. using wait_for_playout for very small chunks)
+    this.timeout = setTimeout(this.releaseQueue.put, this.currentQueueSize - 50);
 
     const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,

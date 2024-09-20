@@ -26,6 +26,13 @@ async function main() {
         participant1Body(room1),
         participant2Body(room2)
       ]);
+
+      // Add the second example
+      console.log('\nStarting second example with JSON data...');
+      await Promise.all([
+        participant1JsonBody(room1),
+        participant2JsonBody(room2)
+      ]);
   
       console.log('Participants done, disconnecting...');
       await room1.disconnect();
@@ -73,6 +80,72 @@ const participant2Body = (room: Room): Promise<void> => {
     };
 
     room.on(RoomEvent.RpcRequestReceived, handleRpcRequest);
+  });
+};
+
+const participant1JsonBody = async (room: Room): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    console.log('[Participant 1] Sending JSON RPC request to participant 2');
+    const jsonData = {
+      message: 'Hello from participant 1!',
+      number: 42,
+      nested: {
+        value: 'Transform me!'
+      }
+    };
+    room.localParticipant?.performRpcRequest(
+      'participant-2',
+      'json-greeting',
+      JSON.stringify(jsonData)
+    )
+      .then((response) => {
+        console.log('[Participant 1] JSON RPC response received:', response);
+        const parsedResponse = JSON.parse(response);
+        console.log('[Participant 1] Parsed response:', parsedResponse);
+        resolve();
+      })
+      .catch((error) => {
+        console.error('[Participant 1] JSON RPC call failed:', error);
+        reject(error);
+      });
+  });
+};
+
+const participant2JsonBody = (room: Room): Promise<void> => {
+  return new Promise((resolve) => {
+    const handleJsonRpcRequest = (request: RpcRequest, sender: RemoteParticipant, sendAck: () => void, sendResponse: (response: string) => void) => {
+      console.log('[Participant 2] Received JSON RPC request from', sender.identity);
+      sendAck();
+      console.log('[Participant 2] Processing JSON request...');
+      
+      try {
+        const jsonData = JSON.parse(request.data);
+        console.log('[Participant 2] Parsed request data:', jsonData);
+        
+        // Transform the nested.value
+        const transformedValue = jsonData.nested.value.toUpperCase();
+        
+        const response = {
+          originalMessage: jsonData.message,
+          transformedValue: transformedValue,
+          numberSquared: jsonData.number * jsonData.number
+        };
+        
+        console.log('[Participant 2] Sending JSON response to participant 1');
+        sendResponse(JSON.stringify(response));
+        resolve();
+      } catch (error) {
+        console.error('[Participant 2] Error processing JSON request:', error);
+        sendResponse(JSON.stringify({ error: 'Failed to process JSON request' }));
+        resolve();
+      }
+    };
+
+    room.on(RoomEvent.RpcRequestReceived, (request, sender, sendAck, sendResponse) => {
+      if (request.method === 'json-greeting') {
+        handleJsonRpcRequest(request, sender, sendAck, sendResponse);
+      }
+    });
   });
 };
 

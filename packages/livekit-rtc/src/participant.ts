@@ -33,11 +33,11 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
+import { type RpcAck, RpcRequest, type RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
-import { RpcRequest, type RpcAck, type RpcResponse } from './rpc.js';
 
 export abstract class Participant {
   /** @internal */
@@ -273,47 +273,51 @@ export class LocalParticipant extends Participant {
     data: string,
     ackTimeout: number = 5000,
     responseTimeout: number = 10000,
-  ): { ackPromise: Promise<RpcAck>; responsePromise: Promise<RpcResponse> } {
-    const id = crypto.randomUUID();
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const id = crypto.randomUUID();
 
-    const request = new RpcRequest();
-    request.id = id;
-    request.name = name;
-    request.data = data;
+      const request = new RpcRequest();
+      request.id = id;
+      request.name = name;
+      request.data = data;
 
-    const jsonString = JSON.stringify(request);
-    this.publishData(new TextEncoder().encode(jsonString), {
-      reliable: true,
-      destination_identities: [recipientIdentity],
-      topic: 'lk-rpc-request',
-    });
-    console.log('RPC REQUEST SENT', jsonString);
+      const jsonString = JSON.stringify(request);
+      this.publishData(new TextEncoder().encode(jsonString), {
+        reliable: true,
+        destination_identities: [recipientIdentity],
+        topic: 'lk-rpc-request',
+      });
+      console.log('RPC REQUEST SENT', jsonString);
 
-    const ackPromise = new Promise<RpcAck>((resolve, reject) => {
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject(new Error('ACK timeout'));
+        reject({ code: RPC_ERROR_ACK_TIMEOUT });
+        this.pendingResponses.delete(id);
+        clearTimeout(responseTimeoutId);
       }, ackTimeout);
 
-      this.pendingAcks.set(id, (ack) => {
+      this.pendingAcks.set(id, () => {
         clearTimeout(ackTimeoutId);
-        resolve(ack);
       });
-    });
 
-    const responsePromise = new Promise<RpcResponse>((resolve, reject) => {
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
-        reject(new Error('Response timeout'));
+        reject({ code: RPC_ERROR_RESPONSE_TIMEOUT });
       }, responseTimeout);
 
       this.pendingResponses.set(id, (response) => {
         clearTimeout(responseTimeoutId);
-        resolve(response);
+        if (response.errorCode !== 0 || response.errorData) {
+          reject({
+            code: response.errorCode,
+            data: response.errorData
+          });
+        } else {
+          resolve(response.data);
+        }
       });
     });
-
-    return { ackPromise, responsePromise };
   }
 
   handleIncomingRpcAck(rpcAck: RpcAck) {
@@ -333,7 +337,6 @@ export class LocalParticipant extends Participant {
       this.pendingResponses.delete(rpcResponse.requestId);
     }
   }
-
 }
 
 export class RemoteParticipant extends Participant {

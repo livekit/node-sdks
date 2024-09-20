@@ -37,6 +37,7 @@ import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
+import { RpcRequest, type RpcAck, type RpcResponse } from './rpc.js';
 
 export abstract class Participant {
   /** @internal */
@@ -262,6 +263,79 @@ export class LocalParticipant extends Participant {
     pub.track = undefined;
     this.trackPublications.delete(trackSid);
   }
+
+  private pendingAcks = new Map<string, (ack: RpcAck) => void>();
+  private pendingResponses = new Map<string, (response: RpcResponse) => void>();
+
+  performRpcRequest(
+    recipientIdentity: string,
+    name: string,
+    data: string,
+    ackTimeout: number = 5000,
+    responseTimeout: number = 10000,
+  ): { ackPromise: Promise<RpcAck>; responsePromise: Promise<RpcResponse> } {
+    const id = crypto.randomUUID();
+
+    const request = new RpcRequest();
+    request.id = id;
+    request.name = name;
+    request.data = data;
+
+    const jsonString = JSON.stringify(request);
+    this.publishData(new TextEncoder().encode(jsonString), {
+      reliable: true,
+      destination_identities: [recipientIdentity],
+      topic: 'lk-rpc-request',
+    });
+    console.log('RPC REQUEST SENT', jsonString);
+
+    const ackPromise = new Promise<RpcAck>((resolve, reject) => {
+      const ackTimeoutId = setTimeout(() => {
+        this.pendingAcks.delete(id);
+        reject(new Error('ACK timeout'));
+      }, ackTimeout);
+
+      this.pendingAcks.set(id, (ack) => {
+        console.log('ACK HANDLER CALLED');
+        clearTimeout(ackTimeoutId);
+        resolve(ack);
+      });
+    });
+
+    const responsePromise = new Promise<RpcResponse>((resolve, reject) => {
+      const responseTimeoutId = setTimeout(() => {
+        this.pendingResponses.delete(id);
+        reject(new Error('Response timeout'));
+      }, responseTimeout);
+
+      this.pendingResponses.set(id, (response) => {
+        console.log('RESPONSE HANDLER CALLED');
+        clearTimeout(responseTimeoutId);
+        resolve(response);
+      });
+    });
+
+    return { ackPromise, responsePromise };
+  }
+
+  handleIncomingRpcAck(rpcAck: RpcAck) {
+    console.log('RPC ACK RECEIVED', rpcAck);
+    const handler = this.pendingAcks.get(rpcAck.requestId);
+    if (handler) {
+      handler(rpcAck);
+      this.pendingAcks.delete(rpcAck.requestId);
+    }
+  }
+
+  handleIncomingRpcResponse(rpcResponse: RpcResponse) {
+    console.log('RPC RESPONSE RECEIVED', rpcResponse);
+    const handler = this.pendingResponses.get(rpcResponse.requestId);
+    if (handler) {
+      handler(rpcResponse);
+      this.pendingResponses.delete(rpcResponse.requestId);
+    }
+  }
+
 }
 
 export class RemoteParticipant extends Participant {

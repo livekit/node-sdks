@@ -32,6 +32,7 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
+import { RpcRequest, RpcAck, RpcResponse } from './rpc.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -273,13 +274,24 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             Number(dataPacket.value.data.data.dataLen),
           );
           new FfiHandle(dataPacket.value.data.handle.id).dispose();
-          this.emit(
-            RoomEvent.DataReceived,
-            buffer,
-            participant,
-            ev.value.kind,
-            dataPacket.value.topic,
-          );
+          if (dataPacket.value.topic === 'lk-rpc-request') {
+            const request = JSON.parse(new TextDecoder().decode(buffer)) as RpcRequest;
+            this.handleIncomingRpcRequest(request, participant);
+          } else if (dataPacket.value.topic === 'lk-rpc-ack') {
+            const ack = JSON.parse(new TextDecoder().decode(buffer)) as RpcAck;
+            this.localParticipant.handleIncomingRpcAck(ack);
+          } else if (dataPacket.value.topic === 'lk-rpc-response') {
+            const response = JSON.parse(new TextDecoder().decode(buffer)) as RpcResponse;
+            this.localParticipant.handleIncomingRpcResponse(response);
+          } else {
+            this.emit(  
+              RoomEvent.DataReceived,
+              buffer,
+              participant,
+              ev.value.kind,
+              dataPacket.value.topic,
+            );
+          }
           break;
         case 'sipDtmf':
           const { code, digit } = dataPacket.value;
@@ -307,6 +319,40 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     }
   };
+
+  private handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
+    console.log('RPC REQUEST RECEIVED', request);
+    const ack = new RpcAck();
+    ack.requestId = request.id;
+    const jsonString = JSON.stringify(ack);
+    this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
+      reliable: true,
+      destination_identities: [sender.identity],
+      topic: 'lk-rpc-ack',
+    });
+    console.log('RPC ACK SENT', ack);
+
+    this.emit(RoomEvent.RpcRequestReceived, request, sender, (response: string, errorCode?: number, errorData?: string) => {
+      const rpcResponse = new RpcResponse();
+      rpcResponse.requestId = request.id;
+      rpcResponse.data = response;
+
+      if (errorCode) {
+        rpcResponse.errorCode = errorCode;
+      }
+      if (errorData) {
+        rpcResponse.errorData = errorData;
+      }
+
+      const jsonString = JSON.stringify(rpcResponse);
+      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
+        reliable: true,
+        destination_identities: [sender.identity],
+        topic: 'lk-rpc-response',
+      });
+      console.log('RPC RESPONSE SENT', rpcResponse);
+    });
+  }
 
   private retrieveParticipantByIdentity(identity: string): Participant {
     if (this.localParticipant.identity === identity) {
@@ -383,6 +429,7 @@ export type RoomCallbacks = {
   disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
+  rpcRequestReceived: (request: RpcRequest, sender: RemoteParticipant, callback: (response: string, errorCode?: number, errorData?: string) => void) => void;
 };
 
 export enum RoomEvent {
@@ -412,4 +459,5 @@ export enum RoomEvent {
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',
   Reconnected = 'reconnected',
+  RpcRequestReceived = 'rpcRequestReceived',
 }

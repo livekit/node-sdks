@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type { OwnedParticipant, ParticipantInfo } from './proto/participant_pb.js';
+import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
 import type {
   PublishDataCallback,
   PublishDataResponse,
@@ -70,6 +70,10 @@ export abstract class Participant {
 
   get attributes(): Record<string, string> {
     return this.info.attributes;
+  }
+
+  get kind(): ParticipantKind {
+    return this.info.kind;
   }
 }
 

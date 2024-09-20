@@ -288,8 +288,7 @@ export class LocalParticipant extends Participant {
         destination_identities: [recipientIdentity],
         topic: 'lk-rpc-request',
       });
-      console.log('RPC REQUEST SENT', jsonString);
-
+      
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
         reject({ code: RPC_ERROR_ACK_TIMEOUT });
@@ -326,7 +325,6 @@ export class LocalParticipant extends Participant {
   }
 
   handleIncomingRpcAck(rpcAck: RpcAck) {
-    console.log('RPC ACK RECEIVED', rpcAck);
     const handler = this.pendingAcks.get(rpcAck.requestId);
     if (handler) {
       handler(rpcAck);
@@ -335,7 +333,6 @@ export class LocalParticipant extends Participant {
   }
 
   handleIncomingRpcResponse(rpcResponse: RpcResponse) {
-    console.log('RPC RESPONSE RECEIVED', rpcResponse);
     const handler = this.pendingResponses.get(rpcResponse.requestId);
     if (handler) {
       handler(rpcResponse);

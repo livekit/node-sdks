@@ -321,8 +321,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   };
 
   private handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
-    console.log('RPC REQUEST RECEIVED', request);
-  
     const sendAck = () => {
       const ack = new RpcAck();
       ack.requestId = request.id;
@@ -332,7 +330,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         destination_identities: [sender.identity],
         topic: 'lk-rpc-ack',
       });
-      console.log('RPC ACK SENT', ack);
     };
 
     const sendResponse = (response: string, errorCode?: number, errorData?: string) => {
@@ -348,7 +345,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         destination_identities: [sender.identity],
         topic: 'lk-rpc-response',
       });
-      console.log('RPC RESPONSE SENT', rpcResponse);
     };
 
     this.emit(RoomEvent.RpcRequestReceived, 

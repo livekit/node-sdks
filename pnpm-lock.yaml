@@ -110,6 +110,25 @@ importers:
         specifier: ^4.7.1
         version: 4.17.0
 
+  examples/rpc:
+    dependencies:
+      '@livekit/rtc-node':
+        specifier: workspace:*
+        version: link:../../packages/livekit-rtc
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      livekit-server-sdk:
+        specifier: workspace:*
+        version: link:../../packages/livekit-server-sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.16.3
+      tsx:
+        specifier: ^4.7.1
+        version: 4.17.0
+
   examples/webhooks-http:
     dependencies:
       livekit-server-sdk:

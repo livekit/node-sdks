@@ -307,6 +307,11 @@ export class LocalParticipant extends Participant {
       }, responseTimeout);
 
       this.pendingResponses.set(id, (response) => {
+        if (this.pendingAcks.has(id)) {
+          console.error('RPC response received before ack', id);
+          this.pendingAcks.delete(id);
+          clearTimeout(ackTimeoutId);
+        }
         clearTimeout(responseTimeoutId);
         if (response.errorCode !== 0 || response.errorData) {
           reject({

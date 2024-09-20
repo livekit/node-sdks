@@ -1,3 +1,5 @@
+// TODO: This implementation is only a prototype
+//       The final version will use a protocol types where possible
 export class RpcRequest {
   id: string;
   method: string;

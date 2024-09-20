@@ -267,6 +267,16 @@ export class LocalParticipant extends Participant {
   private pendingAcks = new Map<string, (ack: RpcAck) => void>();
   private pendingResponses = new Map<string, (response: RpcResponse) => void>();
 
+  /**
+   * Performs an RPC request to a remote participant.
+   * @param recipientIdentity The identity of the recipient participant.
+   * @param method The RPC method to call.
+   * @param payload The payload to send with the RPC request.
+   * @param ackTimeout The timeout for receiving an acknowledgment (in milliseconds).
+   * @param responseTimeout The timeout for receiving a response (in milliseconds).
+   * @returns A promise that resolves with the response payload or rejects with an error.
+   * @throws {code: number, data: string} upon failure
+   */
   performRpcRequest(
     recipientIdentity: string,
     method: string,
@@ -283,6 +293,8 @@ export class LocalParticipant extends Participant {
       request.payload = payload;
 
       const jsonString = JSON.stringify(request);
+      // TODO: This implementation is only a prototype
+      //       The final version will use a native DataPacket
       this.publishData(new TextEncoder().encode(jsonString), {
         reliable: true,
         destination_identities: [recipientIdentity],

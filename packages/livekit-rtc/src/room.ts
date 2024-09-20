@@ -274,6 +274,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             Number(dataPacket.value.data.data.dataLen),
           );
           new FfiHandle(dataPacket.value.data.handle.id).dispose();
+          // TODO: This implementation is only a prototype
+          //       The final version will use native DataPacket types instead of special topics
           if (dataPacket.value.topic === 'lk-rpc-request') {
             const request = JSON.parse(new TextDecoder().decode(buffer)) as RpcRequest;
             this.handleIncomingRpcRequest(request, participant);

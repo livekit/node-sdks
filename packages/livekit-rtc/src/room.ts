@@ -335,7 +335,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const sendResponse = (response: string, errorCode?: number, errorData?: string) => {
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
-      rpcResponse.data = response;
+      rpcResponse.payload = response;
       rpcResponse.errorCode = errorCode || 0;
       rpcResponse.errorData = errorData;
 
@@ -430,11 +430,22 @@ export type RoomCallbacks = {
   disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
+  /**
+   * Incoming RPC request handler.
+   * @param request - The RPC request object containing the request details.
+   * @param sender - The RemoteParticipant who sent the RPC request.
+   * @param sendAck - You must call this function to acknowledge receipt of the request.
+   * @param sendResponse - You must call this function to send a response to the request.
+   *                     It takes three parameters:
+   *                     - response: The response payload as a string.
+   *                     - errorCode: An optional error code (use 0 for success).
+   *                     - errorData: Optional error details as a string.
+   */
   rpcRequestReceived: (
     request: RpcRequest, 
     sender: RemoteParticipant, 
     sendAck: () => void,
-    sendResponse: (response: string, errorCode?: number, errorData?: string) => void,
+    sendResponse: (payload: string | null, errorCode?: number, errorData?: string) => void,
   ) => void;
 };
 

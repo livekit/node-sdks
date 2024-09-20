@@ -269,8 +269,8 @@ export class LocalParticipant extends Participant {
 
   performRpcRequest(
     recipientIdentity: string,
-    name: string,
-    data: string,
+    method: string,
+    payload: string,
     ackTimeout: number = 5000,
     responseTimeout: number = 10000,
   ): Promise<string> {
@@ -279,8 +279,8 @@ export class LocalParticipant extends Participant {
 
       const request = new RpcRequest();
       request.id = id;
-      request.name = name;
-      request.data = data;
+      request.method = method;
+      request.payload = payload;
 
       const jsonString = JSON.stringify(request);
       this.publishData(new TextEncoder().encode(jsonString), {
@@ -318,12 +318,12 @@ export class LocalParticipant extends Participant {
             data: response.errorData
           });
         } else {
-          resolve(response.data);
+          resolve(response.payload);
         }
       });
     });
   }
-
+  /** @internal */
   handleIncomingRpcAck(rpcAck: RpcAck) {
     const handler = this.pendingAcks.get(rpcAck.requestId);
     if (handler) {
@@ -332,6 +332,7 @@ export class LocalParticipant extends Participant {
     }
   }
 
+  /** @internal */
   handleIncomingRpcResponse(rpcResponse: RpcResponse) {
     const handler = this.pendingResponses.get(rpcResponse.requestId);
     if (handler) {

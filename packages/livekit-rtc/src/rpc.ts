@@ -1,7 +1,7 @@
 export class RpcRequest {
   id: string;
-  name: string;
-  data: string;
+  method: string;
+  payload: string;
 }
 
 export class RpcAck {
@@ -10,9 +10,9 @@ export class RpcAck {
 
 export class RpcResponse {
   requestId: string;
-  data: string;
-  errorCode: number; // Use 0 for success; non-zero for errors.
-  errorData?: string; // Optional error message.
+  payload?: string; // Response payload for successful requests
+  errorCode?: number; // Non-zero for errors, omitted for success
+  errorData?: string; // Optional error details, omitted for success
 }
 
 export const RPC_ERROR_ACK_TIMEOUT = 1001;

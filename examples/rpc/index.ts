@@ -22,19 +22,21 @@ async function main() {
         connectParticipant('participant-2', roomName),
       ]);
   
+      console.log('\n\nRunning greeting example...');
       await Promise.all([
-        participant1Body(room1),
-        participant2Body(room2)
+        participant1Greeting(room1),
+        participant2Greeting(room2)
       ]);
 
-      // Add the second example
-      console.log('\nStarting second example with JSON data...');
+      console.log('\n\nRunning math example...');
       await Promise.all([
-        participant1JsonBody(room1),
-        participant2JsonBody(room2)
+        squareRoot(room1).then(() => {
+          return new Promise(resolve => setTimeout(() => resolve(), 2000))
+        }).then(() => quantumHypergeometricSeries(room1)),
+        mathGenius(room2)
       ]);
   
-      console.log('Participants done, disconnecting...');
+      console.log('\n\nParticipants done, disconnecting...');
       await room1.disconnect();
       await room2.disconnect();
   
@@ -46,7 +48,7 @@ async function main() {
     }
   }
 
-const participant1Body = async (room: Room): Promise<void> => {
+const participant1Greeting = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
     console.log('[Participant 1] Sending RPC request to participant 2');
     room.localParticipant?.performRpcRequest(
@@ -55,7 +57,7 @@ const participant1Body = async (room: Room): Promise<void> => {
       'Hello from participant 1!'
     )
       .then((response) => {
-        console.log('[Participant 1] RPC response received:', response);
+        console.log(`[Participant 1] I heard back: "${response}"`);
         resolve();
       })
       .catch((error) => {
@@ -65,86 +67,98 @@ const participant1Body = async (room: Room): Promise<void> => {
   });
 };
 
-const participant2Body = (room: Room): Promise<void> => {
+const participant2Greeting = (room: Room): Promise<void> => {
   return new Promise((resolve) => {
     const handleRpcRequest = (request: RpcRequest, sender: RemoteParticipant, sendAck: () => void, sendResponse: (response: string) => void) => {
-      console.log('[Participant 2] Received RPC request from', sender.identity, ':', request.data);
+      console.log(`[Participant 2] Oh participant 1 says "${request.payload}"`);
       sendAck();
-      console.log('[Participant 2] Processing request...');
       setTimeout(() => {
-        const response = 'Hello from participant 2!';
-        console.log('[Participant 2] Sending response to participant 1');
-        sendResponse(response);
+        sendResponse('Hi nice to meet you, I\'m participant 2!');
         resolve();
       }, 2000);
+    room.off(RoomEvent.RpcRequestReceived, handleRpcRequest);
     };
 
     room.on(RoomEvent.RpcRequestReceived, handleRpcRequest);
   });
 };
 
-const participant1JsonBody = async (room: Room): Promise<void> => {
+const squareRoot = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log('[Participant 1] Sending JSON RPC request to participant 2');
-    const jsonData = {
-      message: 'Hello from participant 1!',
-      number: 42,
-      nested: {
-        value: 'Transform me!'
-      }
-    };
+    console.log('[Math Novice] What\'s the square root of 16?');
     room.localParticipant?.performRpcRequest(
       'participant-2',
-      'json-greeting',
-      JSON.stringify(jsonData)
+      'square-root',
+      JSON.stringify({ number: 16 })
     )
       .then((response) => {
-        console.log('[Participant 1] JSON RPC response received:', response);
         const parsedResponse = JSON.parse(response);
-        console.log('[Participant 1] Parsed response:', parsedResponse);
+        console.log(`[Math Novice] Nice, the answer was ${parsedResponse.result}`);
         resolve();
       })
       .catch((error) => {
-        console.error('[Participant 1] JSON RPC call failed:', error);
+        console.error('[Math Novice] RPC call failed:', error);
         reject(error);
       });
   });
 };
 
-const participant2JsonBody = (room: Room): Promise<void> => {
+const quantumHypergeometricSeries = async (room: Room): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log('[Math Novice] What\'s the quantum hypergeometric series of 42?');
+      room.localParticipant?.performRpcRequest(
+        'participant-2',
+        'quantum-hypergeometric-series',
+        JSON.stringify({ number: 42 })
+      )
+        .then((response) => {
+          const parsedResponse = JSON.parse(response);
+          console.log(`[Math Novice] Nice, the answer was ${parsedResponse.result}`);
+          resolve();
+        })
+        .catch((error) => {
+        if (error.code == 1) {
+            console.log(`[Math Novice] Aww I guess that was too hard. The genius said "${error.data}"`);
+            resolve();
+        } else {
+          console.error('[Math Novice] Unexpected error:', error);
+          reject(error);
+        }
+      });
+    });
+};
+
+const mathGenius = (room: Room): Promise<void> => {
   return new Promise((resolve) => {
-    const handleJsonRpcRequest = (request: RpcRequest, sender: RemoteParticipant, sendAck: () => void, sendResponse: (response: string) => void) => {
-      console.log('[Participant 2] Received JSON RPC request from', sender.identity);
-      sendAck();
-      console.log('[Participant 2] Processing JSON request...');
-      
-      try {
-        const jsonData = JSON.parse(request.data);
-        console.log('[Participant 2] Parsed request data:', jsonData);
-        
-        // Transform the nested.value
-        const transformedValue = jsonData.nested.value.toUpperCase();
-        
-        const response = {
-          originalMessage: jsonData.message,
-          transformedValue: transformedValue,
-          numberSquared: jsonData.number * jsonData.number
-        };
-        
-        console.log('[Participant 2] Sending JSON response to participant 1');
-        sendResponse(JSON.stringify(response));
-        resolve();
-      } catch (error) {
-        console.error('[Participant 2] Error processing JSON request:', error);
-        sendResponse(JSON.stringify({ error: 'Failed to process JSON request' }));
-        resolve();
-      }
+    const handleJsonRpcRequest = (request: RpcRequest, sender: RemoteParticipant, sendAck: () => void, sendResponse: (payload: string | null, errorCode?: number, errorData?: string) => void) => {
+        if (request.method === 'square-root') {
+            const jsonData = JSON.parse(request.payload);
+            const number = jsonData.number;
+            console.log(`[Math Genius] I guess participant 1 wants the square root of ${number}. I can do that but it will take a few seconds...`);
+            sendAck();
+            
+            console.log(`[Math Genius] *doing math*…`);
+            setTimeout(() => {
+                try {
+                    const result = Math.sqrt(number);
+                    console.log(`[Math Genius] Aha! It's ${result}`);
+                    sendResponse(JSON.stringify({ result }));
+                    resolve();
+                } catch (error) {
+                    console.error('[Math Genius] Error processing JSON request:', error);
+                    sendResponse(null, 1, 'error');
+                    resolve();
+                }
+            }, 2000);
+        } else {
+            console.log(`[Math Genius] Oops, I don't know how to handle ${request.method}, I'd better decline.`);
+            sendAck();
+            sendResponse(null, 1, 'That math is too hard for me');
+        }
     };
 
     room.on(RoomEvent.RpcRequestReceived, (request, sender, sendAck, sendResponse) => {
-      if (request.method === 'json-greeting') {
-        handleJsonRpcRequest(request, sender, sendAck, sendResponse);
-      }
+      handleJsonRpcRequest(request, sender, sendAck, sendResponse);
     });
   });
 };

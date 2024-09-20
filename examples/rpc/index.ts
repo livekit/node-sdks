@@ -1,7 +1,7 @@
 import { Room, RoomEvent } from '@livekit/rtc-node';
-import { AccessToken } from 'livekit-server-sdk';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
+import { AccessToken } from 'livekit-server-sdk';
 
 // Load environment variables from .env.local file
 config({ path: '.env.local', override: false });
@@ -36,12 +36,12 @@ const createToken = (identity: string) => {
 type ParticipantBodyFunc = (room: Room) => void;
 
 // Function to connect a participant to the room with customization
-const connectParticipant = async (participantId: string, body: ParticipantBodyFunc) => {
+const connectParticipant = async (identity: string, body: ParticipantBodyFunc) => {
   const room = new Room();
-  const token = await createToken(`participant-${participantId}`);
-  
+  const token = await createToken(identity);
+
   room.on(RoomEvent.Disconnected, () => {
-    console.log(`Participant ${participantId} disconnected from room`);
+    console.log(`Participant ${identity} disconnected from room`);
   });
 
   await room.connect(LIVEKIT_URL, token, {
@@ -67,18 +67,28 @@ const connectParticipant = async (participantId: string, body: ParticipantBodyFu
   return room;
 };
 
-// Customization for participant 1
-const customizeParticipant1: ParticipantBodyFunc = (room) => {
-  console.log('Hello from participant 1');
-
-
-  // Add specific behavior for participant 1 here
+const participant1: ParticipantBodyFunc = async (room) => {
+  try {
+    const response = await room.localParticipant?.performRpcRequest(
+      'participant-2',
+      'greeting',
+      JSON.stringify({ message: 'Hello from participant 1!' }),
+    );
+    console.log('RPC response received:', response);
+  } catch (error) {
+    console.error('RPC call failed:', error);
+  }
 };
 
-// Customization for participant 2
-const customizeParticipant2: ParticipantBodyFunc = (room) => {
-  console.log('Hello from participant 2');
-  // Add specific behavior for participant 2 here
+const participant2: ParticipantBodyFunc = (room) => {
+  // Listen for incoming RPC requests
+  room.on(RoomEvent.RpcRequestReceived, (request, sender, sendAck, sendResponse) => {
+    console.log('Received RPC request from', sender.identity, ':', request);
+    sendAck(); // Acknowledge receipt of the request
+    // Process the request and send a response
+    const responseData = JSON.stringify({ message: 'Hello from participant 2!' });
+    sendResponse(responseData);
+  });
 };
 
 // Main function to set up and connect participants
@@ -87,8 +97,8 @@ async function main() {
     console.log(`Connecting participants to room: ${roomName}`);
 
     const [room1, room2] = await Promise.all([
-      connectParticipant('1', customizeParticipant1),
-      connectParticipant('2', customizeParticipant2)
+      connectParticipant('participant-1', participant1),
+      connectParticipant('participant-2', participant2),
     ]);
 
     // Keep the rooms connected for a while

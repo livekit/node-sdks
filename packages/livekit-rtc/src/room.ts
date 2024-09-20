@@ -322,27 +322,25 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
     console.log('RPC REQUEST RECEIVED', request);
-    const ack = new RpcAck();
-    ack.requestId = request.id;
-    const jsonString = JSON.stringify(ack);
-    this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
-      reliable: true,
-      destination_identities: [sender.identity],
-      topic: 'lk-rpc-ack',
-    });
-    console.log('RPC ACK SENT', ack);
+  
+    const sendAck = () => {
+      const ack = new RpcAck();
+      ack.requestId = request.id;
+      const jsonString = JSON.stringify(ack);
+      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
+        reliable: true,
+        destination_identities: [sender.identity],
+        topic: 'lk-rpc-ack',
+      });
+      console.log('RPC ACK SENT', ack);
+    };
 
-    this.emit(RoomEvent.RpcRequestReceived, request, sender, (response: string, errorCode?: number, errorData?: string) => {
+    const sendResponse = (response: string, errorCode?: number, errorData?: string) => {
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
       rpcResponse.data = response;
-
-      if (errorCode) {
-        rpcResponse.errorCode = errorCode;
-      }
-      if (errorData) {
-        rpcResponse.errorData = errorData;
-      }
+      rpcResponse.errorCode = errorCode || 0;
+      rpcResponse.errorData = errorData;
 
       const jsonString = JSON.stringify(rpcResponse);
       this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
@@ -351,7 +349,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         topic: 'lk-rpc-response',
       });
       console.log('RPC RESPONSE SENT', rpcResponse);
-    });
+    };
+
+    this.emit(RoomEvent.RpcRequestReceived, 
+      request, 
+      sender, 
+      sendAck,
+      sendResponse,
+    );
   }
 
   private retrieveParticipantByIdentity(identity: string): Participant {
@@ -429,7 +434,12 @@ export type RoomCallbacks = {
   disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
-  rpcRequestReceived: (request: RpcRequest, sender: RemoteParticipant, callback: (response: string, errorCode?: number, errorData?: string) => void) => void;
+  rpcRequestReceived: (
+    request: RpcRequest, 
+    sender: RemoteParticipant, 
+    sendAck: () => void,
+    sendResponse: (response: string, errorCode?: number, errorData?: string) => void,
+  ) => void;
 };
 
 export enum RoomEvent {

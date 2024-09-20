@@ -296,7 +296,6 @@ export class LocalParticipant extends Participant {
       }, ackTimeout);
 
       this.pendingAcks.set(id, (ack) => {
-        console.log('ACK HANDLER CALLED');
         clearTimeout(ackTimeoutId);
         resolve(ack);
       });
@@ -309,7 +308,6 @@ export class LocalParticipant extends Participant {
       }, responseTimeout);
 
       this.pendingResponses.set(id, (response) => {
-        console.log('RESPONSE HANDLER CALLED');
         clearTimeout(responseTimeoutId);
         resolve(response);
       });

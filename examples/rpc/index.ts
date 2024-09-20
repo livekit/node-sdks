@@ -41,18 +41,18 @@ async function main() {
 
 const participant1Body = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log('sending rpc request to participant 2');
+    console.log('[Participant 1] Sending RPC request to participant 2');
     room.localParticipant?.performRpcRequest(
       'participant-2',
       'greeting',
-      JSON.stringify({ message: 'Hello from participant 1!' }),
+      'Hello from participant 1!'
     )
       .then((response) => {
-        console.log('RPC response received:', response);
+        console.log('[Participant 1] RPC response received:', response);
         resolve();
       })
       .catch((error) => {
-        console.error('RPC call failed:', error);
+        console.error('[Participant 1] RPC call failed:', error);
         reject(error);
       });
   });
@@ -61,15 +61,15 @@ const participant1Body = async (room: Room): Promise<void> => {
 const participant2Body = (room: Room): Promise<void> => {
   return new Promise((resolve) => {
     const handleRpcRequest = (request: RpcRequest, sender: RemoteParticipant, sendAck: () => void, sendResponse: (response: string) => void) => {
-      console.log('Acking RPC request from', sender.identity, ':');
+      console.log('[Participant 2] Received RPC request from', sender.identity, ':', request.data);
       sendAck();
-      console.log('working…');
+      console.log('[Participant 2] Processing request...');
       setTimeout(() => {
-        const responseData = JSON.stringify({ message: 'Hello from participant 2!' });
-        console.log('sending response to participant 1');
-        sendResponse(responseData);
-      }, 5000);
-      resolve(); // Resolve the promise after handling the RPC request
+        const response = 'Hello from participant 2!';
+        console.log('[Participant 2] Sending response to participant 1');
+        sendResponse(response);
+        resolve();
+      }, 2000);
     };
 
     room.on(RoomEvent.RpcRequestReceived, handleRpcRequest);
@@ -94,7 +94,7 @@ const connectParticipant = async (identity: string, roomName: string): Promise<R
   const token = await createToken(identity, roomName);
 
   room.on(RoomEvent.Disconnected, () => {
-    console.log(`Participant ${identity} disconnected from room`);
+    console.log(`[${identity}] Disconnected from room`);
   });
 
   await room.connect(LIVEKIT_URL, token, {

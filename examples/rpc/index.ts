@@ -147,10 +147,7 @@ const connectParticipant = async (identity: string, roomName: string): Promise<R
     console.log(`[${identity}] Disconnected from room`);
   });
 
-  await room.connect(LIVEKIT_URL, token, {
-    autoSubscribe: true,
-    dynacast: true,
-  });
+  await room.connect(LIVEKIT_URL, token);
 
   await Promise.race([
     new Promise<void>((resolve) => {

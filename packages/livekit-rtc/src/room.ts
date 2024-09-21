@@ -322,7 +322,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
   };
 
-  private handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
+  private async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
     const sendAck = () => {
       const ack = new RpcAck();
       ack.requestId = request.id;
@@ -334,12 +334,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       });
     };
 
-    const sendResponse = (response: string, errorCode?: number, errorData?: string) => {
+    try {
+      sendAck();
+      const response = await this.localParticipant.handleIncomingRpcRequest(request, sender);
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
       rpcResponse.payload = response;
-      rpcResponse.errorCode = errorCode || 0;
-      rpcResponse.errorData = errorData;
+      rpcResponse.errorCode = 0;
 
       const jsonString = JSON.stringify(rpcResponse);
       this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
@@ -347,14 +348,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         destination_identities: [sender.identity],
         topic: 'lk-rpc-response',
       });
-    };
+    } catch (error) {
+      const rpcResponse = new RpcResponse();
+      rpcResponse.requestId = request.id;
+      rpcResponse.errorCode = 1;
+      rpcResponse.errorData = error.message;
 
-    this.emit(RoomEvent.RpcRequestReceived, 
-      request, 
-      sender, 
-      sendAck,
-      sendResponse,
-    );
+      const jsonString = JSON.stringify(rpcResponse);
+      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
+        reliable: true,
+        destination_identities: [sender.identity],
+        topic: 'lk-rpc-response',
+      });
+    }
   }
 
   private retrieveParticipantByIdentity(identity: string): Participant {
@@ -432,23 +438,6 @@ export type RoomCallbacks = {
   disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
-  /**
-   * Incoming RPC request handler.
-   * @param request - The RPC request object containing the request details.
-   * @param sender - The RemoteParticipant who sent the RPC request.
-   * @param sendAck - You must call this function to acknowledge receipt of the request.
-   * @param sendResponse - You must call this function to send a response to the request.
-   *                     It takes three parameters:
-   *                     - response: The response payload as a string.
-   *                     - errorCode: An optional error code (use 0 for success).
-   *                     - errorData: Optional error details as a string.
-   */
-  rpcRequestReceived: (
-    request: RpcRequest, 
-    sender: RemoteParticipant, 
-    sendAck: () => void,
-    sendResponse: (payload: string | null, errorCode?: number, errorData?: string) => void,
-  ) => void;
 };
 
 export enum RoomEvent {
@@ -478,5 +467,4 @@ export enum RoomEvent {
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',
   Reconnected = 'reconnected',
-  RpcRequestReceived = 'rpcRequestReceived',
 }

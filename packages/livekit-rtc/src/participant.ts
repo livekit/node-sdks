@@ -91,6 +91,8 @@ export type DataPublishOptions = {
 };
 
 export class LocalParticipant extends Participant {
+  private rpcCallbacks: Map<string, (request: RpcRequest, sender: RemoteParticipant) => Promise<string>> = new Map();
+
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
@@ -335,6 +337,7 @@ export class LocalParticipant extends Participant {
       });
     });
   }
+
   /** @internal */
   handleIncomingRpcAck(rpcAck: RpcAck) {
     const handler = this.pendingAcks.get(rpcAck.requestId);
@@ -351,6 +354,25 @@ export class LocalParticipant extends Participant {
       handler(rpcResponse);
       this.pendingResponses.delete(rpcResponse.requestId);
     }
+  }
+
+  registerRpcMethod(
+    method: string,
+    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
+  ) {
+    this.rpcCallbacks.set(method, callback);
+  }
+
+  unregisterRpcMethod(method: string) {
+    this.rpcCallbacks.delete(method);
+  }
+
+  async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant): Promise<string> {
+    const callback = this.rpcCallbacks.get(request.method);
+    if (!callback) {
+      throw new Error(`No callback registered for method: ${request.method}`);
+    }
+    return await callback(request, sender);
   }
 }
 

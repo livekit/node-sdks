@@ -17,14 +17,18 @@ async function main() {
 
   console.log(`Connecting participants to room: ${roomName}`);
 
-  const [room1, room2] = await Promise.all([
-    connectParticipant('participant-1', roomName),
-    connectParticipant('participant-2', roomName),
+  const [requestersRoom, greetersRoom, mathGeniusRoom] = await Promise.all([
+    connectParticipant('requester', roomName),
+    connectParticipant('greeter', roomName),
+    connectParticipant('math-genius', roomName),
   ]);
+
+  // Register all methods for the receiving participant
+  await registerReceiverMethods(greetersRoom, mathGeniusRoom);
 
   try {
     console.log('\n\nRunning greeting example...');
-    await Promise.all([participant1Greeting(room1), participant2Greeting(room2)]);
+    await Promise.all([performGreeting(requestersRoom)]);
   } catch (error) {
     console.error('Error:', error);
   }
@@ -32,121 +36,111 @@ async function main() {
   try {
     console.log('\n\nRunning math example...');
     await Promise.all([
-      squareRoot(room1)
-        .then(() => {
-          return new Promise<void>((resolve) => setTimeout(() => resolve(), 2000));
-        })
-        .then(() => quantumHypergeometricSeries(room1)),
-      mathGenius(room2),
+      performSquareRoot(requestersRoom)
+        .then(() => new Promise<void>((resolve) => setTimeout(resolve, 2000)))
+        .then(() => performQuantumHypergeometricSeries(requestersRoom)),
     ]);
   } catch (error) {
     console.error('Error:', error);
   }
 
   console.log('\n\nParticipants done, disconnecting...');
-  await room1.disconnect();
-  await room2.disconnect();
+  await requestersRoom.disconnect();
+  await greetersRoom.disconnect();
+  await mathGeniusRoom.disconnect();
 
   console.log('Participants disconnected. Example completed.');
 
   process.exit(0);
 }
 
-const participant1Greeting = async (room: Room): Promise<void> => {
+const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room): Promise<void> => {
+  greetersRoom.localParticipant?.registerRpcMethod(
+    'arrival',
+    async (request: RpcRequest, sender: RemoteParticipant) => {
+      console.log(`[Greeter] Oh ${sender.identity} arrived and said "${request.payload}"`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return "Welcome and have a wonderful day!";
+    },
+  );
+
+  mathGeniusRoom.localParticipant?.registerRpcMethod(
+    'square-root',
+    async (request: RpcRequest, sender: RemoteParticipant) => {
+      const jsonData = JSON.parse(request.payload);
+      const number = jsonData.number;
+      console.log(
+        `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
+      );
+
+      console.log(`[Math Genius] *doing math*…`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const result = Math.sqrt(number);
+      console.log(`[Math Genius] Aha! It's ${result}`);
+      return JSON.stringify({ result });
+    },
+  );
+};
+
+const performGreeting = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log('[Participant 1] Sending RPC request to participant 2');
+    console.log('[Requester] Letting the greeter know that I\'ve arrived');
     room.localParticipant
-      ?.performRpcRequest('participant-2', 'greeting', 'Hello from participant 1!')
+      ?.performRpcRequest('greeter', 'arrival', 'Hello')
       .then((response) => {
-        console.log(`[Participant 1] I heard back: "${response}"`);
+        console.log(`[Requester] That's nice, the greeter said: "${response}"`);
         resolve();
       })
       .catch((error) => {
-        console.error('[Participant 1] RPC call failed:', error);
+        console.error('[Requester] RPC call failed:', error);
         reject(error);
       });
   });
 };
 
-const participant2Greeting = (room: Room): Promise<void> => {
-  return new Promise((resolve) => {
-    room.localParticipant?.registerRpcMethod(
-      'greeting',
-      async (request: RpcRequest, sender: RemoteParticipant) => {
-        console.log(`[Participant 2] Oh ${sender.identity} says "${request.payload}"`);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        resolve();
-        return "Hi nice to meet you, I'm participant 2!";
-      },
-    );
-  });
-};
-
-const squareRoot = async (room: Room): Promise<void> => {
+const performSquareRoot = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log("[Math Novice] What's the square root of 16?");
+    console.log("[Requester] What's the square root of 16?");
     room.localParticipant
-      ?.performRpcRequest('participant-2', 'square-root', JSON.stringify({ number: 16 }))
+      ?.performRpcRequest('math-genius', 'square-root', JSON.stringify({ number: 16 }))
       .then((response) => {
         const parsedResponse = JSON.parse(response);
-        console.log(`[Math Novice] Nice, the answer was ${parsedResponse.result}`);
+        console.log(`[Requester] Nice, the answer was ${parsedResponse.result}`);
         resolve();
       })
       .catch((error) => {
-        console.error('[Math Novice] RPC call failed:', error);
+        console.error('[Requester] RPC call failed:', error);
         reject(error);
       });
   });
 };
 
-const quantumHypergeometricSeries = async (room: Room): Promise<void> => {
+const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log("[Math Novice] What's the quantum hypergeometric series of 42?");
+    console.log("[Requester] What's the quantum hypergeometric series of 42?");
     room.localParticipant
       ?.performRpcRequest(
-        'participant-2',
+        'math-genius',
         'quantum-hypergeometric-series',
         JSON.stringify({ number: 42 }),
       )
       .then((response) => {
         const parsedResponse = JSON.parse(response);
-        console.log(`[Math Novice] genius says ${parsedResponse.result}!`);
+        console.log(`[Requester] genius says ${parsedResponse.result}!`);
         resolve();
       })
       .catch((error) => {
         if (error.message === RPC_ERROR_UNSUPPORTED_METHOD) {
           console.log(
-            `[Math Novice] Aww looks like the genius doesn't know that one.`,
+            `[Requester] Aww looks like the genius doesn't know that one.`,
           );
           resolve();
         } else {
-          console.error('[Math Novice] Unexpected error:', error);
+          console.error('[Requester] Unexpected error:', error);
           reject(error);
         }
       });
-  });
-};
-
-const mathGenius = (room: Room): Promise<void> => {
-  return new Promise((resolve) => {
-    room.localParticipant?.registerRpcMethod(
-      'square-root',
-      async (request: RpcRequest, sender: RemoteParticipant) => {
-        const jsonData = JSON.parse(request.payload);
-        const number = jsonData.number;
-        console.log(
-          `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
-        );
-
-        console.log(`[Math Genius] *doing math*…`);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        const result = Math.sqrt(number);
-        console.log(`[Math Genius] Aha! It's ${result}`);
-        resolve();
-        return JSON.stringify({ result });
-      },
-    );
   });
 };
 

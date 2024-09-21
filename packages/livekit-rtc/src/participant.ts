@@ -33,7 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { RpcAck, RpcRequest, RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT, RPC_ERROR_METHOD_UNSUPPORTED } from './rpc.js';
+import { RpcAck, RpcRequest, RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT, RPC_ERROR_UNSUPPORTED_METHOD } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -305,7 +305,7 @@ export class LocalParticipant extends Participant {
       
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject({ code: RPC_ERROR_ACK_TIMEOUT });
+        reject(new Error(RPC_ERROR_ACK_TIMEOUT));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
       }, ackTimeout);
@@ -316,7 +316,7 @@ export class LocalParticipant extends Participant {
 
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
-        reject({ code: RPC_ERROR_RESPONSE_TIMEOUT });
+        reject(new Error(RPC_ERROR_RESPONSE_TIMEOUT));
       }, responseTimeout);
 
       this.pendingResponses.set(id, (response) => {
@@ -326,11 +326,8 @@ export class LocalParticipant extends Participant {
           clearTimeout(ackTimeoutId);
         }
         clearTimeout(responseTimeoutId);
-        if (response.errorCode !== 0 || response.errorData) {
-          reject({
-            code: response.errorCode,
-            data: response.errorData
-          });
+        if (response.error) {
+          reject(new Error(response.error));
         } else {
           resolve(response.payload);
         }
@@ -403,10 +400,9 @@ export class LocalParticipant extends Participant {
     const callback = this.rpcCallbacks.get(request.method);
 
     if (!callback) {
-      // Auto fail for unsupported methods
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
-      rpcResponse.errorCode = RPC_ERROR_METHOD_UNSUPPORTED;
+      rpcResponse.error = RPC_ERROR_UNSUPPORTED_METHOD;
       sendResponse(rpcResponse);
       return;
     }
@@ -416,13 +412,11 @@ export class LocalParticipant extends Participant {
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
       rpcResponse.payload = response;
-      rpcResponse.errorCode = 0;
       sendResponse(rpcResponse);
     } catch (error) {
       const rpcResponse = new RpcResponse();
       rpcResponse.requestId = request.id;
-      rpcResponse.errorCode = 1;
-      rpcResponse.errorData = error.message;
+      rpcResponse.error = error.message;
       sendResponse(rpcResponse);
     }
   }

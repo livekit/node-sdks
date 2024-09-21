@@ -12,12 +12,11 @@ export class RpcAck {
 
 export class RpcResponse {
   requestId: string;
-  payload?: string; // Response payload for successful requests
-  errorCode?: number; // Non-zero for errors, omitted for success
-  errorData?: string; // Optional error details, omitted for success
+  payload?: string; 
+  error?: string;
 }
 
-export const RPC_ERROR_ACK_TIMEOUT = 1001;
-export const RPC_ERROR_RESPONSE_TIMEOUT = 1002;
-export const RPC_ERROR_METHOD_UNSUPPORTED = 1003;
+export const RPC_ERROR_ACK_TIMEOUT = 'lk-rpc.ack-timeout';
+export const RPC_ERROR_RESPONSE_TIMEOUT = 'lk-rpc.response-timeout';
+export const RPC_ERROR_UNSUPPORTED_METHOD = 'lk-rpc.unsupported-method';
 

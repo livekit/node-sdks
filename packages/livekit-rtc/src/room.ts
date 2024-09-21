@@ -32,7 +32,7 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import { RpcRequest, RpcAck, RpcResponse, RPC_ERROR_METHOD_UNSUPPORTED } from './rpc.js';
+import type { RpcRequest, RpcAck, RpcResponse } from './rpc.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;

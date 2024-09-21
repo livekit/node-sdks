@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { PartialMessage } from '@bufbuild/protobuf';
+import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
-import type TypedEmitter from 'typed-emitter';
 import {
   FfiHandle,
   livekitCopyBuffer,

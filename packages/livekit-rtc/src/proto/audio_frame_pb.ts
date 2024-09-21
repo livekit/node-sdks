@@ -276,9 +276,9 @@ export class NewAudioSourceRequest extends Message<NewAudioSourceRequest> {
   numChannels = 0;
 
   /**
-   * @generated from field: optional bool enable_queue = 5;
+   * @generated from field: uint32 queue_size_ms = 5;
    */
-  enableQueue?: boolean;
+  queueSizeMs = 0;
 
   constructor(data?: PartialMessage<NewAudioSourceRequest>) {
     super();
@@ -292,7 +292,7 @@ export class NewAudioSourceRequest extends Message<NewAudioSourceRequest> {
     { no: 2, name: "options", kind: "message", T: AudioSourceOptions, opt: true },
     { no: 3, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
     { no: 4, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
-    { no: 5, name: "enable_queue", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
+    { no: 5, name: "queue_size_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewAudioSourceRequest {
@@ -472,6 +472,74 @@ export class CaptureAudioFrameCallback extends Message<CaptureAudioFrameCallback
 
   static equals(a: CaptureAudioFrameCallback | PlainMessage<CaptureAudioFrameCallback> | undefined, b: CaptureAudioFrameCallback | PlainMessage<CaptureAudioFrameCallback> | undefined): boolean {
     return proto3.util.equals(CaptureAudioFrameCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ClearAudioBufferRequest
+ */
+export class ClearAudioBufferRequest extends Message<ClearAudioBufferRequest> {
+  /**
+   * @generated from field: uint64 source_handle = 1;
+   */
+  sourceHandle = protoInt64.zero;
+
+  constructor(data?: PartialMessage<ClearAudioBufferRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.ClearAudioBufferRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "source_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ClearAudioBufferRequest {
+    return new ClearAudioBufferRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ClearAudioBufferRequest {
+    return new ClearAudioBufferRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ClearAudioBufferRequest {
+    return new ClearAudioBufferRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ClearAudioBufferRequest | PlainMessage<ClearAudioBufferRequest> | undefined, b: ClearAudioBufferRequest | PlainMessage<ClearAudioBufferRequest> | undefined): boolean {
+    return proto3.util.equals(ClearAudioBufferRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ClearAudioBufferResponse
+ */
+export class ClearAudioBufferResponse extends Message<ClearAudioBufferResponse> {
+  constructor(data?: PartialMessage<ClearAudioBufferResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.ClearAudioBufferResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ClearAudioBufferResponse {
+    return new ClearAudioBufferResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ClearAudioBufferResponse {
+    return new ClearAudioBufferResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ClearAudioBufferResponse {
+    return new ClearAudioBufferResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ClearAudioBufferResponse | PlainMessage<ClearAudioBufferResponse> | undefined, b: ClearAudioBufferResponse | PlainMessage<ClearAudioBufferResponse> | undefined): boolean {
+    return proto3.util.equals(ClearAudioBufferResponse, a, b);
   }
 }
 

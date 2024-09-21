@@ -78,7 +78,7 @@ await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2
 
 ### RPC
 
-LiveKit now supports RPC, allowing participants to call methods on other participants in the room. This feature is especially useful in combination with [Agents](https://docs.livekit.io/agents).
+Use RPC to allow one participant to call custom-defined methods on other participants in the room. This feature is especially useful in combination with [Agents](https://docs.livekit.io/agents).
 
 #### Registering an RPC method
 

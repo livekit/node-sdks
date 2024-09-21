@@ -33,7 +33,14 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { RpcAck, RpcRequest, RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT, RPC_ERROR_UNSUPPORTED_METHOD } from './rpc.js';
+import {
+  RPC_ERROR_ACK_TIMEOUT,
+  RPC_ERROR_RESPONSE_TIMEOUT,
+  RPC_ERROR_UNSUPPORTED_METHOD,
+  RpcAck,
+  RpcRequest,
+  RpcResponse,
+} from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -95,7 +102,10 @@ export type DataPublishOptions = {
 };
 
 export class LocalParticipant extends Participant {
-  private rpcCallbacks: Map<string, (request: RpcRequest, sender: RemoteParticipant) => Promise<string>> = new Map();
+  private rpcCallbacks: Map<
+    string,
+    (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
+  > = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
@@ -278,8 +288,8 @@ export class LocalParticipant extends Participant {
    * @param recipientIdentity The identity of the recipient participant.
    * @param method The RPC method to call.
    * @param payload The payload to send with the RPC request.
-   * @param ackTimeout The timeout for receiving an acknowledgment (in milliseconds).
-   * @param responseTimeout The timeout for receiving a response (in milliseconds).
+   * @param ackTimeoutMs The timeout for receiving an acknowledgment (in milliseconds).
+   * @param responseTimeoutMs The timeout for receiving a response (in milliseconds).
    * @returns A promise that resolves with the response payload or rejects with an error.
    * @throws {code: number, data: string} upon failure
    */
@@ -287,16 +297,20 @@ export class LocalParticipant extends Participant {
     recipientIdentity: string,
     method: string,
     payload: string,
-    ackTimeout: number = 5000,
-    responseTimeout: number = 10000,
+    ackTimeoutMs: number = 5000,
+    responseTimeoutMs: number = 10000,
   ): Promise<string> {
+    const maxRoundTripLatencyMs = 2000;
+
     return new Promise((resolve, reject) => {
       const id = crypto.randomUUID();
 
-      const request = new RpcRequest();
-      request.id = id;
-      request.method = method;
-      request.payload = payload;
+      const request = new RpcRequest({
+        id,
+        method,
+        payload,
+        responseTimeoutMs: responseTimeoutMs - maxRoundTripLatencyMs
+      });
 
       const jsonString = JSON.stringify(request);
       // TODO: This implementation is only a prototype
@@ -306,13 +320,13 @@ export class LocalParticipant extends Participant {
         destination_identities: [recipientIdentity],
         topic: 'lk-rpc-request',
       });
-      
+
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
         reject(new Error(RPC_ERROR_ACK_TIMEOUT));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
-      }, ackTimeout);
+      }, ackTimeoutMs);
 
       this.pendingAcks.set(id, () => {
         clearTimeout(ackTimeoutId);
@@ -321,7 +335,7 @@ export class LocalParticipant extends Participant {
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
         reject(new Error(RPC_ERROR_RESPONSE_TIMEOUT));
-      }, responseTimeout);
+      }, responseTimeoutMs);
 
       this.pendingResponses.set(id, (response) => {
         if (this.pendingAcks.has(id)) {
@@ -342,20 +356,20 @@ export class LocalParticipant extends Participant {
   /**
    * Etablishes the participant as a receiver for RPC calls of the specified method.
    * Will overwrite any existing callback for the specified method.
-   * 
-   * @param method - The name of the indicated RPC method 
+   *
+   * @param method - The name of the indicated RPC method
    * @param callback - Will be called when an RPC request for this method is received, with the request and the sender. Respond with a string.
    */
   registerRpcMethod(
     method: string,
-    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
+    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>,
   ) {
     this.rpcCallbacks.set(method, callback);
   }
 
   /**
    * Unregisters a previously registered RPC method.
-   * 
+   *
    * @param method - The name of the RPC method to unregister
    */
   unregisterRpcMethod(method: string) {
@@ -383,8 +397,9 @@ export class LocalParticipant extends Participant {
   /** @internal */
   async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
     // ACK the request
-    const ack = new RpcAck();
-    ack.requestId = request.id;
+    const ack = new RpcAck({
+      requestId: request.id,
+    });
     const jsonString = JSON.stringify(ack);
     this.publishData(new TextEncoder().encode(jsonString), {
       reliable: true,
@@ -404,23 +419,26 @@ export class LocalParticipant extends Participant {
     const callback = this.rpcCallbacks.get(request.method);
 
     if (!callback) {
-      const rpcResponse = new RpcResponse();
-      rpcResponse.requestId = request.id;
-      rpcResponse.error = RPC_ERROR_UNSUPPORTED_METHOD;
+      const rpcResponse = new RpcResponse({
+        requestId: request.id,
+        error: RPC_ERROR_UNSUPPORTED_METHOD,
+      });
       sendResponse(rpcResponse);
       return;
     }
 
     try {
       const response = await callback(request, sender);
-      const rpcResponse = new RpcResponse();
-      rpcResponse.requestId = request.id;
-      rpcResponse.payload = response;
+      const rpcResponse = new RpcResponse({
+        requestId: request.id,
+        payload: response,
+      });
       sendResponse(rpcResponse);
     } catch (error) {
-      const rpcResponse = new RpcResponse();
-      rpcResponse.requestId = request.id;
-      rpcResponse.error = error.message;
+      const rpcResponse = new RpcResponse({
+        requestId: request.id,
+        error: error.message,
+      });
       sendResponse(rpcResponse);
     }
   }

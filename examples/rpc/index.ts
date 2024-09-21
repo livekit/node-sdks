@@ -110,13 +110,13 @@ const quantumHypergeometricSeries = async (room: Room): Promise<void> => {
       )
       .then((response) => {
         const parsedResponse = JSON.parse(response);
-        console.log(`[Math Novice] Nice, the answer was ${parsedResponse.result}`);
+        console.log(`[Math Novice] genius says ${parsedResponse.result}!`);
         resolve();
       })
       .catch((error) => {
         if (error.message === RPC_ERROR_UNSUPPORTED_METHOD) {
           console.log(
-            `[Math Novice] Aww I guess that was too hard for the genius. Oh well.`,
+            `[Math Novice] Aww looks like the genius doesn't know that one.`,
           );
           resolve();
         } else {
@@ -135,7 +135,7 @@ const mathGenius = (room: Room): Promise<void> => {
         const jsonData = JSON.parse(request.payload);
         const number = jsonData.number;
         console.log(
-          `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I can do that but it will take a few seconds...`,
+          `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
         );
 
         console.log(`[Math Genius] *doing math*…`);

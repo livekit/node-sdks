@@ -4,16 +4,52 @@ export class RpcRequest {
   id: string;
   method: string;
   payload: string;
+  responseTimeoutMs: number;
+
+  constructor({
+    method,
+    payload,
+    responseTimeoutMs,
+    id = crypto.randomUUID(),
+  }: {
+    method: string;
+    payload: string;
+    responseTimeoutMs: number;
+    id?: string;
+  }) {
+    this.id = id;
+    this.method = method;
+    this.payload = payload;
+    this.responseTimeoutMs = responseTimeoutMs;
+  }
 }
 
 export class RpcAck {
   requestId: string;
+
+  constructor({ requestId }: { requestId: string }) {
+    this.requestId = requestId;
+  }
 }
 
 export class RpcResponse {
   requestId: string;
-  payload?: string; 
+  payload?: string;
   error?: string;
+
+  constructor({
+    requestId,
+    payload,
+    error,
+  }: {
+    requestId: string;
+    payload?: string;
+    error?: string;
+  }) {
+    this.requestId = requestId;
+    this.payload = payload;
+    this.error = error;
+  }
 }
 
 export const RPC_ERROR_ACK_TIMEOUT = 'lk-rpc.ack-timeout';

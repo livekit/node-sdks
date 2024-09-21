@@ -76,9 +76,55 @@ await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2));
 ```
 
+### RPC
+
+LiveKit now supports RPC, allowing participants to call methods on other participants in the room. This feature is especially useful in combination with [Agents](https://docs.livekit.io/agents).
+
+#### Registering an RPC method
+
+To make a method available for remote calls, you need to register it (on the participant who will receive the call):
+
+```typescript
+room.localParticipant?.registerRpcMethod(
+  'greet',
+  async (request: RpcRequest, sender: RemoteParticipant) => {
+    console.log(`Received greeting from ${sender.identity}: ${request.payload}`);
+    return `Hello, ${sender.identity}!`;
+  }
+);
+```
+
+#### Performing an RPC request
+
+To call a method on a remote participant:
+
+```typescript
+try {
+  const response = await room.localParticipant!.performRpcRequest(
+    'recipient-identity',
+    'greet',
+    'Hello from RPC!'
+  );
+  console.log('RPC response:', response);
+} catch (error) {
+  console.error('RPC call failed:', error);
+}
+```
+
+#### Error Handling
+
+LiveKit is a dynamic realtime environment and calls can fail for various reasons:
+
+The recipient doesn't support the requested method (RPC_ERROR_UNSUPPORTED_METHOD)
+The call times out waiting for an acknowledgment (RPC_ERROR_ACK_TIMEOUT)
+The call times out waiting for a response (RPC_ERROR_RESPONSE_TIMEOUT)
+
+In addition, you may throw errors in your method handler to return an error back to the caller.
+
 ## Examples
 
 - [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a wave file
+
 
 ## Getting help / Contributing
 

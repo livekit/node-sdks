@@ -105,6 +105,7 @@ const performSquareRoot = async (room: Room): Promise<void> => {
     throw error;
   }
 };
+
 const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => {
   console.log("[Requester] What's the quantum hypergeometric series of 42?");
   try {

@@ -382,6 +382,8 @@ export class LocalParticipant extends Participant {
     if (handler) {
       handler(rpcAck);
       this.pendingAcks.delete(rpcAck.requestId);
+    } else {
+      console.error('Ack received for unexpected RPC request', rpcAck.requestId);
     }
   }
 
@@ -391,6 +393,8 @@ export class LocalParticipant extends Participant {
     if (handler) {
       handler(rpcResponse);
       this.pendingResponses.delete(rpcResponse.requestId);
+    } else {
+      console.error('Response received for unexpected RPC request', rpcResponse.requestId);
     }
   }
 

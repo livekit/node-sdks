@@ -33,7 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { type RpcAck, RpcRequest, type RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT } from './rpc.js';
+import { RpcAck, RpcRequest, RpcResponse, RPC_ERROR_ACK_TIMEOUT, RPC_ERROR_RESPONSE_TIMEOUT, RPC_ERROR_METHOD_UNSUPPORTED } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -380,12 +380,51 @@ export class LocalParticipant extends Participant {
   }
 
   /** @internal */
-  async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant): Promise<string> {
+  async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
+    // ACK the request
+    const ack = new RpcAck();
+    ack.requestId = request.id;
+    const jsonString = JSON.stringify(ack);
+    this.publishData(new TextEncoder().encode(jsonString), {
+      reliable: true,
+      destination_identities: [sender.identity],
+      topic: 'lk-rpc-ack',
+    });
+
+    const sendResponse = (response: RpcResponse) => {
+      const jsonString = JSON.stringify(response);
+      this.publishData(new TextEncoder().encode(jsonString), {
+        reliable: true,
+        destination_identities: [sender.identity],
+        topic: 'lk-rpc-response',
+      });
+    };
+
     const callback = this.rpcCallbacks.get(request.method);
+
     if (!callback) {
-      throw new Error(`No callback registered for method: ${request.method}`);
+      // Auto fail for unsupported methods
+      const rpcResponse = new RpcResponse();
+      rpcResponse.requestId = request.id;
+      rpcResponse.errorCode = RPC_ERROR_METHOD_UNSUPPORTED;
+      sendResponse(rpcResponse);
+      return;
     }
-    return await callback(request, sender);
+
+    try {
+      const response = await callback(request, sender);
+      const rpcResponse = new RpcResponse();
+      rpcResponse.requestId = request.id;
+      rpcResponse.payload = response;
+      rpcResponse.errorCode = 0;
+      sendResponse(rpcResponse);
+    } catch (error) {
+      const rpcResponse = new RpcResponse();
+      rpcResponse.requestId = request.id;
+      rpcResponse.errorCode = 1;
+      rpcResponse.errorData = error.message;
+      sendResponse(rpcResponse);
+    }
   }
 }
 

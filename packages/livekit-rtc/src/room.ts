@@ -32,7 +32,7 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import { RpcRequest, RpcAck, RpcResponse } from './rpc.js';
+import { RpcRequest, RpcAck, RpcResponse, RPC_ERROR_METHOD_UNSUPPORTED } from './rpc.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -278,7 +278,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           //       The final version will use native DataPacket types instead of special topics
           if (dataPacket.value.topic === 'lk-rpc-request') {
             const request = JSON.parse(new TextDecoder().decode(buffer)) as RpcRequest;
-            this.handleIncomingRpcRequest(request, participant);
+            this.localParticipant.handleIncomingRpcRequest(request, participant);
           } else if (dataPacket.value.topic === 'lk-rpc-ack') {
             const ack = JSON.parse(new TextDecoder().decode(buffer)) as RpcAck;
             this.localParticipant.handleIncomingRpcAck(ack);
@@ -321,47 +321,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     }
   };
-
-  private async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
-    const sendAck = () => {
-      const ack = new RpcAck();
-      ack.requestId = request.id;
-      const jsonString = JSON.stringify(ack);
-      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
-        reliable: true,
-        destination_identities: [sender.identity],
-        topic: 'lk-rpc-ack',
-      });
-    };
-
-    try {
-      sendAck();
-      const response = await this.localParticipant.handleIncomingRpcRequest(request, sender);
-      const rpcResponse = new RpcResponse();
-      rpcResponse.requestId = request.id;
-      rpcResponse.payload = response;
-      rpcResponse.errorCode = 0;
-
-      const jsonString = JSON.stringify(rpcResponse);
-      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
-        reliable: true,
-        destination_identities: [sender.identity],
-        topic: 'lk-rpc-response',
-      });
-    } catch (error) {
-      const rpcResponse = new RpcResponse();
-      rpcResponse.requestId = request.id;
-      rpcResponse.errorCode = 1;
-      rpcResponse.errorData = error.message;
-
-      const jsonString = JSON.stringify(rpcResponse);
-      this.localParticipant.publishData(new TextEncoder().encode(jsonString), {
-        reliable: true,
-        destination_identities: [sender.identity],
-        topic: 'lk-rpc-response',
-      });
-    }
-  }
 
   private retrieveParticipantByIdentity(identity: string): Participant {
     if (this.localParticipant.identity === identity) {

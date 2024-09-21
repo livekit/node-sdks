@@ -19,4 +19,5 @@ export class RpcResponse {
 
 export const RPC_ERROR_ACK_TIMEOUT = 1001;
 export const RPC_ERROR_RESPONSE_TIMEOUT = 1002;
+export const RPC_ERROR_METHOD_UNSUPPORTED = 1003;
 

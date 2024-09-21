@@ -51,7 +51,7 @@ async function main() {
 const participant1Greeting = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
     console.log('[Participant 1] Sending RPC request to participant 2');
-    room.localParticipant.performRpcRequest(
+    room.localParticipant?.performRpcRequest(
       'participant-2',
       'greeting',
       'Hello from participant 1!'
@@ -69,8 +69,8 @@ const participant1Greeting = async (room: Room): Promise<void> => {
 
 const participant2Greeting = (room: Room): Promise<void> => {
   return new Promise((resolve) => {
-    room.localParticipant.registerRpcMethod('greeting', async (request: RpcRequest, sender: RemoteParticipant) => {
-      console.log(`[Participant 2] Oh participant 1 says "${request.payload}"`);
+    room.localParticipant?.registerRpcMethod('greeting', async (request: RpcRequest, sender: RemoteParticipant) => {
+      console.log(`[Participant 2] Oh ${sender.identity} says "${request.payload}"`);
       await new Promise(resolve => setTimeout(resolve, 2000));
       resolve();
       return 'Hi nice to meet you, I\'m participant 2!';
@@ -81,7 +81,7 @@ const participant2Greeting = (room: Room): Promise<void> => {
 const squareRoot = async (room: Room): Promise<void> => {
   return new Promise((resolve, reject) => {
     console.log('[Math Novice] What\'s the square root of 16?');
-    room.localParticipant.performRpcRequest(
+    room.localParticipant?.performRpcRequest(
       'participant-2',
       'square-root',
       JSON.stringify({ number: 16 })

@@ -338,6 +338,29 @@ export class LocalParticipant extends Participant {
     });
   }
 
+  /**
+   * Etablishes the participant as a receiver for RPC calls of the specified method.
+   * Will overwrite any existing callback for the specified method.
+   * 
+   * @param method - The name of the indicated RPC method 
+   * @param callback - Will be called when an RPC request for this method is received, with the request and the sender. Respond with a string.
+   */
+  registerRpcMethod(
+    method: string,
+    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
+  ) {
+    this.rpcCallbacks.set(method, callback);
+  }
+
+  /**
+   * Unregisters a previously registered RPC method.
+   * 
+   * @param method - The name of the RPC method to unregister
+   */
+  unregisterRpcMethod(method: string) {
+    this.rpcCallbacks.delete(method);
+  }
+
   /** @internal */
   handleIncomingRpcAck(rpcAck: RpcAck) {
     const handler = this.pendingAcks.get(rpcAck.requestId);
@@ -356,17 +379,7 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  registerRpcMethod(
-    method: string,
-    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
-  ) {
-    this.rpcCallbacks.set(method, callback);
-  }
-
-  unregisterRpcMethod(method: string) {
-    this.rpcCallbacks.delete(method);
-  }
-
+  /** @internal */
   async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant): Promise<string> {
     const callback = this.rpcCallbacks.get(request.method);
     if (!callback) {

@@ -52,7 +52,7 @@ export class RpcResponse {
   }
 }
 
-export const RPC_ERROR_ACK_TIMEOUT = 'lk-rpc.ack-timeout';
+export const RPC_ERROR_CONNECTION_TIMEOUT = 'lk-rpc.connection-timeout';
 export const RPC_ERROR_RESPONSE_TIMEOUT = 'lk-rpc.response-timeout';
 export const RPC_ERROR_UNSUPPORTED_METHOD = 'lk-rpc.unsupported-method';
-
+export const RPC_ERROR_RECIPIENT_DISCONNECTED = 'lk-rpc.recipient-disconnected';

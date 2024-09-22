@@ -34,7 +34,7 @@ import {
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
 import {
-  RPC_ERROR_ACK_TIMEOUT,
+  RPC_ERROR_CONNECTION_TIMEOUT,
   RPC_ERROR_RESPONSE_TIMEOUT,
   RPC_ERROR_UNSUPPORTED_METHOD,
   RpcAck,
@@ -284,20 +284,20 @@ export class LocalParticipant extends Participant {
   private pendingResponses = new Map<string, (response: RpcResponse) => void>();
 
   /**
-   * Performs an RPC request to a remote participant.
-   * @param recipientIdentity The identity of the recipient participant.
-   * @param method The RPC method to call.
-   * @param payload The payload to send with the RPC request.
-   * @param ackTimeoutMs The timeout for receiving an acknowledgment (in milliseconds).
-   * @param responseTimeoutMs The timeout for receiving a response (in milliseconds).
+   * Initiate an RPC request to a remote participant.
+   * @param recipientIdentity - The `identity` of the destination participant
+   * @param method - The method name to call
+   * @param payload - The method payload
+   * @param connectionTimeoutMs - Timeout for establishing initial connection
+   * @param responseTimeoutMs - Timeout for receiving a response after initial connection
    * @returns A promise that resolves with the response payload or rejects with an error.
-   * @throws {code: number, data: string} upon failure
+   * @throws Error on failure. Details in `message`.
    */
   performRpcRequest(
     recipientIdentity: string,
     method: string,
     payload: string,
-    ackTimeoutMs: number = 5000,
+    connectionTimeoutMs: number = 5000,
     responseTimeoutMs: number = 10000,
   ): Promise<string> {
     const maxRoundTripLatencyMs = 2000;
@@ -323,10 +323,10 @@ export class LocalParticipant extends Participant {
 
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject(new Error(RPC_ERROR_ACK_TIMEOUT));
+        reject(new Error(RPC_ERROR_CONNECTION_TIMEOUT));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
-      }, ackTimeoutMs);
+      }, connectionTimeoutMs);
 
       this.pendingAcks.set(id, () => {
         clearTimeout(ackTimeoutId);
@@ -337,6 +337,7 @@ export class LocalParticipant extends Participant {
         reject(new Error(RPC_ERROR_RESPONSE_TIMEOUT));
       }, responseTimeoutMs);
 
+      // TODO: Send an error if the participant disconnects without responding
       this.pendingResponses.set(id, (response) => {
         if (this.pendingAcks.has(id)) {
           console.error('RPC response received before ack', id);

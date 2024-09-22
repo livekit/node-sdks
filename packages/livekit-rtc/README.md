@@ -78,11 +78,11 @@ await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2
 
 ### RPC
 
-Use RPC to allow one participant to call custom-defined methods on other participants in the room. This feature is especially useful in combination with [Agents](https://docs.livekit.io/agents).
+RPC you to perform your own predefined method calls from one participant to another. This feature is especially powerful when used with [Agents](https://docs.livekit.io/agents), for instance to forward LLM function calls to your client application.
 
 #### Registering an RPC method
 
-To make a method available for remote calls, you need to register it (on the participant who will receive the call):
+The participant who will receive a call must first register for the specific method:
 
 ```typescript
 room.localParticipant?.registerRpcMethod(
@@ -94,9 +94,11 @@ room.localParticipant?.registerRpcMethod(
 );
 ```
 
+The request will also have a `responseTimeoutMs` field, which informs you how long you have to return a response. If you are unable to respond in time, you can either send an error or let the request time out on the sender's side.
+
 #### Performing an RPC request
 
-To call a method on a remote participant:
+The caller may then initiate a request like so:
 
 ```typescript
 try {
@@ -111,21 +113,27 @@ try {
 }
 ```
 
-#### Error Handling
+You may find it useful to adjust the `responseTimeoutMs` parameter, which allows you to set the amount of time you will wait for a response. We recommend keeping this value as low as possible while still satisfying the constraints of your application.
 
-LiveKit is a dynamic realtime environment and calls can fail for various reasons:
+#### Errors
 
-The recipient doesn't support the requested method (RPC_ERROR_UNSUPPORTED_METHOD)
-The call times out waiting for an acknowledgment (RPC_ERROR_ACK_TIMEOUT)
-The call times out waiting for a response (RPC_ERROR_RESPONSE_TIMEOUT)
+LiveKit is a dynamic realtime environment and calls can fail for various reasons. 
 
-In addition, you may throw errors in your method handler to return an error back to the caller.
+Built-in errors:
+
+- RPC_ERROR_UNSUPPORTED_METHOD (`lk-rpc.unsupported-method`): The recipient hasn't registered a handler for the requested method
+- RPC_ERROR_CONNECT_TIMEOUT (`lk-rpc.connection-timeout`): The request timed out before establishing a connection (see `connectionTimeoutMs`)
+- RPC_ERROR_RESPONSE_TIMEOUT (`lk-rpc.response-timeout`): The request timed out while waiting for a response (see `responseTimeoutMs`)
+- RPC_ERROR_RECIPIENT_DISCONNECTED (`lk-rpc.recipient-disconnected`): The recipient left the room prior to returning a response.
+
+In addition, you may throw your own error in the request handler and it's `message` will be returned to the caller on a new error object (e.g. `throw new Error('my-error-details')` will be received by the requester with `error.message` populated).
 
 ## Examples
 
-- [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a wave file
+- [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a .wave file
+- [ `rpc`](https://github.com/livekit/node-sdks/tree/main/examples/rpc): simple back-and-forth RPC interaction
 
 
 ## Getting help / Contributing
 
-Please join us on [Slack](https://livekit.io/join-slack) to get help from our devs/community. We welcome your contributions and details can be discussed there.
+Please join us on [Slack](https://livekit.io/join-slack) to get help from our devs & community. We welcome your contributions and details can be discussed there.

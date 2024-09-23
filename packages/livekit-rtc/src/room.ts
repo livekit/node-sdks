@@ -28,11 +28,11 @@ import {
   IceTransportType,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
+import type { RpcAck, RpcRequest, RpcResponse } from './rpc.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import type { RpcRequest, RpcAck, RpcResponse } from './rpc.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -286,7 +286,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             const response = JSON.parse(new TextDecoder().decode(buffer)) as RpcResponse;
             this.localParticipant.handleIncomingRpcResponse(response);
           } else {
-            this.emit(  
+            this.emit(
               RoomEvent.DataReceived,
               buffer,
               participant,

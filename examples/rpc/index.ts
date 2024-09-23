@@ -1,4 +1,5 @@
-import { RemoteParticipant, Room, RoomEvent, RpcRequest } from '@livekit/rtc-node';
+import type { RemoteParticipant, RpcRequest } from '@livekit/rtc-node';
+import { Room } from '@livekit/rtc-node';
 import { RPC_ERROR_UNSUPPORTED_METHOD } from '@livekit/rtc-node/dist/rpc';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';

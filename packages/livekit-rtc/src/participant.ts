@@ -309,7 +309,7 @@ export class LocalParticipant extends Participant {
         id,
         method,
         payload,
-        responseTimeoutMs: responseTimeoutMs - maxRoundTripLatencyMs
+        responseTimeoutMs: responseTimeoutMs - maxRoundTripLatencyMs,
       });
 
       const jsonString = JSON.stringify(request);

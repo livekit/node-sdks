@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.9.0
+
+### Minor Changes
+
+- make AudioStream use AsyncIterableIterator instead of typed EventEmitter - [#272](https://github.com/livekit/node-sdks/pull/272) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- bump ffi to v0.10.2 - [#271](https://github.com/livekit/node-sdks/pull/271) ([@nbsp](https://github.com/nbsp))
+
 ## 0.8.1
 
 ### Patch Changes

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AccessToken } from './AccessToken.js';
-import { SIPGrant, VideoGrant } from './grants.js';
+import type { SIPGrant, VideoGrant } from './grants.js';
 
 /**
  * Utilities to handle authentication

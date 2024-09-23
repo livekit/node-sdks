@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 // TODO: This implementation is only a prototype
 //       The final version will use a protocol types where possible
 export class RpcRequest {

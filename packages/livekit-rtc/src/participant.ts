@@ -33,12 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import {
-  RpcError,
-  RpcAck,
-  RpcRequest,
-  RpcResponse,
-} from './rpc.js';
+import { RpcAck, RpcError, RpcRequest, RpcResponse } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -429,25 +424,28 @@ export class LocalParticipant extends Participant {
       sendResponse(rpcResponse);
       return;
     }
-    
+
     const rpcResponse = new RpcResponse({
-      requestId: request.id
+      requestId: request.id,
     });
     try {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
-        rpcResponse.payload = response
+        rpcResponse.payload = response;
       } else if (response instanceof RpcError) {
-        rpcResponse.error = response.message
+        rpcResponse.error = response.message;
       } else {
-        console.warn(`unexpected handler response for ${request.method}: ${response}`)
+        console.warn(`unexpected handler response for ${request.method}: ${response}`);
         rpcResponse.error = RpcError.ErrorType.MALFORMED_RESPONSE;
       }
     } catch (error) {
       if (error instanceof RpcError) {
         rpcResponse.error = error.message;
       } else {
-        console.warn(`Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcError.ErrorType.UNCAUGHT_ERROR}`, error);
+        console.warn(
+          `Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcError.ErrorType.UNCAUGHT_ERROR}`,
+          error,
+        );
         rpcResponse.error = RpcError.ErrorType.UNCAUGHT_ERROR;
       }
     }

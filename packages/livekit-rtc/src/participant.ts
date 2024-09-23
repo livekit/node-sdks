@@ -33,7 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { RpcAck, RpcError, RpcRequest, RpcResponse } from './rpc.js';
+import { byteLength, MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcRequest, RpcResponse } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -296,6 +296,11 @@ export class LocalParticipant extends Participant {
     const maxRoundTripLatencyMs = 2000;
 
     return new Promise((resolve, reject) => {
+      if (byteLength(payload) > MAX_PAYLOAD_BYTES) {
+        reject(new RpcError(RpcError.ErrorType.PAYLOAD_TOO_LARGE));
+        return;
+      }
+
       const id = crypto.randomUUID();
 
       const request = new RpcRequest({
@@ -431,7 +436,12 @@ export class LocalParticipant extends Participant {
     try {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
-        rpcResponse.payload = response;
+        if (byteLength(response) > MAX_PAYLOAD_BYTES) {
+          rpcResponse.error = RpcError.ErrorType.PAYLOAD_TOO_LARGE;
+          console.warn(`RPC Response payload too large for ${request.method}`);
+        } else {
+          rpcResponse.payload = response;
+        }
       } else if (response instanceof RpcError) {
         rpcResponse.error = response.message;
       } else {

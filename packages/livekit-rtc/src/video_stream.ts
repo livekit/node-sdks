@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
-import EventEmitter from 'events';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type {
@@ -12,6 +10,7 @@ import type {
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
+import { Mutex } from './utils.js';
 import { VideoFrame } from './video_frame.js';
 
 export type VideoFrameEvent = {
@@ -20,24 +19,21 @@ export type VideoFrameEvent = {
   rotation: VideoRotation;
 };
 
-export type VideoStreamCallbacks = {
-  frameReceived: (evt: VideoFrameEvent) => void;
-};
-
-export enum VideoStreamEvent {
-  FrameReceived = 'frameReceived',
-}
-
-export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoStreamCallbacks>) {
+export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
   info: VideoStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+  /** @internal */
+  eventQueue: (VideoFrameEvent | null)[] = [];
+  /** @internal */
+  queueResolve: ((value: IteratorResult<VideoFrameEvent>) => void) | null = null;
+  /** @internal */
+  mutex = new Mutex();
 
   track: Track;
 
   constructor(track: Track) {
-    super();
     this.track = track;
 
     const req = new NewVideoStreamRequest({
@@ -72,7 +68,12 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
         const rotation = streamEvent.value.rotation;
         const timestampUs = streamEvent.value.timestampUs;
         const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer);
-        this.emit(VideoStreamEvent.FrameReceived, { frame, timestampUs, rotation });
+        const value = { rotation, timestampUs, frame };
+        if (this.queueResolve) {
+          this.queueResolve({ done: false, value });
+        } else {
+          this.eventQueue.push(value);
+        }
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
@@ -80,7 +81,30 @@ export class VideoStream extends (EventEmitter as new () => TypedEmitter<VideoSt
     }
   };
 
+  async next(): Promise<IteratorResult<VideoFrameEvent>> {
+    const unlock = await this.mutex.lock();
+    if (this.eventQueue.length > 0) {
+      unlock();
+      const value = this.eventQueue.shift();
+      if (value) {
+        return { done: false, value };
+      } else {
+        return { done: true, value: undefined };
+      }
+    }
+    const promise = new Promise<IteratorResult<VideoFrameEvent>>(
+      (resolve) => (this.queueResolve = resolve),
+    );
+    unlock();
+    return promise;
+  }
+
   close() {
+    this.eventQueue.push(null);
     this.ffiHandle.dispose();
+  }
+
+  [Symbol.asyncIterator](): VideoStream {
+    return this;
   }
 }

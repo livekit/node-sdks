@@ -7,6 +7,7 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
+import { Mutex } from './utils.js';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
@@ -17,6 +18,8 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   eventQueue: (AudioFrame | null)[] = [];
   /** @internal */
   queueResolve: ((value: IteratorResult<AudioFrame>) => void) | null = null;
+  /** @internal */
+  mutex = new Mutex();
 
   track: Track;
   sampleRate: number;
@@ -72,7 +75,9 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   };
 
   async next(): Promise<IteratorResult<AudioFrame>> {
+    const unlock = await this.mutex.lock();
     if (this.eventQueue.length > 0) {
+      unlock();
       const value = this.eventQueue.shift();
       if (value) {
         return { done: false, value };
@@ -80,7 +85,11 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
         return { done: true, value: undefined };
       }
     }
-    return new Promise((resolve) => (this.queueResolve = resolve));
+    const promise = new Promise<IteratorResult<AudioFrame>>(
+      (resolve) => (this.queueResolve = resolve),
+    );
+    unlock();
+    return promise;
   }
 
   close() {

@@ -119,14 +119,7 @@ You may find it useful to adjust the `responseTimeoutMs` parameter, which allows
 
 LiveKit is a dynamic realtime environment and calls can fail for various reasons. 
 
-Built-in errors:
-
-- RPC_ERROR_UNSUPPORTED_METHOD (`lk-rpc.unsupported-method`): The recipient hasn't registered a handler for the requested method
-- RPC_ERROR_CONNECT_TIMEOUT (`lk-rpc.connection-timeout`): The request timed out before establishing a connection (see `connectionTimeoutMs`)
-- RPC_ERROR_RESPONSE_TIMEOUT (`lk-rpc.response-timeout`): The request timed out while waiting for a response (see `responseTimeoutMs`)
-- RPC_ERROR_RECIPIENT_DISCONNECTED (`lk-rpc.recipient-disconnected`): The recipient left the room prior to returning a response.
-
-In addition, you may throw your own error in the request handler and it's `message` will be returned to the caller on a new error object (e.g. `throw new Error('my-error-details')` will be received by the requester with `error.message` populated).
+You may throw errors of the type `RpcError` with a string `message` in an RPC method handler and they will be received on the caller's side with the message intact. Other errors will not be transmitted and will instead arrive to the caller as `UNCAUGHT_ERROR`. Other built-in errors are detailed in `RpcError.ErrorType`.
 
 ## Examples
 

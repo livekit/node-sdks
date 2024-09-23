@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TrackSource } from '@livekit/protocol';
 import { describe, expect, it } from 'vitest';
-import type { ClaimGrants, VideoGrant} from './grants';
+import type { ClaimGrants, VideoGrant } from './grants';
 import { claimsToJwtPayload } from './grants';
 
 describe('ClaimGrants are parsed correctly', () => {

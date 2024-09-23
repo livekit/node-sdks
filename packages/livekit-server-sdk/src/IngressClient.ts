@@ -1,10 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  IngressAudioOptions,
-  IngressInput,
-  IngressVideoOptions} from '@livekit/protocol';
+import type { IngressAudioOptions, IngressInput, IngressVideoOptions } from '@livekit/protocol';
 import {
   CreateIngressRequest,
   DeleteIngressRequest,
@@ -14,7 +11,7 @@ import {
   UpdateIngressRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import type { Rpc} from './TwirpRPC.js';
+import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'Ingress';

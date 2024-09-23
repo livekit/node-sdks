@@ -28,7 +28,8 @@ import {
   SIPTrunkInfo,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
-import { Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import type { Rpc } from './TwirpRPC.js';
+import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'SIP';
 

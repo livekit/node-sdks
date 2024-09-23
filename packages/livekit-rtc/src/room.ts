@@ -180,6 +180,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       this.remoteParticipants.delete(participant.identity);
       this.emit(RoomEvent.ParticipantDisconnected, participant);
+      this.localParticipant.handleParticipantDisconnected(participant.identity);
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
       this.emit(RoomEvent.LocalTrackPublished, publication, this.localParticipant);
@@ -338,6 +339,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const participant = new RemoteParticipant(ownedInfo);
     this.remoteParticipants.set(ownedInfo.info.identity, participant);
     return participant;
+  }
+
+  private handleParticipantDisconnected(participant: RemoteParticipant) {
+    this.localParticipant.handleParticipantDisconnected(participant.identity);
   }
 }
 

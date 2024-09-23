@@ -102,6 +102,9 @@ export class LocalParticipant extends Participant {
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
+  private pendingAcks = new Map<string, { resolve: (ack: RpcAck) => void, participantIdentity: string }>();
+  private pendingResponses = new Map<string, { resolve: (response: RpcResponse) => void, participantIdentity: string }>();
+
   async publishData(data: Uint8Array, options: DataPublishOptions) {
     const req = new PublishDataRequest({
       localParticipantHandle: this.ffi_handle.handle,
@@ -273,9 +276,6 @@ export class LocalParticipant extends Participant {
     this.trackPublications.delete(trackSid);
   }
 
-  private pendingAcks = new Map<string, (ack: RpcAck) => void>();
-  private pendingResponses = new Map<string, (response: RpcResponse) => void>();
-
   /**
    * Initiate an RPC request to a remote participant.
    * @param recipientIdentity - The `identity` of the destination participant
@@ -326,17 +326,16 @@ export class LocalParticipant extends Participant {
         clearTimeout(responseTimeoutId);
       }, connectionTimeoutMs);
 
-      this.pendingAcks.set(id, () => {
+      this.pendingAcks.set(id, { resolve: () => {
         clearTimeout(ackTimeoutId);
-      });
+      }, participantIdentity: recipientIdentity });
 
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
         reject(new RpcError(RpcError.ErrorType.RESPONSE_TIMEOUT));
       }, responseTimeoutMs);
 
-      // TODO: Send an error if the participant disconnects without responding
-      this.pendingResponses.set(id, (response) => {
+      this.pendingResponses.set(id, { resolve: (response) => {
         if (this.pendingAcks.has(id)) {
           console.error('RPC response received before ack', id);
           this.pendingAcks.delete(id);
@@ -348,7 +347,7 @@ export class LocalParticipant extends Participant {
         } else {
           resolve(response.payload);
         }
-      });
+      }, participantIdentity: recipientIdentity });
     });
   }
 
@@ -379,7 +378,7 @@ export class LocalParticipant extends Participant {
   handleIncomingRpcAck(rpcAck: RpcAck) {
     const handler = this.pendingAcks.get(rpcAck.requestId);
     if (handler) {
-      handler(rpcAck);
+      handler.resolve(rpcAck);
       this.pendingAcks.delete(rpcAck.requestId);
     } else {
       console.error('Ack received for unexpected RPC request', rpcAck.requestId);
@@ -390,7 +389,7 @@ export class LocalParticipant extends Participant {
   handleIncomingRpcResponse(rpcResponse: RpcResponse) {
     const handler = this.pendingResponses.get(rpcResponse.requestId);
     if (handler) {
-      handler(rpcResponse);
+      handler.resolve(rpcResponse);
       this.pendingResponses.delete(rpcResponse.requestId);
     } else {
       console.error('Response received for unexpected RPC request', rpcResponse.requestId);
@@ -461,6 +460,25 @@ export class LocalParticipant extends Participant {
     }
 
     sendResponse(rpcResponse);
+  }
+
+  /** @internal */
+  handleParticipantDisconnected(participantIdentity: string) {
+    for (const [id, { participantIdentity: pendingIdentity }] of this.pendingAcks) {
+      if (pendingIdentity === participantIdentity) {
+        this.pendingAcks.delete(id);
+      }
+    }
+
+    for (const [id, { participantIdentity: pendingIdentity, resolve }] of this.pendingResponses) {
+      if (pendingIdentity === participantIdentity) {
+        resolve(new RpcResponse({
+          requestId: id,
+          error: RpcError.ErrorType.RECIPIENT_DISCONNECTED,
+        }));
+        this.pendingResponses.delete(id);
+      }
+    }
   }
 }
 

@@ -56,7 +56,22 @@ export class RpcResponse {
   }
 }
 
-export const RPC_ERROR_CONNECTION_TIMEOUT = 'lk-rpc.connection-timeout';
-export const RPC_ERROR_RESPONSE_TIMEOUT = 'lk-rpc.response-timeout';
-export const RPC_ERROR_UNSUPPORTED_METHOD = 'lk-rpc.unsupported-method';
-export const RPC_ERROR_RECIPIENT_DISCONNECTED = 'lk-rpc.recipient-disconnected';
+export class RpcError extends Error {
+  static ErrorType = {
+    CONNECTION_TIMEOUT: 'lk-rpc.connection-timeout',
+    RESPONSE_TIMEOUT: 'lk-rpc.response-timeout',
+    UNSUPPORTED_METHOD: 'lk-rpc.unsupported-method',
+    RECIPIENT_DISCONNECTED: 'lk-rpc.recipient-disconnected',
+    UNCAUGHT_ERROR: 'lk-rpc.uncaught-error',
+    MALFORMED_RESPONSE: 'lk-rpc.malformed-response',
+  };
+
+  constructor(message: string | keyof typeof RpcError.ErrorType) {
+    if (message in RpcError.ErrorType) {
+      super(RpcError.ErrorType[message as keyof typeof RpcError.ErrorType]);
+    } else {
+      super(message);
+    }
+    this.name = 'LKRPCError';
+  }
+}

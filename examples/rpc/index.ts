@@ -1,6 +1,5 @@
-import type { RemoteParticipant, RpcRequest } from '@livekit/rtc-node';
+import { RemoteParticipant, RpcRequest, RpcError } from '@livekit/rtc-node';
 import { Room } from '@livekit/rtc-node';
-import { RPC_ERROR_UNSUPPORTED_METHOD } from '@livekit/rtc-node/dist/rpc';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
 import { AccessToken } from 'livekit-server-sdk';
@@ -74,6 +73,8 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
         `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
       );
 
+      // throw new Error("some error");
+
       console.log(`[Math Genius] *doing math*…`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -118,7 +119,7 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
     const parsedResponse = JSON.parse(response);
     console.log(`[Requester] genius says ${parsedResponse.result}!`);
   } catch (error) {
-    if (error instanceof Error && error.message === RPC_ERROR_UNSUPPORTED_METHOD) {
+    if (error instanceof RpcError && error.message === RpcError.ErrorType.UNSUPPORTED_METHOD) {
       console.log(`[Requester] Aww looks like the genius doesn't know that one.`);
     } else {
       console.error('[Requester] Unexpected error:', error);

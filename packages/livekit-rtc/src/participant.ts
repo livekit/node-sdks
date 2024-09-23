@@ -34,9 +34,7 @@ import {
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
 import {
-  RPC_ERROR_CONNECTION_TIMEOUT,
-  RPC_ERROR_RESPONSE_TIMEOUT,
-  RPC_ERROR_UNSUPPORTED_METHOD,
+  RpcError,
   RpcAck,
   RpcRequest,
   RpcResponse,
@@ -102,9 +100,9 @@ export type DataPublishOptions = {
 };
 
 export class LocalParticipant extends Participant {
-  private rpcCallbacks: Map<
+  private rpcHandlers: Map<
     string,
-    (request: RpcRequest, sender: RemoteParticipant) => Promise<string>
+    (request: RpcRequest, sender: RemoteParticipant) => Promise<string | RpcError>
   > = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
@@ -323,7 +321,7 @@ export class LocalParticipant extends Participant {
 
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject(new Error(RPC_ERROR_CONNECTION_TIMEOUT));
+        reject(new RpcError(RpcError.ErrorType.CONNECTION_TIMEOUT));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
       }, connectionTimeoutMs);
@@ -334,7 +332,7 @@ export class LocalParticipant extends Participant {
 
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
-        reject(new Error(RPC_ERROR_RESPONSE_TIMEOUT));
+        reject(new RpcError(RpcError.ErrorType.RESPONSE_TIMEOUT));
       }, responseTimeoutMs);
 
       // TODO: Send an error if the participant disconnects without responding
@@ -346,7 +344,7 @@ export class LocalParticipant extends Participant {
         }
         clearTimeout(responseTimeoutId);
         if (response.error) {
-          reject(new Error(response.error));
+          reject(new RpcError(response.error));
         } else {
           resolve(response.payload);
         }
@@ -363,9 +361,9 @@ export class LocalParticipant extends Participant {
    */
   registerRpcMethod(
     method: string,
-    callback: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>,
+    handler: (request: RpcRequest, sender: RemoteParticipant) => Promise<string>,
   ) {
-    this.rpcCallbacks.set(method, callback);
+    this.rpcHandlers.set(method, handler);
   }
 
   /**
@@ -374,7 +372,7 @@ export class LocalParticipant extends Participant {
    * @param method - The name of the RPC method to unregister
    */
   unregisterRpcMethod(method: string) {
-    this.rpcCallbacks.delete(method);
+    this.rpcHandlers.delete(method);
   }
 
   /** @internal */
@@ -421,31 +419,40 @@ export class LocalParticipant extends Participant {
       });
     };
 
-    const callback = this.rpcCallbacks.get(request.method);
+    const handler = this.rpcHandlers.get(request.method);
 
-    if (!callback) {
+    if (!handler) {
       const rpcResponse = new RpcResponse({
         requestId: request.id,
-        error: RPC_ERROR_UNSUPPORTED_METHOD,
+        error: RpcError.ErrorType.UNSUPPORTED_METHOD,
       });
       sendResponse(rpcResponse);
       return;
     }
-
+    
+    const rpcResponse = new RpcResponse({
+      requestId: request.id
+    });
     try {
-      const response = await callback(request, sender);
-      const rpcResponse = new RpcResponse({
-        requestId: request.id,
-        payload: response,
-      });
-      sendResponse(rpcResponse);
+      const response = await handler(request, sender);
+      if (typeof response === 'string') {
+        rpcResponse.payload = response
+      } else if (response instanceof RpcError) {
+        rpcResponse.error = response.message
+      } else {
+        console.warn(`unexpected handler response for ${request.method}: ${response}`)
+        rpcResponse.error = RpcError.ErrorType.MALFORMED_RESPONSE;
+      }
     } catch (error) {
-      const rpcResponse = new RpcResponse({
-        requestId: request.id,
-        error: error.message,
-      });
-      sendResponse(rpcResponse);
+      if (error instanceof RpcError) {
+        rpcResponse.error = error.message;
+      } else {
+        console.warn(`Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcError.ErrorType.UNCAUGHT_ERROR}`, error);
+        rpcResponse.error = RpcError.ErrorType.UNCAUGHT_ERROR;
+      }
     }
+
+    sendResponse(rpcResponse);
   }
 }
 

@@ -11,7 +11,6 @@ describe('LocalParticipant', () => {
     let localParticipant: LocalParticipant;
 
     beforeEach(() => {
-      // Mock the OwnedParticipant object
       const mockOwnedParticipant = {
         info: {
           sid: 'test-sid',
@@ -33,12 +32,11 @@ describe('LocalParticipant', () => {
 
       localParticipant.registerRpcMethod(methodName, handler);
 
-      // Create a mock RpcRequest and RemoteParticipant
       const mockRequest = new RpcRequest({
         id: 'test-request-id',
         method: methodName,
         payload: 'test payload',
-        responseTimeoutMs: 5000, // Add a default timeout
+        responseTimeoutMs: 5000,
       });
       const mockSender = new RemoteParticipant({
         info: {
@@ -52,7 +50,6 @@ describe('LocalParticipant', () => {
         handle: { id: BigInt('0x9876543210fedcba') },
       } as unknown as OwnedParticipant);
 
-      // Mock the publishData method to avoid actual data publishing
       localParticipant.publishData = vi.fn();
 
       // Call the internal method that would be triggered by an incoming RPC request
@@ -176,7 +173,6 @@ describe('LocalParticipant', () => {
         handle: { id: BigInt('0xabcdef0123456789') },
       } as unknown as OwnedParticipant);
 
-      // Create a mock function for publishData
       mockPublishData = vi.fn();
       localParticipant.publishData = mockPublishData;
     });
@@ -186,7 +182,6 @@ describe('LocalParticipant', () => {
       const payload = 'testPayload';
       const responsePayload = 'responsePayload';
 
-      // Use the mockPublishData variable for the mock implementation
       mockPublishData.mockImplementationOnce((data) => {
         const request = JSON.parse(new TextDecoder().decode(data));
         // Simulate receiving a response
@@ -230,7 +225,6 @@ describe('LocalParticipant', () => {
         });
       });
 
-      // Start the timer
       const startTime = Date.now();
 
       // Wait for the promise to reject
@@ -241,7 +235,6 @@ describe('LocalParticipant', () => {
       expect(elapsedTime).toBeGreaterThanOrEqual(timeoutMs);
       expect(elapsedTime).toBeLessThan(timeoutMs + 50); // Allow some margin for test execution
 
-      // Verify that publishData was called
       expect(localParticipant.publishData).toHaveBeenCalledTimes(1);
     });
 

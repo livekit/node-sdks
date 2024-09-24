@@ -73,6 +73,13 @@ export class RpcError extends Error {
   code: number;
   data?: string;
 
+  /**
+   * Creates an error object with the given code and message, plus an optional data payload.
+   *
+   * If thrown in an RPC method handler, the error will be sent back to the caller.
+   *
+   * Error codes 1001-1999 are reserved for built-in errors (see RpcError.ErrorCodes for their meanings).
+   */
   constructor(code: number, message: string, data?: string) {
     super(message);
     this.code = code;
@@ -108,7 +115,11 @@ export class RpcError extends Error {
     MALFORMED_RESPONSE: 'Malformed response',
   } as const;
 
-  /** @internal */
+  /**
+   * Creates an error object from the code, with an auto-populated message.
+   * 
+   * @internal
+   */
   static builtIn(
     key: keyof typeof RpcError.ErrorCodes & keyof typeof RpcError.ErrorMessages,
     data?: string,

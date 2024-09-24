@@ -117,12 +117,15 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
     const parsedResponse = JSON.parse(response);
     console.log(`[Requester] genius says ${parsedResponse.result}!`);
   } catch (error) {
-    if (error instanceof RpcError && error.name === RpcErrorName.UNSUPPORTED_METHOD) {
-      console.log(`[Requester] Aww looks like the genius doesn't know that one.`);
-    } else {
-      console.error('[Requester] Unexpected error:', error);
-      throw error;
+    if (error instanceof RpcError) {
+      if (error.name === RpcErrorName.UNSUPPORTED_METHOD) {
+        console.log(`[Requester] Aww looks like the genius doesn't know that one.`);
+        return;
+      }
     }
+
+    console.error('[Requester] Unexpected error:', error);
+    throw error;
   }
 };
 

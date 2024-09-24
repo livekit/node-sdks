@@ -303,7 +303,7 @@ export class LocalParticipant extends Participant {
 
     return new Promise((resolve, reject) => {
       if (byteLength(payload) > MAX_PAYLOAD_BYTES) {
-        reject(RpcError.builtIn('PAYLOAD_TOO_LARGE'));
+        reject(RpcError.builtIn('REQUEST_PAYLOAD_TOO_LARGE'));
         return;
       }
 
@@ -448,7 +448,7 @@ export class LocalParticipant extends Participant {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
-          rpcResponse.error = RpcError.builtIn('PAYLOAD_TOO_LARGE');
+          rpcResponse.error = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');
           console.warn(`RPC Response payload too large for ${request.method}`);
         } else {
           rpcResponse.payload = response;

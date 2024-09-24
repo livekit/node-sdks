@@ -77,7 +77,7 @@ export class RpcError extends Error {
    *
    * If thrown in an RPC method handler, the error will be sent back to the caller.
    *
-   * Error codes 1001-1999 are reserved for built-in errors (see RpcError.ErrorCodes for their meanings).
+   * Error codes 1001-1999 are reserved for built-in errors (see RpcError.ErrorCode for their meanings).
    */
   constructor(code: number, message: string, data?: string) {
     super(message);
@@ -94,7 +94,7 @@ export class RpcError extends Error {
     };
   }
 
-  static ErrorCodes = {
+  static ErrorCode = {
     UNCAUGHT_ERROR: 1001,
     UNSUPPORTED_METHOD: 1002,
     CONNECTION_TIMEOUT: 1003,
@@ -106,7 +106,10 @@ export class RpcError extends Error {
     MALFORMED_RESPONSE: 1099, // TODO: Shouldn't be needed with protobuf type
   } as const;
 
-  static ErrorMessages = {
+  /**
+   * @internal
+   */
+  static ErrorMessage = {
     UNCAUGHT_ERROR: 'Uncaught application error',
     UNSUPPORTED_METHOD: 'Method not supported at destination',
     CONNECTION_TIMEOUT: 'Connection timeout',
@@ -120,14 +123,14 @@ export class RpcError extends Error {
 
   /**
    * Creates an error object from the code, with an auto-populated message.
-   * 
+   *
    * @internal
    */
   static builtIn(
-    key: keyof typeof RpcError.ErrorCodes & keyof typeof RpcError.ErrorMessages,
+    key: keyof typeof RpcError.ErrorCode & keyof typeof RpcError.ErrorMessage,
     data?: string,
   ): RpcError {
-    return new RpcError(RpcError.ErrorCodes[key], RpcError.ErrorMessages[key], data);
+    return new RpcError(RpcError.ErrorCode[key], RpcError.ErrorMessage[key], data);
   }
 }
 

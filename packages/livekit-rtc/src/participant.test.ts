@@ -98,7 +98,7 @@ describe('LocalParticipant', () => {
       // Verify that the error response contains the correct error name
       const errorResponse = mockPublishData.mock.calls[1][0];
       const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
-      expect(parsedResponse.error.code).toBe(RpcError.ErrorCodes.UNCAUGHT_ERROR);
+      expect(parsedResponse.error.code).toBe(RpcError.ErrorCode.UNCAUGHT_ERROR);
     });
 
     it('should pass through RpcError thrown by the RPC method handler', async () => {

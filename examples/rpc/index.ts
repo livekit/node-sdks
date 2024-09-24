@@ -118,7 +118,7 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
     console.log(`[Requester] genius says ${parsedResponse.result}!`);
   } catch (error) {
     if (error instanceof RpcError) {
-      if (error.code === RpcError.ErrorCodes.UNSUPPORTED_METHOD) {
+      if (error.code === RpcError.ErrorCode.UNSUPPORTED_METHOD) {
         console.log(`[Requester] Aww looks like the genius doesn't know that one.`);
         return;
       }

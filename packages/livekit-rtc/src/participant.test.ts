@@ -1,29 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LocalParticipant, RemoteParticipant } from './participant';
 import { type OwnedParticipant, ParticipantKind } from './proto/participant_pb';
-import { RpcRequest, RpcError } from './rpc';
+import { RpcRequest, RpcError, RpcResponse } from './rpc';
 
 describe('LocalParticipant', () => {
-  let localParticipant: LocalParticipant;
-
-  beforeEach(() => {
-    // Mock the OwnedParticipant object
-    const mockOwnedParticipant = {
-      info: {
-        sid: 'test-sid',
-        identity: 'test-identity',
-        name: 'Test Participant',
-        metadata: '',
-        attributes: {},
-        kind: ParticipantKind.STANDARD,
-      },
-      handle: { id: BigInt('0x1234567890abcdef') },
-    } as unknown as OwnedParticipant;
-
-    localParticipant = new LocalParticipant(mockOwnedParticipant);
-  });
-
   describe('registerRpcMethod', () => {
+    let localParticipant: LocalParticipant;
+
+    beforeEach(() => {
+      // Mock the OwnedParticipant object
+      const mockOwnedParticipant = {
+        info: {
+          sid: 'test-sid',
+          identity: 'test-identity',
+          name: 'Test Participant',
+          metadata: '',
+          attributes: {},
+          kind: ParticipantKind.STANDARD,
+        },
+        handle: { id: BigInt('0x1234567890abcdef') },
+      } as unknown as OwnedParticipant;
+  
+      localParticipant = new LocalParticipant(mockOwnedParticipant);
+    });
+
     it('should register an RPC method handler', async () => {
       const methodName = 'testMethod';
       const handler = vi.fn().mockResolvedValue('test response');
@@ -139,6 +139,135 @@ describe('LocalParticipant', () => {
       const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
       expect(parsedResponse.error.name).toBe(errorName);
       expect(parsedResponse.error.message).toBe(errorMessage);
+    });
+  });
+
+  describe('performRpcRequest', () => {
+    let localParticipant: LocalParticipant;
+    let mockRemoteParticipant: RemoteParticipant;
+
+    beforeEach(() => {
+      localParticipant = new LocalParticipant({
+        info: {
+          sid: 'local-sid',
+          identity: 'local-identity',
+          name: 'Local Participant',
+          metadata: '',
+          attributes: {},
+          kind: ParticipantKind.STANDARD,
+        },
+        handle: { id: BigInt('0x1234567890abcdef') },
+      } as unknown as OwnedParticipant);
+
+      mockRemoteParticipant = new RemoteParticipant({
+        info: {
+          sid: 'remote-sid',
+          identity: 'remote-identity',
+          name: 'Remote Participant',
+          metadata: '',
+          attributes: {},
+          kind: ParticipantKind.STANDARD,
+        },
+        handle: { id: BigInt('0xabcdef0123456789') },
+      } as unknown as OwnedParticipant);
+
+      localParticipant.publishData = vi.fn();
+    });
+
+    it('should send RPC request and receive successful response', async () => {
+      const method = 'testMethod';
+      const payload = 'testPayload';
+      const responsePayload = 'responsePayload';
+
+      // Mock the publishData method to simulate sending the request
+      localParticipant.publishData.mockImplementationOnce((data) => {
+        const request = JSON.parse(new TextDecoder().decode(data));
+        // Simulate receiving a response
+        setTimeout(() => {
+          const response = new RpcResponse({
+            requestId: request.id,
+            payload: responsePayload,
+          });
+          localParticipant['handleIncomingRpcResponse'](response);
+        }, 10);
+      });
+
+      const result = await localParticipant.performRpcRequest(mockRemoteParticipant.identity, method, payload);
+
+      expect(localParticipant.publishData).toHaveBeenCalledTimes(1);
+      expect(result).toBe(responsePayload);
+    });
+
+    it('should handle RPC request timeout', async () => {
+      const method = 'timeoutMethod';
+      const payload = 'timeoutPayload';
+
+      // Set a short timeout for the test
+      const timeoutMs = 50;
+
+      const resultPromise = localParticipant.performRpcRequest(
+        mockRemoteParticipant.identity,
+        method,
+        payload,
+        timeoutMs
+      );
+
+      // Mock the publishData method to simulate a delay longer than the timeout
+      localParticipant.publishData.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          setTimeout(resolve, timeoutMs + 10);
+        });
+      });
+
+      // Start the timer
+      const startTime = Date.now();
+
+      // Wait for the promise to reject
+      await expect(resultPromise).rejects.toThrow('Connection timed out');
+
+      // Check that the time elapsed is close to the timeout value
+      const elapsedTime = Date.now() - startTime;
+      expect(elapsedTime).toBeGreaterThanOrEqual(timeoutMs);
+      expect(elapsedTime).toBeLessThan(timeoutMs + 50); // Allow some margin for test execution
+
+      // Verify that publishData was called
+      expect(localParticipant.publishData).toHaveBeenCalledTimes(1);
+
+      await expect(resultPromise).rejects.toThrow('Connection timed out');
+    });
+
+    it('should handle RPC error response', async () => {
+      const method = 'errorMethod';
+      const payload = 'errorPayload';
+      const errorName = 'TEST_ERROR';
+      const errorMessage = 'Test error message';
+
+      localParticipant.publishData.mockImplementationOnce((data) => {
+        const request = JSON.parse(new TextDecoder().decode(data));
+        // Simulate receiving an error response
+        setTimeout(() => {
+          const response = new RpcResponse({
+            requestId: request.id,
+            error: new RpcError(errorName, errorMessage),
+          });
+          localParticipant['handleIncomingRpcResponse'](response);
+        }, 10);
+      });
+
+      await expect(localParticipant.performRpcRequest(mockRemoteParticipant.identity, method, payload))
+        .rejects.toThrow(errorMessage);
+    });
+
+    it('should handle participant disconnection during RPC request', async () => {
+      const method = 'disconnectMethod';
+      const payload = 'disconnectPayload';
+
+      const resultPromise = localParticipant.performRpcRequest(mockRemoteParticipant.identity, method, payload);
+
+      // Simulate participant disconnection
+      localParticipant['handleParticipantDisconnected'](mockRemoteParticipant.identity);
+
+      await expect(resultPromise).rejects.toThrow('Recipient has disconnected');
     });
   });
 });

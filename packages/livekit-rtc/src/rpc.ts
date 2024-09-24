@@ -70,10 +70,10 @@ export class RpcError extends Error {
   static MAX_MESSAGE_BYTES = 256;
   static MAX_DATA_BYTES = 15360; // 15 KB
 
-  name: RpcErrorName;
+  name: string;
   data?: string;
 
-  constructor(name: RpcErrorName, message: string, data?: string) {
+  constructor(name: string, message: string, data?: string) {
     super(message);
     this.name = name;
     this.message = truncateBytes(message, RpcError.MAX_MESSAGE_BYTES);

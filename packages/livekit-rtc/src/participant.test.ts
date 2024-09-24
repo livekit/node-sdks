@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LocalParticipant, RemoteParticipant } from './participant';
 import { type OwnedParticipant, ParticipantKind } from './proto/participant_pb';

@@ -73,7 +73,7 @@ describe('LocalParticipant', () => {
         id: 'test-error-request-id',
         method: methodName,
         payload: 'test payload',
-        responseTimeoutMs: 5000, // Add a default timeout
+        responseTimeoutMs: 5000,
       });
       const mockSender = new RemoteParticipant({
         info: {
@@ -89,16 +89,15 @@ describe('LocalParticipant', () => {
 
       localParticipant.publishData = vi.fn();
 
-      // Spy on console.warn to check for error logging
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
       await localParticipant['handleIncomingRpcRequest'](mockRequest, mockSender);
 
       expect(handler).toHaveBeenCalledWith(mockRequest, mockSender);
-      expect(consoleWarnSpy).toHaveBeenCalled();
       expect(localParticipant.publishData).toHaveBeenCalledTimes(2); // ACK and error response
 
-      consoleWarnSpy.mockRestore();
+      // Verify that the error response contains the correct error name
+      const errorResponse = localParticipant.publishData.mock.calls[1][0];
+      const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
+      expect(parsedResponse.error.name).toBe('lk.UNCAUGHT_ERROR');
     });
   });
 });

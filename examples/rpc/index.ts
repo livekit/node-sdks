@@ -73,8 +73,6 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
         `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
       );
 
-      // throw new Error("some error");
-
       console.log(`[Math Genius] *doing math*…`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

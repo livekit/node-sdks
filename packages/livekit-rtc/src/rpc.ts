@@ -105,11 +105,14 @@ export class RpcError extends Error {
     RESPONSE_TIMEOUT: 'Response timeout',
     RECIPIENT_DISCONNECTED: 'Recipient disconnected',
     PAYLOAD_TOO_LARGE: 'Payload too large',
-    MALFORMED_RESPONSE: 'Malformed response'
+    MALFORMED_RESPONSE: 'Malformed response',
   } as const;
 
   /** @internal */
-  static builtIn(key: keyof typeof RpcError.ErrorCodes & keyof typeof RpcError.ErrorMessages, data?: string): RpcError {
+  static builtIn(
+    key: keyof typeof RpcError.ErrorCodes & keyof typeof RpcError.ErrorMessages,
+    data?: string,
+  ): RpcError {
     return new RpcError(RpcError.ErrorCodes[key], RpcError.ErrorMessages[key], data);
   }
 }

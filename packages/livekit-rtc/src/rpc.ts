@@ -100,8 +100,10 @@ export class RpcError extends Error {
     CONNECTION_TIMEOUT: 1003,
     RESPONSE_TIMEOUT: 1004,
     RECIPIENT_DISCONNECTED: 1005,
-    PAYLOAD_TOO_LARGE: 1006,
-    MALFORMED_RESPONSE: 1007,
+    RECIPIENT_NOT_FOUND: 1006,
+    REQUEST_PAYLOAD_TOO_LARGE: 1007,
+    RESPONSE_PAYLOAD_TOO_LARGE: 1008,
+    MALFORMED_RESPONSE: 1099, // TODO: Shouldn't be needed with protobuf type
   } as const;
 
   static ErrorMessages = {
@@ -110,7 +112,9 @@ export class RpcError extends Error {
     CONNECTION_TIMEOUT: 'Connection timeout',
     RESPONSE_TIMEOUT: 'Response timeout',
     RECIPIENT_DISCONNECTED: 'Recipient disconnected',
-    PAYLOAD_TOO_LARGE: 'Payload too large',
+    RECIPIENT_NOT_FOUND: 'Recipient not found',
+    REQUEST_PAYLOAD_TOO_LARGE: 'Request payload too large',
+    RESPONSE_PAYLOAD_TOO_LARGE: 'Response payload too large',
     MALFORMED_RESPONSE: 'Malformed response',
   } as const;
 

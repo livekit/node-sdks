@@ -66,7 +66,6 @@ export class RpcResponse {
  */
 
 export class RpcError extends Error {
-  static MAX_NAME_BYTES = 64;
   static MAX_MESSAGE_BYTES = 256;
   static MAX_DATA_BYTES = 15360; // 15 KB
 

@@ -28,7 +28,7 @@ import {
   IceTransportType,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
-import type { RpcAck, RpcRequest, RpcResponse } from './rpc.js';
+import { RpcAck, RpcRequest, RpcResponse, RpcError } from './rpc.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
@@ -285,6 +285,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             this.localParticipant.handleIncomingRpcAck(ack);
           } else if (dataPacket.value.topic === 'lk-rpc-response') {
             const response = JSON.parse(new TextDecoder().decode(buffer)) as RpcResponse;
+            if (response.error) {
+              response.error = new RpcError(
+                response.error.name,
+                response.error.message,
+                response.error.data,
+              );
+            }
             this.localParticipant.handleIncomingRpcResponse(response);
           } else {
             this.emit(

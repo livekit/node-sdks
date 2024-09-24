@@ -33,7 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { byteLength, MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcRequest, RpcResponse } from './rpc.js';
+import { byteLength, MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcErrorName, RpcRequest, RpcResponse } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -297,7 +297,7 @@ export class LocalParticipant extends Participant {
 
     return new Promise((resolve, reject) => {
       if (byteLength(payload) > MAX_PAYLOAD_BYTES) {
-        reject(new RpcError(RpcError.ErrorType.PAYLOAD_TOO_LARGE));
+        reject(RpcError.builtIn(RpcErrorName.PAYLOAD_TOO_LARGE));
         return;
       }
 
@@ -321,7 +321,7 @@ export class LocalParticipant extends Participant {
 
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject(new RpcError(RpcError.ErrorType.CONNECTION_TIMEOUT));
+        reject(RpcError.builtIn(RpcErrorName.CONNECTION_TIMEOUT));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
       }, connectionTimeoutMs);
@@ -332,7 +332,7 @@ export class LocalParticipant extends Participant {
 
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
-        reject(new RpcError(RpcError.ErrorType.RESPONSE_TIMEOUT));
+        reject(RpcError.builtIn(RpcErrorName.RESPONSE_TIMEOUT));
       }, responseTimeoutMs);
 
       this.pendingResponses.set(id, { resolve: (response) => {
@@ -343,7 +343,7 @@ export class LocalParticipant extends Participant {
         }
         clearTimeout(responseTimeoutId);
         if (response.error) {
-          reject(new RpcError(response.error));
+          reject(response.error);
         } else {
           resolve(response.payload);
         }
@@ -423,7 +423,7 @@ export class LocalParticipant extends Participant {
     if (!handler) {
       const rpcResponse = new RpcResponse({
         requestId: request.id,
-        error: RpcError.ErrorType.UNSUPPORTED_METHOD,
+        error: RpcError.builtIn(RpcErrorName.UNSUPPORTED_METHOD),
       });
       sendResponse(rpcResponse);
       return;
@@ -436,26 +436,26 @@ export class LocalParticipant extends Participant {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
-          rpcResponse.error = RpcError.ErrorType.PAYLOAD_TOO_LARGE;
+          rpcResponse.error = RpcError.builtIn(RpcErrorName.PAYLOAD_TOO_LARGE);
           console.warn(`RPC Response payload too large for ${request.method}`);
         } else {
           rpcResponse.payload = response;
         }
       } else if (response instanceof RpcError) {
-        rpcResponse.error = response.message;
+        rpcResponse.error = response;
       } else {
         console.warn(`unexpected handler response for ${request.method}: ${response}`);
-        rpcResponse.error = RpcError.ErrorType.MALFORMED_RESPONSE;
+        rpcResponse.error = RpcError.builtIn(RpcErrorName.MALFORMED_RESPONSE);
       }
     } catch (error) {
       if (error instanceof RpcError) {
-        rpcResponse.error = error.message;
+        rpcResponse.error = error;
       } else {
         console.warn(
-          `Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcError.ErrorType.UNCAUGHT_ERROR}`,
+          `Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcErrorName.UNCAUGHT_ERROR}`,
           error,
         );
-        rpcResponse.error = RpcError.ErrorType.UNCAUGHT_ERROR;
+        rpcResponse.error = RpcError.builtIn(RpcErrorName.UNCAUGHT_ERROR);
       }
     }
 
@@ -474,7 +474,7 @@ export class LocalParticipant extends Participant {
       if (pendingIdentity === participantIdentity) {
         resolve(new RpcResponse({
           requestId: id,
-          error: RpcError.ErrorType.RECIPIENT_DISCONNECTED,
+          error: RpcError.builtIn(RpcErrorName.RECIPIENT_DISCONNECTED),
         }));
         this.pendingResponses.delete(id);
       }

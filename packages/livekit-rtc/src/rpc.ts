@@ -39,7 +39,7 @@ export class RpcAck {
 export class RpcResponse {
   requestId: string;
   payload?: string;
-  error?: string;
+  error?: RpcError;
 
   constructor({
     requestId,
@@ -48,7 +48,7 @@ export class RpcResponse {
   }: {
     requestId: string;
     payload?: string;
-    error?: string;
+    error?: RpcError;
   }) {
     this.requestId = requestId;
     this.payload = payload;
@@ -58,38 +58,68 @@ export class RpcResponse {
 
 /**
  * Specialized error handling for RPC methods.
- * 
+ *
  * Instances of this type, when thrown in a method handler, will have their `message`
  * serialized and sent across the wire. The sender will receive an equivalent error on the other side.
- * 
+ *
  * Build-in types are included but developers may use any string, with a max length of 256 bytes.
  */
 
 export class RpcError extends Error {
-  static MAX_BYTES = 256;
+  static MAX_NAME_BYTES = 64;
+  static MAX_MESSAGE_BYTES = 256;
+  static MAX_DATA_BYTES = 15360; // 15 KB
 
-  static ErrorType = {
-    CONNECTION_TIMEOUT: 'lk-rpc.connection-timeout',
-    RESPONSE_TIMEOUT: 'lk-rpc.response-timeout',
-    UNSUPPORTED_METHOD: 'lk-rpc.unsupported-method',
-    RECIPIENT_DISCONNECTED: 'lk-rpc.recipient-disconnected',
-    UNCAUGHT_ERROR: 'lk-rpc.uncaught-error',
-    MALFORMED_RESPONSE: 'lk-rpc.malformed-response',
-    PAYLOAD_TOO_LARGE: 'lk-rpc.payload-too-large',
-  };
+  name: RpcErrorName;
+  data?: string;
 
-  constructor(message: string | keyof typeof RpcError.ErrorType) {
-    if (message in RpcError.ErrorType) {
-      super(RpcError.ErrorType[message as keyof typeof RpcError.ErrorType]);
-    } else {
-      if (byteLength(message) > RpcError.MAX_BYTES) {
-        console.warn("Error message longer than 256 bytes will be truncated");
-        message = truncateBytes(message, RpcError.MAX_BYTES);
-      }
-      super(message);
-    }
-    this.name = 'LKRPCError';
+  constructor(name: RpcErrorName, message: string, data?: string) {
+    super(message);
+    this.name = name;
+    this.message = truncateBytes(message, RpcError.MAX_MESSAGE_BYTES);
+    this.data = data ? truncateBytes(data, RpcError.MAX_DATA_BYTES) : undefined;
   }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      data: this.data,
+    };
+  }
+
+  static builtIn(type: RpcErrorName, data?: string): RpcError {
+    return new RpcError(type, RpcError.getMessage(type), data);
+  }
+
+  private static getMessage(name: RpcErrorName): string {
+    switch (name) {
+      case RpcErrorName.CONNECTION_TIMEOUT:
+        return 'Connection timed out';
+      case RpcErrorName.RESPONSE_TIMEOUT:
+        return 'Response timed out';
+      case RpcErrorName.UNSUPPORTED_METHOD:
+        return 'Method is not supported';
+      case RpcErrorName.RECIPIENT_DISCONNECTED:
+        return 'Recipient has disconnected';
+      case RpcErrorName.UNCAUGHT_ERROR:
+        return 'An uncaught error occurred';
+      case RpcErrorName.MALFORMED_RESPONSE:
+        return 'Response is malformed';
+      case RpcErrorName.PAYLOAD_TOO_LARGE:
+        return 'Payload exceeds size limit';
+    }
+  }
+}
+
+export enum RpcErrorName {
+  CONNECTION_TIMEOUT = 'lk.CONNECTION_TIMEOUT',
+  RESPONSE_TIMEOUT = 'lk.RESPONSE_TIMEOUT',
+  UNSUPPORTED_METHOD = 'lk.UNSUPPORTED_METHOD',
+  RECIPIENT_DISCONNECTED = 'lk.RECIPIENT_DISCONNECTED',
+  UNCAUGHT_ERROR = 'lk.UNCAUGHT_ERROR',
+  MALFORMED_RESPONSE = 'lk.MALFORMED_RESPONSE',
+  PAYLOAD_TOO_LARGE = 'lk.PAYLOAD_TOO_LARGE',
 }
 
 /**
@@ -112,11 +142,11 @@ export function truncateBytes(str: string, maxBytes: number): string {
   if (byteLength(str) <= maxBytes) {
     return str;
   }
-  
+
   let low = 0;
   let high = str.length;
   const encoder = new TextEncoder();
-  
+
   while (low < high) {
     const mid = Math.floor((low + high + 1) / 2);
     if (encoder.encode(str.slice(0, mid)).length <= maxBytes) {
@@ -125,6 +155,6 @@ export function truncateBytes(str: string, maxBytes: number): string {
       high = mid - 1;
     }
   }
-  
+
   return str.slice(0, low);
 }

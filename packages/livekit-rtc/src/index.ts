@@ -37,7 +37,7 @@ export {
   TrackPublishOptions,
   ConnectionState,
 } from './proto/room_pb.js';
-export { RpcRequest, RpcAck, RpcResponse, RpcError } from './rpc.js';
+export { RpcRequest, RpcAck, RpcResponse, RpcError, RpcErrorName } from './rpc.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoRotation } from './proto/video_frame_pb.js';

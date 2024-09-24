@@ -288,7 +288,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             const response = JSON.parse(new TextDecoder().decode(buffer)) as RpcResponse;
             if (response.error) {
               response.error = new RpcError(
-                response.error.name,
+                response.error.code,
                 response.error.message,
                 response.error.data,
               );

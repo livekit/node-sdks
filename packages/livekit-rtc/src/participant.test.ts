@@ -101,14 +101,14 @@ describe('LocalParticipant', () => {
       // Verify that the error response contains the correct error name
       const errorResponse = mockPublishData.mock.calls[1][0];
       const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
-      expect(parsedResponse.error.name).toBe('lk.uncaught-error');
+      expect(parsedResponse.error.code).toBe(RpcError.ErrorCodes.UNCAUGHT_ERROR);
     });
 
     it('should pass through RpcError thrown by the RPC method handler', async () => {
       const methodName = 'rpcErrorMethod';
-      const errorName = 'some-error';
+      const errorCode = 101;
       const errorMessage = 'some-error-message';
-      const handler = vi.fn().mockRejectedValue(new RpcError(errorName, errorMessage));
+      const handler = vi.fn().mockRejectedValue(new RpcError(errorCode, errorMessage));
 
       localParticipant.registerRpcMethod(methodName, handler);
 
@@ -141,7 +141,7 @@ describe('LocalParticipant', () => {
       // Verify that the error response contains the correct RpcError
       const errorResponse = mockPublishData.mock.calls[1][0];
       const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
-      expect(parsedResponse.error.name).toBe(errorName);
+      expect(parsedResponse.error.code).toBe(errorCode);
       expect(parsedResponse.error.message).toBe(errorMessage);
     });
   });
@@ -234,7 +234,7 @@ describe('LocalParticipant', () => {
       const startTime = Date.now();
 
       // Wait for the promise to reject
-      await expect(resultPromise).rejects.toThrow('Connection timed out');
+      await expect(resultPromise).rejects.toThrow('Connection timeout');
 
       // Check that the time elapsed is close to the timeout value
       const elapsedTime = Date.now() - startTime;
@@ -243,14 +243,12 @@ describe('LocalParticipant', () => {
 
       // Verify that publishData was called
       expect(localParticipant.publishData).toHaveBeenCalledTimes(1);
-
-      await expect(resultPromise).rejects.toThrow('Connection timed out');
     });
 
     it('should handle RPC error response', async () => {
       const method = 'errorMethod';
       const payload = 'errorPayload';
-      const errorName = 'TEST_ERROR';
+      const errorCode = 101;
       const errorMessage = 'Test error message';
 
       mockPublishData.mockImplementationOnce((data) => {
@@ -259,7 +257,7 @@ describe('LocalParticipant', () => {
         setTimeout(() => {
           const response = new RpcResponse({
             requestId: request.id,
-            error: new RpcError(errorName, errorMessage),
+            error: new RpcError(errorCode, errorMessage),
           });
           localParticipant['handleIncomingRpcResponse'](response);
         }, 10);
@@ -283,7 +281,7 @@ describe('LocalParticipant', () => {
       // Simulate participant disconnection
       localParticipant['handleParticipantDisconnected'](mockRemoteParticipant.identity);
 
-      await expect(resultPromise).rejects.toThrow('Recipient has disconnected');
+      await expect(resultPromise).rejects.toThrow('Recipient disconnected');
     });
   });
 });

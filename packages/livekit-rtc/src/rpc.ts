@@ -70,56 +70,47 @@ export class RpcError extends Error {
   static MAX_MESSAGE_BYTES = 256;
   static MAX_DATA_BYTES = 15360; // 15 KB
 
-  name: string;
+  code: number;
   data?: string;
 
-  constructor(name: string, message: string, data?: string) {
+  constructor(code: number, message: string, data?: string) {
     super(message);
-    this.name = name;
+    this.code = code;
     this.message = truncateBytes(message, RpcError.MAX_MESSAGE_BYTES);
     this.data = data ? truncateBytes(data, RpcError.MAX_DATA_BYTES) : undefined;
   }
 
   toJSON() {
     return {
-      name: this.name,
+      code: this.code,
       message: this.message,
       data: this.data,
     };
   }
 
-  static Name = {
-    CONNECTION_TIMEOUT: 'lk.connection-timeout',
-    RESPONSE_TIMEOUT: 'lk.response-timeout',
-    UNSUPPORTED_METHOD: 'lk.unsupported-method',
-    RECIPIENT_DISCONNECTED: 'lk.recipient-disconnected',
-    UNCAUGHT_ERROR: 'lk.uncaught-error',
-    MALFORMED_RESPONSE: 'lk.malformed-response',
-    PAYLOAD_TOO_LARGE: 'lk.payload-too-large',
+  static ErrorCodes = {
+    UNCAUGHT_ERROR: 1001,
+    UNSUPPORTED_METHOD: 1002,
+    CONNECTION_TIMEOUT: 1003,
+    RESPONSE_TIMEOUT: 1004,
+    RECIPIENT_DISCONNECTED: 1005,
+    PAYLOAD_TOO_LARGE: 1006,
+    MALFORMED_RESPONSE: 1007,
+  } as const;
+
+  static ErrorMessages = {
+    UNCAUGHT_ERROR: 'Uncaught application error',
+    UNSUPPORTED_METHOD: 'Method not supported at destination',
+    CONNECTION_TIMEOUT: 'Connection timeout',
+    RESPONSE_TIMEOUT: 'Response timeout',
+    RECIPIENT_DISCONNECTED: 'Recipient disconnected',
+    PAYLOAD_TOO_LARGE: 'Payload too large',
+    MALFORMED_RESPONSE: 'Malformed response'
   } as const;
 
   /** @internal */
-  static builtIn(name: keyof typeof RpcError.Name, data?: string): RpcError {
-    return new RpcError(RpcError.Name[name], RpcError.getMessage(name), data);
-  }
-
-  private static getMessage(name: keyof typeof RpcError.Name): string {
-    switch (name) {
-      case 'CONNECTION_TIMEOUT':
-        return 'Connection timed out';
-      case 'RESPONSE_TIMEOUT':
-        return 'Response timed out';
-      case 'UNSUPPORTED_METHOD':
-        return 'Method is not supported';
-      case 'RECIPIENT_DISCONNECTED':
-        return 'Recipient has disconnected';
-      case 'UNCAUGHT_ERROR':
-        return 'An uncaught error occurred';
-      case 'MALFORMED_RESPONSE':
-        return 'Response is malformed';
-      case 'PAYLOAD_TOO_LARGE':
-        return 'Payload exceeds size limit';
-    }
+  static builtIn(key: keyof typeof RpcError.ErrorCodes & keyof typeof RpcError.ErrorMessages, data?: string): RpcError {
+    return new RpcError(RpcError.ErrorCodes[key], RpcError.ErrorMessages[key], data);
   }
 }
 

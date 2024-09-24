@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LocalParticipant, RemoteParticipant } from './participant';
 import { type OwnedParticipant, ParticipantKind } from './proto/participant_pb';
-import { RpcRequest } from './rpc';
+import { RpcRequest, RpcError } from './rpc';
 
 describe('LocalParticipant', () => {
   let localParticipant: LocalParticipant;
@@ -62,7 +62,7 @@ describe('LocalParticipant', () => {
       expect(localParticipant.publishData).toHaveBeenCalledTimes(2); // Once for ACK, once for response
     });
 
-    it('should handle errors thrown by the RPC method handler', async () => {
+    it('should catch and transform unhandled errors in the RPC method handler', async () => {
       const methodName = 'errorMethod';
       const errorMessage = 'Test error';
       const handler = vi.fn().mockRejectedValue(new Error(errorMessage));
@@ -98,6 +98,47 @@ describe('LocalParticipant', () => {
       const errorResponse = localParticipant.publishData.mock.calls[1][0];
       const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
       expect(parsedResponse.error.name).toBe('lk.UNCAUGHT_ERROR');
+
+    });
+
+    it('should pass through RpcError thrown by the RPC method handler', async () => {
+      const methodName = 'rpcErrorMethod';
+      const errorName = 'some-error';
+      const errorMessage = 'some-error-message';
+      const handler = vi.fn().mockRejectedValue(new RpcError(errorName, errorMessage));
+
+      localParticipant.registerRpcMethod(methodName, handler);
+
+      const mockRequest = new RpcRequest({
+        id: 'test-rpc-error-request-id',
+        method: methodName,
+        payload: 'test payload',
+        responseTimeoutMs: 5000,
+      });
+      const mockSender = new RemoteParticipant({
+        info: {
+          sid: 'remote-sid',
+          identity: 'remote-identity',
+          name: 'Remote Participant',
+          metadata: '',
+          attributes: {},
+          kind: ParticipantKind.STANDARD,
+        },
+        handle: { id: BigInt('0xabcdef0123456789') },
+      } as unknown as OwnedParticipant);
+
+      localParticipant.publishData = vi.fn();
+
+      await localParticipant['handleIncomingRpcRequest'](mockRequest, mockSender);
+
+      expect(handler).toHaveBeenCalledWith(mockRequest, mockSender);
+      expect(localParticipant.publishData).toHaveBeenCalledTimes(2); // ACK and error response
+
+      // Verify that the error response contains the correct RpcError
+      const errorResponse = localParticipant.publishData.mock.calls[1][0];
+      const parsedResponse = JSON.parse(new TextDecoder().decode(errorResponse));
+      expect(parsedResponse.error.name).toBe(errorName);
+      expect(parsedResponse.error.message).toBe(errorMessage);
     });
   });
 });

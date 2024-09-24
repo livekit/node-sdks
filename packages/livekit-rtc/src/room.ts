@@ -28,7 +28,8 @@ import {
   IceTransportType,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
-import { RpcAck, RpcRequest, RpcResponse, RpcError } from './rpc.js';
+import type { RpcAck, RpcRequest, RpcResponse } from './rpc.js';
+import { RpcError } from './rpc.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';

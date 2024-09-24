@@ -1,4 +1,4 @@
-import { Room, RpcError, RpcErrorName } from '@livekit/rtc-node';
+import { Room, RpcError } from '@livekit/rtc-node';
 import type { RemoteParticipant, RpcRequest } from '@livekit/rtc-node';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
@@ -118,7 +118,7 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
     console.log(`[Requester] genius says ${parsedResponse.result}!`);
   } catch (error) {
     if (error instanceof RpcError) {
-      if (error.name === RpcErrorName.UNSUPPORTED_METHOD) {
+      if (error.name === 'UNSUPPORTED_METHOD') {
         console.log(`[Requester] Aww looks like the genius doesn't know that one.`);
         return;
       }

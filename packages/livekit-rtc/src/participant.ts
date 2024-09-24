@@ -33,7 +33,7 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { byteLength, MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcErrorName, RpcRequest, RpcResponse } from './rpc.js';
+import { MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcRequest, RpcResponse, byteLength } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -102,8 +102,14 @@ export class LocalParticipant extends Participant {
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
-  private pendingAcks = new Map<string, { resolve: (ack: RpcAck) => void, participantIdentity: string }>();
-  private pendingResponses = new Map<string, { resolve: (response: RpcResponse) => void, participantIdentity: string }>();
+  private pendingAcks = new Map<
+    string,
+    { resolve: (ack: RpcAck) => void; participantIdentity: string }
+  >();
+  private pendingResponses = new Map<
+    string,
+    { resolve: (response: RpcResponse) => void; participantIdentity: string }
+  >();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
     const req = new PublishDataRequest({
@@ -297,7 +303,7 @@ export class LocalParticipant extends Participant {
 
     return new Promise((resolve, reject) => {
       if (byteLength(payload) > MAX_PAYLOAD_BYTES) {
-        reject(RpcError.builtIn(RpcErrorName.PAYLOAD_TOO_LARGE));
+        reject(RpcError.builtIn('PAYLOAD_TOO_LARGE'));
         return;
       }
 
@@ -321,33 +327,39 @@ export class LocalParticipant extends Participant {
 
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
-        reject(RpcError.builtIn(RpcErrorName.CONNECTION_TIMEOUT));
+        reject(RpcError.builtIn('CONNECTION_TIMEOUT'));
         this.pendingResponses.delete(id);
         clearTimeout(responseTimeoutId);
       }, connectionTimeoutMs);
 
-      this.pendingAcks.set(id, { resolve: () => {
-        clearTimeout(ackTimeoutId);
-      }, participantIdentity: recipientIdentity });
+      this.pendingAcks.set(id, {
+        resolve: () => {
+          clearTimeout(ackTimeoutId);
+        },
+        participantIdentity: recipientIdentity,
+      });
 
       const responseTimeoutId = setTimeout(() => {
         this.pendingResponses.delete(id);
-        reject(RpcError.builtIn(RpcErrorName.RESPONSE_TIMEOUT));
+        reject(RpcError.builtIn('RESPONSE_TIMEOUT'));
       }, responseTimeoutMs);
 
-      this.pendingResponses.set(id, { resolve: (response) => {
-        if (this.pendingAcks.has(id)) {
-          console.error('RPC response received before ack', id);
-          this.pendingAcks.delete(id);
-          clearTimeout(ackTimeoutId);
-        }
-        clearTimeout(responseTimeoutId);
-        if (response.error) {
-          reject(response.error);
-        } else {
-          resolve(response.payload);
-        }
-      }, participantIdentity: recipientIdentity });
+      this.pendingResponses.set(id, {
+        resolve: (response) => {
+          if (this.pendingAcks.has(id)) {
+            console.error('RPC response received before ack', id);
+            this.pendingAcks.delete(id);
+            clearTimeout(ackTimeoutId);
+          }
+          clearTimeout(responseTimeoutId);
+          if (response.error) {
+            reject(response.error);
+          } else {
+            resolve(response.payload);
+          }
+        },
+        participantIdentity: recipientIdentity,
+      });
     });
   }
 
@@ -423,7 +435,7 @@ export class LocalParticipant extends Participant {
     if (!handler) {
       const rpcResponse = new RpcResponse({
         requestId: request.id,
-        error: RpcError.builtIn(RpcErrorName.UNSUPPORTED_METHOD),
+        error: RpcError.builtIn('UNSUPPORTED_METHOD'),
       });
       sendResponse(rpcResponse);
       return;
@@ -436,7 +448,7 @@ export class LocalParticipant extends Participant {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
-          rpcResponse.error = RpcError.builtIn(RpcErrorName.PAYLOAD_TOO_LARGE);
+          rpcResponse.error = RpcError.builtIn('PAYLOAD_TOO_LARGE');
           console.warn(`RPC Response payload too large for ${request.method}`);
         } else {
           rpcResponse.payload = response;
@@ -445,17 +457,17 @@ export class LocalParticipant extends Participant {
         rpcResponse.error = response;
       } else {
         console.warn(`unexpected handler response for ${request.method}: ${response}`);
-        rpcResponse.error = RpcError.builtIn(RpcErrorName.MALFORMED_RESPONSE);
+        rpcResponse.error = RpcError.builtIn('MALFORMED_RESPONSE');
       }
     } catch (error) {
       if (error instanceof RpcError) {
         rpcResponse.error = error;
       } else {
         console.warn(
-          `Uncaught error returned by RPC handler for ${request.method}. Returning ${RpcErrorName.UNCAUGHT_ERROR}`,
+          `Uncaught error returned by RPC handler for ${request.method}. Returning UNCAUGHT_ERROR instead.`,
           error,
         );
-        rpcResponse.error = RpcError.builtIn(RpcErrorName.UNCAUGHT_ERROR);
+        rpcResponse.error = RpcError.builtIn('UNCAUGHT_ERROR');
       }
     }
 
@@ -472,10 +484,12 @@ export class LocalParticipant extends Participant {
 
     for (const [id, { participantIdentity: pendingIdentity, resolve }] of this.pendingResponses) {
       if (pendingIdentity === participantIdentity) {
-        resolve(new RpcResponse({
-          requestId: id,
-          error: RpcError.builtIn(RpcErrorName.RECIPIENT_DISCONNECTED),
-        }));
+        resolve(
+          new RpcResponse({
+            requestId: id,
+            error: RpcError.builtIn('RECIPIENT_DISCONNECTED'),
+          }),
+        );
         this.pendingResponses.delete(id);
       }
     }

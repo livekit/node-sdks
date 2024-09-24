@@ -88,39 +88,39 @@ export class RpcError extends Error {
     };
   }
 
+  static Name = {
+    CONNECTION_TIMEOUT: 'lk.connection-timeout',
+    RESPONSE_TIMEOUT: 'lk.response-timeout',
+    UNSUPPORTED_METHOD: 'lk.unsupported-method',
+    RECIPIENT_DISCONNECTED: 'lk.recipient-disconnected',
+    UNCAUGHT_ERROR: 'lk.uncaught-error',
+    MALFORMED_RESPONSE: 'lk.malformed-response',
+    PAYLOAD_TOO_LARGE: 'lk.payload-too-large',
+  } as const;
+
   /** @internal */
-  static builtIn(type: RpcErrorName, data?: string): RpcError {
-    return new RpcError(type, RpcError.getMessage(type), data);
+  static builtIn(name: keyof typeof RpcError.Name, data?: string): RpcError {
+    return new RpcError(RpcError.Name[name], RpcError.getMessage(name), data);
   }
 
-  private static getMessage(name: RpcErrorName): string {
+  private static getMessage(name: keyof typeof RpcError.Name): string {
     switch (name) {
-      case RpcErrorName.CONNECTION_TIMEOUT:
+      case 'CONNECTION_TIMEOUT':
         return 'Connection timed out';
-      case RpcErrorName.RESPONSE_TIMEOUT:
+      case 'RESPONSE_TIMEOUT':
         return 'Response timed out';
-      case RpcErrorName.UNSUPPORTED_METHOD:
+      case 'UNSUPPORTED_METHOD':
         return 'Method is not supported';
-      case RpcErrorName.RECIPIENT_DISCONNECTED:
+      case 'RECIPIENT_DISCONNECTED':
         return 'Recipient has disconnected';
-      case RpcErrorName.UNCAUGHT_ERROR:
+      case 'UNCAUGHT_ERROR':
         return 'An uncaught error occurred';
-      case RpcErrorName.MALFORMED_RESPONSE:
+      case 'MALFORMED_RESPONSE':
         return 'Response is malformed';
-      case RpcErrorName.PAYLOAD_TOO_LARGE:
+      case 'PAYLOAD_TOO_LARGE':
         return 'Payload exceeds size limit';
     }
   }
-}
-
-export enum RpcErrorName {
-  CONNECTION_TIMEOUT = 'lk.CONNECTION_TIMEOUT',
-  RESPONSE_TIMEOUT = 'lk.RESPONSE_TIMEOUT',
-  UNSUPPORTED_METHOD = 'lk.UNSUPPORTED_METHOD',
-  RECIPIENT_DISCONNECTED = 'lk.RECIPIENT_DISCONNECTED',
-  UNCAUGHT_ERROR = 'lk.UNCAUGHT_ERROR',
-  MALFORMED_RESPONSE = 'lk.MALFORMED_RESPONSE',
-  PAYLOAD_TOO_LARGE = 'lk.PAYLOAD_TOO_LARGE',
 }
 
 /**

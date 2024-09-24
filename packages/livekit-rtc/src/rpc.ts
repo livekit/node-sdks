@@ -109,7 +109,7 @@ export class RpcError extends Error {
   /**
    * @internal
    */
-  static ErrorMessage = {
+  static ErrorMessage: Record<keyof typeof RpcError.ErrorCode, string> = {
     UNCAUGHT_ERROR: 'Uncaught application error',
     UNSUPPORTED_METHOD: 'Method not supported at destination',
     CONNECTION_TIMEOUT: 'Connection timeout',
@@ -126,10 +126,7 @@ export class RpcError extends Error {
    *
    * @internal
    */
-  static builtIn(
-    key: keyof typeof RpcError.ErrorCode & keyof typeof RpcError.ErrorMessage,
-    data?: string,
-  ): RpcError {
+  static builtIn(key: keyof typeof RpcError.ErrorCode, data?: string): RpcError {
     return new RpcError(RpcError.ErrorCode[key], RpcError.ErrorMessage[key], data);
   }
 }

@@ -88,6 +88,7 @@ export class RpcError extends Error {
     };
   }
 
+  /** @internal */
   static builtIn(type: RpcErrorName, data?: string): RpcError {
     return new RpcError(type, RpcError.getMessage(type), data);
   }

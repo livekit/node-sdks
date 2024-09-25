@@ -12,6 +12,8 @@ import type {
   PublishTrackResponse,
   PublishTranscriptionCallback,
   PublishTranscriptionResponse,
+  SendChatMessageCallback,
+  SendChatMessageResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -28,6 +30,7 @@ import {
   PublishSipDtmfRequest,
   PublishTrackRequest,
   PublishTranscriptionRequest,
+  SendChatMessageRequest,
   SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
@@ -183,6 +186,32 @@ export class LocalParticipant extends Participant {
     await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
       return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
+  }
+
+  async sendChatMessage(
+    text: string,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ) {
+    const req = new SendChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      message: text,
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'sendChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    return cb.chatMessage!;
   }
 
   async updateName(name: string) {

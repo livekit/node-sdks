@@ -1376,6 +1376,147 @@ export class SetLocalMetadataCallback extends Message<SetLocalMetadataCallback> 
 }
 
 /**
+ * @generated from message livekit.proto.SendChatMessageRequest
+ */
+export class SendChatMessageRequest extends Message<SendChatMessageRequest> {
+  /**
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: string message = 2;
+   */
+  message = "";
+
+  /**
+   * @generated from field: repeated string destination_identities = 3;
+   */
+  destinationIdentities: string[] = [];
+
+  /**
+   * @generated from field: optional string sender_identity = 4;
+   */
+  senderIdentity?: string;
+
+  constructor(data?: PartialMessage<SendChatMessageRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.SendChatMessageRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "destination_identities", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendChatMessageRequest {
+    return new SendChatMessageRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendChatMessageRequest {
+    return new SendChatMessageRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendChatMessageRequest {
+    return new SendChatMessageRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendChatMessageRequest | PlainMessage<SendChatMessageRequest> | undefined, b: SendChatMessageRequest | PlainMessage<SendChatMessageRequest> | undefined): boolean {
+    return proto3.util.equals(SendChatMessageRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SendChatMessageResponse
+ */
+export class SendChatMessageResponse extends Message<SendChatMessageResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<SendChatMessageResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.SendChatMessageResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendChatMessageResponse {
+    return new SendChatMessageResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendChatMessageResponse {
+    return new SendChatMessageResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendChatMessageResponse {
+    return new SendChatMessageResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendChatMessageResponse | PlainMessage<SendChatMessageResponse> | undefined, b: SendChatMessageResponse | PlainMessage<SendChatMessageResponse> | undefined): boolean {
+    return proto3.util.equals(SendChatMessageResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SendChatMessageCallback
+ */
+export class SendChatMessageCallback extends Message<SendChatMessageCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: optional livekit.proto.ChatMessage chat_message = 3;
+   */
+  chatMessage?: ChatMessage;
+
+  constructor(data?: PartialMessage<SendChatMessageCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.SendChatMessageCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "chat_message", kind: "message", T: ChatMessage, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendChatMessageCallback {
+    return new SendChatMessageCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendChatMessageCallback {
+    return new SendChatMessageCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendChatMessageCallback {
+    return new SendChatMessageCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendChatMessageCallback | PlainMessage<SendChatMessageCallback> | undefined, b: SendChatMessageCallback | PlainMessage<SendChatMessageCallback> | undefined): boolean {
+    return proto3.util.equals(SendChatMessageCallback, a, b);
+  }
+}
+
+/**
  * Change the local participant's attributes
  *
  * @generated from message livekit.proto.SetLocalAttributesRequest
@@ -2491,6 +2632,12 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: TranscriptionReceived;
     case: "transcriptionReceived";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ChatMessageReceived chat_message = 29;
+     */
+    value: ChatMessageReceived;
+    case: "chatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2529,6 +2676,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 26, name: "eos", kind: "message", T: RoomEOS, oneof: "message" },
     { no: 27, name: "data_packet_received", kind: "message", T: DataPacketReceived, oneof: "message" },
     { no: 28, name: "transcription_received", kind: "message", T: TranscriptionReceived, oneof: "message" },
+    { no: 29, name: "chat_message", kind: "message", T: ChatMessageReceived, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -3514,6 +3662,116 @@ export class UserPacket extends Message<UserPacket> {
 
   static equals(a: UserPacket | PlainMessage<UserPacket> | undefined, b: UserPacket | PlainMessage<UserPacket> | undefined): boolean {
     return proto3.util.equals(UserPacket, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ChatMessage
+ */
+export class ChatMessage extends Message<ChatMessage> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: int64 timestamp = 2;
+   */
+  timestamp = protoInt64.zero;
+
+  /**
+   * @generated from field: string message = 3;
+   */
+  message = "";
+
+  /**
+   * @generated from field: optional int64 edit_timestamp = 4;
+   */
+  editTimestamp?: bigint;
+
+  /**
+   * @generated from field: optional bool deleted = 5;
+   */
+  deleted?: boolean;
+
+  /**
+   * @generated from field: optional bool generated = 6;
+   */
+  generated?: boolean;
+
+  constructor(data?: PartialMessage<ChatMessage>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.ChatMessage";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 3, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "edit_timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */, opt: true },
+    { no: 5, name: "deleted", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
+    { no: 6, name: "generated", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChatMessage {
+    return new ChatMessage().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChatMessage {
+    return new ChatMessage().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChatMessage {
+    return new ChatMessage().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChatMessage | PlainMessage<ChatMessage> | undefined, b: ChatMessage | PlainMessage<ChatMessage> | undefined): boolean {
+    return proto3.util.equals(ChatMessage, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ChatMessageReceived
+ */
+export class ChatMessageReceived extends Message<ChatMessageReceived> {
+  /**
+   * @generated from field: livekit.proto.ChatMessage message = 1;
+   */
+  message?: ChatMessage;
+
+  /**
+   * @generated from field: string participant_identity = 2;
+   */
+  participantIdentity = "";
+
+  constructor(data?: PartialMessage<ChatMessageReceived>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.ChatMessageReceived";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "message", kind: "message", T: ChatMessage },
+    { no: 2, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChatMessageReceived {
+    return new ChatMessageReceived().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChatMessageReceived {
+    return new ChatMessageReceived().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChatMessageReceived {
+    return new ChatMessageReceived().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChatMessageReceived | PlainMessage<ChatMessageReceived> | undefined, b: ChatMessageReceived | PlainMessage<ChatMessageReceived> | undefined): boolean {
+    return proto3.util.equals(ChatMessageReceived, a, b);
   }
 }
 

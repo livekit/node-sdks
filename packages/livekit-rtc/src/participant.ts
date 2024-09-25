@@ -231,7 +231,7 @@ export class LocalParticipant extends Participant {
     });
 
     const res = FfiClient.instance.request<SendChatMessageResponse>({
-      message: { case: 'sendChatMessage', value: req },
+      message: { case: 'editChatMessage', value: req },
     });
 
     const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {

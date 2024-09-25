@@ -1431,6 +1431,67 @@ export class SendChatMessageRequest extends Message<SendChatMessageRequest> {
 }
 
 /**
+ * @generated from message livekit.proto.EditChatMessageRequest
+ */
+export class EditChatMessageRequest extends Message<EditChatMessageRequest> {
+  /**
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: string edit_text = 2;
+   */
+  editText = "";
+
+  /**
+   * @generated from field: livekit.proto.ChatMessage original_message = 3;
+   */
+  originalMessage?: ChatMessage;
+
+  /**
+   * @generated from field: repeated string destination_identities = 4;
+   */
+  destinationIdentities: string[] = [];
+
+  /**
+   * @generated from field: optional string sender_identity = 5;
+   */
+  senderIdentity?: string;
+
+  constructor(data?: PartialMessage<EditChatMessageRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.EditChatMessageRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "edit_text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "original_message", kind: "message", T: ChatMessage },
+    { no: 4, name: "destination_identities", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 5, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EditChatMessageRequest {
+    return new EditChatMessageRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): EditChatMessageRequest {
+    return new EditChatMessageRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): EditChatMessageRequest {
+    return new EditChatMessageRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: EditChatMessageRequest | PlainMessage<EditChatMessageRequest> | undefined, b: EditChatMessageRequest | PlainMessage<EditChatMessageRequest> | undefined): boolean {
+    return proto3.util.equals(EditChatMessageRequest, a, b);
+  }
+}
+
+/**
  * @generated from message livekit.proto.SendChatMessageResponse
  */
 export class SendChatMessageResponse extends Message<SendChatMessageResponse> {

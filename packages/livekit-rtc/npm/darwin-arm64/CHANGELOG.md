@@ -1,5 +1,7 @@
 # @livekit/rtc-node-darwin-arm64
 
+## 0.9.0
+
 ## 0.8.1
 
 ## 0.8.0

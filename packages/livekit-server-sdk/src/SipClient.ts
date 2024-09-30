@@ -426,7 +426,6 @@ export class SipClient extends ServiceBase {
     );
     return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }
-}
 
   /**
    * @param roomName room the SIP participant to transfer is connectd to
@@ -448,7 +447,7 @@ export class SipClient extends ServiceBase {
       svc,
       'TransferSIPParticipant',
       req,
-      await this.authHeader({ roomAdmin: true, roomName }, { call: true }),
+      await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
     );
   }
 }

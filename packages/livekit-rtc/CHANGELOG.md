@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.9.1
+
+### Patch Changes
+
+- Fix ms conversion bug in AudioSource - [#279](https://github.com/livekit/node-sdks/pull/279) ([@bcherry](https://github.com/bcherry))
+
 ## 0.9.0
 
 ### Minor Changes

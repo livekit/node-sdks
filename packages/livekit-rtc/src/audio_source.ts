@@ -103,7 +103,8 @@ export class AudioSource {
   async captureFrame(frame: AudioFrame) {
     const now = Number(process.hrtime.bigint() / 1000000n);
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
-    this.currentQueueSize += (frame.samplesPerChannel / frame.sampleRate - elapsed) * 1000;
+    const frameDurationMs = (frame.samplesPerChannel / frame.sampleRate) * 1000;
+    this.currentQueueSize += frameDurationMs - elapsed;
 
     this.lastCapture = now;
 

@@ -443,7 +443,7 @@ export class SipClient extends ServiceBase {
       transferTo: transferTo,
     }).toJson();
 
-    const data = await this.rpc.request(
+    await this.rpc.request(
       svc,
       'TransferSIPParticipant',
       req,

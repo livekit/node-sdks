@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.9.2
+
+### Patch Changes
+
+- expose VideoCodec - [#283](https://github.com/livekit/node-sdks/pull/283) ([@nbsp](https://github.com/nbsp))
+
 ## 0.9.1
 
 ### Patch Changes

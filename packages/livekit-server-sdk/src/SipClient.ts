@@ -26,6 +26,7 @@ import {
   SIPParticipantInfo,
   SIPTransport,
   SIPTrunkInfo,
+  TransferSIPParticipantRequest,
 } from '@livekit/protocol';
 import ServiceBase from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
@@ -424,5 +425,29 @@ export class SipClient extends ServiceBase {
       await this.authHeader({}, { call: true }),
     );
     return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * @param roomName room the SIP participant to transfer is connectd to
+   * @param participantIdentity identity of the SIP participant to transfer
+   * @param transferTo SIP URL to transfer the participant to
+   */
+  async transferSipParticipant(
+    roomName: string,
+    participantIdentity: string,
+    transferTo: string,
+  ): Promise<void> {
+    const req = new TransferSIPParticipantRequest({
+      participantIdentity: participantIdentity,
+      roomName: roomName,
+      transferTo: transferTo,
+    }).toJson();
+
+    await this.rpc.request(
+      svc,
+      'TransferSIPParticipant',
+      req,
+      await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
+    );
   }
 }

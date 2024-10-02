@@ -4,6 +4,7 @@
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
 import type {
+  ChatMessage,
   PublishDataCallback,
   PublishDataResponse,
   PublishSipDtmfCallback,
@@ -12,6 +13,8 @@ import type {
   PublishTrackResponse,
   PublishTranscriptionCallback,
   PublishTranscriptionResponse,
+  SendChatMessageCallback,
+  SendChatMessageResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -23,11 +26,13 @@ import type {
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import {
+  EditChatMessageRequest,
   TranscriptionSegment as ProtoTranscriptionSegment,
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
   PublishTranscriptionRequest,
+  SendChatMessageRequest,
   SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
@@ -183,6 +188,60 @@ export class LocalParticipant extends Participant {
     await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
       return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
+  }
+
+  async sendChatMessage(
+    text: string,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ) {
+    const req = new SendChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      message: text,
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'sendChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    return cb.chatMessage!;
+  }
+
+  async editChatMessage(
+    editText: string,
+    originalMessage: ChatMessage,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ) {
+    const req = new EditChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      editText,
+      originalMessage,
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'editChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    return cb.chatMessage!;
   }
 
   async updateName(name: string) {

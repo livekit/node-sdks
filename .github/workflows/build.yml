@@ -21,6 +21,28 @@ on:
       - main
 
 jobs:
+  check-changes:
+    name: Check for changes
+    runs-on: ubuntu-latest
+    outputs:
+      rtc_build: ${{ steps.changes.outputs.rtc_build }}
+      server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: paths
+        with:
+          filters: |
+            livekit-rtc:
+              - 'packages/livekit-rtc/**'
+            server-sdk:
+              - 'packages/livekit-server-sdk/**'
+      - name: Store change outputs
+        id: changes
+        run: |
+          echo "rtc_build=${{ steps.paths.outputs.livekit-rtc == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+          echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+
   lint:
     name: Formatting
     runs-on: ubuntu-latest
@@ -49,10 +71,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    outputs:
-      rtc_build: ${{ steps.changes.outputs.rtc_build }}
-      server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
-    needs: [lint, reuse]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -71,22 +89,9 @@ jobs:
         run: pnpm --filter="livekit-server-sdk" test:browser
       - name: Test env livekit-server-sdk (Edge Runtime)
         run: pnpm --filter="livekit-server-sdk" test:edge
-      - uses: dorny/paths-filter@v3
-        id: paths
-        with:
-          filters: |
-            livekit-rtc:
-              - 'packages/livekit-rtc/**'
-            server-sdk:
-              - 'packages/livekit-server-sdk/**'
-      - name: Store change outputs
-        id: changes
-        run: |
-          echo "rtc_build=${{ steps.paths.outputs.livekit-rtc == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
-          echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
 
   build:
-    if: ${{ needs.test.outputs.rtc_build == 'true' }}
+    if: ${{ needs.check-changes.outputs.rtc_build == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -115,7 +120,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       RUST_BACKTRACE: full
-    needs: test
+    needs: check-changes
     steps:
       - uses: actions/checkout@v4
         with:

@@ -23,12 +23,12 @@ export class Mutex {
 
     this.#locks += 1;
 
-    let unlockNext: () => void;
+    let unlock: () => void;
     let unlocked = false;
 
     const willLock = new Promise<void>(
       (resolve) =>
-        (unlockNext = () => {
+        (unlock = () => {
           if (unlocked) {
             throw new Error('This unlock method has already been called');
           }
@@ -38,8 +38,7 @@ export class Mutex {
         }),
     );
 
-    const willUnlock = () => unlockNext();
     this.#locking = this.#locking.then(() => willLock);
-    return willUnlock;
+    return unlock;
   }
 }

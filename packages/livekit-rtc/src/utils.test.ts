@@ -21,7 +21,23 @@ describe('Mutex', () => {
     const unlock2 = await mutex.lock();
     expect(mutex.isLocked()).toBe(true);
     unlock1();
+    expect(mutex.isLocked()).toBe(false);
+    const unlock3 = await mutex.lock();
     expect(mutex.isLocked()).toBe(true);
+    unlock2();
+    expect(mutex.isLocked()).toBe(false);
+    unlock3();
+    expect(mutex.isLocked()).toBe(false);
+  });
+
+  it('should throw an error when unlocking the same lock twice', async () => {
+    const mutex = new Mutex(2);
+    const unlock1 = await mutex.lock();
+    const unlock2 = await mutex.lock();
+    expect(mutex.isLocked()).toBe(true);
+    unlock1();
+    expect(mutex.isLocked()).toBe(false);
+    expect(() => unlock1()).toThrow('This unlock method has already been called');
     unlock2();
     expect(mutex.isLocked()).toBe(false);
   });

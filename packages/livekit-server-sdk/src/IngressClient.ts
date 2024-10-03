@@ -121,9 +121,9 @@ export class IngressClient extends ServiceBase {
   private readonly rpc: Rpc;
 
   /**
-   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     super(apiKey, secret);
@@ -131,8 +131,8 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param inputType protocol for the ingress
-   * @param opts CreateIngressOptions
+   * @param inputType - protocol for the ingress
+   * @param opts - CreateIngressOptions
    */
   async createIngress(inputType: IngressInput, opts?: CreateIngressOptions): Promise<IngressInfo> {
     let name: string = '';
@@ -183,8 +183,8 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param ingressId ID of the ingress to update
-   * @param opts UpdateIngressOptions
+   * @param ingressId - ID of the ingress to update
+   * @param opts - UpdateIngressOptions
    */
   async updateIngress(ingressId: string, opts: UpdateIngressOptions): Promise<IngressInfo> {
     const name: string = opts.name || '';
@@ -217,14 +217,17 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @deprecated use listIngress(opts) instead
-   * @param roomName list ingress for one room only
+   * @deprecated use `listIngress(opts)` or `listIngress(arg)` instead
+   * @param roomName - list ingress for one room only
    */
   async listIngress(roomName?: string): Promise<Array<IngressInfo>>;
   /**
-   * @param opts list options
+   * @param opts - list options
    */
   async listIngress(opts?: ListIngressOptions): Promise<Array<IngressInfo>>;
+  /**
+   * @param arg - list room name or options
+   */
   async listIngress(arg?: string | ListIngressOptions): Promise<Array<IngressInfo>> {
     let req: Partial<ListIngressRequest> = {};
     if (typeof arg === 'string') {
@@ -242,7 +245,7 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param ingressId ingress to delete
+   * @param ingressId - ingress to delete
    */
   async deleteIngress(ingressId: string): Promise<IngressInfo> {
     const data = await this.rpc.request(

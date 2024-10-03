@@ -121,9 +121,9 @@ export class EgressClient extends ServiceBase {
   private readonly rpc: Rpc;
 
   /**
-   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     super(apiKey, secret);
@@ -131,9 +131,9 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param roomName room name
-   * @param output file or stream output
-   * @param opts RoomCompositeOptions
+   * @param roomName - room name
+   * @param output - file or stream output
+   * @param opts - RoomCompositeOptions
    */
   async startRoomCompositeEgress(
     roomName: string,
@@ -213,9 +213,9 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param url url
-   * @param output file or stream output
-   * @param opts WebOptions
+   * @param url - url
+   * @param output - file or stream output
+   * @param opts - WebOptions
    */
   async startWebEgress(
     url: string,
@@ -259,9 +259,9 @@ export class EgressClient extends ServiceBase {
   /**
    * Export a participant's audio and video tracks,
    *
-   * @param roomName room name
-   * @param output one or more outputs
-   * @param opts ParticipantEgressOptions
+   * @param roomName - room name
+   * @param output - one or more outputs
+   * @param opts - ParticipantEgressOptions
    */
   async startParticipantEgress(
     roomName: string,
@@ -291,9 +291,9 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param roomName room name
-   * @param output file or stream output
-   * @param opts TrackCompositeOptions
+   * @param roomName - room name
+   * @param output - file or stream output
+   * @param opts - TrackCompositeOptions
    */
   async startTrackCompositeEgress(
     roomName: string,
@@ -361,6 +361,7 @@ export class EgressClient extends ServiceBase {
     return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isEncodedOutputs(output: any): output is EncodedOutputs {
     return (
       (<EncodedOutputs>output).file !== undefined ||
@@ -369,6 +370,7 @@ export class EgressClient extends ServiceBase {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isEncodedFileOutput(output: any): output is EncodedFileOutput {
     return (
       (<EncodedFileOutput>output).filepath !== undefined ||
@@ -376,6 +378,7 @@ export class EgressClient extends ServiceBase {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isSegmentedFileOutput(output: any): output is SegmentedFileOutput {
     return (
       (<SegmentedFileOutput>output).filenamePrefix !== undefined ||
@@ -384,6 +387,7 @@ export class EgressClient extends ServiceBase {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isStreamOutput(output: any): output is StreamOutput {
     return (
       (<StreamOutput>output).protocol !== undefined || (<StreamOutput>output).urls !== undefined
@@ -492,9 +496,9 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param roomName room name
-   * @param output file or websocket output
-   * @param trackId track Id
+   * @param roomName - room name
+   * @param output - file or websocket output
+   * @param trackId - track Id
    */
   async startTrackEgress(
     roomName: string,
@@ -540,8 +544,8 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param egressId
-   * @param layout
+   * @param egressId -
+   * @param layout -
    */
   async updateLayout(egressId: string, layout: string): Promise<EgressInfo> {
     const data = await this.rpc.request(
@@ -554,9 +558,9 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param egressId
-   * @param addOutputUrls
-   * @param removeOutputUrls
+   * @param egressId -
+   * @param addOutputUrls -
+   * @param removeOutputUrls -
    */
   async updateStream(
     egressId: string,
@@ -576,17 +580,17 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param options options to filter listed Egresses, by default returns all
+   * @param options - options to filter listed Egresses, by default returns all
    * Egress instances
    */
   async listEgress(options?: ListEgressOptions): Promise<Array<EgressInfo>>;
   /**
-   * @deprecated
-   * @param roomName list egress for one room only
+   * @deprecated use `listEgress(options?: ListEgressOptions)` instead
+   * @param roomName - list egress for one room only
    */
   async listEgress(roomName?: string): Promise<Array<EgressInfo>>;
   /**
-   * @param roomName list egress for one room only
+   * @param roomName - list egress for one room only
    */
   async listEgress(options?: string | ListEgressOptions): Promise<Array<EgressInfo>> {
     let req: Partial<ListEgressRequest> = {};
@@ -606,7 +610,7 @@ export class EgressClient extends ServiceBase {
   }
 
   /**
-   * @param egressId
+   * @param egressId -
    */
   async stopEgress(egressId: string): Promise<EgressInfo> {
     const data = await this.rpc.request(

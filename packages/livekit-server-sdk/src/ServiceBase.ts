@@ -15,9 +15,9 @@ export default class ServiceBase {
   private readonly ttl: string;
 
   /**
-   * @param apiKey API Key.
-   * @param secret API Secret.
-   * @param ttl token TTL
+   * @param apiKey - API Key.
+   * @param secret - API Secret.
+   * @param ttl - token TTL
    */
   constructor(apiKey?: string, secret?: string, ttl?: string) {
     this.apiKey = apiKey;
@@ -25,7 +25,7 @@ export default class ServiceBase {
     this.ttl = ttl || '10m';
   }
 
-  async authHeader(grant: VideoGrant, sip?: SIPGrant): Promise<any> {
+  async authHeader(grant: VideoGrant, sip?: SIPGrant): Promise<Record<string, string>> {
     const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
     at.addGrant(grant);
     if (sip) {

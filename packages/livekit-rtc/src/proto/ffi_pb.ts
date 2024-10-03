@@ -22,7 +22,7 @@ import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
-import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
+import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 
 /**
@@ -267,6 +267,24 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: AudioStreamFromParticipantRequest;
     case: "audioStreamFromParticipant";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewSoxResamplerRequest new_sox_resampler = 33;
+     */
+    value: NewSoxResamplerRequest;
+    case: "newSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PushSoxResamplerRequest push_sox_resampler = 34;
+     */
+    value: PushSoxResamplerRequest;
+    case: "pushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.FlushSoxResamplerRequest flush_sox_resampler = 35;
+     */
+    value: FlushSoxResamplerRequest;
+    case: "flushSoxResampler";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -308,6 +326,9 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 30, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
     { no: 31, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
     { no: 32, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantRequest, oneof: "message" },
+    { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerRequest, oneof: "message" },
+    { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerRequest, oneof: "message" },
+    { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -530,6 +551,24 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: E2eeResponse;
     case: "e2ee";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewSoxResamplerResponse new_sox_resampler = 33;
+     */
+    value: NewSoxResamplerResponse;
+    case: "newSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PushSoxResamplerResponse push_sox_resampler = 34;
+     */
+    value: PushSoxResamplerResponse;
+    case: "pushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.FlushSoxResamplerResponse flush_sox_resampler = 35;
+     */
+    value: FlushSoxResamplerResponse;
+    case: "flushSoxResampler";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -571,6 +610,9 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 30, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
     { no: 31, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantResponse, oneof: "message" },
     { no: 32, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
+    { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerResponse, oneof: "message" },
+    { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerResponse, oneof: "message" },
+    { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

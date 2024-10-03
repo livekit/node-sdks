@@ -22,46 +22,55 @@ on:
 
 jobs:
   lint:
-    name: Lint & Test
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint
+        run: pnpm lint
+      - name: Prettier
+        run: pnpm format:check
+
+  reuse:
+    name: REUSE-3.2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v4
+
+  test:
+    name: Test
     runs-on: ubuntu-latest
     outputs:
       rtc_build: ${{ steps.changes.outputs.rtc_build }}
       server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
+    needs: [lint, reuse]
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
-      - name: Use Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
-
-      - name: REUSE-4.0 compliance check
-        uses: fsfe/reuse-action@v4
-
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Prettier
-        run: pnpm format:check
-
       - name: Test livekit-rtc
         run: pnpm --filter="livekit-rtc" test
-
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
-
       - name: Test livekit-server-sdk (Browser)
         run: pnpm --filter="livekit-server-sdk" test:browser
-
       - name: Test env livekit-server-sdk (Edge Runtime)
         run: pnpm --filter="livekit-server-sdk" test:edge
-
       - uses: dorny/paths-filter@v3
         id: paths
         with:
@@ -70,7 +79,6 @@ jobs:
               - 'packages/livekit-rtc/**'
             server-sdk:
               - 'packages/livekit-server-sdk/**'
-
       - name: Store change outputs
         id: changes
         run: |
@@ -78,7 +86,7 @@ jobs:
           echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
 
   build:
-    if: ${{ needs.lint.outputs.rtc_build == 'true' }}
+    if: ${{ needs.test.outputs.rtc_build == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -107,7 +115,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       RUST_BACKTRACE: full
-    needs: lint
+    needs: test
     steps:
       - uses: actions/checkout@v4
         with:

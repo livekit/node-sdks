@@ -1,4 +1,4 @@
-name: Test, build, release
+name: CI
 env:
   APP_NAME: rtc-node
   MACOSX_DEPLOYMENT_TARGET: '10.13'

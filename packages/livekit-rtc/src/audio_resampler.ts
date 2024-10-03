@@ -121,7 +121,7 @@ export class AudioResampler {
         new Int16Array(outputData.subarray()),
         this.#outputRate,
         this.#channels,
-        outputData.length,
+        Math.trunc(outputData.length / this.#channels / 2),
       ),
     ];
   }
@@ -159,7 +159,7 @@ export class AudioResampler {
         new Int16Array(outputData.subarray()),
         this.#outputRate,
         this.#channels,
-        outputData.length,
+        Math.trunc(outputData.length / this.#channels / 2),
       ),
     ];
   }

@@ -45,8 +45,8 @@ export class AccessToken {
 
   /**
    * Creates a new AccessToken
-   * @param apiKey API Key, can be set in env LIVEKIT_API_KEY
-   * @param apiSecret Secret, can be set in env LIVEKIT_API_SECRET
+   * @param apiKey - API Key, can be set in env LIVEKIT_API_KEY
+   * @param apiSecret - Secret, can be set in env LIVEKIT_API_SECRET
    */
   constructor(apiKey?: string, apiSecret?: string, options?: AccessTokenOptions) {
     if (!apiKey) {

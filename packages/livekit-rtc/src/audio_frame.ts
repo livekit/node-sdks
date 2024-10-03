@@ -52,3 +52,42 @@ export class AudioFrame {
     });
   }
 }
+
+/**
+ * Combines one or more `rtc.AudioFrame` objects into a single `rtc.AudioFrame`.
+ *
+ * This function concatenates the audio data from multiple frames, ensuring that all frames have
+ * the same sample rate and number of channels. It efficiently merges the data by preallocating the
+ * necessary memory and copying the frame data without unnecessary reallocations.
+ *
+ * @param buffer - a single AudioFrame or list thereof
+ */
+export const combineAudioFrames = (buffer: AudioFrame | AudioFrame[]): AudioFrame => {
+  if (!buffer['length']) {
+    return buffer as AudioFrame;
+  }
+  buffer = buffer as AudioFrame[];
+
+  if (buffer.length === 0) {
+    throw new Error('buffer is empty');
+  }
+
+  const sampleRate = buffer[0].sampleRate;
+  const channels = buffer[0].channels;
+
+  let totalSamplesPerChannel = 0;
+  for (const frame of buffer) {
+    if (frame.sampleRate != sampleRate) {
+      throw new Error(`sample rate mismatch: expected ${sampleRate}, got ${frame.sampleRate}`);
+    }
+
+    if (frame.channels != channels) {
+      throw new Error(`channel mismatch: expected ${channels}, got ${frame.channels}`);
+    }
+
+    totalSamplesPerChannel += frame.samplesPerChannel;
+  }
+
+  const data = new Int16Array(buffer.map((x) => [...x.data]).flat());
+  return new AudioFrame(data, sampleRate, channels, totalSamplesPerChannel);
+};

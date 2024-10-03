@@ -1,5 +1,16 @@
 # @livekit/rtc-node
 
+## 0.10.0
+
+### Minor Changes
+
+- add AudioResampler, combineAudioFrames - [#286](https://github.com/livekit/node-sdks/pull/286) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- Fix mutex in livekit-rtc - [#287](https://github.com/livekit/node-sdks/pull/287) ([@bcherry](https://github.com/bcherry))
+  Fix linter warnings in livekit-server-sdk
+
 ## 0.9.2
 
 ### Patch Changes

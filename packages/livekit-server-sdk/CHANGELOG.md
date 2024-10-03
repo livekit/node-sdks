@@ -1,5 +1,16 @@
 # livekit-server-sdk
 
+## 2.7.0
+
+### Minor Changes
+
+- Implement transferSipParticipant - [#281](https://github.com/livekit/node-sdks/pull/281) ([@biglittlebigben](https://github.com/biglittlebigben))
+
+### Patch Changes
+
+- Fix mutex in livekit-rtc - [#287](https://github.com/livekit/node-sdks/pull/287) ([@bcherry](https://github.com/bcherry))
+  Fix linter warnings in livekit-server-sdk
+
 ## 2.6.2
 
 ### Patch Changes

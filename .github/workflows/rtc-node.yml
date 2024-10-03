@@ -50,13 +50,16 @@ jobs:
       - name: Prettier
         run: pnpm format:check
 
-      - name: Test Node env livekit-server-sdk
+      - name: Test livekit-rtc
+        run: pnpm --filter="livekit-rtc" test
+
+      - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
 
-      - name: Test browser env livekit-server-sdk
+      - name: Test livekit-server-sdk (Browser)
         run: pnpm --filter="livekit-server-sdk" test:browser
 
-      - name: Test edge runtime env livekit-server-sdk
+      - name: Test env livekit-server-sdk (Edge Runtime)
         run: pnpm --filter="livekit-server-sdk" test:edge
 
       - uses: dorny/paths-filter@v3

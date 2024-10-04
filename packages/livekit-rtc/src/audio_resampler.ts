@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AudioFrame } from './audio_frame';
-import { FfiClient, FfiHandle } from './ffi_client';
+import { AudioFrame } from './audio_frame.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
   FlushSoxResamplerResponse,
   NewSoxResamplerResponse,
   PushSoxResamplerResponse,
-} from './proto/audio_frame_pb';
+} from './proto/audio_frame_pb.js';
 import {
   FlushSoxResamplerRequest,
   NewSoxResamplerRequest,
   PushSoxResamplerRequest,
   SoxQualityRecipe,
   SoxResamplerDataType,
-} from './proto/audio_frame_pb';
+} from './proto/audio_frame_pb.js';
 
 /**
  * Resampler quality. Higher quality settings result in better audio quality but require more
@@ -111,7 +111,7 @@ export class AudioResampler {
       throw new Error(res.error);
     }
 
-    if (res.outputPtr) {
+    if (!res.outputPtr) {
       return [];
     }
 
@@ -149,7 +149,7 @@ export class AudioResampler {
       throw new Error(res.error);
     }
 
-    if (res.outputPtr) {
+    if (!res.outputPtr) {
       return [];
     }
 

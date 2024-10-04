@@ -3700,9 +3700,9 @@ export class TranscriptionReceived extends Message<TranscriptionReceived> {
  */
 export class RpcRequestReceived extends Message<RpcRequestReceived> {
   /**
-   * @generated from field: string participant_identity = 1;
+   * @generated from field: optional string participant_identity = 1;
    */
-  participantIdentity = "";
+  participantIdentity?: string;
 
   /**
    * @generated from field: string request_id = 2;
@@ -3737,7 +3737,7 @@ export class RpcRequestReceived extends Message<RpcRequestReceived> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.RpcRequestReceived";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 2, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
@@ -3772,9 +3772,9 @@ export class RpcResponseReceived extends Message<RpcResponseReceived> {
   requestId = "";
 
   /**
-   * @generated from field: string payload = 2;
+   * @generated from field: optional string payload = 2;
    */
-  payload = "";
+  payload?: string;
 
   /**
    * @generated from field: optional livekit.proto.RpcError error = 3;
@@ -3790,7 +3790,7 @@ export class RpcResponseReceived extends Message<RpcResponseReceived> {
   static readonly typeName = "livekit.proto.RpcResponseReceived";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 3, name: "error", kind: "message", T: RpcError, opt: true },
   ]);
 

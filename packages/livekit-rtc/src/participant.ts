@@ -33,6 +33,19 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
+import type {
+  PublishRpcAckCallback,
+  PublishRpcAckResponse,
+  PublishRpcRequestCallback,
+  PublishRpcRequestResponse,
+  PublishRpcResponseCallback,
+  PublishRpcResponseResponse,
+} from './proto/rpc_pb.js';
+import {
+  PublishRpcAckRequest,
+  PublishRpcRequestRequest,
+  PublishRpcResponseRequest,
+} from './proto/rpc_pb.js';
 import { MAX_PAYLOAD_BYTES, RpcAck, RpcError, RpcRequest, RpcResponse, byteLength } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
@@ -147,6 +160,80 @@ export class LocalParticipant extends Participant {
 
     const cb = await FfiClient.instance.waitFor<PublishSipDtmfCallback>((ev) => {
       return ev.message.case == 'publishSipDtmf' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  async publishRpcRequest(
+    destinationIdentity: string,
+    requestId: string,
+    method: string,
+    payload: string,
+    responseTimeoutMs: number,
+  ) {
+    const req = new PublishRpcRequestRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      destinationIdentity,
+      requestId,
+      method,
+      payload,
+      responseTimeoutMs,
+    });
+
+    const res = FfiClient.instance.request<PublishRpcRequestResponse>({
+      message: { case: 'publishRpcRequest', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<PublishRpcRequestCallback>((ev) => {
+      return ev.message.case == 'publishRpcRequest' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+  async publishRpcResponse(
+    destinationIdentity: string,
+    requestId: string,
+    payload: string | null,
+    error: RpcError | null,
+  ) {
+    const req = new PublishRpcResponseRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      destinationIdentity,
+      requestId,
+      value: error ? { case: 'error', value: error } : { case: 'payload', value: payload },
+    });
+
+    const res = FfiClient.instance.request<PublishRpcResponseResponse>({
+      message: { case: 'publishRpcResponse', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<PublishRpcResponseCallback>((ev) => {
+      return ev.message.case == 'publishRpcResponse' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  async publishRpcAck(destinationIdentity: string, requestId: string) {
+    const req = new PublishRpcAckRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      destinationIdentity,
+      requestId,
+    });
+
+    const res = FfiClient.instance.request<PublishRpcAckResponse>({
+      message: { case: 'publishRpcAck', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<PublishRpcAckCallback>((ev) => {
+      return ev.message.case == 'publishRpcAck' && ev.message.value.asyncId == res.asyncId;
     });
 
     if (cb.error) {
@@ -308,22 +395,13 @@ export class LocalParticipant extends Participant {
       }
 
       const id = crypto.randomUUID();
-
-      const request = new RpcRequest({
+      this.publishRpcRequest(
+        recipientIdentity,
         id,
         method,
         payload,
-        responseTimeoutMs: responseTimeoutMs - maxRoundTripLatencyMs,
-      });
-
-      const jsonString = JSON.stringify(request);
-      // TODO: This implementation is only a prototype
-      //       The final version will use a native DataPacket
-      this.publishData(new TextEncoder().encode(jsonString), {
-        reliable: true,
-        destination_identities: [recipientIdentity],
-        topic: 'lk-rpc-request',
-      });
+        responseTimeoutMs - maxRoundTripLatencyMs,
+      );
 
       const ackTimeoutId = setTimeout(() => {
         this.pendingAcks.delete(id);
@@ -410,68 +488,55 @@ export class LocalParticipant extends Participant {
 
   /** @internal */
   async handleIncomingRpcRequest(request: RpcRequest, sender: RemoteParticipant) {
-    // ACK the request
-    const ack = new RpcAck({
-      requestId: request.id,
-    });
-    const jsonString = JSON.stringify(ack);
-    this.publishData(new TextEncoder().encode(jsonString), {
-      reliable: true,
-      destination_identities: [sender.identity],
-      topic: 'lk-rpc-ack',
-    });
+    this.publishRpcAck(sender.identity, request.id);
 
     const sendResponse = (response: RpcResponse) => {
-      const jsonString = JSON.stringify(response);
-      this.publishData(new TextEncoder().encode(jsonString), {
-        reliable: true,
-        destination_identities: [sender.identity],
-        topic: 'lk-rpc-response',
-      });
+      this.publishRpcResponse(sender.identity, request.id, response.payload, response.error);
     };
 
     const handler = this.rpcHandlers.get(request.method);
 
     if (!handler) {
-      const rpcResponse = new RpcResponse({
-        requestId: request.id,
-        error: RpcError.builtIn('UNSUPPORTED_METHOD'),
-      });
-      sendResponse(rpcResponse);
+      this.publishRpcResponse(
+        sender.identity,
+        request.id,
+        undefined,
+        RpcError.builtIn('UNSUPPORTED_METHOD'),
+      );
       return;
     }
 
-    const rpcResponse = new RpcResponse({
-      requestId: request.id,
-    });
+    let error: RpcError | null = null;
+    let payload: string | null = null;
+    
     try {
       const response = await handler(request, sender);
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
-          rpcResponse.error = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');
+          error = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');
           console.warn(`RPC Response payload too large for ${request.method}`);
         } else {
-          rpcResponse.payload = response;
+          payload = response;
         }
       } else if (response instanceof RpcError) {
-        rpcResponse.error = response;
+        error = response;
       } else {
         console.warn(`unexpected handler response for ${request.method}: ${response}`);
-        rpcResponse.error = RpcError.builtIn('MALFORMED_RESPONSE');
+        error = RpcError.builtIn('MALFORMED_RESPONSE');
       }
     } catch (error) {
       if (error instanceof RpcError) {
-        rpcResponse.error = error;
+        error = error;
       } else {
         console.warn(
           `Uncaught error returned by RPC handler for ${request.method}. Returning UNCAUGHT_ERROR instead.`,
           error,
         );
-        rpcResponse.error = RpcError.builtIn('UNCAUGHT_ERROR');
+        error = RpcError.builtIn('UNCAUGHT_ERROR');
       }
     }
 
-    sendResponse(rpcResponse);
+    this.publishRpcResponse(sender.identity, request.id, payload, error);
   }
 
   /** @internal */

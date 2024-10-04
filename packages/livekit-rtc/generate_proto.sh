@@ -24,4 +24,5 @@ protoc \
     $FFI_PROTOCOL/track.proto \
     $FFI_PROTOCOL/video_frame.proto \
     $FFI_PROTOCOL/e2ee.proto \
-    $FFI_PROTOCOL/stats.proto
+    $FFI_PROTOCOL/stats.proto \
+    $FFI_PROTOCOL/rpc.proto

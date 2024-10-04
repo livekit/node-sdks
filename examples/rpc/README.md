@@ -18,7 +18,7 @@ Before running this example, make sure you have:
 
 1. Install dependencies:
    ```
-   npm install
+   pnpm install
    ```
 
 2. Create a `.env.local` file in the example directory with your LiveKit credentials:
@@ -33,7 +33,7 @@ Before running this example, make sure you have:
 To run the example, use the following command:
 
 ```
-npm run start
+pnpm run start
 ```
 
 The example will log to your terminal.

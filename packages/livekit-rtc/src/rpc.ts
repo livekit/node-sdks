@@ -2,59 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// TODO: This implementation is only a prototype
-//       The final version will use a protocol types where possible
-export class RpcRequest {
-  id: string;
-  method: string;
-  payload: string;
-  responseTimeoutMs: number;
-
-  constructor({
-    method,
-    payload,
-    responseTimeoutMs,
-    id = crypto.randomUUID(),
-  }: {
-    method: string;
-    payload: string;
-    responseTimeoutMs: number;
-    id?: string;
-  }) {
-    this.id = id;
-    this.method = method;
-    this.payload = payload;
-    this.responseTimeoutMs = responseTimeoutMs;
-  }
-}
-
-export class RpcAck {
-  requestId: string;
-
-  constructor({ requestId }: { requestId: string }) {
-    this.requestId = requestId;
-  }
-}
-
-export class RpcResponse {
-  requestId: string;
-  payload?: string;
-  error?: RpcError;
-
-  constructor({
-    requestId,
-    payload,
-    error,
-  }: {
-    requestId: string;
-    payload?: string;
-    error?: RpcError;
-  }) {
-    this.requestId = requestId;
-    this.payload = payload;
-    this.error = error;
-  }
-}
+import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
 
 /**
  * Specialized error handling for RPC methods.
@@ -86,12 +34,16 @@ export class RpcError extends Error {
     this.data = data ? truncateBytes(data, RpcError.MAX_DATA_BYTES) : undefined;
   }
 
-  toJSON() {
-    return {
+  static fromProto(proto: RpcError_Proto) {
+    return new RpcError(proto.code, proto.message, proto.data);
+  }
+
+  toProto() {
+    return new RpcError_Proto({
       code: this.code,
       message: this.message,
       data: this.data,
-    };
+    });
   }
 
   static ErrorCode = {

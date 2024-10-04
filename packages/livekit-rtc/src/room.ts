@@ -28,12 +28,11 @@ import {
   IceTransportType,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
-import type { RpcAck, RpcRequest, RpcResponse } from './rpc.js';
-import { RpcError } from './rpc.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
+import { RpcError } from './rpc.js'
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -276,42 +275,28 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             Number(dataPacket.value.data.data.dataLen),
           );
           new FfiHandle(dataPacket.value.data.handle.id).dispose();
-          // TODO: This implementation is only a prototype
-          //       The final version will use native DataPacket types instead of special topics
-          if (dataPacket.value.topic === 'lk-rpc-request') {
-            const request = JSON.parse(new TextDecoder().decode(buffer)) as RpcRequest;
-            this.localParticipant.handleIncomingRpcRequest(request, participant);
-          } else if (dataPacket.value.topic === 'lk-rpc-ack') {
-            const ack = JSON.parse(new TextDecoder().decode(buffer)) as RpcAck;
-            this.localParticipant.handleIncomingRpcAck(ack);
-          } else if (dataPacket.value.topic === 'lk-rpc-response') {
-            const response = JSON.parse(new TextDecoder().decode(buffer)) as RpcResponse;
-            if (response.error) {
-              response.error = new RpcError(
-                response.error.code,
-                response.error.message,
-                response.error.data,
-              );
-            }
-            this.localParticipant.handleIncomingRpcResponse(response);
-          } else {
-            this.emit(
-              RoomEvent.DataReceived,
-              buffer,
-              participant,
-              ev.value.kind,
-              dataPacket.value.topic,
-            );
-          }
+          this.emit(
+            RoomEvent.DataReceived,
+            buffer,
+            participant,
+            ev.value.kind,
+            dataPacket.value.topic,
+          );
           break;
         case 'sipDtmf':
           const { code, digit } = dataPacket.value;
           this.emit(RoomEvent.DtmfReceived, code, digit, participant);
           break;
-
         default:
           break;
       }
+    } else if (ev.case == 'rpcRequestReceived') {
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
+      this.localParticipant.handleIncomingRpcRequest(participant, ev.value.requestId, ev.value.method, ev.value.payload, ev.value.responseTimeoutMs);
+    } else if (ev.case == 'rpcResponseReceived') {
+      this.localParticipant.handleIncomingRpcResponse(ev.value.requestId, ev.value.payload, RpcError.fromProto(ev.value.error));
+    } else if (ev.case == 'rpcAckReceived') {
+      this.localParticipant.handleIncomingRpcAck(ev.value.requestId);
     } else if (ev.case == 'e2eeStateChanged') {
       if (ev.value.state == EncryptionState.INTERNAL_ERROR) {
         // throw generic error until Rust SDK is updated to supply the error alongside INTERNAL_ERROR

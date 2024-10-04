@@ -97,9 +97,9 @@ export class SipClient extends ServiceBase {
   private readonly rpc: Rpc;
 
   /**
-   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     super(apiKey, secret);
@@ -107,9 +107,9 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param number phone number of the trunk
-   * @param opts CreateSipTrunkOptions
-   * @deprecated use createSipInboundTrunk or createSipOutboundTrunk
+   * @param number - phone number of the trunk
+   * @param opts - CreateSipTrunkOptions
+   * @deprecated use `createSipInboundTrunk` or `createSipOutboundTrunk`
    */
   async createSipTrunk(number: string, opts?: CreateSipTrunkOptions): Promise<SIPTrunkInfo> {
     let inboundAddresses: string[] | undefined;
@@ -157,9 +157,9 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   @param name human-readable name of the trunk
-   * @param numbers phone numbers of the trunk
-   * @param opts CreateSipTrunkOptions
+   * @param name - human-readable name of the trunk
+   * @param numbers - phone numbers of the trunk
+   * @param opts - CreateSipTrunkOptions
    */
   async createSipInboundTrunk(
     name: string,
@@ -202,10 +202,10 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param name human-readable name of the trunk
-   * @param address hostname and port of the SIP server to dial
-   * @param numbers phone numbers of the trunk
-   * @param opts CreateSipTrunkOptions
+   * @param name - human-readable name of the trunk
+   * @param address - hostname and port of the SIP server to dial
+   * @param numbers - phone numbers of the trunk
+   * @param opts - CreateSipTrunkOptions
    */
   async createSipOutboundTrunk(
     name: string,
@@ -247,7 +247,7 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @deprecated use listSipInboundTrunk or listSipOutboundTrunk
+   * @deprecated use `listSipInboundTrunk` or `listSipOutboundTrunk`
    */
   async listSipTrunk(): Promise<Array<SIPTrunkInfo>> {
     const req: Partial<ListSIPTrunkRequest> = {};
@@ -283,7 +283,7 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param sipTrunkId sip trunk to delete
+   * @param sipTrunkId - sip trunk to delete
    */
   async deleteSipTrunk(sipTrunkId: string): Promise<SIPTrunkInfo> {
     const data = await this.rpc.request(
@@ -296,8 +296,8 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param rule sip dispatch rule
-   * @param opts CreateSipDispatchRuleOptions
+   * @param rule - sip dispatch rule
+   * @param opts - CreateSipDispatchRuleOptions
    */
   async createSipDispatchRule(
     rule: SipDispatchRuleDirect | SipDispatchRuleIndividual,
@@ -366,7 +366,7 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param sipDispatchRuleId sip trunk to delete
+   * @param sipDispatchRuleId - sip trunk to delete
    */
   async deleteSipDispatchRule(sipDispatchRuleId: string): Promise<SIPDispatchRuleInfo> {
     const data = await this.rpc.request(
@@ -379,10 +379,10 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param sipTrunkId sip trunk to use for the call
-   * @param number number to dial
-   * @param roomName room to attach the call to
-   * @param opts CreateSipParticipantOptions
+   * @param sipTrunkId - sip trunk to use for the call
+   * @param number - number to dial
+   * @param roomName - room to attach the call to
+   * @param opts - CreateSipParticipantOptions
    */
   async createSipParticipant(
     sipTrunkId: string,
@@ -428,9 +428,9 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param roomName room the SIP participant to transfer is connectd to
-   * @param participantIdentity identity of the SIP participant to transfer
-   * @param transferTo SIP URL to transfer the participant to
+   * @param roomName - room the SIP participant to transfer is connectd to
+   * @param participantIdentity - identity of the SIP participant to transfer
+   * @param transferTo - SIP URL to transfer the participant to
    */
   async transferSipParticipant(
     roomName: string,

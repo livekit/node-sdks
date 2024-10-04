@@ -10,6 +10,7 @@ const defaultPrefix = '/twirp';
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   request(service: string, method: string, data: JsonValue, headers?: any): Promise<string>;
 }
 
@@ -32,6 +33,7 @@ export class TwirpRpc {
     this.prefix = prefix || defaultPrefix;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async request(service: string, method: string, data: any, headers?: any): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
     const url = new URL(path, this.host);

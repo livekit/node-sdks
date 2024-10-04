@@ -37,7 +37,7 @@ export type WebhookEventNames =
   | 'ingress_ended'
   /**
    * @internal
-   * @note only used as a default value, not a valid webhook event
+   * @remarks only used as a default value, not a valid webhook event
    */
   | '';
 
@@ -49,10 +49,9 @@ export class WebhookReceiver {
   }
 
   /**
-   *
-   * @param body string of the posted body
-   * @param authHeader `Authorization` header from the request
-   * @param skipAuth true to skip auth validation
+   * @param body - string of the posted body
+   * @param authHeader - `Authorization` header from the request
+   * @param skipAuth - true to skip auth validation
    * @returns
    */
   async receive(

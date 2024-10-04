@@ -23,6 +23,122 @@ import { TrackSource } from "./track_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
 
 /**
+ * @generated from enum livekit.proto.SoxResamplerDataType
+ */
+export enum SoxResamplerDataType {
+  /**
+   * TODO(theomonnom): support other datatypes (shouldn't really be needed)
+   *
+   * @generated from enum value: SOXR_DATATYPE_INT16I = 0;
+   */
+  SOXR_DATATYPE_INT16I = 0,
+
+  /**
+   * @generated from enum value: SOXR_DATATYPE_INT16S = 1;
+   */
+  SOXR_DATATYPE_INT16S = 1,
+}
+// Retrieve enum metadata with: proto3.getEnumType(SoxResamplerDataType)
+proto3.util.setEnumType(SoxResamplerDataType, "livekit.proto.SoxResamplerDataType", [
+  { no: 0, name: "SOXR_DATATYPE_INT16I" },
+  { no: 1, name: "SOXR_DATATYPE_INT16S" },
+]);
+
+/**
+ * @generated from enum livekit.proto.SoxQualityRecipe
+ */
+export enum SoxQualityRecipe {
+  /**
+   * @generated from enum value: SOXR_QUALITY_QUICK = 0;
+   */
+  SOXR_QUALITY_QUICK = 0,
+
+  /**
+   * @generated from enum value: SOXR_QUALITY_LOW = 1;
+   */
+  SOXR_QUALITY_LOW = 1,
+
+  /**
+   * @generated from enum value: SOXR_QUALITY_MEDIUM = 2;
+   */
+  SOXR_QUALITY_MEDIUM = 2,
+
+  /**
+   * @generated from enum value: SOXR_QUALITY_HIGH = 3;
+   */
+  SOXR_QUALITY_HIGH = 3,
+
+  /**
+   * @generated from enum value: SOXR_QUALITY_VERYHIGH = 4;
+   */
+  SOXR_QUALITY_VERYHIGH = 4,
+}
+// Retrieve enum metadata with: proto3.getEnumType(SoxQualityRecipe)
+proto3.util.setEnumType(SoxQualityRecipe, "livekit.proto.SoxQualityRecipe", [
+  { no: 0, name: "SOXR_QUALITY_QUICK" },
+  { no: 1, name: "SOXR_QUALITY_LOW" },
+  { no: 2, name: "SOXR_QUALITY_MEDIUM" },
+  { no: 3, name: "SOXR_QUALITY_HIGH" },
+  { no: 4, name: "SOXR_QUALITY_VERYHIGH" },
+]);
+
+/**
+ * @generated from enum livekit.proto.SoxFlagBits
+ */
+export enum SoxFlagBits {
+  /**
+   * 1 << 0
+   *
+   * @generated from enum value: SOXR_ROLLOFF_SMALL = 0;
+   */
+  SOXR_ROLLOFF_SMALL = 0,
+
+  /**
+   * 1 << 1
+   *
+   * @generated from enum value: SOXR_ROLLOFF_MEDIUM = 1;
+   */
+  SOXR_ROLLOFF_MEDIUM = 1,
+
+  /**
+   * 1 << 2
+   *
+   * @generated from enum value: SOXR_ROLLOFF_NONE = 2;
+   */
+  SOXR_ROLLOFF_NONE = 2,
+
+  /**
+   * 1 << 3
+   *
+   * @generated from enum value: SOXR_HIGH_PREC_CLOCK = 3;
+   */
+  SOXR_HIGH_PREC_CLOCK = 3,
+
+  /**
+   * 1 << 4
+   *
+   * @generated from enum value: SOXR_DOUBLE_PRECISION = 4;
+   */
+  SOXR_DOUBLE_PRECISION = 4,
+
+  /**
+   * 1 << 5
+   *
+   * @generated from enum value: SOXR_VR = 5;
+   */
+  SOXR_VR = 5,
+}
+// Retrieve enum metadata with: proto3.getEnumType(SoxFlagBits)
+proto3.util.setEnumType(SoxFlagBits, "livekit.proto.SoxFlagBits", [
+  { no: 0, name: "SOXR_ROLLOFF_SMALL" },
+  { no: 1, name: "SOXR_ROLLOFF_MEDIUM" },
+  { no: 2, name: "SOXR_ROLLOFF_NONE" },
+  { no: 3, name: "SOXR_HIGH_PREC_CLOCK" },
+  { no: 4, name: "SOXR_DOUBLE_PRECISION" },
+  { no: 5, name: "SOXR_VR" },
+]);
+
+/**
  * @generated from enum livekit.proto.AudioStreamType
  */
 export enum AudioStreamType {
@@ -708,6 +824,318 @@ export class RemixAndResampleResponse extends Message<RemixAndResampleResponse> 
 }
 
 /**
+ * @generated from message livekit.proto.NewSoxResamplerRequest
+ */
+export class NewSoxResamplerRequest extends Message<NewSoxResamplerRequest> {
+  /**
+   * @generated from field: double input_rate = 1;
+   */
+  inputRate = 0;
+
+  /**
+   * @generated from field: double output_rate = 2;
+   */
+  outputRate = 0;
+
+  /**
+   * @generated from field: uint32 num_channels = 3;
+   */
+  numChannels = 0;
+
+  /**
+   * @generated from field: livekit.proto.SoxResamplerDataType input_data_type = 4;
+   */
+  inputDataType = SoxResamplerDataType.SOXR_DATATYPE_INT16I;
+
+  /**
+   * @generated from field: livekit.proto.SoxResamplerDataType output_data_type = 5;
+   */
+  outputDataType = SoxResamplerDataType.SOXR_DATATYPE_INT16I;
+
+  /**
+   * @generated from field: livekit.proto.SoxQualityRecipe quality_recipe = 6;
+   */
+  qualityRecipe = SoxQualityRecipe.SOXR_QUALITY_QUICK;
+
+  /**
+   * @generated from field: uint32 flags = 7;
+   */
+  flags = 0;
+
+  constructor(data?: PartialMessage<NewSoxResamplerRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.NewSoxResamplerRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "input_rate", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 2, name: "output_rate", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 3, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 4, name: "input_data_type", kind: "enum", T: proto3.getEnumType(SoxResamplerDataType) },
+    { no: 5, name: "output_data_type", kind: "enum", T: proto3.getEnumType(SoxResamplerDataType) },
+    { no: 6, name: "quality_recipe", kind: "enum", T: proto3.getEnumType(SoxQualityRecipe) },
+    { no: 7, name: "flags", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewSoxResamplerRequest {
+    return new NewSoxResamplerRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): NewSoxResamplerRequest {
+    return new NewSoxResamplerRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): NewSoxResamplerRequest {
+    return new NewSoxResamplerRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: NewSoxResamplerRequest | PlainMessage<NewSoxResamplerRequest> | undefined, b: NewSoxResamplerRequest | PlainMessage<NewSoxResamplerRequest> | undefined): boolean {
+    return proto3.util.equals(NewSoxResamplerRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.NewSoxResamplerResponse
+ */
+export class NewSoxResamplerResponse extends Message<NewSoxResamplerResponse> {
+  /**
+   * @generated from field: livekit.proto.OwnedSoxResampler resampler = 1;
+   */
+  resampler?: OwnedSoxResampler;
+
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<NewSoxResamplerResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.NewSoxResamplerResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "resampler", kind: "message", T: OwnedSoxResampler },
+    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewSoxResamplerResponse {
+    return new NewSoxResamplerResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): NewSoxResamplerResponse {
+    return new NewSoxResamplerResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): NewSoxResamplerResponse {
+    return new NewSoxResamplerResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: NewSoxResamplerResponse | PlainMessage<NewSoxResamplerResponse> | undefined, b: NewSoxResamplerResponse | PlainMessage<NewSoxResamplerResponse> | undefined): boolean {
+    return proto3.util.equals(NewSoxResamplerResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.PushSoxResamplerRequest
+ */
+export class PushSoxResamplerRequest extends Message<PushSoxResamplerRequest> {
+  /**
+   * @generated from field: uint64 resampler_handle = 1;
+   */
+  resamplerHandle = protoInt64.zero;
+
+  /**
+   * *const i16
+   *
+   * @generated from field: uint64 data_ptr = 2;
+   */
+  dataPtr = protoInt64.zero;
+
+  /**
+   * in bytes
+   *
+   * @generated from field: uint32 size = 3;
+   */
+  size = 0;
+
+  constructor(data?: PartialMessage<PushSoxResamplerRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.PushSoxResamplerRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "resampler_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "data_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 3, name: "size", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PushSoxResamplerRequest {
+    return new PushSoxResamplerRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PushSoxResamplerRequest {
+    return new PushSoxResamplerRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PushSoxResamplerRequest {
+    return new PushSoxResamplerRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PushSoxResamplerRequest | PlainMessage<PushSoxResamplerRequest> | undefined, b: PushSoxResamplerRequest | PlainMessage<PushSoxResamplerRequest> | undefined): boolean {
+    return proto3.util.equals(PushSoxResamplerRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.PushSoxResamplerResponse
+ */
+export class PushSoxResamplerResponse extends Message<PushSoxResamplerResponse> {
+  /**
+   * *const i16 (could be null)
+   *
+   * @generated from field: uint64 output_ptr = 1;
+   */
+  outputPtr = protoInt64.zero;
+
+  /**
+   * in bytes
+   *
+   * @generated from field: uint32 size = 2;
+   */
+  size = 0;
+
+  /**
+   * @generated from field: optional string error = 3;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<PushSoxResamplerResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.PushSoxResamplerResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "output_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "size", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 3, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PushSoxResamplerResponse {
+    return new PushSoxResamplerResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PushSoxResamplerResponse {
+    return new PushSoxResamplerResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PushSoxResamplerResponse {
+    return new PushSoxResamplerResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PushSoxResamplerResponse | PlainMessage<PushSoxResamplerResponse> | undefined, b: PushSoxResamplerResponse | PlainMessage<PushSoxResamplerResponse> | undefined): boolean {
+    return proto3.util.equals(PushSoxResamplerResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.FlushSoxResamplerRequest
+ */
+export class FlushSoxResamplerRequest extends Message<FlushSoxResamplerRequest> {
+  /**
+   * @generated from field: uint64 resampler_handle = 1;
+   */
+  resamplerHandle = protoInt64.zero;
+
+  constructor(data?: PartialMessage<FlushSoxResamplerRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.FlushSoxResamplerRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "resampler_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FlushSoxResamplerRequest {
+    return new FlushSoxResamplerRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): FlushSoxResamplerRequest {
+    return new FlushSoxResamplerRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): FlushSoxResamplerRequest {
+    return new FlushSoxResamplerRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: FlushSoxResamplerRequest | PlainMessage<FlushSoxResamplerRequest> | undefined, b: FlushSoxResamplerRequest | PlainMessage<FlushSoxResamplerRequest> | undefined): boolean {
+    return proto3.util.equals(FlushSoxResamplerRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.FlushSoxResamplerResponse
+ */
+export class FlushSoxResamplerResponse extends Message<FlushSoxResamplerResponse> {
+  /**
+   * *const i16 (could be null)
+   *
+   * @generated from field: uint64 output_ptr = 1;
+   */
+  outputPtr = protoInt64.zero;
+
+  /**
+   * in bytes
+   *
+   * @generated from field: uint32 size = 2;
+   */
+  size = 0;
+
+  /**
+   * @generated from field: optional string error = 3;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<FlushSoxResamplerResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.FlushSoxResamplerResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "output_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "size", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 3, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FlushSoxResamplerResponse {
+    return new FlushSoxResamplerResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): FlushSoxResamplerResponse {
+    return new FlushSoxResamplerResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): FlushSoxResamplerResponse {
+    return new FlushSoxResamplerResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: FlushSoxResamplerResponse | PlainMessage<FlushSoxResamplerResponse> | undefined, b: FlushSoxResamplerResponse | PlainMessage<FlushSoxResamplerResponse> | undefined): boolean {
+    return proto3.util.equals(FlushSoxResamplerResponse, a, b);
+  }
+}
+
+/**
  * @generated from message livekit.proto.AudioFrameBufferInfo
  */
 export class AudioFrameBufferInfo extends Message<AudioFrameBufferInfo> {
@@ -1211,6 +1639,80 @@ export class OwnedAudioResampler extends Message<OwnedAudioResampler> {
 
   static equals(a: OwnedAudioResampler | PlainMessage<OwnedAudioResampler> | undefined, b: OwnedAudioResampler | PlainMessage<OwnedAudioResampler> | undefined): boolean {
     return proto3.util.equals(OwnedAudioResampler, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SoxResamplerInfo
+ */
+export class SoxResamplerInfo extends Message<SoxResamplerInfo> {
+  constructor(data?: PartialMessage<SoxResamplerInfo>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.SoxResamplerInfo";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SoxResamplerInfo {
+    return new SoxResamplerInfo().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SoxResamplerInfo {
+    return new SoxResamplerInfo().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SoxResamplerInfo {
+    return new SoxResamplerInfo().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SoxResamplerInfo | PlainMessage<SoxResamplerInfo> | undefined, b: SoxResamplerInfo | PlainMessage<SoxResamplerInfo> | undefined): boolean {
+    return proto3.util.equals(SoxResamplerInfo, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.OwnedSoxResampler
+ */
+export class OwnedSoxResampler extends Message<OwnedSoxResampler> {
+  /**
+   * @generated from field: livekit.proto.FfiOwnedHandle handle = 1;
+   */
+  handle?: FfiOwnedHandle;
+
+  /**
+   * @generated from field: livekit.proto.SoxResamplerInfo info = 2;
+   */
+  info?: SoxResamplerInfo;
+
+  constructor(data?: PartialMessage<OwnedSoxResampler>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.OwnedSoxResampler";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "handle", kind: "message", T: FfiOwnedHandle },
+    { no: 2, name: "info", kind: "message", T: SoxResamplerInfo },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): OwnedSoxResampler {
+    return new OwnedSoxResampler().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): OwnedSoxResampler {
+    return new OwnedSoxResampler().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): OwnedSoxResampler {
+    return new OwnedSoxResampler().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: OwnedSoxResampler | PlainMessage<OwnedSoxResampler> | undefined, b: OwnedSoxResampler | PlainMessage<OwnedSoxResampler> | undefined): boolean {
+    return proto3.util.equals(OwnedSoxResampler, a, b);
   }
 }
 

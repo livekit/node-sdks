@@ -122,7 +122,7 @@ export class RoomServiceClient extends ServiceBase {
    * Creates a new room. Explicit room creation is not required, since rooms will
    * be automatically created when the first participant joins. This method can be
    * used to customize room settings.
-   * @param options
+   * @param options -
    */
   async createRoom(options: CreateOptions): Promise<Room> {
     const data = await this.rpc.request(
@@ -162,8 +162,8 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Update metadata of a room
-   * @param room name of the room
-   * @param metadata the new metadata for the room
+   * @param room - name of the room
+   * @param metadata - the new metadata for the room
    */
   async updateRoomMetadata(room: string, metadata: string) {
     const data = await this.rpc.request(
@@ -177,7 +177,7 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * List participants in a room
-   * @param room name of the room
+   * @param room - name of the room
    */
   async listParticipants(room: string): Promise<ParticipantInfo[]> {
     const data = await this.rpc.request(
@@ -193,8 +193,8 @@ export class RoomServiceClient extends ServiceBase {
   /**
    * Get information on a specific participant, including the tracks that participant
    * has published
-   * @param room name of the room
-   * @param identity identity of the participant to return
+   * @param room - name of the room
+   * @param identity - identity of the participant to return
    */
   async getParticipant(room: string, identity: string): Promise<ParticipantInfo> {
     const data = await this.rpc.request(
@@ -211,8 +211,8 @@ export class RoomServiceClient extends ServiceBase {
    * Removes a participant in the room. This will disconnect the participant
    * and will emit a Disconnected event for that participant.
    * Even after being removed, the participant can still re-join the room.
-   * @param room
-   * @param identity
+   * @param room -
+   * @param identity -
    */
   async removeParticipant(room: string, identity: string): Promise<void> {
     await this.rpc.request(
@@ -225,10 +225,10 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Mutes a track that the participant has published.
-   * @param room
-   * @param identity
-   * @param trackSid sid of the track to be muted
-   * @param muted true to mute, false to unmute
+   * @param room -
+   * @param identity -
+   * @param trackSid - sid of the track to be muted
+   * @param muted - true to mute, false to unmute
    */
   async mutePublishedTrack(
     room: string,
@@ -312,10 +312,10 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Updates a participant's subscription to tracks
-   * @param room
-   * @param identity
-   * @param trackSids
-   * @param subscribe true to subscribe, false to unsubscribe
+   * @param room -
+   * @param identity -
+   * @param trackSids -
+   * @param subscribe - true to subscribe, false to unsubscribe
    */
   async updateSubscriptions(
     room: string,
@@ -340,10 +340,10 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Sends data message to participants in the room
-   * @param room
-   * @param data opaque payload to send
-   * @param kind delivery reliability
-   * @param options optionally specify a topic and destinationSids (when destinationSids is empty, message is sent to everyone)
+   * @param room -
+   * @param data - opaque payload to send
+   * @param kind - delivery reliability
+   * @param options - optionally specify a topic and destinationSids (when destinationSids is empty, message is sent to everyone)
    */
   async sendData(
     room: string,
@@ -354,10 +354,10 @@ export class RoomServiceClient extends ServiceBase {
   /**
    * Sends data message to participants in the room
    * @deprecated use sendData(room, data, kind, options) instead
-   * @param room
-   * @param data opaque payload to send
-   * @param kind delivery reliability
-   * @param destinationSids optional. when empty, message is sent to everyone
+   * @param room -
+   * @param data - opaque payload to send
+   * @param kind - delivery reliability
+   * @param destinationSids - optional. when empty, message is sent to everyone
    */
   async sendData(
     room: string,

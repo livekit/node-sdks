@@ -20,6 +20,7 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
+import { PublishRpcAckCallback, PublishRpcAckRequest, PublishRpcAckResponse, PublishRpcRequestCallback, PublishRpcRequestRequest, PublishRpcRequestResponse, PublishRpcResponseCallback, PublishRpcResponseRequest, PublishRpcResponseResponse } from "./rpc_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
@@ -153,6 +154,24 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: PublishSipDtmfRequest;
     case: "publishSipDtmf";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcRequestRequest publish_rpc_request = 36;
+     */
+    value: PublishRpcRequestRequest;
+    case: "publishRpcRequest";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcResponseRequest publish_rpc_response = 37;
+     */
+    value: PublishRpcResponseRequest;
+    case: "publishRpcResponse";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcAckRequest publish_rpc_ack = 38;
+     */
+    value: PublishRpcAckRequest;
+    case: "publishRpcAck";
   } | {
     /**
      * Track
@@ -308,6 +327,9 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 12, name: "get_session_stats", kind: "message", T: GetSessionStatsRequest, oneof: "message" },
     { no: 13, name: "publish_transcription", kind: "message", T: PublishTranscriptionRequest, oneof: "message" },
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfRequest, oneof: "message" },
+    { no: 36, name: "publish_rpc_request", kind: "message", T: PublishRpcRequestRequest, oneof: "message" },
+    { no: 37, name: "publish_rpc_response", kind: "message", T: PublishRpcResponseRequest, oneof: "message" },
+    { no: 38, name: "publish_rpc_ack", kind: "message", T: PublishRpcAckRequest, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackRequest, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackRequest, oneof: "message" },
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteRequest, oneof: "message" },
@@ -437,6 +459,24 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: PublishSipDtmfResponse;
     case: "publishSipDtmf";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcRequestResponse publish_rpc_request = 36;
+     */
+    value: PublishRpcRequestResponse;
+    case: "publishRpcRequest";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcResponseResponse publish_rpc_response = 37;
+     */
+    value: PublishRpcResponseResponse;
+    case: "publishRpcResponse";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcAckResponse publish_rpc_ack = 38;
+     */
+    value: PublishRpcAckResponse;
+    case: "publishRpcAck";
   } | {
     /**
      * Track
@@ -592,6 +632,9 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 12, name: "get_session_stats", kind: "message", T: GetSessionStatsResponse, oneof: "message" },
     { no: 13, name: "publish_transcription", kind: "message", T: PublishTranscriptionResponse, oneof: "message" },
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfResponse, oneof: "message" },
+    { no: 36, name: "publish_rpc_request", kind: "message", T: PublishRpcRequestResponse, oneof: "message" },
+    { no: 37, name: "publish_rpc_response", kind: "message", T: PublishRpcResponseResponse, oneof: "message" },
+    { no: 38, name: "publish_rpc_ack", kind: "message", T: PublishRpcAckResponse, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackResponse, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackResponse, oneof: "message" },
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteResponse, oneof: "message" },
@@ -763,6 +806,24 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: PublishSipDtmfCallback;
     case: "publishSipDtmf";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcRequestCallback publish_rpc_request = 22;
+     */
+    value: PublishRpcRequestCallback;
+    case: "publishRpcRequest";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcResponseCallback publish_rpc_response = 23;
+     */
+    value: PublishRpcResponseCallback;
+    case: "publishRpcResponse";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PublishRpcAckCallback publish_rpc_ack = 24;
+     */
+    value: PublishRpcAckCallback;
+    case: "publishRpcAck";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -793,6 +854,9 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 19, name: "get_session_stats", kind: "message", T: GetSessionStatsCallback, oneof: "message" },
     { no: 20, name: "panic", kind: "message", T: Panic, oneof: "message" },
     { no: 21, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfCallback, oneof: "message" },
+    { no: 22, name: "publish_rpc_request", kind: "message", T: PublishRpcRequestCallback, oneof: "message" },
+    { no: 23, name: "publish_rpc_response", kind: "message", T: PublishRpcResponseCallback, oneof: "message" },
+    { no: 24, name: "publish_rpc_ack", kind: "message", T: PublishRpcAckCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

@@ -385,7 +385,7 @@ export class LocalParticipant extends Participant {
     payload: string,
     connectionTimeoutMs: number = 5000,
     responseTimeoutMs: number = 10000,
-  ): Promise<string | null> {
+  ): Promise<string> {
     const maxRoundTripLatencyMs = 2000;
 
     return new Promise((resolve, reject) => {

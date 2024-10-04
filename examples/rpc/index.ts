@@ -1,5 +1,5 @@
 import { Room, RpcError } from '@livekit/rtc-node';
-import type { RemoteParticipant, RpcRequest } from '@livekit/rtc-node';
+import type { RemoteParticipant } from '@livekit/rtc-node';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
 import { AccessToken } from 'livekit-server-sdk';
@@ -57,8 +57,8 @@ async function main() {
 const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room): Promise<void> => {
   greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
-    async (request: RpcRequest, sender: RemoteParticipant) => {
-      console.log(`[Greeter] Oh ${sender.identity} arrived and said "${request.payload}"`);
+    async (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => {
+      console.log(`[Greeter] Oh ${sender.identity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return "Welcome and have a wonderful day!";
     },
@@ -66,11 +66,11 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
 
   mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
-    async (request: RpcRequest, sender: RemoteParticipant) => {
-      const jsonData = JSON.parse(request.payload);
+    async (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => {
+      const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(
-        `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${request.responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
+        `[Math Genius] I guess ${sender.identity} wants the square root of ${number}. I've only got ${responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
       );
 
       console.log(`[Math Genius] *doing math*…`);

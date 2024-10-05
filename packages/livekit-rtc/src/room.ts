@@ -294,7 +294,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       this.localParticipant.handleIncomingRpcRequest(participant, ev.value.requestId, ev.value.method, ev.value.payload, ev.value.responseTimeoutMs);
     } else if (ev.case == 'rpcResponseReceived') {
-      this.localParticipant.handleIncomingRpcResponse(ev.value.requestId, ev.value.payload, RpcError.fromProto(ev.value.error));
+      this.localParticipant.handleIncomingRpcResponse(ev.value.requestId, ev.value.payload, ev.value.error ? RpcError.fromProto(ev.value.error) : null);
     } else if (ev.case == 'rpcAckReceived') {
       this.localParticipant.handleIncomingRpcAck(ev.value.requestId);
     } else if (ev.case == 'e2eeStateChanged') {

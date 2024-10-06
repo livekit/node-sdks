@@ -62,7 +62,7 @@ export class AudioResampler {
       inputRate,
       outputRate,
       numChannels: channels,
-      qualityRecipe: quality as unknown as SoxQualityRecipe,
+      qualityRecipe: quality as number as SoxQualityRecipe,
       inputDataType: SoxResamplerDataType.SOXR_DATATYPE_INT16I,
       outputDataType: SoxResamplerDataType.SOXR_DATATYPE_INT16I,
       flags: 0,
@@ -97,7 +97,7 @@ export class AudioResampler {
     const req = new PushSoxResamplerRequest({
       resamplerHandle: this.#ffiHandle.handle,
       dataPtr: data.protoInfo().dataPtr,
-      size: data.data.length,
+      size: data.data.byteLength,
     });
 
     const res = FfiClient.instance.request<PushSoxResamplerResponse>({
@@ -118,7 +118,7 @@ export class AudioResampler {
     const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
     return [
       new AudioFrame(
-        new Int16Array(outputData.subarray()),
+        new Int16Array(outputData.buffer),
         this.#outputRate,
         this.#channels,
         Math.trunc(outputData.length / this.#channels / 2),
@@ -156,7 +156,7 @@ export class AudioResampler {
     const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
     return [
       new AudioFrame(
-        new Int16Array(outputData.subarray()),
+        new Int16Array(outputData.buffer),
         this.#outputRate,
         this.#channels,
         Math.trunc(outputData.length / this.#channels / 2),

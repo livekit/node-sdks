@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AudioFrame } from './audio_frame';
-import { FfiClient, FfiHandle } from './ffi_client';
+import { AudioFrame } from './audio_frame.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
   FlushSoxResamplerResponse,
   NewSoxResamplerResponse,
   PushSoxResamplerResponse,
-} from './proto/audio_frame_pb';
+} from './proto/audio_frame_pb.js';
 import {
   FlushSoxResamplerRequest,
   NewSoxResamplerRequest,
   PushSoxResamplerRequest,
   SoxQualityRecipe,
   SoxResamplerDataType,
-} from './proto/audio_frame_pb';
+} from './proto/audio_frame_pb.js';
 
 /**
  * Resampler quality. Higher quality settings result in better audio quality but require more
@@ -62,7 +62,7 @@ export class AudioResampler {
       inputRate,
       outputRate,
       numChannels: channels,
-      qualityRecipe: quality as unknown as SoxQualityRecipe,
+      qualityRecipe: quality as number as SoxQualityRecipe,
       inputDataType: SoxResamplerDataType.SOXR_DATATYPE_INT16I,
       outputDataType: SoxResamplerDataType.SOXR_DATATYPE_INT16I,
       flags: 0,
@@ -97,7 +97,7 @@ export class AudioResampler {
     const req = new PushSoxResamplerRequest({
       resamplerHandle: this.#ffiHandle.handle,
       dataPtr: data.protoInfo().dataPtr,
-      size: data.data.length,
+      size: data.data.byteLength,
     });
 
     const res = FfiClient.instance.request<PushSoxResamplerResponse>({
@@ -111,14 +111,14 @@ export class AudioResampler {
       throw new Error(res.error);
     }
 
-    if (res.outputPtr) {
+    if (!res.outputPtr) {
       return [];
     }
 
     const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
     return [
       new AudioFrame(
-        new Int16Array(outputData.subarray()),
+        new Int16Array(outputData.buffer),
         this.#outputRate,
         this.#channels,
         Math.trunc(outputData.length / this.#channels / 2),
@@ -149,14 +149,14 @@ export class AudioResampler {
       throw new Error(res.error);
     }
 
-    if (res.outputPtr) {
+    if (!res.outputPtr) {
       return [];
     }
 
     const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
     return [
       new AudioFrame(
-        new Int16Array(outputData.subarray()),
+        new Int16Array(outputData.buffer),
         this.#outputRate,
         this.#channels,
         Math.trunc(outputData.length / this.#channels / 2),

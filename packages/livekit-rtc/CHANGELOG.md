@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.10.2
+
+### Patch Changes
+
+- export properly, fix audioresampler - [#291](https://github.com/livekit/node-sdks/pull/291) ([@nbsp](https://github.com/nbsp))
+
 ## 0.10.1
 
 ### Patch Changes

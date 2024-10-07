@@ -2487,10 +2487,6 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "dataPacketReceived";
   } | {
     /**
-     * RpcRequestReceived rpc_request_received = 29;
-     * RpcResponseReceived rpc_response_received = 30;
-     * RpcAckReceived rpc_ack_received = 31;
-     *
      * @generated from field: livekit.proto.TranscriptionReceived transcription_received = 28;
      */
     value: TranscriptionReceived;

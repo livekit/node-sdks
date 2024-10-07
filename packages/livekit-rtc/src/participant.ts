@@ -110,7 +110,7 @@ export type DataPublishOptions = {
 export class LocalParticipant extends Participant {
   private rpcHandlers: Map<
     string,
-    (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>
+    (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>
   > = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
@@ -342,7 +342,7 @@ export class LocalParticipant extends Participant {
    */
   async registerRpcMethod(
     method: string,
-    handler: (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>,
+    handler: (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>,
   ): Promise<void> {
     this.rpcHandlers.set(method, handler);
 
@@ -383,10 +383,12 @@ export class LocalParticipant extends Participant {
   }
 
   /** @internal */
-  async handleIncomingRpcMethodInvocation(invocationId: bigint, method: string, requestId: string, sender: RemoteParticipant, payload: string, timeoutMs: number): Promise<string> {
+  async handleRpcMethodInvocation(method: string, requestId: string, sender: RemoteParticipant, payload: string, timeoutMs: number): Promise<string> {
+    console.warn(`Handling RPC method invocation for ${method}`);
     const handler = this.rpcHandlers.get(method);
 
     if (!handler) {
+      console.warn(`No handler for RPC method ${method}`);
       throw RpcError.builtIn('UNSUPPORTED_METHOD');
     }
 
@@ -394,7 +396,7 @@ export class LocalParticipant extends Participant {
     let responsePayload: string | null = null;
 
     try {
-      const response = await handler(sender, requestId, payload, timeoutMs);
+      const response = await handler(requestId, sender, payload, timeoutMs);
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
           responseError = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');

@@ -55,18 +55,18 @@ async function main() {
 }
 
 const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room): Promise<void> => {
-  greetersRoom.localParticipant?.registerRpcMethod(
+  await greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
-    async (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => {
+    async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
       console.log(`[Greeter] Oh ${sender.identity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return "Welcome and have a wonderful day!";
     },
   );
 
-  mathGeniusRoom.localParticipant?.registerRpcMethod(
+  await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
-    async (sender: RemoteParticipant, requestId: string, payload: string, responseTimeoutMs: number) => {
+    async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
       const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(

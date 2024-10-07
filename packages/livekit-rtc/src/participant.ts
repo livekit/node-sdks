@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
-import type {
-  ChatMessage,
+import {
+  ChatMessage as ChatMessageModel,
   PublishDataCallback,
   PublishDataResponse,
   PublishSipDtmfCallback,
@@ -42,6 +42,7 @@ import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
+import { ChatMessage } from './types.js';
 
 export abstract class Participant {
   /** @internal */
@@ -194,7 +195,7 @@ export class LocalParticipant extends Participant {
     text: string,
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
-  ) {
+  ): Promise<ChatMessage> {
     const req = new SendChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       message: text,
@@ -213,7 +214,8 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-    return cb.chatMessage!;
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async editChatMessage(
@@ -221,11 +223,15 @@ export class LocalParticipant extends Participant {
     originalMessage: ChatMessage,
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
-  ) {
+  ): Promise<ChatMessage> {
     const req = new EditChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       editText,
-      originalMessage,
+      originalMessage: new ChatMessageModel({
+        ...originalMessage,
+        timestamp: BigInt(originalMessage.timestamp),
+        editTimestamp: BigInt(originalMessage.editTimestamp),
+      }),
       destinationIdentities,
       senderIdentity,
     });
@@ -241,7 +247,8 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-    return cb.chatMessage!;
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async updateName(name: string) {

@@ -58,15 +58,19 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
   await greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
     async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+      console.warn('running arrival');
       console.log(`[Greeter] Oh ${sender.identity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return "Welcome and have a wonderful day!";
     },
   );
 
+  console.warn('registered arrival');
+
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
     async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+      console.warn('running square-root');
       const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(
@@ -81,6 +85,8 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
       return JSON.stringify({ result });
     },
   );
+
+  console.warn('registered square-root');
 };
 
 const performGreeting = async (room: Room): Promise<void> => {

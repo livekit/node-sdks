@@ -310,6 +310,7 @@ export class LocalParticipant extends Participant {
     payload: string,
     responseTimeoutMs: number = 10000,
   ): Promise<string> {
+    console.warn(`Performing RPC request to ${destinationIdentity} for method ${method} from ${this.identity}`);
     const req = new PerformRpcRequestRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
@@ -384,11 +385,11 @@ export class LocalParticipant extends Participant {
 
   /** @internal */
   async handleRpcMethodInvocation(method: string, requestId: string, sender: RemoteParticipant, payload: string, timeoutMs: number): Promise<string> {
-    console.warn(`Handling RPC method invocation for ${method}`);
+    console.warn(`Handling RPC method invocation for ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`);
     const handler = this.rpcHandlers.get(method);
 
     if (!handler) {
-      console.warn(`No handler for RPC method ${method}`);
+      console.warn(`No handler for RPC method ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`);
       throw RpcError.builtIn('UNSUPPORTED_METHOD');
     }
 

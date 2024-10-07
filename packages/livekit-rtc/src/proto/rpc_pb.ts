@@ -21,8 +21,6 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
- * Data types
- *
  * @generated from message livekit.proto.RpcError
  */
 export class RpcError extends Message<RpcError> {
@@ -74,9 +72,9 @@ export class RpcError extends Message<RpcError> {
 /**
  * FFI Requests
  *
- * @generated from message livekit.proto.PublishRpcRequestRequest
+ * @generated from message livekit.proto.PerformRpcRequestRequest
  */
-export class PublishRpcRequestRequest extends Message<PublishRpcRequestRequest> {
+export class PerformRpcRequestRequest extends Message<PerformRpcRequestRequest> {
   /**
    * @generated from field: uint64 local_participant_handle = 1;
    */
@@ -88,14 +86,524 @@ export class PublishRpcRequestRequest extends Message<PublishRpcRequestRequest> 
   destinationIdentity = "";
 
   /**
+   * @generated from field: string method = 3;
+   */
+  method = "";
+
+  /**
+   * @generated from field: string payload = 4;
+   */
+  payload = "";
+
+  /**
+   * @generated from field: uint32 response_timeout_ms = 5;
+   */
+  responseTimeoutMs = 0;
+
+  constructor(data?: PartialMessage<PerformRpcRequestRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.PerformRpcRequestRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "destination_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PerformRpcRequestRequest {
+    return new PerformRpcRequestRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PerformRpcRequestRequest {
+    return new PerformRpcRequestRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PerformRpcRequestRequest {
+    return new PerformRpcRequestRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PerformRpcRequestRequest | PlainMessage<PerformRpcRequestRequest> | undefined, b: PerformRpcRequestRequest | PlainMessage<PerformRpcRequestRequest> | undefined): boolean {
+    return proto3.util.equals(PerformRpcRequestRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RegisterRpcMethodRequest
+ */
+export class RegisterRpcMethodRequest extends Message<RegisterRpcMethodRequest> {
+  /**
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: string method = 2;
+   */
+  method = "";
+
+  constructor(data?: PartialMessage<RegisterRpcMethodRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RegisterRpcMethodRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RegisterRpcMethodRequest {
+    return new RegisterRpcMethodRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RegisterRpcMethodRequest {
+    return new RegisterRpcMethodRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RegisterRpcMethodRequest {
+    return new RegisterRpcMethodRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RegisterRpcMethodRequest | PlainMessage<RegisterRpcMethodRequest> | undefined, b: RegisterRpcMethodRequest | PlainMessage<RegisterRpcMethodRequest> | undefined): boolean {
+    return proto3.util.equals(RegisterRpcMethodRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.UnregisterRpcMethodRequest
+ */
+export class UnregisterRpcMethodRequest extends Message<UnregisterRpcMethodRequest> {
+  /**
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: string method = 2;
+   */
+  method = "";
+
+  constructor(data?: PartialMessage<UnregisterRpcMethodRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.UnregisterRpcMethodRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UnregisterRpcMethodRequest {
+    return new UnregisterRpcMethodRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UnregisterRpcMethodRequest {
+    return new UnregisterRpcMethodRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UnregisterRpcMethodRequest {
+    return new UnregisterRpcMethodRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: UnregisterRpcMethodRequest | PlainMessage<UnregisterRpcMethodRequest> | undefined, b: UnregisterRpcMethodRequest | PlainMessage<UnregisterRpcMethodRequest> | undefined): boolean {
+    return proto3.util.equals(UnregisterRpcMethodRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RpcMethodInvocationResponseRequest
+ */
+export class RpcMethodInvocationResponseRequest extends Message<RpcMethodInvocationResponseRequest> {
+  /**
+   * @generated from field: uint64 invocation_id = 1;
+   */
+  invocationId = protoInt64.zero;
+
+  /**
+   * @generated from field: optional string payload = 2;
+   */
+  payload?: string;
+
+  /**
+   * @generated from field: optional livekit.proto.RpcError error = 3;
+   */
+  error?: RpcError;
+
+  constructor(data?: PartialMessage<RpcMethodInvocationResponseRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RpcMethodInvocationResponseRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "error", kind: "message", T: RpcError, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationResponseRequest {
+    return new RpcMethodInvocationResponseRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseRequest {
+    return new RpcMethodInvocationResponseRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseRequest {
+    return new RpcMethodInvocationResponseRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RpcMethodInvocationResponseRequest | PlainMessage<RpcMethodInvocationResponseRequest> | undefined, b: RpcMethodInvocationResponseRequest | PlainMessage<RpcMethodInvocationResponseRequest> | undefined): boolean {
+    return proto3.util.equals(RpcMethodInvocationResponseRequest, a, b);
+  }
+}
+
+/**
+ * FFI Responses
+ *
+ * @generated from message livekit.proto.PerformRpcRequestResponse
+ */
+export class PerformRpcRequestResponse extends Message<PerformRpcRequestResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<PerformRpcRequestResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.PerformRpcRequestResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PerformRpcRequestResponse {
+    return new PerformRpcRequestResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PerformRpcRequestResponse {
+    return new PerformRpcRequestResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PerformRpcRequestResponse {
+    return new PerformRpcRequestResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PerformRpcRequestResponse | PlainMessage<PerformRpcRequestResponse> | undefined, b: PerformRpcRequestResponse | PlainMessage<PerformRpcRequestResponse> | undefined): boolean {
+    return proto3.util.equals(PerformRpcRequestResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RegisterRpcMethodResponse
+ */
+export class RegisterRpcMethodResponse extends Message<RegisterRpcMethodResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<RegisterRpcMethodResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RegisterRpcMethodResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RegisterRpcMethodResponse {
+    return new RegisterRpcMethodResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RegisterRpcMethodResponse {
+    return new RegisterRpcMethodResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RegisterRpcMethodResponse {
+    return new RegisterRpcMethodResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RegisterRpcMethodResponse | PlainMessage<RegisterRpcMethodResponse> | undefined, b: RegisterRpcMethodResponse | PlainMessage<RegisterRpcMethodResponse> | undefined): boolean {
+    return proto3.util.equals(RegisterRpcMethodResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.UnregisterRpcMethodResponse
+ */
+export class UnregisterRpcMethodResponse extends Message<UnregisterRpcMethodResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<UnregisterRpcMethodResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.UnregisterRpcMethodResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UnregisterRpcMethodResponse {
+    return new UnregisterRpcMethodResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UnregisterRpcMethodResponse {
+    return new UnregisterRpcMethodResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UnregisterRpcMethodResponse {
+    return new UnregisterRpcMethodResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: UnregisterRpcMethodResponse | PlainMessage<UnregisterRpcMethodResponse> | undefined, b: UnregisterRpcMethodResponse | PlainMessage<UnregisterRpcMethodResponse> | undefined): boolean {
+    return proto3.util.equals(UnregisterRpcMethodResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RpcMethodInvocationResponseResponse
+ */
+export class RpcMethodInvocationResponseResponse extends Message<RpcMethodInvocationResponseResponse> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<RpcMethodInvocationResponseResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RpcMethodInvocationResponseResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationResponseResponse {
+    return new RpcMethodInvocationResponseResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseResponse {
+    return new RpcMethodInvocationResponseResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseResponse {
+    return new RpcMethodInvocationResponseResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RpcMethodInvocationResponseResponse | PlainMessage<RpcMethodInvocationResponseResponse> | undefined, b: RpcMethodInvocationResponseResponse | PlainMessage<RpcMethodInvocationResponseResponse> | undefined): boolean {
+    return proto3.util.equals(RpcMethodInvocationResponseResponse, a, b);
+  }
+}
+
+/**
+ * FFI Callbacks
+ *
+ * @generated from message livekit.proto.PerformRpcRequestCallback
+ */
+export class PerformRpcRequestCallback extends Message<PerformRpcRequestCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  /**
+   * @generated from field: optional string payload = 2;
+   */
+  payload?: string;
+
+  /**
+   * @generated from field: optional livekit.proto.RpcError error = 3;
+   */
+  error?: RpcError;
+
+  constructor(data?: PartialMessage<PerformRpcRequestCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.PerformRpcRequestCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "error", kind: "message", T: RpcError, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PerformRpcRequestCallback {
+    return new PerformRpcRequestCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PerformRpcRequestCallback {
+    return new PerformRpcRequestCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PerformRpcRequestCallback {
+    return new PerformRpcRequestCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PerformRpcRequestCallback | PlainMessage<PerformRpcRequestCallback> | undefined, b: PerformRpcRequestCallback | PlainMessage<PerformRpcRequestCallback> | undefined): boolean {
+    return proto3.util.equals(PerformRpcRequestCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RegisterRpcMethodCallback
+ */
+export class RegisterRpcMethodCallback extends Message<RegisterRpcMethodCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<RegisterRpcMethodCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RegisterRpcMethodCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RegisterRpcMethodCallback {
+    return new RegisterRpcMethodCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RegisterRpcMethodCallback {
+    return new RegisterRpcMethodCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RegisterRpcMethodCallback {
+    return new RegisterRpcMethodCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RegisterRpcMethodCallback | PlainMessage<RegisterRpcMethodCallback> | undefined, b: RegisterRpcMethodCallback | PlainMessage<RegisterRpcMethodCallback> | undefined): boolean {
+    return proto3.util.equals(RegisterRpcMethodCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.UnregisterRpcMethodCallback
+ */
+export class UnregisterRpcMethodCallback extends Message<UnregisterRpcMethodCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<UnregisterRpcMethodCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.UnregisterRpcMethodCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UnregisterRpcMethodCallback {
+    return new UnregisterRpcMethodCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UnregisterRpcMethodCallback {
+    return new UnregisterRpcMethodCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UnregisterRpcMethodCallback {
+    return new UnregisterRpcMethodCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: UnregisterRpcMethodCallback | PlainMessage<UnregisterRpcMethodCallback> | undefined, b: UnregisterRpcMethodCallback | PlainMessage<UnregisterRpcMethodCallback> | undefined): boolean {
+    return proto3.util.equals(UnregisterRpcMethodCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RpcMethodInvocationResponseCallback
+ */
+export class RpcMethodInvocationResponseCallback extends Message<RpcMethodInvocationResponseCallback> {
+  /**
+   * @generated from field: uint64 async_id = 1;
+   */
+  asyncId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<RpcMethodInvocationResponseCallback>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "livekit.proto.RpcMethodInvocationResponseCallback";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationResponseCallback {
+    return new RpcMethodInvocationResponseCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseCallback {
+    return new RpcMethodInvocationResponseCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcMethodInvocationResponseCallback {
+    return new RpcMethodInvocationResponseCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RpcMethodInvocationResponseCallback | PlainMessage<RpcMethodInvocationResponseCallback> | undefined, b: RpcMethodInvocationResponseCallback | PlainMessage<RpcMethodInvocationResponseCallback> | undefined): boolean {
+    return proto3.util.equals(RpcMethodInvocationResponseCallback, a, b);
+  }
+}
+
+/**
+ * FFI Events
+ *
+ * @generated from message livekit.proto.RpcMethodInvocationEvent
+ */
+export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> {
+  /**
+   * @generated from field: uint64 invocation_id = 1;
+   */
+  invocationId = protoInt64.zero;
+
+  /**
+   * @generated from field: string method = 2;
+   */
+  method = "";
+
+  /**
    * @generated from field: string request_id = 3;
    */
   requestId = "";
 
   /**
-   * @generated from field: string method = 4;
+   * @generated from field: string participant_identity = 4;
    */
-  method = "";
+  participantIdentity = "";
 
   /**
    * @generated from field: string payload = 5;
@@ -103,407 +611,40 @@ export class PublishRpcRequestRequest extends Message<PublishRpcRequestRequest> 
   payload = "";
 
   /**
-   * @generated from field: uint32 response_timeout_ms = 6;
+   * @generated from field: uint32 timeout_ms = 6;
    */
-  responseTimeoutMs = 0;
+  timeoutMs = 0;
 
-  /**
-   * @generated from field: uint32 version = 7;
-   */
-  version = 0;
-
-  constructor(data?: PartialMessage<PublishRpcRequestRequest>) {
+  constructor(data?: PartialMessage<RpcMethodInvocationEvent>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcRequestRequest";
+  static readonly typeName = "livekit.proto.RpcMethodInvocationEvent";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "destination_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
-    { no: 7, name: "version", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 6, name: "timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcRequestRequest {
-    return new PublishRpcRequestRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationEvent {
+    return new RpcMethodInvocationEvent().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcRequestRequest {
-    return new PublishRpcRequestRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcMethodInvocationEvent {
+    return new RpcMethodInvocationEvent().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcRequestRequest {
-    return new PublishRpcRequestRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcMethodInvocationEvent {
+    return new RpcMethodInvocationEvent().fromJsonString(jsonString, options);
   }
 
-  static equals(a: PublishRpcRequestRequest | PlainMessage<PublishRpcRequestRequest> | undefined, b: PublishRpcRequestRequest | PlainMessage<PublishRpcRequestRequest> | undefined): boolean {
-    return proto3.util.equals(PublishRpcRequestRequest, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcResponseRequest
- */
-export class PublishRpcResponseRequest extends Message<PublishRpcResponseRequest> {
-  /**
-   * @generated from field: uint64 local_participant_handle = 1;
-   */
-  localParticipantHandle = protoInt64.zero;
-
-  /**
-   * @generated from field: string destination_identity = 2;
-   */
-  destinationIdentity = "";
-
-  /**
-   * @generated from field: string request_id = 3;
-   */
-  requestId = "";
-
-  /**
-   * @generated from oneof livekit.proto.PublishRpcResponseRequest.value
-   */
-  value: {
-    /**
-     * @generated from field: string payload = 4;
-     */
-    value: string;
-    case: "payload";
-  } | {
-    /**
-     * @generated from field: livekit.proto.RpcError error = 5;
-     */
-    value: RpcError;
-    case: "error";
-  } | { case: undefined; value?: undefined } = { case: undefined };
-
-  constructor(data?: PartialMessage<PublishRpcResponseRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcResponseRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "destination_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "value" },
-    { no: 5, name: "error", kind: "message", T: RpcError, oneof: "value" },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcResponseRequest {
-    return new PublishRpcResponseRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcResponseRequest {
-    return new PublishRpcResponseRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcResponseRequest {
-    return new PublishRpcResponseRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcResponseRequest | PlainMessage<PublishRpcResponseRequest> | undefined, b: PublishRpcResponseRequest | PlainMessage<PublishRpcResponseRequest> | undefined): boolean {
-    return proto3.util.equals(PublishRpcResponseRequest, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcAckRequest
- */
-export class PublishRpcAckRequest extends Message<PublishRpcAckRequest> {
-  /**
-   * @generated from field: uint64 local_participant_handle = 1;
-   */
-  localParticipantHandle = protoInt64.zero;
-
-  /**
-   * @generated from field: string destination_identity = 2;
-   */
-  destinationIdentity = "";
-
-  /**
-   * @generated from field: string request_id = 3;
-   */
-  requestId = "";
-
-  constructor(data?: PartialMessage<PublishRpcAckRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcAckRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "destination_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcAckRequest {
-    return new PublishRpcAckRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcAckRequest {
-    return new PublishRpcAckRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcAckRequest {
-    return new PublishRpcAckRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcAckRequest | PlainMessage<PublishRpcAckRequest> | undefined, b: PublishRpcAckRequest | PlainMessage<PublishRpcAckRequest> | undefined): boolean {
-    return proto3.util.equals(PublishRpcAckRequest, a, b);
-  }
-}
-
-/**
- * FFI Responses
- *
- * @generated from message livekit.proto.PublishRpcRequestResponse
- */
-export class PublishRpcRequestResponse extends Message<PublishRpcRequestResponse> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  constructor(data?: PartialMessage<PublishRpcRequestResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcRequestResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcRequestResponse {
-    return new PublishRpcRequestResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcRequestResponse {
-    return new PublishRpcRequestResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcRequestResponse {
-    return new PublishRpcRequestResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcRequestResponse | PlainMessage<PublishRpcRequestResponse> | undefined, b: PublishRpcRequestResponse | PlainMessage<PublishRpcRequestResponse> | undefined): boolean {
-    return proto3.util.equals(PublishRpcRequestResponse, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcResponseResponse
- */
-export class PublishRpcResponseResponse extends Message<PublishRpcResponseResponse> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  constructor(data?: PartialMessage<PublishRpcResponseResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcResponseResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcResponseResponse {
-    return new PublishRpcResponseResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcResponseResponse {
-    return new PublishRpcResponseResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcResponseResponse {
-    return new PublishRpcResponseResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcResponseResponse | PlainMessage<PublishRpcResponseResponse> | undefined, b: PublishRpcResponseResponse | PlainMessage<PublishRpcResponseResponse> | undefined): boolean {
-    return proto3.util.equals(PublishRpcResponseResponse, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcAckResponse
- */
-export class PublishRpcAckResponse extends Message<PublishRpcAckResponse> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  constructor(data?: PartialMessage<PublishRpcAckResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcAckResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcAckResponse {
-    return new PublishRpcAckResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcAckResponse {
-    return new PublishRpcAckResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcAckResponse {
-    return new PublishRpcAckResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcAckResponse | PlainMessage<PublishRpcAckResponse> | undefined, b: PublishRpcAckResponse | PlainMessage<PublishRpcAckResponse> | undefined): boolean {
-    return proto3.util.equals(PublishRpcAckResponse, a, b);
-  }
-}
-
-/**
- * FFI Callbacks
- *
- * @generated from message livekit.proto.PublishRpcRequestCallback
- */
-export class PublishRpcRequestCallback extends Message<PublishRpcRequestCallback> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  /**
-   * @generated from field: optional string error = 3;
-   */
-  error?: string;
-
-  constructor(data?: PartialMessage<PublishRpcRequestCallback>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcRequestCallback";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 3, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcRequestCallback {
-    return new PublishRpcRequestCallback().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcRequestCallback {
-    return new PublishRpcRequestCallback().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcRequestCallback {
-    return new PublishRpcRequestCallback().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcRequestCallback | PlainMessage<PublishRpcRequestCallback> | undefined, b: PublishRpcRequestCallback | PlainMessage<PublishRpcRequestCallback> | undefined): boolean {
-    return proto3.util.equals(PublishRpcRequestCallback, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcResponseCallback
- */
-export class PublishRpcResponseCallback extends Message<PublishRpcResponseCallback> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  /**
-   * @generated from field: optional string error = 2;
-   */
-  error?: string;
-
-  constructor(data?: PartialMessage<PublishRpcResponseCallback>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcResponseCallback";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcResponseCallback {
-    return new PublishRpcResponseCallback().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcResponseCallback {
-    return new PublishRpcResponseCallback().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcResponseCallback {
-    return new PublishRpcResponseCallback().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcResponseCallback | PlainMessage<PublishRpcResponseCallback> | undefined, b: PublishRpcResponseCallback | PlainMessage<PublishRpcResponseCallback> | undefined): boolean {
-    return proto3.util.equals(PublishRpcResponseCallback, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.PublishRpcAckCallback
- */
-export class PublishRpcAckCallback extends Message<PublishRpcAckCallback> {
-  /**
-   * @generated from field: uint64 async_id = 1;
-   */
-  asyncId = protoInt64.zero;
-
-  /**
-   * @generated from field: optional string error = 2;
-   */
-  error?: string;
-
-  constructor(data?: PartialMessage<PublishRpcAckCallback>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.PublishRpcAckCallback";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PublishRpcAckCallback {
-    return new PublishRpcAckCallback().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PublishRpcAckCallback {
-    return new PublishRpcAckCallback().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PublishRpcAckCallback {
-    return new PublishRpcAckCallback().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PublishRpcAckCallback | PlainMessage<PublishRpcAckCallback> | undefined, b: PublishRpcAckCallback | PlainMessage<PublishRpcAckCallback> | undefined): boolean {
-    return proto3.util.equals(PublishRpcAckCallback, a, b);
+  static equals(a: RpcMethodInvocationEvent | PlainMessage<RpcMethodInvocationEvent> | undefined, b: RpcMethodInvocationEvent | PlainMessage<RpcMethodInvocationEvent> | undefined): boolean {
+    return proto3.util.equals(RpcMethodInvocationEvent, a, b);
   }
 }
 

@@ -32,7 +32,6 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import { RpcError } from './rpc.js'
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -164,7 +163,18 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
-    if (
+    if (ffiEvent.message.case == 'rpcMethodInvocation') {
+      const sender = this.remoteParticipants.get(ffiEvent.message.value.participantIdentity);
+      this.localParticipant.handleIncomingRpcMethodInvocation(
+        ffiEvent.message.value.invocationId,
+        ffiEvent.message.value.method,
+        ffiEvent.message.value.requestId,
+        sender,
+        ffiEvent.message.value.payload,
+        ffiEvent.message.value.timeoutMs,
+      );
+      return;
+    } else if (
       ffiEvent.message.case != 'roomEvent' ||
       ffiEvent.message.value.roomHandle != this.ffiHandle.handle
     ) {
@@ -180,7 +190,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       this.remoteParticipants.delete(participant.identity);
       this.emit(RoomEvent.ParticipantDisconnected, participant);
-      this.localParticipant.handleParticipantDisconnected(participant.identity);
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
       this.emit(RoomEvent.LocalTrackPublished, publication, this.localParticipant);
@@ -290,13 +299,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         default:
           break;
       }
-    } else if (ev.case == 'rpcRequestReceived') {
-      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
-      this.localParticipant.handleIncomingRpcRequest(participant, ev.value.requestId, ev.value.method, ev.value.payload, ev.value.responseTimeoutMs);
-    } else if (ev.case == 'rpcResponseReceived') {
-      this.localParticipant.handleIncomingRpcResponse(ev.value.requestId, ev.value.payload, ev.value.error ? RpcError.fromProto(ev.value.error) : null);
-    } else if (ev.case == 'rpcAckReceived') {
-      this.localParticipant.handleIncomingRpcAck(ev.value.requestId);
     } else if (ev.case == 'e2eeStateChanged') {
       if (ev.value.state == EncryptionState.INTERNAL_ERROR) {
         // throw generic error until Rust SDK is updated to supply the error alongside INTERNAL_ERROR
@@ -332,10 +334,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const participant = new RemoteParticipant(ownedInfo);
     this.remoteParticipants.set(ownedInfo.info.identity, participant);
     return participant;
-  }
-
-  private handleParticipantDisconnected(participant: RemoteParticipant) {
-    this.localParticipant.handleParticipantDisconnected(participant.identity);
   }
 }
 

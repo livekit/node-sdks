@@ -25,7 +25,6 @@ import { RtcStats } from "./stats_pb.js";
 import { VideoCodec } from "./video_frame_pb.js";
 import { E2eeOptions, EncryptionState } from "./e2ee_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
-import { RpcError } from "./rpc_pb.js";
 
 /**
  * @generated from enum livekit.proto.IceTransportType
@@ -2488,28 +2487,14 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "dataPacketReceived";
   } | {
     /**
+     * RpcRequestReceived rpc_request_received = 29;
+     * RpcResponseReceived rpc_response_received = 30;
+     * RpcAckReceived rpc_ack_received = 31;
+     *
      * @generated from field: livekit.proto.TranscriptionReceived transcription_received = 28;
      */
     value: TranscriptionReceived;
     case: "transcriptionReceived";
-  } | {
-    /**
-     * @generated from field: livekit.proto.RpcRequestReceived rpc_request_received = 29;
-     */
-    value: RpcRequestReceived;
-    case: "rpcRequestReceived";
-  } | {
-    /**
-     * @generated from field: livekit.proto.RpcResponseReceived rpc_response_received = 30;
-     */
-    value: RpcResponseReceived;
-    case: "rpcResponseReceived";
-  } | {
-    /**
-     * @generated from field: livekit.proto.RpcAckReceived rpc_ack_received = 31;
-     */
-    value: RpcAckReceived;
-    case: "rpcAckReceived";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2548,9 +2533,6 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 26, name: "eos", kind: "message", T: RoomEOS, oneof: "message" },
     { no: 27, name: "data_packet_received", kind: "message", T: DataPacketReceived, oneof: "message" },
     { no: 28, name: "transcription_received", kind: "message", T: TranscriptionReceived, oneof: "message" },
-    { no: 29, name: "rpc_request_received", kind: "message", T: RpcRequestReceived, oneof: "message" },
-    { no: 30, name: "rpc_response_received", kind: "message", T: RpcResponseReceived, oneof: "message" },
-    { no: 31, name: "rpc_ack_received", kind: "message", T: RpcAckReceived, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -3692,159 +3674,6 @@ export class TranscriptionReceived extends Message<TranscriptionReceived> {
 
   static equals(a: TranscriptionReceived | PlainMessage<TranscriptionReceived> | undefined, b: TranscriptionReceived | PlainMessage<TranscriptionReceived> | undefined): boolean {
     return proto3.util.equals(TranscriptionReceived, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.RpcRequestReceived
- */
-export class RpcRequestReceived extends Message<RpcRequestReceived> {
-  /**
-   * @generated from field: optional string participant_identity = 1;
-   */
-  participantIdentity?: string;
-
-  /**
-   * @generated from field: string request_id = 2;
-   */
-  requestId = "";
-
-  /**
-   * @generated from field: string method = 3;
-   */
-  method = "";
-
-  /**
-   * @generated from field: string payload = 4;
-   */
-  payload = "";
-
-  /**
-   * @generated from field: uint32 response_timeout_ms = 5;
-   */
-  responseTimeoutMs = 0;
-
-  /**
-   * @generated from field: uint32 version = 6;
-   */
-  version = 0;
-
-  constructor(data?: PartialMessage<RpcRequestReceived>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.RpcRequestReceived";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 2, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
-    { no: 6, name: "version", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcRequestReceived {
-    return new RpcRequestReceived().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcRequestReceived {
-    return new RpcRequestReceived().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcRequestReceived {
-    return new RpcRequestReceived().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: RpcRequestReceived | PlainMessage<RpcRequestReceived> | undefined, b: RpcRequestReceived | PlainMessage<RpcRequestReceived> | undefined): boolean {
-    return proto3.util.equals(RpcRequestReceived, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.RpcResponseReceived
- */
-export class RpcResponseReceived extends Message<RpcResponseReceived> {
-  /**
-   * @generated from field: string request_id = 1;
-   */
-  requestId = "";
-
-  /**
-   * @generated from field: optional string payload = 2;
-   */
-  payload?: string;
-
-  /**
-   * @generated from field: optional livekit.proto.RpcError error = 3;
-   */
-  error?: RpcError;
-
-  constructor(data?: PartialMessage<RpcResponseReceived>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.RpcResponseReceived";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 3, name: "error", kind: "message", T: RpcError, opt: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcResponseReceived {
-    return new RpcResponseReceived().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcResponseReceived {
-    return new RpcResponseReceived().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcResponseReceived {
-    return new RpcResponseReceived().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: RpcResponseReceived | PlainMessage<RpcResponseReceived> | undefined, b: RpcResponseReceived | PlainMessage<RpcResponseReceived> | undefined): boolean {
-    return proto3.util.equals(RpcResponseReceived, a, b);
-  }
-}
-
-/**
- * @generated from message livekit.proto.RpcAckReceived
- */
-export class RpcAckReceived extends Message<RpcAckReceived> {
-  /**
-   * @generated from field: string request_id = 1;
-   */
-  requestId = "";
-
-  constructor(data?: PartialMessage<RpcAckReceived>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "livekit.proto.RpcAckReceived";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcAckReceived {
-    return new RpcAckReceived().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RpcAckReceived {
-    return new RpcAckReceived().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RpcAckReceived {
-    return new RpcAckReceived().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: RpcAckReceived | PlainMessage<RpcAckReceived> | undefined, b: RpcAckReceived | PlainMessage<RpcAckReceived> | undefined): boolean {
-    return proto3.util.equals(RpcAckReceived, a, b);
   }
 }
 

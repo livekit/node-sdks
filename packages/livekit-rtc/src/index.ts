@@ -16,7 +16,7 @@ export {
   AudioTrack,
 } from './track.js';
 export { VideoFrame } from './video_frame.js';
-export { AudioFrame } from './audio_frame.js';
+export { AudioFrame, combineAudioFrames } from './audio_frame.js';
 export { AudioStream } from './audio_stream.js';
 export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
 export { VideoStream, VideoFrameEvent } from './video_stream.js';

@@ -395,26 +395,27 @@ export class LocalParticipant extends Participant {
     payload: string,
     timeoutMs: number,
   ) {
-    const handler = this.rpcHandlers.get(method);
-
-    if (!handler) {
-      throw RpcError.builtIn('UNSUPPORTED_METHOD');
-    }
-
     let responseError: RpcError | null = null;
     let responsePayload: string | null = null;
 
-    try {
-      responsePayload = await handler(requestId, sender, payload, timeoutMs);
-    } catch (error) {
-      if (error instanceof RpcError) {
-        responseError = error;
-      } else {
-        console.warn(
-          `Uncaught error returned by RPC handler for ${method}. Returning UNCAUGHT_ERROR instead.`,
-          error,
-        );
-        responseError = RpcError.builtIn('APPLICATION_ERROR');
+
+    const handler = this.rpcHandlers.get(method);
+    
+    if (!handler) {
+      responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
+    } else {
+      try {
+        responsePayload = await handler(requestId, sender, payload, timeoutMs);
+      } catch (error) {
+        if (error instanceof RpcError) {
+          responseError = error;
+        } else {
+          console.warn(
+            `Uncaught error returned by RPC handler for ${method}. Returning UNCAUGHT_ERROR instead.`,
+            error,
+          );
+          responseError = RpcError.builtIn('APPLICATION_ERROR');
+        }
       }
     }
 
@@ -431,12 +432,9 @@ export class LocalParticipant extends Participant {
     const cb = await FfiClient.instance.waitFor<RpcMethodInvocationResponseCallback>((ev) => {
       return ev.message.case === 'rpcMethodInvocationResponse' && ev.message.value.asyncId === res.asyncId;
     });
-
-    if (responseError) {
-      throw responseError;
+    if (cb.error) {
+      console.warn(`error sending rpc method invocation response: ${cb.error}`);
     }
-
-    return responsePayload;
   }
 }
 

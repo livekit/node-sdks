@@ -339,7 +339,7 @@ export class LocalParticipant extends Participant {
    * @param method - The name of the indicated RPC method
    * @param handler - Will be invoked when an RPC request for this method is received
    * @returns A promise that resolves when the method is successfully registered
-   * 
+   *
    * @example
    * ```typescript
    * room.localParticipant?.registerRpcMethod(
@@ -350,18 +350,18 @@ export class LocalParticipant extends Participant {
    *   }
    * );
    * ```
-   * 
+   *
    * The handler receives the following parameters:
    * - `requestId`: A unique identifier for this RPC request
    * - `caller`: The RemoteParticipant who initiated the RPC call
    * - `payload`: The data sent by the caller (as a string)
    * - `responseTimeoutMs`: The maximum time available to return a response
-   * 
+   *
    * The handler should return a Promise that resolves to a string.
    * If unable to respond within `responseTimeoutMs`, the request will result in an error on the caller's side.
-   * 
-   * You may throw errors of type `RpcError` with a string `message` in the handler, 
-   * and they will be received on the caller's side with the message intact. 
+   *
+   * You may throw errors of type `RpcError` with a string `message` in the handler,
+   * and they will be received on the caller's side with the message intact.
    * Other errors thrown in your handler will not be transmitted as-is, and will instead arrive to the caller as `1500` ("Application Error").
    */
   async registerRpcMethod(

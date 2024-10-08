@@ -618,9 +618,9 @@ export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> 
   requestId = "";
 
   /**
-   * @generated from field: string participant_identity = 5;
+   * @generated from field: string caller_identity = 5;
    */
-  participantIdentity = "";
+  callerIdentity = "";
 
   /**
    * @generated from field: string payload = 6;
@@ -644,7 +644,7 @@ export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> 
     { no: 2, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
     { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "caller_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 7, name: "timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);

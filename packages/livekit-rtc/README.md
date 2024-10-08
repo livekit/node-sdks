@@ -78,23 +78,28 @@ await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2
 
 ### RPC
 
-RPC you to perform your own predefined method calls from one participant to another. This feature is especially powerful when used with [Agents](https://docs.livekit.io/agents), for instance to forward LLM function calls to your client application.
+Perform your own predefined method calls from one participant to another. 
+
+This feature is especially powerful when used with [Agents](https://docs.livekit.io/agents), for instance to forward LLM function calls to your client application.
 
 #### Registering an RPC method
 
-The participant who will receive a call must first register for the specific method:
+The participant who implements the method and will receive its calls must first register support:
 
 ```typescript
 room.localParticipant?.registerRpcMethod(
+   // method name - can be any string that makes sense for your application
   'greet',
-  async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
-    console.log(`Received greeting from ${sender.identity}: ${payload}`);
-    return `Hello, ${sender.identity}!`;
+
+  // method handler - will be called when the method is invoked by a RemoteParticipant
+  async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+    console.log(`Received greeting from ${caller.identity}: ${payload}`);
+    return `Hello, ${caller.identity}!`;
   }
 );
 ```
 
-The request includes a `responseTimeoutMs` field, which informs you how long you have to return a response. If you are unable to respond in time, you can either send an error or let the request time out on the sender's side.
+In addition to the payload, your handler will also receive `responseTimeoutMs`, which informs you the maximum time available to return a response. If you are unable to respond in time, the request will result in an error on the caller's side.
 
 #### Performing an RPC request
 
@@ -113,7 +118,7 @@ try {
 }
 ```
 
-You may find it useful to adjust the `responseTimeoutMs` parameter, which allows you to set the amount of time you will wait for a response. We recommend keeping this value as low as possible while still satisfying the constraints of your application.
+You may find it useful to adjust the `responseTimeoutMs` parameter, which indicates the amount of time you will wait for a response. We recommend keeping this value as low as possible while still satisfying the constraints of your application.
 
 #### Errors
 
@@ -124,7 +129,7 @@ You may throw errors of the type `RpcError` with a string `message` in an RPC me
 ## Examples
 
 - [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a .wave file
-- [ `rpc`](https://github.com/livekit/node-sdks/tree/main/examples/rpc): simple back-and-forth RPC interaction
+- [`rpc`](https://github.com/livekit/node-sdks/tree/main/examples/rpc): simple back-and-forth RPC interaction
 
 
 ## Getting help / Contributing

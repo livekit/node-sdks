@@ -115,7 +115,7 @@ export class LocalParticipant extends Participant {
     string,
     (
       requestId: string,
-      sender: RemoteParticipant,
+      caller: RemoteParticipant,
       payload: string,
       responseTimeoutMs: number,
     ) => Promise<string>
@@ -333,17 +333,42 @@ export class LocalParticipant extends Participant {
   }
 
   /**
-   * Etablishes the participant as a receiver for RPC calls of the specified method.
-   * Will overwrite any existing callback for the specified method.
+   * Establishes the participant as a receiver for calls of the specified RPC method.
+   * Will overwrite any existing callback for the same method.
    *
    * @param method - The name of the indicated RPC method
-   * @param callback - Will be called when an RPC request for this method is received, with the request and the sender. Respond with a string.
+   * @param handler - Will be invoked when an RPC request for this method is received
+   * @returns A promise that resolves when the method is successfully registered
+   * 
+   * @example
+   * ```typescript
+   * room.localParticipant?.registerRpcMethod(
+   *   'greet',
+   *   async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+   *     console.log(`Received greeting from ${caller.identity}: ${payload}`);
+   *     return `Hello, ${caller.identity}!`;
+   *   }
+   * );
+   * ```
+   * 
+   * The handler receives the following parameters:
+   * - `requestId`: A unique identifier for this RPC request
+   * - `caller`: The RemoteParticipant who initiated the RPC call
+   * - `payload`: The data sent by the caller (as a string)
+   * - `responseTimeoutMs`: The maximum time available to return a response
+   * 
+   * The handler should return a Promise that resolves to a string.
+   * If unable to respond within `responseTimeoutMs`, the request will result in an error on the caller's side.
+   * 
+   * You may throw errors of type `RpcError` with a string `message` in the handler, 
+   * and they will be received on the caller's side with the message intact. 
+   * Other errors thrown in your handler will not be transmitted as-is, and will instead arrive to the caller as `1500` ("Application Error").
    */
   async registerRpcMethod(
     method: string,
     handler: (
       requestId: string,
-      sender: RemoteParticipant,
+      caller: RemoteParticipant,
       payload: string,
       responseTimeoutMs: number,
     ) => Promise<string>,
@@ -391,7 +416,7 @@ export class LocalParticipant extends Participant {
     invocationId: bigint,
     method: string,
     requestId: string,
-    sender: RemoteParticipant,
+    caller: RemoteParticipant,
     payload: string,
     timeoutMs: number,
   ) {
@@ -404,7 +429,7 @@ export class LocalParticipant extends Participant {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
       try {
-        responsePayload = await handler(requestId, sender, payload, timeoutMs);
+        responsePayload = await handler(requestId, caller, payload, timeoutMs);
       } catch (error) {
         if (error instanceof RpcError) {
           responseError = error;

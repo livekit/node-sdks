@@ -13,7 +13,7 @@ import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
  */
 
 export class RpcError extends Error {
-  code: number;
+  code: typeof RpcError.ErrorCode | number;
   data?: string;
 
   /**
@@ -36,7 +36,7 @@ export class RpcError extends Error {
 
   toProto() {
     return new RpcError_Proto({
-      code: this.code,
+      code: this.code as number,
       message: this.message,
       data: this.data,
     });

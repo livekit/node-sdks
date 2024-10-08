@@ -307,7 +307,7 @@ export class LocalParticipant extends Participant {
     destinationIdentity: string,
     method: string,
     payload: string,
-    responseTimeoutMs: number = 10000,
+    responseTimeoutMs?: number,
   ): Promise<string> {
     const req = new PerformRpcRequestRequest({
       localParticipantHandle: this.ffi_handle.handle,

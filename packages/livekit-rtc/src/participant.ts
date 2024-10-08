@@ -318,9 +318,6 @@ export class LocalParticipant extends Participant {
     payload: string,
     responseTimeoutMs: number = 10000,
   ): Promise<string> {
-    console.warn(
-      `Performing RPC request to ${destinationIdentity} for method ${method} from ${this.identity}`,
-    );
     const req = new PerformRpcRequestRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
@@ -407,15 +404,9 @@ export class LocalParticipant extends Participant {
     payload: string,
     timeoutMs: number,
   ) {
-    console.warn(
-      `Handling RPC method invocation for ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`,
-    );
     const handler = this.rpcHandlers.get(method);
 
     if (!handler) {
-      console.warn(
-        `No handler for RPC method ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`,
-      );
       throw RpcError.builtIn('UNSUPPORTED_METHOD');
     }
 
@@ -427,14 +418,12 @@ export class LocalParticipant extends Participant {
       if (typeof response === 'string') {
         if (byteLength(response) > MAX_PAYLOAD_BYTES) {
           responseError = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');
-          console.warn(`RPC Response payload too large for ${method}`);
         } else {
           responsePayload = response;
         }
       } else if (response instanceof RpcError) {
         responseError = response;
       } else {
-        console.warn(`unexpected handler response for ${method}: ${response}`);
         responseError = RpcError.builtIn('MALFORMED_RESPONSE');
       }
     } catch (error) {

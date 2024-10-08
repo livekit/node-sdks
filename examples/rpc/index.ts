@@ -57,6 +57,7 @@ async function main() {
 const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room): Promise<void> => {
   await greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
       console.log(`[Greeter] Oh ${sender.identity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));

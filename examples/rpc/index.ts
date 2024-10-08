@@ -92,6 +92,7 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
 
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'divide',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
       const jsonData = JSON.parse(payload);
       const { numerator, denominator } = jsonData;

@@ -223,17 +223,22 @@ export class UnregisterRpcMethodRequest extends Message<UnregisterRpcMethodReque
  */
 export class RpcMethodInvocationResponseRequest extends Message<RpcMethodInvocationResponseRequest> {
   /**
-   * @generated from field: uint64 invocation_id = 1;
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: uint64 invocation_id = 2;
    */
   invocationId = protoInt64.zero;
 
   /**
-   * @generated from field: optional string payload = 2;
+   * @generated from field: optional string payload = 3;
    */
   payload?: string;
 
   /**
-   * @generated from field: optional livekit.proto.RpcError error = 3;
+   * @generated from field: optional livekit.proto.RpcError error = 4;
    */
   error?: RpcError;
 
@@ -245,9 +250,10 @@ export class RpcMethodInvocationResponseRequest extends Message<RpcMethodInvocat
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.RpcMethodInvocationResponseRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 3, name: "error", kind: "message", T: RpcError, opt: true },
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 3, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "error", kind: "message", T: RpcError, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationResponseRequest {

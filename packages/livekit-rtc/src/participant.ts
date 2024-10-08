@@ -34,17 +34,20 @@ import {
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
 import type {
-  PerformRpcRequestResponse,
   PerformRpcRequestCallback,
-  RegisterRpcMethodResponse,
+  PerformRpcRequestResponse,
   RegisterRpcMethodCallback,
-  UnregisterRpcMethodResponse,
+  RegisterRpcMethodResponse,
   UnregisterRpcMethodCallback,
+  UnregisterRpcMethodResponse,
+  RpcMethodInvocationResponseResponse,
+  RpcMethodInvocationResponseCallback,
 } from './proto/rpc_pb.js';
 import {
   PerformRpcRequestRequest,
   RegisterRpcMethodRequest,
   UnregisterRpcMethodRequest,
+  RpcMethodInvocationResponseRequest,
 } from './proto/rpc_pb.js';
 import { MAX_PAYLOAD_BYTES, RpcError, byteLength } from './rpc.js';
 import type { LocalTrack } from './track.js';
@@ -110,18 +113,23 @@ export type DataPublishOptions = {
 export class LocalParticipant extends Participant {
   private rpcHandlers: Map<
     string,
-    (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>
+    (
+      requestId: string,
+      sender: RemoteParticipant,
+      payload: string,
+      responseTimeoutMs: number,
+    ) => Promise<string | RpcError>
   > = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
-  private pendingAcks = new Map<
-    string,
-    { resolve: () => void; participantIdentity: string }
-  >();
+  private pendingAcks = new Map<string, { resolve: () => void; participantIdentity: string }>();
   private pendingResponses = new Map<
     string,
-    { resolve: (payload: string | null, error: RpcError | null) => void; participantIdentity: string }
+    {
+      resolve: (payload: string | null, error: RpcError | null) => void;
+      participantIdentity: string;
+    }
   >();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
@@ -310,7 +318,9 @@ export class LocalParticipant extends Participant {
     payload: string,
     responseTimeoutMs: number = 10000,
   ): Promise<string> {
-    console.warn(`Performing RPC request to ${destinationIdentity} for method ${method} from ${this.identity}`);
+    console.warn(
+      `Performing RPC request to ${destinationIdentity} for method ${method} from ${this.identity}`,
+    );
     const req = new PerformRpcRequestRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
@@ -343,7 +353,12 @@ export class LocalParticipant extends Participant {
    */
   async registerRpcMethod(
     method: string,
-    handler: (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => Promise<string | RpcError>,
+    handler: (
+      requestId: string,
+      sender: RemoteParticipant,
+      payload: string,
+      responseTimeoutMs: number,
+    ) => Promise<string | RpcError>,
   ): Promise<void> {
     this.rpcHandlers.set(method, handler);
 
@@ -384,12 +399,23 @@ export class LocalParticipant extends Participant {
   }
 
   /** @internal */
-  async handleRpcMethodInvocation(method: string, requestId: string, sender: RemoteParticipant, payload: string, timeoutMs: number): Promise<string> {
-    console.warn(`Handling RPC method invocation for ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`);
+  async handleRpcMethodInvocation(
+    invocationId: bigint,
+    method: string,
+    requestId: string,
+    sender: RemoteParticipant,
+    payload: string,
+    timeoutMs: number,
+  ) {
+    console.warn(
+      `Handling RPC method invocation for ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`,
+    );
     const handler = this.rpcHandlers.get(method);
 
     if (!handler) {
-      console.warn(`No handler for RPC method ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`);
+      console.warn(
+        `No handler for RPC method ${method} from ${sender.identity} requestId: ${requestId} self: ${this.identity}`,
+      );
       throw RpcError.builtIn('UNSUPPORTED_METHOD');
     }
 
@@ -422,6 +448,20 @@ export class LocalParticipant extends Participant {
         responseError = RpcError.builtIn('UNCAUGHT_ERROR');
       }
     }
+
+    const req = new RpcMethodInvocationResponseRequest({
+      invocationId,
+      error: responseError ? responseError.toProto() : undefined,
+      payload: responsePayload ?? undefined,
+    });
+
+    const res = FfiClient.instance.request<RpcMethodInvocationResponseResponse>({
+      message: { case: 'rpcMethodInvocationResponse', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<RpcMethodInvocationResponseCallback>((ev) => {
+      return ev.message.case === 'rpcMethodInvocationResponse' && ev.message.value.asyncId === res.asyncId;
+    });
 
     if (responseError) {
       throw responseError;

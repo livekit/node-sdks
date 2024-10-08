@@ -24,7 +24,7 @@ import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequ
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
-import { PerformRpcRequestCallback, PerformRpcRequestRequest, PerformRpcRequestResponse, RegisterRpcMethodCallback, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodCallback, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
+import { PerformRpcRequestCallback, PerformRpcRequestRequest, PerformRpcRequestResponse, RegisterRpcMethodCallback, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseCallback, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodCallback, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
 
 /**
  * @generated from enum livekit.proto.LogLevel
@@ -848,6 +848,12 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: RpcMethodInvocationEvent;
     case: "rpcMethodInvocation";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RpcMethodInvocationResponseCallback rpc_method_invocation_response = 26;
+     */
+    value: RpcMethodInvocationResponseCallback;
+    case: "rpcMethodInvocationResponse";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -882,6 +888,7 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 23, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodCallback, oneof: "message" },
     { no: 24, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodCallback, oneof: "message" },
     { no: 25, name: "rpc_method_invocation", kind: "message", T: RpcMethodInvocationEvent, oneof: "message" },
+    { no: 26, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

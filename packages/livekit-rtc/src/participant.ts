@@ -38,16 +38,16 @@ import type {
   PerformRpcRequestResponse,
   RegisterRpcMethodCallback,
   RegisterRpcMethodResponse,
+  RpcMethodInvocationResponseCallback,
+  RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodCallback,
   UnregisterRpcMethodResponse,
-  RpcMethodInvocationResponseResponse,
-  RpcMethodInvocationResponseCallback,
 } from './proto/rpc_pb.js';
 import {
   PerformRpcRequestRequest,
   RegisterRpcMethodRequest,
-  UnregisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
+  UnregisterRpcMethodRequest,
 } from './proto/rpc_pb.js';
 import { RpcError } from './rpc.js';
 import type { LocalTrack } from './track.js';
@@ -398,9 +398,8 @@ export class LocalParticipant extends Participant {
     let responseError: RpcError | null = null;
     let responsePayload: string | null = null;
 
-
     const handler = this.rpcHandlers.get(method);
-    
+
     if (!handler) {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
@@ -430,7 +429,10 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<RpcMethodInvocationResponseCallback>((ev) => {
-      return ev.message.case === 'rpcMethodInvocationResponse' && ev.message.value.asyncId === res.asyncId;
+      return (
+        ev.message.case === 'rpcMethodInvocationResponse' &&
+        ev.message.value.asyncId === res.asyncId
+      );
     });
     if (cb.error) {
       console.warn(`error sending rpc method invocation response: ${cb.error}`);

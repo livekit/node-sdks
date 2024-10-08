@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
 
 /**

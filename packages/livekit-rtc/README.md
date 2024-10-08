@@ -87,14 +87,14 @@ The participant who will receive a call must first register for the specific met
 ```typescript
 room.localParticipant?.registerRpcMethod(
   'greet',
-  async (request: RpcRequest, sender: RemoteParticipant) => {
-    console.log(`Received greeting from ${sender.identity}: ${request.payload}`);
+  async (requestId: string, sender: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+    console.log(`Received greeting from ${sender.identity}: ${payload}`);
     return `Hello, ${sender.identity}!`;
   }
 );
 ```
 
-The request will also have a `responseTimeoutMs` field, which informs you how long you have to return a response. If you are unable to respond in time, you can either send an error or let the request time out on the sender's side.
+The request includes a `responseTimeoutMs` field, which informs you how long you have to return a response. If you are unable to respond in time, you can either send an error or let the request time out on the sender's side.
 
 #### Performing an RPC request
 
@@ -119,7 +119,7 @@ You may find it useful to adjust the `responseTimeoutMs` parameter, which allows
 
 LiveKit is a dynamic realtime environment and calls can fail for various reasons. 
 
-You may throw errors of the type `RpcError` with a string `message` in an RPC method handler and they will be received on the caller's side with the message intact. Other errors will not be transmitted and will instead arrive to the caller as `UNCAUGHT_ERROR`. Other built-in errors are detailed in `RpcError.ErrorType`.
+You may throw errors of the type `RpcError` with a string `message` in an RPC method handler and they will be received on the caller's side with the message intact. Other errors will not be transmitted and will instead arrive to the caller as `1500` ("Application Error"). Other built-in errors are detailed in `RpcError`.
 
 ## Examples
 

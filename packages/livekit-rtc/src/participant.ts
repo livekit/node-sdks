@@ -435,7 +435,7 @@ export class LocalParticipant extends Participant {
           responseError = error;
         } else {
           console.warn(
-            `Uncaught error returned by RPC handler for ${method}. Returning UNCAUGHT_ERROR instead.`,
+            `Uncaught error returned by RPC handler for ${method}. Returning APPLICATION_ERROR instead.`,
             error,
           );
           responseError = RpcError.builtIn('APPLICATION_ERROR');

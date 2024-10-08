@@ -35,9 +35,9 @@ export class RpcError extends Message<RpcError> {
   message = "";
 
   /**
-   * @generated from field: string data = 3;
+   * @generated from field: optional string data = 3;
    */
-  data = "";
+  data?: string;
 
   constructor(data?: PartialMessage<RpcError>) {
     super();
@@ -49,7 +49,7 @@ export class RpcError extends Message<RpcError> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "code", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
     { no: 2, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "data", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "data", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcError {

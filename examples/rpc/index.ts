@@ -34,6 +34,13 @@ async function main() {
   }
 
   try {
+    console.log('\n\nRunning error handling example...');
+    await Promise.all([performDivision(callersRoom)]);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+  try {
     console.log('\n\nRunning math example...');
     await Promise.all([
       performSquareRoot(callersRoom)
@@ -82,6 +89,26 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
       return JSON.stringify({ result });
     },
   );
+
+  await mathGeniusRoom.localParticipant?.registerRpcMethod(
+    'divide',
+    async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+      const jsonData = JSON.parse(payload);
+      const { numerator, denominator } = jsonData;
+      console.log(
+        `[Math Genius] ${caller.identity} wants to divide ${numerator} by ${denominator}. This could be interesting...`,
+      );
+
+      if (denominator === 0) {
+        console.log(`[Math Genius] Uh oh, divide by zero! This won't end well...`);
+        throw new Error('Cannot divide by zero');
+      }
+
+      const result = numerator / denominator;
+      console.log(`[Math Genius] The result is ${result}`);
+      return JSON.stringify({ result });
+    },
+  );
 };
 
 const performGreeting = async (room: Room): Promise<void> => {
@@ -127,6 +154,29 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
 
     console.error('[Caller] Unexpected error:', error);
     throw error;
+  }
+};
+
+const performDivision = async (room: Room): Promise<void> => {
+  console.log("[Caller] Let's try dividing 10 by 0");
+  try {
+    const response = await room.localParticipant!.performRpc(
+      'math-genius',
+      'divide',
+      JSON.stringify({ numerator: 10, denominator: 0 })
+    );
+    const parsedResponse = JSON.parse(response);
+    console.log(`[Caller] The result is ${parsedResponse.result}`);
+  } catch (error) {
+    if (error instanceof RpcError) {
+      if (error.code === RpcError.ErrorCode.APPLICATION_ERROR) {
+        console.log(`[Caller] Oops! I guess that didn't work. Let's try something else.`);
+      } else {
+        console.error('[Caller] Unexpected RPC error:', error);
+      }
+    } else {
+      console.error('[Caller] Unexpected error:', error);
+    }
   }
 };
 

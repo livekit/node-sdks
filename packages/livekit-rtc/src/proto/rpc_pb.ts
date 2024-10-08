@@ -557,6 +557,11 @@ export class RpcMethodInvocationResponseCallback extends Message<RpcMethodInvoca
    */
   asyncId = protoInt64.zero;
 
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error?: string;
+
   constructor(data?: PartialMessage<RpcMethodInvocationResponseCallback>) {
     super();
     proto3.util.initPartial(data, this);
@@ -566,6 +571,7 @@ export class RpcMethodInvocationResponseCallback extends Message<RpcMethodInvoca
   static readonly typeName = "livekit.proto.RpcMethodInvocationResponseCallback";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationResponseCallback {

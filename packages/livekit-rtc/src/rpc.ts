@@ -14,9 +14,6 @@ import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
  */
 
 export class RpcError extends Error {
-  static MAX_MESSAGE_BYTES = 256;
-  static MAX_DATA_BYTES = 15360; // 15 KB
-
   code: number;
   data?: string;
 
@@ -30,8 +27,8 @@ export class RpcError extends Error {
   constructor(code: number, message: string, data?: string) {
     super(message);
     this.code = code;
-    this.message = truncateBytes(message, RpcError.MAX_MESSAGE_BYTES);
-    this.data = data ? truncateBytes(data, RpcError.MAX_DATA_BYTES) : undefined;
+    this.message = message;
+    this.data = data;
   }
 
   static fromProto(proto: RpcError_Proto) {
@@ -47,30 +44,32 @@ export class RpcError extends Error {
   }
 
   static ErrorCode = {
-    UNCAUGHT_ERROR: 1001,
-    UNSUPPORTED_METHOD: 1002,
-    CONNECTION_TIMEOUT: 1003,
-    RESPONSE_TIMEOUT: 1004,
-    RECIPIENT_DISCONNECTED: 1005,
-    RECIPIENT_NOT_FOUND: 1006,
-    REQUEST_PAYLOAD_TOO_LARGE: 1007,
-    RESPONSE_PAYLOAD_TOO_LARGE: 1008,
-    MALFORMED_RESPONSE: 1099, // TODO: Shouldn't be needed with protobuf type
+    APPLICATION_ERROR: 1500,
+    CONNECTION_TIMEOUT: 1501,
+    RESPONSE_TIMEOUT: 1502,
+    RECIPIENT_DISCONNECTED: 1503,
+    RESPONSE_PAYLOAD_TOO_LARGE: 1504,
+    SEND_FAILED: 1505,
+
+    UNSUPPORTED_METHOD: 1400,
+    RECIPIENT_NOT_FOUND: 1401,
+    REQUEST_PAYLOAD_TOO_LARGE: 1402,
   } as const;
 
   /**
    * @internal
    */
   static ErrorMessage: Record<keyof typeof RpcError.ErrorCode, string> = {
-    UNCAUGHT_ERROR: 'Uncaught application error',
-    UNSUPPORTED_METHOD: 'Method not supported at destination',
+    APPLICATION_ERROR: 'Application error in method handler',
     CONNECTION_TIMEOUT: 'Connection timeout',
     RESPONSE_TIMEOUT: 'Response timeout',
     RECIPIENT_DISCONNECTED: 'Recipient disconnected',
+    RESPONSE_PAYLOAD_TOO_LARGE: 'Response payload too large',
+    SEND_FAILED: 'Failed to send',
+
+    UNSUPPORTED_METHOD: 'Method not supported at destination',
     RECIPIENT_NOT_FOUND: 'Recipient not found',
     REQUEST_PAYLOAD_TOO_LARGE: 'Request payload too large',
-    RESPONSE_PAYLOAD_TOO_LARGE: 'Response payload too large',
-    MALFORMED_RESPONSE: 'Malformed response',
   } as const;
 
   /**
@@ -81,41 +80,4 @@ export class RpcError extends Error {
   static builtIn(key: keyof typeof RpcError.ErrorCode, data?: string): RpcError {
     return new RpcError(RpcError.ErrorCode[key], RpcError.ErrorMessage[key], data);
   }
-}
-
-/**
- * @internal
- */
-export const MAX_PAYLOAD_BYTES = 15360; // 15 KB
-
-/**
- * @internal
- */
-export function byteLength(str: string): number {
-  const encoder = new TextEncoder();
-  return encoder.encode(str).length;
-}
-
-/**
- * @internal
- */
-export function truncateBytes(str: string, maxBytes: number): string {
-  if (byteLength(str) <= maxBytes) {
-    return str;
-  }
-
-  let low = 0;
-  let high = str.length;
-  const encoder = new TextEncoder();
-
-  while (low < high) {
-    const mid = Math.floor((low + high + 1) / 2);
-    if (encoder.encode(str.slice(0, mid)).length <= maxBytes) {
-      low = mid;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  return str.slice(0, low);
 }

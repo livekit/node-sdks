@@ -49,7 +49,7 @@ import {
   UnregisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
 } from './proto/rpc_pb.js';
-import { MAX_PAYLOAD_BYTES, RpcError, byteLength } from './rpc.js';
+import { RpcError } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -118,19 +118,10 @@ export class LocalParticipant extends Participant {
       sender: RemoteParticipant,
       payload: string,
       responseTimeoutMs: number,
-    ) => Promise<string | RpcError>
+    ) => Promise<string>
   > = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
-
-  private pendingAcks = new Map<string, { resolve: () => void; participantIdentity: string }>();
-  private pendingResponses = new Map<
-    string,
-    {
-      resolve: (payload: string | null, error: RpcError | null) => void;
-      participantIdentity: string;
-    }
-  >();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
     const req = new PublishDataRequest({
@@ -355,7 +346,7 @@ export class LocalParticipant extends Participant {
       sender: RemoteParticipant,
       payload: string,
       responseTimeoutMs: number,
-    ) => Promise<string | RpcError>,
+    ) => Promise<string>,
   ): Promise<void> {
     this.rpcHandlers.set(method, handler);
 
@@ -414,18 +405,7 @@ export class LocalParticipant extends Participant {
     let responsePayload: string | null = null;
 
     try {
-      const response = await handler(requestId, sender, payload, timeoutMs);
-      if (typeof response === 'string') {
-        if (byteLength(response) > MAX_PAYLOAD_BYTES) {
-          responseError = RpcError.builtIn('RESPONSE_PAYLOAD_TOO_LARGE');
-        } else {
-          responsePayload = response;
-        }
-      } else if (response instanceof RpcError) {
-        responseError = response;
-      } else {
-        responseError = RpcError.builtIn('MALFORMED_RESPONSE');
-      }
+      responsePayload = await handler(requestId, sender, payload, timeoutMs);
     } catch (error) {
       if (error instanceof RpcError) {
         responseError = error;
@@ -434,7 +414,7 @@ export class LocalParticipant extends Participant {
           `Uncaught error returned by RPC handler for ${method}. Returning UNCAUGHT_ERROR instead.`,
           error,
         );
-        responseError = RpcError.builtIn('UNCAUGHT_ERROR');
+        responseError = RpcError.builtIn('APPLICATION_ERROR');
       }
     }
 

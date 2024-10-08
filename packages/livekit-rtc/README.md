@@ -99,15 +99,15 @@ room.localParticipant?.registerRpcMethod(
 );
 ```
 
-In addition to the payload, your handler will also receive `responseTimeoutMs`, which informs you the maximum time available to return a response. If you are unable to respond in time, the request will result in an error on the caller's side.
+In addition to the payload, your handler will also receive `responseTimeoutMs`, which informs you the maximum time available to return a response. If you are unable to respond in time, the call will result in an error on the caller's side.
 
 #### Performing an RPC request
 
-The caller may then initiate a request like so:
+The caller may then initiate an RPC call like so:
 
 ```typescript
 try {
-  const response = await room.localParticipant!.performRpcRequest(
+  const response = await room.localParticipant!.performRpc(
     'recipient-identity',
     'greet',
     'Hello from RPC!'

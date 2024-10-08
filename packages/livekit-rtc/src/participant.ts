@@ -34,8 +34,8 @@ import {
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
 import type {
-  PerformRpcRequestCallback,
-  PerformRpcRequestResponse,
+  PerformRpcCallback,
+  PerformRpcResponse,
   RegisterRpcMethodCallback,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseCallback,
@@ -44,7 +44,7 @@ import type {
   UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
 import {
-  PerformRpcRequestRequest,
+  PerformRpcRequest,
   RegisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
   UnregisterRpcMethodRequest,
@@ -295,7 +295,7 @@ export class LocalParticipant extends Participant {
   }
 
   /**
-   * Initiate an RPC request to a remote participant.
+   * Initiate an RPC call to a remote participant.
    * @param destinationIdentity - The `identity` of the destination participant
    * @param method - The method name to call
    * @param payload - The method payload
@@ -303,13 +303,13 @@ export class LocalParticipant extends Participant {
    * @returns A promise that resolves with the response payload or rejects with an error.
    * @throws Error on failure. Details in `message`.
    */
-  async performRpcRequest(
+  async performRpc(
     destinationIdentity: string,
     method: string,
     payload: string,
     responseTimeoutMs?: number,
   ): Promise<string> {
-    const req = new PerformRpcRequestRequest({
+    const req = new PerformRpcRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
@@ -317,12 +317,12 @@ export class LocalParticipant extends Participant {
       responseTimeoutMs,
     });
 
-    const res = FfiClient.instance.request<PerformRpcRequestResponse>({
-      message: { case: 'performRpcRequest', value: req },
+    const res = FfiClient.instance.request<PerformRpcResponse>({
+      message: { case: 'performRpc', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PerformRpcRequestCallback>((ev) => {
-      return ev.message.case === 'performRpcRequest' && ev.message.value.asyncId === res.asyncId;
+    const cb = await FfiClient.instance.waitFor<PerformRpcCallback>((ev) => {
+      return ev.message.case === 'performRpc' && ev.message.value.asyncId === res.asyncId;
     });
 
     if (cb.error) {

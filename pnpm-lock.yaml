@@ -124,7 +124,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^20.10.4
-        version: 20.16.3
+        version: 20.16.11
       tsx:
         specifier: ^4.7.1
         version: 4.17.0

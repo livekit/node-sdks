@@ -628,9 +628,9 @@ export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> 
   payload = "";
 
   /**
-   * @generated from field: uint32 timeout_ms = 7;
+   * @generated from field: uint32 response_timeout_ms = 7;
    */
-  timeoutMs = 0;
+  responseTimeoutMs = 0;
 
   constructor(data?: PartialMessage<RpcMethodInvocationEvent>) {
     super();
@@ -646,7 +646,7 @@ export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> 
     { no: 4, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "caller_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 7, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationEvent {

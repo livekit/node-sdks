@@ -174,7 +174,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           ffiEvent.message.value.requestId,
           caller,
           ffiEvent.message.value.payload,
-          ffiEvent.message.value.timeoutMs,
+          ffiEvent.message.value.responseTimeoutMs,
         );
       }
       return;

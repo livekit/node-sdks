@@ -418,7 +418,7 @@ export class LocalParticipant extends Participant {
     requestId: string,
     caller: RemoteParticipant,
     payload: string,
-    timeoutMs: number,
+    responseTimeoutMs: number,
   ) {
     let responseError: RpcError | null = null;
     let responsePayload: string | null = null;
@@ -429,7 +429,7 @@ export class LocalParticipant extends Participant {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
       try {
-        responsePayload = await handler(requestId, caller, payload, timeoutMs);
+        responsePayload = await handler(requestId, caller, payload, responseTimeoutMs);
       } catch (error) {
         if (error instanceof RpcError) {
           responseError = error;

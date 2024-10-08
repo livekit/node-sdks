@@ -96,9 +96,9 @@ export class PerformRpcRequestRequest extends Message<PerformRpcRequestRequest> 
   payload = "";
 
   /**
-   * @generated from field: uint32 response_timeout_ms = 5;
+   * @generated from field: optional uint32 response_timeout_ms = 5;
    */
-  responseTimeoutMs = 0;
+  responseTimeoutMs?: number;
 
   constructor(data?: PartialMessage<PerformRpcRequestRequest>) {
     super();
@@ -112,7 +112,7 @@ export class PerformRpcRequestRequest extends Message<PerformRpcRequestRequest> 
     { no: 2, name: "destination_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 5, name: "response_timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PerformRpcRequestRequest {
@@ -586,32 +586,37 @@ export class RpcMethodInvocationResponseCallback extends Message<RpcMethodInvoca
  */
 export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> {
   /**
-   * @generated from field: uint64 invocation_id = 1;
+   * @generated from field: uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle = protoInt64.zero;
+
+  /**
+   * @generated from field: uint64 invocation_id = 2;
    */
   invocationId = protoInt64.zero;
 
   /**
-   * @generated from field: string method = 2;
+   * @generated from field: string method = 3;
    */
   method = "";
 
   /**
-   * @generated from field: string request_id = 3;
+   * @generated from field: string request_id = 4;
    */
   requestId = "";
 
   /**
-   * @generated from field: string participant_identity = 4;
+   * @generated from field: string participant_identity = 5;
    */
   participantIdentity = "";
 
   /**
-   * @generated from field: string payload = 5;
+   * @generated from field: string payload = 6;
    */
   payload = "";
 
   /**
-   * @generated from field: uint32 timeout_ms = 6;
+   * @generated from field: uint32 timeout_ms = 7;
    */
   timeoutMs = 0;
 
@@ -623,12 +628,13 @@ export class RpcMethodInvocationEvent extends Message<RpcMethodInvocationEvent> 
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "livekit.proto.RpcMethodInvocationEvent";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
-    { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "invocation_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 3, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "payload", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "timeout_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RpcMethodInvocationEvent {

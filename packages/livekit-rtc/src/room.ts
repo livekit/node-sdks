@@ -164,14 +164,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
     if (ffiEvent.message.case == 'rpcMethodInvocation') {
-      const sender = this.remoteParticipants.get(ffiEvent.message.value.participantIdentity);
-      this.localParticipant.handleRpcMethodInvocation(
-        ffiEvent.message.value.method,
-        ffiEvent.message.value.requestId,
-        sender,
-        ffiEvent.message.value.payload,
-        ffiEvent.message.value.timeoutMs,
-      );
+      if (ffiEvent.message.value.localParticipantHandle == this.localParticipant.ffi_handle.handle) {
+        const sender = this.remoteParticipants.get(ffiEvent.message.value.participantIdentity);
+        this.localParticipant.handleRpcMethodInvocation(
+          ffiEvent.message.value.method,
+          ffiEvent.message.value.requestId,
+          sender,
+          ffiEvent.message.value.payload,
+          ffiEvent.message.value.timeoutMs,
+        );
+      }
       return;
     } else if (
       ffiEvent.message.case != 'roomEvent' ||

@@ -86,6 +86,9 @@ export interface VideoGrant {
 
   /** participant allowed to connect to LiveKit as Agent Framework worker */
   agent?: boolean;
+
+  /** allow participant to subscribe to metrics */
+  canSubscribeMetrics?: boolean;
 }
 
 export interface SIPGrant {

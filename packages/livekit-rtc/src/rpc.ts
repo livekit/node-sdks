@@ -9,7 +9,7 @@ import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
  * Instances of this type, when thrown in a method handler, will have their `message`
  * serialized and sent across the wire. The caller will receive an equivalent error on the other side.
  *
- * Build-in types are included but developers may use any string, with a max length of 256 bytes.
+ * Built-in types are included but developers may use any string, with a max length of 256 bytes.
  */
 
 export class RpcError extends Error {

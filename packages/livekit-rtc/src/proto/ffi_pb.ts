@@ -24,6 +24,7 @@ import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequ
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
+import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodCallback, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseCallback, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodCallback, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
 
 /**
  * @generated from enum livekit.proto.LogLevel
@@ -285,6 +286,32 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: FlushSoxResamplerRequest;
     case: "flushSoxResampler";
+  } | {
+    /**
+     * RPC
+     *
+     * @generated from field: livekit.proto.PerformRpcRequest perform_rpc = 36;
+     */
+    value: PerformRpcRequest;
+    case: "performRpc";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RegisterRpcMethodRequest register_rpc_method = 37;
+     */
+    value: RegisterRpcMethodRequest;
+    case: "registerRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.UnregisterRpcMethodRequest unregister_rpc_method = 38;
+     */
+    value: UnregisterRpcMethodRequest;
+    case: "unregisterRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RpcMethodInvocationResponseRequest rpc_method_invocation_response = 39;
+     */
+    value: RpcMethodInvocationResponseRequest;
+    case: "rpcMethodInvocationResponse";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -329,6 +356,10 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerRequest, oneof: "message" },
     { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerRequest, oneof: "message" },
     { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerRequest, oneof: "message" },
+    { no: 36, name: "perform_rpc", kind: "message", T: PerformRpcRequest, oneof: "message" },
+    { no: 37, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodRequest, oneof: "message" },
+    { no: 38, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodRequest, oneof: "message" },
+    { no: 39, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -569,6 +600,32 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: FlushSoxResamplerResponse;
     case: "flushSoxResampler";
+  } | {
+    /**
+     * RPC
+     *
+     * @generated from field: livekit.proto.PerformRpcResponse perform_rpc = 36;
+     */
+    value: PerformRpcResponse;
+    case: "performRpc";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RegisterRpcMethodResponse register_rpc_method = 37;
+     */
+    value: RegisterRpcMethodResponse;
+    case: "registerRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.UnregisterRpcMethodResponse unregister_rpc_method = 38;
+     */
+    value: UnregisterRpcMethodResponse;
+    case: "unregisterRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RpcMethodInvocationResponseResponse rpc_method_invocation_response = 39;
+     */
+    value: RpcMethodInvocationResponseResponse;
+    case: "rpcMethodInvocationResponse";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -613,6 +670,10 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerResponse, oneof: "message" },
     { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerResponse, oneof: "message" },
     { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerResponse, oneof: "message" },
+    { no: 36, name: "perform_rpc", kind: "message", T: PerformRpcResponse, oneof: "message" },
+    { no: 37, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodResponse, oneof: "message" },
+    { no: 38, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodResponse, oneof: "message" },
+    { no: 39, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -763,6 +824,36 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: PublishSipDtmfCallback;
     case: "publishSipDtmf";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PerformRpcCallback perform_rpc = 22;
+     */
+    value: PerformRpcCallback;
+    case: "performRpc";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RegisterRpcMethodCallback register_rpc_method = 23;
+     */
+    value: RegisterRpcMethodCallback;
+    case: "registerRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.UnregisterRpcMethodCallback unregister_rpc_method = 24;
+     */
+    value: UnregisterRpcMethodCallback;
+    case: "unregisterRpcMethod";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RpcMethodInvocationEvent rpc_method_invocation = 25;
+     */
+    value: RpcMethodInvocationEvent;
+    case: "rpcMethodInvocation";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RpcMethodInvocationResponseCallback rpc_method_invocation_response = 26;
+     */
+    value: RpcMethodInvocationResponseCallback;
+    case: "rpcMethodInvocationResponse";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -793,6 +884,11 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 19, name: "get_session_stats", kind: "message", T: GetSessionStatsCallback, oneof: "message" },
     { no: 20, name: "panic", kind: "message", T: Panic, oneof: "message" },
     { no: 21, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfCallback, oneof: "message" },
+    { no: 22, name: "perform_rpc", kind: "message", T: PerformRpcCallback, oneof: "message" },
+    { no: 23, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodCallback, oneof: "message" },
+    { no: 24, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodCallback, oneof: "message" },
+    { no: 25, name: "rpc_method_invocation", kind: "message", T: RpcMethodInvocationEvent, oneof: "message" },
+    { no: 26, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

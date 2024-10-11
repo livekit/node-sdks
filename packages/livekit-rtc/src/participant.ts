@@ -444,6 +444,7 @@ export class LocalParticipant extends Participant {
     }
 
     const req = new RpcMethodInvocationResponseRequest({
+      localParticipantHandle: this.ffi_handle.handle,
       invocationId,
       error: responseError ? responseError.toProto() : undefined,
       payload: responsePayload ?? undefined,

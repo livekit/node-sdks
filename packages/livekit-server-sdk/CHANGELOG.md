@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.7.1
+
+### Patch Changes
+
+- Support canSubscribeMetrics - [#293](https://github.com/livekit/node-sdks/pull/293) ([@boks1971](https://github.com/boks1971))
+
 ## 2.7.0
 
 ### Minor Changes

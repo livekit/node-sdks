@@ -22,11 +22,11 @@ export interface CreateIngressOptions {
    */
   name?: string;
   /**
-   * name of the room to send media to. optional
+   * name of the room to send media to. 
    */
   roomName?: string;
   /**
-   * unique identity of the participant. optional
+   * unique identity of the participant. 
    */
   participantIdentity?: string;
   /**
@@ -67,11 +67,11 @@ export interface UpdateIngressOptions {
    */
   name: string;
   /**
-   * name of the room to send media to. optional
+   * name of the room to send media to. 
    */
   roomName?: string;
   /**
-   * unique identity of the participant. optional
+   * unique identity of the participant. 
    */
   participantIdentity?: string;
   /**

@@ -136,30 +136,26 @@ export class IngressClient extends ServiceBase {
    */
   async createIngress(inputType: IngressInput, opts: CreateIngressOptions): Promise<IngressInfo> {
     let name: string = '';
-    let roomName: string | undefined;
     let participantName: string = '';
     let participantIdentity: string = '';
-    let participantMetadata: string | undefined;
     let bypassTranscoding: boolean = false;
-    let enableTranscoding: boolean | undefined;
     let url: string = '';
-    let audio: IngressAudioOptions | undefined;
-    let video: IngressVideoOptions | undefined;
 
     if (opts == null) {
       throw new Error('options dictionary is required');
     }
 
+    const roomName: string | undefined = opts.roomName;
+    const enableTranscoding: boolean | undefined = opts.enableTranscoding;
+    const audio: IngressAudioOptions | undefined = opts.audio;
+    const video: IngressVideoOptions | undefined = opts.video;
+    const participantMetadata: string | undefined = opts.participantMetadata;
+
     name = opts.name || '';
-    roomName = opts.roomName;
     participantName = opts.participantName || '';
     participantIdentity = opts.participantIdentity || '';
     bypassTranscoding = opts.bypassTranscoding || false;
-    enableTranscoding = opts.enableTranscoding;
     url = opts.url || '';
-    audio = opts.audio;
-    video = opts.video;
-    participantMetadata = opts.participantMetadata;
 
     if (typeof roomName == 'undefined') {
       throw new Error('required roomName option not provided');

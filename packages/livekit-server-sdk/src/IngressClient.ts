@@ -28,7 +28,7 @@ export interface CreateIngressOptions {
   /**
    * unique identity of the participant. required
    */
-  participantIdentity?: string;
+  participantIdentity: string;
   /**
    * participant display name
    */

@@ -22,13 +22,13 @@ export interface CreateIngressOptions {
    */
   name?: string;
   /**
-   * name of the room to send media to.
+   * name of the room to send media to. required
    */
-  roomName: string;
+  roomName?: string;
   /**
-   * unique identity of the participant.
+   * unique identity of the participant. required
    */
-  participantIdentity: string;
+  participantIdentity?: string;
   /**
    * participant display name
    */
@@ -134,9 +134,9 @@ export class IngressClient extends ServiceBase {
    * @param inputType - protocol for the ingress
    * @param opts - CreateIngressOptions
    */
-  async createIngress(inputType: IngressInput, opts?: CreateIngressOptions): Promise<IngressInfo> {
+  async createIngress(inputType: IngressInput, opts: CreateIngressOptions): Promise<IngressInfo> {
     let name: string = '';
-    let roomName: string = '';
+    let roomName: string | undefined;
     let participantName: string = '';
     let participantIdentity: string = '';
     let participantMetadata: string | undefined;
@@ -146,17 +146,27 @@ export class IngressClient extends ServiceBase {
     let audio: IngressAudioOptions | undefined;
     let video: IngressVideoOptions | undefined;
 
-    if (opts !== undefined) {
-      name = opts.name || '';
-      roomName = opts.roomName;
-      participantName = opts.participantName || '';
-      participantIdentity = opts.participantIdentity;
-      bypassTranscoding = opts.bypassTranscoding || false;
-      enableTranscoding = opts.enableTranscoding;
-      url = opts.url || '';
-      audio = opts.audio;
-      video = opts.video;
-      participantMetadata = opts.participantMetadata;
+    if (opts == null) {
+      throw new Error('options dictionary is required');
+    }
+
+    name = opts.name || '';
+    roomName = opts.roomName;
+    participantName = opts.participantName || '';
+    participantIdentity = opts.participantIdentity || '';
+    bypassTranscoding = opts.bypassTranscoding || false;
+    enableTranscoding = opts.enableTranscoding;
+    url = opts.url || '';
+    audio = opts.audio;
+    video = opts.video;
+    participantMetadata = opts.participantMetadata;
+
+    if (typeof roomName == 'undefined') {
+      throw new Error('required roomName option not provided');
+    }
+
+    if (participantIdentity == '') {
+      throw new Error('required participantIdentity option not provided');
     }
 
     const req = new CreateIngressRequest({

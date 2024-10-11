@@ -24,11 +24,11 @@ export interface CreateIngressOptions {
   /**
    * name of the room to send media to.
    */
-  roomName?: string;
+  roomName: string;
   /**
    * unique identity of the participant.
    */
-  participantIdentity?: string;
+  participantIdentity: string;
   /**
    * participant display name
    */
@@ -148,9 +148,9 @@ export class IngressClient extends ServiceBase {
 
     if (opts !== undefined) {
       name = opts.name || '';
-      roomName = opts.roomName || '';
+      roomName = opts.roomName;
       participantName = opts.participantName || '';
-      participantIdentity = opts.participantIdentity || '';
+      participantIdentity = opts.participantIdentity;
       bypassTranscoding = opts.bypassTranscoding || false;
       enableTranscoding = opts.enableTranscoding;
       url = opts.url || '';

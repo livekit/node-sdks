@@ -43,3 +43,4 @@ export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_pb.js';
 export { ParticipantKind } from './proto/participant_pb.js';
 export { dispose } from './ffi_client.js';
+export type { ChatMessage } from './types.js';

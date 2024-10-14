@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
-import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
+import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
@@ -285,6 +285,18 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: FlushSoxResamplerRequest;
     case: "flushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendChatMessageRequest send_chat_message = 36;
+     */
+    value: SendChatMessageRequest;
+    case: "sendChatMessage";
+  } | {
+    /**
+     * @generated from field: livekit.proto.EditChatMessageRequest edit_chat_message = 37;
+     */
+    value: EditChatMessageRequest;
+    case: "editChatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -329,6 +341,8 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerRequest, oneof: "message" },
     { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerRequest, oneof: "message" },
     { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerRequest, oneof: "message" },
+    { no: 36, name: "send_chat_message", kind: "message", T: SendChatMessageRequest, oneof: "message" },
+    { no: 37, name: "edit_chat_message", kind: "message", T: EditChatMessageRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -569,6 +583,12 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: FlushSoxResamplerResponse;
     case: "flushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendChatMessageResponse send_chat_message = 36;
+     */
+    value: SendChatMessageResponse;
+    case: "sendChatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -613,6 +633,7 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerResponse, oneof: "message" },
     { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerResponse, oneof: "message" },
     { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerResponse, oneof: "message" },
+    { no: 36, name: "send_chat_message", kind: "message", T: SendChatMessageResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -763,6 +784,12 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: PublishSipDtmfCallback;
     case: "publishSipDtmf";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendChatMessageCallback chat_message = 22;
+     */
+    value: SendChatMessageCallback;
+    case: "chatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -793,6 +820,7 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 19, name: "get_session_stats", kind: "message", T: GetSessionStatsCallback, oneof: "message" },
     { no: 20, name: "panic", kind: "message", T: Panic, oneof: "message" },
     { no: 21, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfCallback, oneof: "message" },
+    { no: 22, name: "chat_message", kind: "message", T: SendChatMessageCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

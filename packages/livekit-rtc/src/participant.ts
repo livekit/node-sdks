@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
-import type {
+import {
+  ChatMessage as ChatMessageModel,
   PublishDataCallback,
   PublishDataResponse,
   PublishSipDtmfCallback,
@@ -12,6 +13,8 @@ import type {
   PublishTrackResponse,
   PublishTranscriptionCallback,
   PublishTranscriptionResponse,
+  SendChatMessageCallback,
+  SendChatMessageResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -23,11 +26,13 @@ import type {
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import {
+  EditChatMessageRequest,
   TranscriptionSegment as ProtoTranscriptionSegment,
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
   PublishTranscriptionRequest,
+  SendChatMessageRequest,
   SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
@@ -37,6 +42,7 @@ import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
+import { ChatMessage } from './types.js';
 
 export abstract class Participant {
   /** @internal */
@@ -183,6 +189,77 @@ export class LocalParticipant extends Participant {
     await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
       return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
+  }
+
+  /**
+   *
+   */
+  async sendChatMessage(
+    text: string,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ): Promise<ChatMessage> {
+    const req = new SendChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      message: text,
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'sendChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
+  }
+
+  /**
+   * Sends a chat message to participants in the room
+   *
+   * @param text - The text content of the chat message.
+   * @param destinationIdentities - An optional array of recipient identities to whom the message will be sent. If omitted, the message is broadcast to all participants.
+   * @param senderIdentity - An optional identity of the sender. If omitted, the default sender identity is used.
+   *
+   */
+  async editChatMessage(
+    editText: string,
+    originalMessage: ChatMessage,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ): Promise<ChatMessage> {
+    const req = new EditChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      editText,
+      originalMessage: new ChatMessageModel({
+        ...originalMessage,
+        timestamp: BigInt(originalMessage.timestamp),
+        editTimestamp: BigInt(originalMessage.editTimestamp),
+      }),
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'editChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async updateName(name: string) {

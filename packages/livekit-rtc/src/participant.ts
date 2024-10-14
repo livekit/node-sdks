@@ -192,6 +192,11 @@ export class LocalParticipant extends Participant {
   }
 
   /**
+   * Sends a chat message to participants in the room
+   *
+   * @param text - The text content of the chat message.
+   * @param destinationIdentities - An optional array of recipient identities to whom the message will be sent. If omitted, the message is broadcast to all participants.
+   * @param senderIdentity - An optional identity of the sender. If omitted, the default sender identity is used.
    *
    */
   async sendChatMessage(
@@ -217,17 +222,12 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
     return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   /**
-   * Sends a chat message to participants in the room
-   *
-   * @param text - The text content of the chat message.
-   * @param destinationIdentities - An optional array of recipient identities to whom the message will be sent. If omitted, the message is broadcast to all participants.
-   * @param senderIdentity - An optional identity of the sender. If omitted, the default sender identity is used.
-   *
+   * @experimental
    */
   async editChatMessage(
     editText: string,
@@ -241,7 +241,9 @@ export class LocalParticipant extends Participant {
       originalMessage: new ChatMessageModel({
         ...originalMessage,
         timestamp: BigInt(originalMessage.timestamp),
-        editTimestamp: BigInt(originalMessage.editTimestamp),
+        editTimestamp: originalMessage.editTimestamp
+          ? BigInt(originalMessage.editTimestamp)
+          : undefined,
       }),
       destinationIdentities,
       senderIdentity,
@@ -258,7 +260,7 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-    const { id, timestamp, editTimestamp, message } = cb.chatMessage;
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
     return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
@@ -314,7 +316,7 @@ export class LocalParticipant extends Participant {
       throw new Error(cb.error);
     }
 
-    const track_publication = new LocalTrackPublication(cb.publication);
+    const track_publication = new LocalTrackPublication(cb.publication!);
     track_publication.track = track;
     this.trackPublications.set(track_publication.sid, track_publication);
 
@@ -340,7 +342,9 @@ export class LocalParticipant extends Participant {
     }
 
     const pub = this.trackPublications.get(trackSid);
-    pub.track = undefined;
+    if (pub) {
+      pub.track = undefined;
+    }
     this.trackPublications.delete(trackSid);
   }
 }

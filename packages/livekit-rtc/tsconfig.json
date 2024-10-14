@@ -12,5 +12,5 @@
     "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.test.ts", "vite.config.ts"],
+  "exclude": ["src/**/*.test.ts", "vite.config.ts"]
 }

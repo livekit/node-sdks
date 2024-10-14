@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.7.2
+
+### Patch Changes
+
+- Fix ingress creation parameter inline documentation - [#296](https://github.com/livekit/node-sdks/pull/296) ([@biglittlebigben](https://github.com/biglittlebigben))
+
 ## 2.7.1
 
 ### Patch Changes

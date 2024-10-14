@@ -22,6 +22,7 @@ export function trackSourceToString(source: TrackSource) {
 export function claimsToJwtPayload(
   grant: ClaimGrants,
 ): JWTPayload & { video?: Record<string, unknown> } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const claim: Record<string, any> = { ...grant };
   // eslint-disable-next-line no-restricted-syntax
   if (Array.isArray(claim.video?.canPublishSources)) {
@@ -85,6 +86,9 @@ export interface VideoGrant {
 
   /** participant allowed to connect to LiveKit as Agent Framework worker */
   agent?: boolean;
+
+  /** allow participant to subscribe to metrics */
+  canSubscribeMetrics?: boolean;
 }
 
 export interface SIPGrant {

@@ -22,7 +22,7 @@ import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
-import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
+import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 
 /**
@@ -155,18 +155,6 @@ export class FfiRequest extends Message<FfiRequest> {
     case: "publishSipDtmf";
   } | {
     /**
-     * @generated from field: livekit.proto.SendChatMessageRequest send_chat_message = 33;
-     */
-    value: SendChatMessageRequest;
-    case: "sendChatMessage";
-  } | {
-    /**
-     * @generated from field: livekit.proto.EditChatMessageRequest edit_chat_message = 34;
-     */
-    value: EditChatMessageRequest;
-    case: "editChatMessage";
-  } | {
-    /**
      * Track
      *
      * @generated from field: livekit.proto.CreateVideoTrackRequest create_video_track = 15;
@@ -279,6 +267,36 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: AudioStreamFromParticipantRequest;
     case: "audioStreamFromParticipant";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewSoxResamplerRequest new_sox_resampler = 33;
+     */
+    value: NewSoxResamplerRequest;
+    case: "newSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PushSoxResamplerRequest push_sox_resampler = 34;
+     */
+    value: PushSoxResamplerRequest;
+    case: "pushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.FlushSoxResamplerRequest flush_sox_resampler = 35;
+     */
+    value: FlushSoxResamplerRequest;
+    case: "flushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendChatMessageRequest send_chat_message = 36;
+     */
+    value: SendChatMessageRequest;
+    case: "sendChatMessage";
+  } | {
+    /**
+     * @generated from field: livekit.proto.EditChatMessageRequest edit_chat_message = 37;
+     */
+    value: EditChatMessageRequest;
+    case: "editChatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -302,8 +320,6 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 12, name: "get_session_stats", kind: "message", T: GetSessionStatsRequest, oneof: "message" },
     { no: 13, name: "publish_transcription", kind: "message", T: PublishTranscriptionRequest, oneof: "message" },
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfRequest, oneof: "message" },
-    { no: 33, name: "send_chat_message", kind: "message", T: SendChatMessageRequest, oneof: "message" },
-    { no: 34, name: "edit_chat_message", kind: "message", T: EditChatMessageRequest, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackRequest, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackRequest, oneof: "message" },
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteRequest, oneof: "message" },
@@ -322,6 +338,11 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 30, name: "remix_and_resample", kind: "message", T: RemixAndResampleRequest, oneof: "message" },
     { no: 31, name: "e2ee", kind: "message", T: E2eeRequest, oneof: "message" },
     { no: 32, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantRequest, oneof: "message" },
+    { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerRequest, oneof: "message" },
+    { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerRequest, oneof: "message" },
+    { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerRequest, oneof: "message" },
+    { no: 36, name: "send_chat_message", kind: "message", T: SendChatMessageRequest, oneof: "message" },
+    { no: 37, name: "edit_chat_message", kind: "message", T: EditChatMessageRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -430,12 +451,6 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: PublishSipDtmfResponse;
     case: "publishSipDtmf";
-  } | {
-    /**
-     * @generated from field: livekit.proto.SendChatMessageResponse send_chat_message = 33;
-     */
-    value: SendChatMessageResponse;
-    case: "sendChatMessage";
   } | {
     /**
      * Track
@@ -550,6 +565,30 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: E2eeResponse;
     case: "e2ee";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewSoxResamplerResponse new_sox_resampler = 33;
+     */
+    value: NewSoxResamplerResponse;
+    case: "newSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.PushSoxResamplerResponse push_sox_resampler = 34;
+     */
+    value: PushSoxResamplerResponse;
+    case: "pushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.FlushSoxResamplerResponse flush_sox_resampler = 35;
+     */
+    value: FlushSoxResamplerResponse;
+    case: "flushSoxResampler";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendChatMessageResponse send_chat_message = 36;
+     */
+    value: SendChatMessageResponse;
+    case: "sendChatMessage";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -573,7 +612,6 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 12, name: "get_session_stats", kind: "message", T: GetSessionStatsResponse, oneof: "message" },
     { no: 13, name: "publish_transcription", kind: "message", T: PublishTranscriptionResponse, oneof: "message" },
     { no: 14, name: "publish_sip_dtmf", kind: "message", T: PublishSipDtmfResponse, oneof: "message" },
-    { no: 33, name: "send_chat_message", kind: "message", T: SendChatMessageResponse, oneof: "message" },
     { no: 15, name: "create_video_track", kind: "message", T: CreateVideoTrackResponse, oneof: "message" },
     { no: 16, name: "create_audio_track", kind: "message", T: CreateAudioTrackResponse, oneof: "message" },
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteResponse, oneof: "message" },
@@ -592,6 +630,10 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 30, name: "remix_and_resample", kind: "message", T: RemixAndResampleResponse, oneof: "message" },
     { no: 31, name: "audio_stream_from_participant", kind: "message", T: AudioStreamFromParticipantResponse, oneof: "message" },
     { no: 32, name: "e2ee", kind: "message", T: E2eeResponse, oneof: "message" },
+    { no: 33, name: "new_sox_resampler", kind: "message", T: NewSoxResamplerResponse, oneof: "message" },
+    { no: 34, name: "push_sox_resampler", kind: "message", T: PushSoxResamplerResponse, oneof: "message" },
+    { no: 35, name: "flush_sox_resampler", kind: "message", T: FlushSoxResamplerResponse, oneof: "message" },
+    { no: 36, name: "send_chat_message", kind: "message", T: SendChatMessageResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

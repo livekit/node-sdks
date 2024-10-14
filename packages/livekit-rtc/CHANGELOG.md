@@ -1,5 +1,50 @@
 # @livekit/rtc-node
 
+## 0.10.2
+
+### Patch Changes
+
+- export properly, fix audioresampler - [#291](https://github.com/livekit/node-sdks/pull/291) ([@nbsp](https://github.com/nbsp))
+
+## 0.10.1
+
+### Patch Changes
+
+- export AudioResampler - [#288](https://github.com/livekit/node-sdks/pull/288) ([@nbsp](https://github.com/nbsp))
+
+## 0.10.0
+
+### Minor Changes
+
+- add AudioResampler, combineAudioFrames - [#286](https://github.com/livekit/node-sdks/pull/286) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- Fix mutex in livekit-rtc - [#287](https://github.com/livekit/node-sdks/pull/287) ([@bcherry](https://github.com/bcherry))
+  Fix linter warnings in livekit-server-sdk
+
+## 0.9.2
+
+### Patch Changes
+
+- expose VideoCodec - [#283](https://github.com/livekit/node-sdks/pull/283) ([@nbsp](https://github.com/nbsp))
+
+## 0.9.1
+
+### Patch Changes
+
+- Fix ms conversion bug in AudioSource - [#279](https://github.com/livekit/node-sdks/pull/279) ([@bcherry](https://github.com/bcherry))
+
+## 0.9.0
+
+### Minor Changes
+
+- make AudioStream use AsyncIterableIterator instead of typed EventEmitter - [#272](https://github.com/livekit/node-sdks/pull/272) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- bump ffi to v0.10.2 - [#271](https://github.com/livekit/node-sdks/pull/271) ([@nbsp](https://github.com/nbsp))
+
 ## 0.8.1
 
 ### Patch Changes

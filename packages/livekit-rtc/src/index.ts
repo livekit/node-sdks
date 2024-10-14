@@ -16,8 +16,9 @@ export {
   AudioTrack,
 } from './track.js';
 export { VideoFrame } from './video_frame.js';
-export { AudioFrame } from './audio_frame.js';
+export { AudioFrame, combineAudioFrames } from './audio_frame.js';
 export { AudioStream } from './audio_stream.js';
+export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
 export { VideoStream, VideoFrameEvent } from './video_stream.js';
 export { AudioSource } from './audio_source.js';
 export { VideoSource } from './video_source.js';
@@ -39,7 +40,7 @@ export {
 } from './proto/room_pb.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
-export { VideoBufferType, VideoRotation } from './proto/video_frame_pb.js';
+export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_pb.js';
 export { ParticipantKind } from './proto/participant_pb.js';
 export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';

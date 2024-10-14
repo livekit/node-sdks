@@ -22,13 +22,13 @@ export interface CreateIngressOptions {
    */
   name?: string;
   /**
-   * name of the room to send media to. optional
+   * name of the room to send media to. required
    */
   roomName?: string;
   /**
-   * unique identity of the participant. optional
+   * unique identity of the participant. required
    */
-  participantIdentity?: string;
+  participantIdentity: string;
   /**
    * participant display name
    */
@@ -67,11 +67,11 @@ export interface UpdateIngressOptions {
    */
   name: string;
   /**
-   * name of the room to send media to. optional
+   * name of the room to send media to.
    */
   roomName?: string;
   /**
-   * unique identity of the participant. optional
+   * unique identity of the participant.
    */
   participantIdentity?: string;
   /**
@@ -121,9 +121,9 @@ export class IngressClient extends ServiceBase {
   private readonly rpc: Rpc;
 
   /**
-   * @param host hostname including protocol. i.e. 'https://cluster.livekit.io'
-   * @param apiKey API Key, can be set in env var LIVEKIT_API_KEY
-   * @param secret API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */
   constructor(host: string, apiKey?: string, secret?: string) {
     super(apiKey, secret);
@@ -131,32 +131,38 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param inputType protocol for the ingress
-   * @param opts CreateIngressOptions
+   * @param inputType - protocol for the ingress
+   * @param opts - CreateIngressOptions
    */
-  async createIngress(inputType: IngressInput, opts?: CreateIngressOptions): Promise<IngressInfo> {
+  async createIngress(inputType: IngressInput, opts: CreateIngressOptions): Promise<IngressInfo> {
     let name: string = '';
-    let roomName: string = '';
     let participantName: string = '';
     let participantIdentity: string = '';
-    let participantMetadata: string | undefined;
     let bypassTranscoding: boolean = false;
-    let enableTranscoding: boolean | undefined;
     let url: string = '';
-    let audio: IngressAudioOptions | undefined;
-    let video: IngressVideoOptions | undefined;
 
-    if (opts !== undefined) {
-      name = opts.name || '';
-      roomName = opts.roomName || '';
-      participantName = opts.participantName || '';
-      participantIdentity = opts.participantIdentity || '';
-      bypassTranscoding = opts.bypassTranscoding || false;
-      enableTranscoding = opts.enableTranscoding;
-      url = opts.url || '';
-      audio = opts.audio;
-      video = opts.video;
-      participantMetadata = opts.participantMetadata;
+    if (opts == null) {
+      throw new Error('options dictionary is required');
+    }
+
+    const roomName: string | undefined = opts.roomName;
+    const enableTranscoding: boolean | undefined = opts.enableTranscoding;
+    const audio: IngressAudioOptions | undefined = opts.audio;
+    const video: IngressVideoOptions | undefined = opts.video;
+    const participantMetadata: string | undefined = opts.participantMetadata;
+
+    name = opts.name || '';
+    participantName = opts.participantName || '';
+    participantIdentity = opts.participantIdentity || '';
+    bypassTranscoding = opts.bypassTranscoding || false;
+    url = opts.url || '';
+
+    if (typeof roomName == 'undefined') {
+      throw new Error('required roomName option not provided');
+    }
+
+    if (participantIdentity == '') {
+      throw new Error('required participantIdentity option not provided');
     }
 
     const req = new CreateIngressRequest({
@@ -183,8 +189,8 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param ingressId ID of the ingress to update
-   * @param opts UpdateIngressOptions
+   * @param ingressId - ID of the ingress to update
+   * @param opts - UpdateIngressOptions
    */
   async updateIngress(ingressId: string, opts: UpdateIngressOptions): Promise<IngressInfo> {
     const name: string = opts.name || '';
@@ -217,14 +223,17 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @deprecated use listIngress(opts) instead
-   * @param roomName list ingress for one room only
+   * @deprecated use `listIngress(opts)` or `listIngress(arg)` instead
+   * @param roomName - list ingress for one room only
    */
   async listIngress(roomName?: string): Promise<Array<IngressInfo>>;
   /**
-   * @param opts list options
+   * @param opts - list options
    */
   async listIngress(opts?: ListIngressOptions): Promise<Array<IngressInfo>>;
+  /**
+   * @param arg - list room name or options
+   */
   async listIngress(arg?: string | ListIngressOptions): Promise<Array<IngressInfo>> {
     let req: Partial<ListIngressRequest> = {};
     if (typeof arg === 'string') {
@@ -242,7 +251,7 @@ export class IngressClient extends ServiceBase {
   }
 
   /**
-   * @param ingressId ingress to delete
+   * @param ingressId - ingress to delete
    */
   async deleteIngress(ingressId: string): Promise<IngressInfo> {
     const data = await this.rpc.request(

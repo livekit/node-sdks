@@ -191,6 +191,9 @@ export class LocalParticipant extends Participant {
     });
   }
 
+  /**
+   *
+   */
   async sendChatMessage(
     text: string,
     destinationIdentities?: Array<string>,
@@ -218,6 +221,14 @@ export class LocalParticipant extends Participant {
     return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
+  /**
+   * Sends a chat message to participants in the room
+   *
+   * @param text - The text content of the chat message.
+   * @param destinationIdentities - An optional array of recipient identities to whom the message will be sent. If omitted, the message is broadcast to all participants.
+   * @param senderIdentity - An optional identity of the sender. If omitted, the default sender identity is used.
+   *
+   */
   async editChatMessage(
     editText: string,
     originalMessage: ChatMessage,

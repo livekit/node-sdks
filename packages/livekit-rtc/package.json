@@ -34,13 +34,14 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^1.4.2",
+    "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^20.9.2",
-    "typescript": "^5.2.2",
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",

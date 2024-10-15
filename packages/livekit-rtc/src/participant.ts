@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
-import type {
+import {
+  ChatMessage as ChatMessageModel,
   PublishDataCallback,
   PublishDataResponse,
   PublishSipDtmfCallback,
@@ -12,6 +13,8 @@ import type {
   PublishTrackResponse,
   PublishTranscriptionCallback,
   PublishTranscriptionResponse,
+  SendChatMessageCallback,
+  SendChatMessageResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -23,11 +26,13 @@ import type {
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import {
+  EditChatMessageRequest,
   TranscriptionSegment as ProtoTranscriptionSegment,
   PublishDataRequest,
   PublishSipDtmfRequest,
   PublishTrackRequest,
   PublishTranscriptionRequest,
+  SendChatMessageRequest,
   SetLocalAttributesRequest,
   SetLocalMetadataRequest,
   SetLocalNameRequest,
@@ -54,6 +59,7 @@ import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
+import { ChatMessage } from './types.js';
 
 export abstract class Participant {
   /** @internal */
@@ -115,7 +121,7 @@ export class LocalParticipant extends Participant {
     string,
     (
       requestId: string,
-      caller: RemoteParticipant,
+      callerIdentity: string,
       payload: string,
       responseTimeoutMs: number,
     ) => Promise<string>
@@ -212,6 +218,79 @@ export class LocalParticipant extends Participant {
     });
   }
 
+  /**
+   * Sends a chat message to participants in the room
+   *
+   * @param text - The text content of the chat message.
+   * @param destinationIdentities - An optional array of recipient identities to whom the message will be sent. If omitted, the message is broadcast to all participants.
+   * @param senderIdentity - An optional identity of the sender. If omitted, the default sender identity is used.
+   *
+   */
+  async sendChatMessage(
+    text: string,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ): Promise<ChatMessage> {
+    const req = new SendChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      message: text,
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'sendChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
+  }
+
+  /**
+   * @experimental
+   */
+  async editChatMessage(
+    editText: string,
+    originalMessage: ChatMessage,
+    destinationIdentities?: Array<string>,
+    senderIdentity?: string,
+  ): Promise<ChatMessage> {
+    const req = new EditChatMessageRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      editText,
+      originalMessage: new ChatMessageModel({
+        ...originalMessage,
+        timestamp: BigInt(originalMessage.timestamp),
+        editTimestamp: originalMessage.editTimestamp
+          ? BigInt(originalMessage.editTimestamp)
+          : undefined,
+      }),
+      destinationIdentities,
+      senderIdentity,
+    });
+
+    const res = FfiClient.instance.request<SendChatMessageResponse>({
+      message: { case: 'editChatMessage', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
+      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
+    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
+  }
+
   async updateName(name: string) {
     const req = new SetLocalNameRequest({
       localParticipantHandle: this.ffi_handle.handle,
@@ -264,7 +343,7 @@ export class LocalParticipant extends Participant {
       throw new Error(cb.error);
     }
 
-    const track_publication = new LocalTrackPublication(cb.publication);
+    const track_publication = new LocalTrackPublication(cb.publication!);
     track_publication.track = track;
     this.trackPublications.set(track_publication.sid, track_publication);
 
@@ -290,7 +369,9 @@ export class LocalParticipant extends Participant {
     }
 
     const pub = this.trackPublications.get(trackSid);
-    pub.track = undefined;
+    if (pub) {
+      pub.track = undefined;
+    }
     this.trackPublications.delete(trackSid);
   }
 
@@ -344,16 +425,16 @@ export class LocalParticipant extends Participant {
    * ```typescript
    * room.localParticipant?.registerRpcMethod(
    *   'greet',
-   *   async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
-   *     console.log(`Received greeting from ${caller.identity}: ${payload}`);
-   *     return `Hello, ${caller.identity}!`;
+   *   async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+   *     console.log(`Received greeting from ${callerIdentity}: ${payload}`);
+   *     return `Hello, ${callerIdentity}!`;
    *   }
    * );
    * ```
    *
    * The handler receives the following parameters:
    * - `requestId`: A unique identifier for this RPC request
-   * - `caller`: The RemoteParticipant who initiated the RPC call
+   * - `callerIdentity`: The identity of the RemoteParticipant who initiated the RPC call
    * - `payload`: The data sent by the caller (as a string)
    * - `responseTimeoutMs`: The maximum time available to return a response
    *
@@ -368,7 +449,7 @@ export class LocalParticipant extends Participant {
     method: string,
     handler: (
       requestId: string,
-      caller: RemoteParticipant,
+      callerIdentity: string,
       payload: string,
       responseTimeoutMs: number,
     ) => Promise<string>,

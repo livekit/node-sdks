@@ -32,6 +32,7 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
+import type { ChatMessage } from './types.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -276,6 +277,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case == 'connectionQualityChanged') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
+    } else if (ev.case == 'chatMessage') {
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
+      const { id, message: messageText, timestamp, editTimestamp, generated } = ev.value.message;
+      const message: ChatMessage = {
+        id,
+        message: messageText,
+        timestamp: Number(timestamp),
+        editTimestamp: Number(editTimestamp),
+        generated,
+      };
+      this.emit(RoomEvent.ChatMessage, message, participant);
     } else if (ev.case == 'dataPacketReceived') {
       // Can be undefined if the data is sent from a Server SDK
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
@@ -389,6 +401,7 @@ export type RoomCallbacks = {
     kind?: DataPacketKind,
     topic?: string,
   ) => void;
+  chatMessage: (message: ChatMessage, participant?: Participant) => void;
   dtmfReceived: (code: number, digit: string, participant: RemoteParticipant) => void;
   encryptionError: (error: Error) => void;
   connectionStateChanged: (state: ConnectionState) => void;
@@ -418,6 +431,7 @@ export enum RoomEvent {
   ParticipantAttributesChanged = 'participantAttributesChanged',
   ConnectionQualityChanged = 'connectionQualityChanged',
   DataReceived = 'dataReceived',
+  ChatMessage = 'chatMessage',
   DtmfReceived = 'dtmfReceived',
   EncryptionError = 'encryptionError',
   ConnectionStateChanged = 'connectionStateChanged',

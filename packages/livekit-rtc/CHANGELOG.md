@@ -1,5 +1,17 @@
 # @livekit/rtc-node
 
+## 0.10.4
+
+### Patch Changes
+
+- Fix undefined bigint conversion - [#298](https://github.com/livekit/node-sdks/pull/298) ([@lukasIO](https://github.com/lukasIO))
+
+## 0.10.3
+
+### Patch Changes
+
+- Add chat API support - [#278](https://github.com/livekit/node-sdks/pull/278) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.10.2
 
 ### Patch Changes

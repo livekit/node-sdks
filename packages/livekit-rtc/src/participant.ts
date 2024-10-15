@@ -416,7 +416,7 @@ export class LocalParticipant extends Participant {
     invocationId: bigint,
     method: string,
     requestId: string,
-    caller: RemoteParticipant,
+    callerIdentity: string,
     payload: string,
     responseTimeoutMs: number,
   ) {
@@ -429,7 +429,7 @@ export class LocalParticipant extends Participant {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
       try {
-        responsePayload = await handler(requestId, caller, payload, responseTimeoutMs);
+        responsePayload = await handler(requestId, callerIdentity, payload, responseTimeoutMs);
       } catch (error) {
         if (error instanceof RpcError) {
           responseError = error;

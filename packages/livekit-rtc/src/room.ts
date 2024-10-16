@@ -97,13 +97,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return new Promise((resolve, reject) => {
       const handleRoomUpdate = (roomInfo: RoomInfo) => {
         if (roomInfo.sid !== '') {
-          this.off(RoomEvent.RoomInfoUpdate, handleRoomUpdate);
+          this.off(RoomEvent.RoomInfoUpdated, handleRoomUpdate);
           resolve(roomInfo.sid);
         }
       };
-      this.on(RoomEvent.RoomInfoUpdate, handleRoomUpdate);
+      this.on(RoomEvent.RoomInfoUpdated, handleRoomUpdate);
       this.once(RoomEvent.Disconnected, () => {
-        this.off(RoomEvent.RoomInfoUpdate, handleRoomUpdate);
+        this.off(RoomEvent.RoomInfoUpdated, handleRoomUpdate);
         reject('Room disconnected before room server id was available');
       });
     });
@@ -449,6 +449,7 @@ export type RoomCallbacks = {
   trackUnmuted: (publication: TrackPublication, participant: Participant) => void;
   activeSpeakersChanged: (speakers: Participant[]) => void;
   roomMetadataChanged: (metadata: string) => void;
+  roomInfoUpdated: (info: RoomInfo) => void;
   participantMetadataChanged: (metadata: string | undefined, participant: Participant) => void;
   participantNameChanged: (name: string, participant: Participant) => void;
   participantAttributesChanged: (
@@ -487,6 +488,7 @@ export enum RoomEvent {
   TrackUnmuted = 'trackUnmuted',
   ActiveSpeakersChanged = 'activeSpeakersChanged',
   RoomMetadataChanged = 'roomMetadataChanged',
+  RoomInfoUpdated = 'roomInfoUpdated',
   ParticipantMetadataChanged = 'participantMetadataChanged',
   ParticipantNameChanged = 'participantNameChanged',
   ParticipantAttributesChanged = 'participantAttributesChanged',

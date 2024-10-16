@@ -1,13 +1,19 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
+import { MessageInitShape, create } from '@bufbuild/protobuf';
 import {
+  AudioEncoding,
+  AudioEncodingSchema,
   IceServerSchema,
   type IceServer as IceServerType,
   TrackPublishOptionsSchema,
   type TrackPublishOptions as TrackPublishOptionsType,
+  VideoEncoding,
+  VideoEncodingSchema,
 } from './proto/room_pb.js';
+import { TrackSource } from './proto/track_pb.js';
+import { VideoCodec } from './proto/video_frame_pb.js';
 
 export { Room, RoomEvent, ConnectError, RoomOptions, RtcConfiguration } from './room.js';
 export { Participant, RemoteParticipant, LocalParticipant } from './participant.js';
@@ -52,6 +58,45 @@ export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';
 
 // exposing helpers for API compatibility with 1.x version of protobuf-es where these were class instances
-export const IceServer = (init: IceServerType) => create(IceServerSchema, init);
-export const TrackPublishOptions = (init: TrackPublishOptionsType) =>
-  create(TrackPublishOptionsSchema, init);
+// export const IceServer = (init: IceServerType) => create(IceServerSchema, init);
+
+type IceServerInit = MessageInitShape<typeof IceServerSchema> & {
+  urls: string[];
+};
+export class IceServer implements IceServerType {
+  $typeName = 'livekit.proto.IceServer' as const;
+  urls: string[];
+  username: string;
+  password: string;
+  constructor(init: IceServerInit) {
+    const { urls, username, password } = init;
+    this.urls = urls;
+    this.username = username ?? '';
+    this.password = password ?? '';
+    create(IceServerSchema, init);
+  }
+}
+
+export class TrackPublishOptions implements TrackPublishOptionsType {
+  $typeName = 'livekit.proto.TrackPublishOptions' as const;
+  videoCodec: VideoCodec;
+  videoEncoding?: VideoEncoding | undefined;
+  audioEncoding?: AudioEncoding | undefined;
+  dtx: boolean;
+  simulcast: boolean;
+  source: TrackSource;
+  stream: string;
+  red: boolean;
+
+  constructor(init: MessageInitShape<typeof TrackPublishOptionsSchema>) {
+    const { videoCodec, videoEncoding, audioEncoding, dtx, simulcast, source, stream, red } = init;
+    this.videoCodec = videoCodec ?? VideoCodec.VP8;
+    this.videoEncoding = create(VideoEncodingSchema, videoEncoding);
+    this.audioEncoding = create(AudioEncodingSchema, audioEncoding);
+    this.dtx = dtx ?? false;
+    this.simulcast = simulcast ?? false;
+    this.source = source ?? TrackSource.SOURCE_UNKNOWN;
+    this.stream = stream ?? '';
+    this.red = red ?? false;
+  }
+}

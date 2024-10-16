@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Mutex } from '@livekit/mutex';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type {
@@ -10,7 +11,6 @@ import type {
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
-import { Mutex } from './utils.js';
 import { VideoFrame } from './video_frame.js';
 
 export type VideoFrameEvent = {

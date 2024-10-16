@@ -1,6 +1,13 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { create } from '@bufbuild/protobuf';
+import {
+  IceServerSchema,
+  type IceServer as IceServerType,
+  TrackPublishOptionsSchema,
+  type TrackPublishOptions as TrackPublishOptionsType,
+} from './proto/room_pb.js';
 
 export { Room, RoomEvent, ConnectError, RoomOptions, RtcConfiguration } from './room.js';
 export { Participant, RemoteParticipant, LocalParticipant } from './participant.js';
@@ -29,13 +36,12 @@ export {
 } from './track_publication.js';
 export { Transcription, TranscriptionSegment } from './transcription.js';
 export { E2EEManager, E2EEOptions, KeyProviderOptions, KeyProvider, FrameCryptor } from './e2ee.js';
+
 export {
   ConnectionQuality,
-  IceServer,
   IceTransportType,
   DataPacketKind,
   ContinualGatheringPolicy,
-  TrackPublishOptions,
   ConnectionState,
 } from './proto/room_pb.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
@@ -44,3 +50,8 @@ export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_
 export { ParticipantKind } from './proto/participant_pb.js';
 export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';
+
+// exposing helpers for API compatibility with 1.x version of protobuf-es where these were class instances
+export const IceServer = (init: IceServerType) => create(IceServerSchema, init);
+export const TrackPublishOptions = (init: TrackPublishOptionsType) =>
+  create(TrackPublishOptionsSchema, init);

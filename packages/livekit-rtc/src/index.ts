@@ -58,7 +58,6 @@ export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';
 
 // exposing helpers for API compatibility with 1.x version of protobuf-es where these were class instances
-// export const IceServer = (init: IceServerType) => create(IceServerSchema, init);
 
 type IceServerInit = MessageInitShape<typeof IceServerSchema> & {
   urls: string[];

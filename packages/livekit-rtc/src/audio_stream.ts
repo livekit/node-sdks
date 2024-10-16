@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Mutex } from '@livekit/mutex';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
-import { Mutex } from './utils.js';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */

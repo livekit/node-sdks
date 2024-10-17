@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { PartialMessage } from '@bufbuild/protobuf';
+import { MessageInitShape, create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import {
@@ -12,7 +12,14 @@ import {
   livekitInitialize,
   livekitRetrievePtr,
 } from './napi/native.js';
-import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
+import {
+  FfiEvent,
+  FfiEventSchema,
+  FfiRequest,
+  FfiRequestSchema,
+  FfiResponse,
+  FfiResponseSchema,
+} from './proto/ffi_pb.js';
 
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
 
@@ -39,16 +46,16 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     this.setMaxListeners(0);
 
     livekitInitialize((event_data: Uint8Array) => {
-      const event = FfiEvent.fromBinary(event_data);
+      const event = fromBinary(FfiEventSchema, event_data);
       this.emit(FfiClientEvent.FfiEvent, event);
     }, true);
   }
 
-  request<T>(req: PartialMessage<FfiRequest>): T {
-    const request = new FfiRequest(req);
-    const req_data = request.toBinary();
+  request<T>(req: MessageInitShape<typeof FfiRequestSchema>): T {
+    const request = create(FfiRequestSchema, req);
+    const req_data = toBinary(FfiRequestSchema, request);
     const res_data = livekitFfiRequest(req_data);
-    return FfiResponse.fromBinary(res_data).message.value as T;
+    return fromBinary(FfiResponseSchema, res_data).message.value as T;
   }
 
   copyBuffer(ptr: bigint, len: number): Uint8Array {

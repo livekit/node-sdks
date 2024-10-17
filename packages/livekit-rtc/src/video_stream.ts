@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { create } from '@bufbuild/protobuf';
 import { Mutex } from '@livekit/mutex';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -9,7 +10,7 @@ import type {
   VideoRotation,
   VideoStreamInfo,
 } from './proto/video_frame_pb.js';
-import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
+import { NewVideoStreamRequestSchema, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
 import { VideoFrame } from './video_frame.js';
 
@@ -36,7 +37,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   constructor(track: Track) {
     this.track = track;
 
-    const req = new NewVideoStreamRequest({
+    const req = create(NewVideoStreamRequestSchema, {
       type: VideoStreamType.VIDEO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
     });
@@ -48,8 +49,8 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       },
     });
 
-    this.info = res.stream.info;
-    this.ffiHandle = new FfiHandle(res.stream.handle.id);
+    this.info = res.stream!.info!;
+    this.ffiHandle = new FfiHandle(res.stream!.handle!.id);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -67,7 +68,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       case 'frameReceived':
         const rotation = streamEvent.value.rotation;
         const timestampUs = streamEvent.value.timestampUs;
-        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer);
+        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
         const value = { rotation, timestampUs, frame };
         if (this.queueResolve) {
           this.queueResolve({ done: false, value });

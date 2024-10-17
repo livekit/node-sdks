@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { create } from '@bufbuild/protobuf';
 import { Mutex } from '@livekit/mutex';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
-import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
+import { AudioStreamType, NewAudioStreamRequestSchema } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
@@ -30,7 +31,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
 
-    const req = new NewAudioStreamRequest({
+    const req = create(NewAudioStreamRequestSchema, {
       type: AudioStreamType.AUDIO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
       sampleRate: sampleRate,
@@ -44,8 +45,8 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       },
     });
 
-    this.info = res.stream.info;
-    this.ffiHandle = new FfiHandle(res.stream.handle.id);
+    this.info = res.stream!.info!;
+    this.ffiHandle = new FfiHandle(res.stream!.handle!.id);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -61,7 +62,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     const streamEvent = ev.message.value.message;
     switch (streamEvent.case) {
       case 'frameReceived':
-        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame);
+        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
         if (this.queueResolve) {
           this.queueResolve({ done: false, value: frame });
         } else {

@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { create } from '@bufbuild/protobuf';
 import { FfiClient } from './ffi_client.js';
 import { FfiHandle } from './napi/native.js';
 import type { EncryptionType } from './proto/e2ee_pb.js';
 import type { SetSubscribedResponse } from './proto/room_pb.js';
-import { SetSubscribedRequest } from './proto/room_pb.js';
+import { SetSubscribedRequestSchema } from './proto/room_pb.js';
 import type {
   OwnedTrackPublication,
   TrackKind,
@@ -23,8 +24,8 @@ export abstract class TrackPublication {
   track?: Track;
 
   constructor(ownedInfo: OwnedTrackPublication) {
-    this.info = ownedInfo.info;
-    this.ffiHandle = new FfiHandle(ownedInfo.handle.id);
+    this.info = ownedInfo.info!;
+    this.ffiHandle = new FfiHandle(ownedInfo!.handle!.id);
   }
 
   get sid(): string {
@@ -100,7 +101,7 @@ export class RemoteTrackPublication extends TrackPublication {
   }
 
   setSubscribed(subscribed: boolean) {
-    const req = new SetSubscribedRequest({
+    const req = create(SetSubscribedRequestSchema, {
       subscribe: subscribed,
       publicationHandle: this.ffiHandle.handle,
     });

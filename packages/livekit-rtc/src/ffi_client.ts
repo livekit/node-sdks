@@ -4,6 +4,7 @@
 import type { PartialMessage } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
+import { version } from '../package.json';
 import {
   FfiHandle,
   livekitCopyBuffer,
@@ -38,10 +39,14 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     super();
     this.setMaxListeners(0);
 
-    livekitInitialize((event_data: Uint8Array) => {
-      const event = FfiEvent.fromBinary(event_data);
-      this.emit(FfiClientEvent.FfiEvent, event);
-    }, true);
+    livekitInitialize(
+      (event_data: Uint8Array) => {
+        const event = FfiEvent.fromBinary(event_data);
+        this.emit(FfiClientEvent.FfiEvent, event);
+      },
+      true,
+      version,
+    );
   }
 
   request<T>(req: PartialMessage<FfiRequest>): T {

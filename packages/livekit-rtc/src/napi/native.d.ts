@@ -6,6 +6,7 @@
 export declare function livekitInitialize(
   callback: (data: Uint8Array) => void,
   captureLogs: boolean,
+  sdkVersion: string,
 ): void;
 export declare function livekitFfiRequest(data: Uint8Array): Uint8Array;
 export declare function livekitRetrievePtr(handle: Uint8Array): bigint;

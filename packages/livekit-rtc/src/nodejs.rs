@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use livekit_ffi::FfiHandleId;
 use livekit_ffi::{proto, server, FFI_SERVER};
 use napi::{
     bindgen_prelude::*,

@@ -14,6 +14,8 @@ import {
 } from './napi/native.js';
 import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
 
+import { version } from '../package.json';
+
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
 
 export type FfiClientCallbacks = {
@@ -41,7 +43,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     livekitInitialize((event_data: Uint8Array) => {
       const event = FfiEvent.fromBinary(event_data);
       this.emit(FfiClientEvent.FfiEvent, event);
-    }, true);
+    }, true, version);
   }
 
   request<T>(req: PartialMessage<FfiRequest>): T {

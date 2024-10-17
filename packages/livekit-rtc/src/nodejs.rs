@@ -13,10 +13,14 @@ use napi::{
 };
 use napi_derive::napi;
 use prost::Message;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
-#[napi(ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean")]
-fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
+static SDK_VERSION: OnceLock<String> = OnceLock::new();
+
+#[napi(ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean, sdkVersion: string")]
+fn livekit_initialize(cb: JsFunction, capture_logs: bool, sdk_version: String) {
+    SDK_VERSION.get_or_init(|| sdk_version);
+
     let tsfn: ThreadsafeFunction<proto::FfiEvent, ErrorStrategy::Fatal> = cb
         .create_threadsafe_function(0, |ctx: ThreadSafeCallContext<proto::FfiEvent>| {
             let data = ctx.value.encode_to_vec();
@@ -33,6 +37,8 @@ fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
             }
         }),
         capture_logs,
+        sdk: "node",
+        sdk_version: SDK_VERSION.get().unwrap().as_str(),
     });
 }
 

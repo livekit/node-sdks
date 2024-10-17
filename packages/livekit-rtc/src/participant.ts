@@ -22,10 +22,9 @@ import type {
   SetLocalNameResponse,
   TrackPublishOptions,
   UnpublishTrackCallback,
-  UnpublishTrackResponse} from './proto/room_pb.js';
-import {
-  ChatMessage as ChatMessageModel
+  UnpublishTrackResponse,
 } from './proto/room_pb.js';
+import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
   EditChatMessageRequest,
   TranscriptionSegment as ProtoTranscriptionSegment,

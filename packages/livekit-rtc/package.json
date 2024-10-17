@@ -55,7 +55,7 @@
   },
   "scripts": {
     "build:tsc": "tsc && cp -r src/napi dist/",
-    "build": "napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi && pnpm build:tsc",
+    "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",

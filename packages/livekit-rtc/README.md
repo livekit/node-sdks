@@ -76,10 +76,62 @@ await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2));
 ```
 
+### RPC
+
+Perform your own predefined method calls from one participant to another. 
+
+This feature is especially powerful when used with [Agents](https://docs.livekit.io/agents), for instance to forward LLM function calls to your client application.
+
+#### Registering an RPC method
+
+The participant who implements the method and will receive its calls must first register support:
+
+```typescript
+room.localParticipant?.registerRpcMethod(
+   // method name - can be any string that makes sense for your application
+  'greet',
+
+  // method handler - will be called when the method is invoked by a RemoteParticipant
+  async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+    console.log(`Received greeting from ${caller.identity}: ${payload}`);
+    return `Hello, ${caller.identity}!`;
+  }
+);
+```
+
+In addition to the payload, your handler will also receive `responseTimeoutMs`, which informs you the maximum time available to return a response. If you are unable to respond in time, the call will result in an error on the caller's side.
+
+#### Performing an RPC request
+
+The caller may then initiate an RPC call like so:
+
+```typescript
+try {
+  const response = await room.localParticipant!.performRpc(
+    'recipient-identity',
+    'greet',
+    'Hello from RPC!'
+  );
+  console.log('RPC response:', response);
+} catch (error) {
+  console.error('RPC call failed:', error);
+}
+```
+
+You may find it useful to adjust the `responseTimeoutMs` parameter, which indicates the amount of time you will wait for a response. We recommend keeping this value as low as possible while still satisfying the constraints of your application.
+
+#### Errors
+
+LiveKit is a dynamic realtime environment and calls can fail for various reasons. 
+
+You may throw errors of the type `RpcError` with a string `message` in an RPC method handler and they will be received on the caller's side with the message intact. Other errors will not be transmitted and will instead arrive to the caller as `1500` ("Application Error"). Other built-in errors are detailed in `RpcError`.
+
 ## Examples
 
-- [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a wave file
+- [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a .wave file
+- [`rpc`](https://github.com/livekit/node-sdks/tree/main/examples/rpc): simple back-and-forth RPC interaction
+
 
 ## Getting help / Contributing
 
-Please join us on [Slack](https://livekit.io/join-slack) to get help from our devs/community. We welcome your contributions and details can be discussed there.
+Please join us on [Slack](https://livekit.io/join-slack) to get help from our devs & community. We welcome your contributions and details can be discussed there.

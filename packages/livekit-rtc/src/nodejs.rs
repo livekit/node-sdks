@@ -17,7 +17,9 @@ use std::sync::{Arc, OnceLock};
 
 static SDK_VERSION: OnceLock<String> = OnceLock::new();
 
-#[napi(ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean, sdkVersion: string")]
+#[napi(
+    ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean, sdkVersion: string"
+)]
 fn livekit_initialize(cb: JsFunction, capture_logs: bool, sdk_version: String) {
     SDK_VERSION.get_or_init(|| sdk_version);
 

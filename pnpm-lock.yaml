@@ -166,8 +166,8 @@ importers:
   packages/livekit-rtc:
     dependencies:
       '@bufbuild/protobuf':
-        specifier: ^1.4.2
-        version: 1.10.0
+        specifier: ^2.2.0
+        version: 2.2.0
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.0.0
@@ -191,6 +191,9 @@ importers:
         specifier: workspace:*
         version: link:npm/win32-x64-msvc
     devDependencies:
+      '@bufbuild/protoc-gen-es':
+        specifier: ^2.2.0
+        version: 2.2.0(@bufbuild/protobuf@2.2.0)
       '@napi-rs/cli':
         specifier: ^2.18.0
         version: 2.18.4
@@ -329,6 +332,22 @@ packages:
 
   '@bufbuild/protobuf@1.10.0':
     resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
+
+  '@bufbuild/protobuf@2.2.0':
+    resolution: {integrity: sha512-+imAQkHf7U/Rwvu0wk1XWgsP3WnpCWmK7B48f0XqSNzgk64+grljTKC7pnO/xBiEMUziF7vKRfbBnOQhg126qQ==}
+
+  '@bufbuild/protoc-gen-es@2.2.0':
+    resolution: {integrity: sha512-PmUTtbJJfgcabTsoF59W0bsAr7xO5aGcMe69G8vOq0ogYV1aWmvFKhHKHDtn295pOLhTXmfrDSUNi/OTHuDdpw==}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protobuf': 2.2.0
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+
+  '@bufbuild/protoplugin@2.2.0':
+    resolution: {integrity: sha512-ijsCHuhtXbfTiffoBRve2uCPR7gy6cwJsMe8z5bYQtczGiZVVfiyAze55gk1J/1ruqkr40oZ9BwKAGOzz69f0g==}
 
   '@changesets/apply-release-plan@7.0.5':
     resolution: {integrity: sha512-1cWCk+ZshEkSVEZrm2fSj1Gz8sYvxgUL4Q78+1ZZqeqfuevPTPk033/yUZ3df8BKMohkqqHfzj0HOOrG0KtXTw==}
@@ -1124,6 +1143,11 @@ packages:
   '@typescript-eslint/visitor-keys@8.8.1':
     resolution: {integrity: sha512-0/TdC3aeRAsW7MDvYRwEc1Uwm0TIBfzjPFgg60UU2Haj5qsCs9cc3zNgY71edqE3LbWfF/WoZQd3lJoDXFQpag==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript/vfs@1.6.0':
+    resolution: {integrity: sha512-hvJUjNVeBMp77qPINuUvYXj4FyWeeMMKZkxEATEU3hqBAQ7qdTBCUFT7Sp0Zu0faeEtFf+ldXxMEDr/bk73ISg==}
+    peerDependencies:
+      typescript: '*'
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -2879,6 +2903,11 @@ packages:
     peerDependencies:
       typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x
 
+  typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   typescript@5.6.2:
     resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
     engines: {node: '>=14.17'}
@@ -3156,6 +3185,24 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@bufbuild/protobuf@1.10.0': {}
+
+  '@bufbuild/protobuf@2.2.0': {}
+
+  '@bufbuild/protoc-gen-es@2.2.0(@bufbuild/protobuf@2.2.0)':
+    dependencies:
+      '@bufbuild/protoplugin': 2.2.0
+    optionalDependencies:
+      '@bufbuild/protobuf': 2.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@bufbuild/protoplugin@2.2.0':
+    dependencies:
+      '@bufbuild/protobuf': 2.2.0
+      '@typescript/vfs': 1.6.0(typescript@5.4.5)
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@changesets/apply-release-plan@7.0.5':
     dependencies:
@@ -3910,6 +3957,13 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.8.1
       eslint-visitor-keys: 3.4.3
+
+  '@typescript/vfs@1.6.0(typescript@5.4.5)':
+    dependencies:
+      debug: 4.3.7
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ungap/structured-clone@1.2.0': {}
 
@@ -5905,6 +5959,8 @@ snapshots:
       shiki: 1.22.0
       typescript: 5.6.2
       yaml: 2.5.1
+
+  typescript@5.4.5: {}
 
   typescript@5.6.2: {}
 

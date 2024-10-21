@@ -38,6 +38,7 @@ import {
   SetLocalNameRequestSchema,
   UnpublishTrackRequestSchema,
 } from './proto/room_pb.js';
+import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,
@@ -55,7 +56,6 @@ import {
   UnregisterRpcMethodRequest,
 } from './proto/rpc_pb.js';
 import { RpcError } from './rpc.js';
-import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';

@@ -1,11 +1,15 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FfiClient, FfiRequest } from './ffi_client.js';
+import { create } from '@bufbuild/protobuf';
+import { FfiClient } from './ffi_client.js';
+import { FfiRequestSchema } from './proto/ffi_pb.js';
 import type { OwnedVideoBuffer, VideoConvertResponse } from './proto/video_frame_pb.js';
 import {
   VideoBufferInfo,
+  VideoBufferInfoSchema,
   VideoBufferInfo_ComponentInfo,
+  VideoBufferInfo_ComponentInfoSchema,
   VideoBufferType,
 } from './proto/video_frame_pb.js';
 
@@ -29,7 +33,7 @@ export class VideoFrame {
 
   /** @internal */
   protoInfo(): VideoBufferInfo {
-    const info = new VideoBufferInfo({
+    const info = create(VideoBufferInfoSchema, {
       width: this.width,
       height: this.height,
       type: this.type,
@@ -55,7 +59,7 @@ export class VideoFrame {
 
   /** @internal */
   static fromOwnedInfo(owned: OwnedVideoBuffer): VideoFrame {
-    const info = owned.info;
+    const info = owned.info!;
     return new VideoFrame(
       FfiClient.instance.copyBuffer(
         info.dataPtr,
@@ -76,7 +80,7 @@ export class VideoFrame {
   }
 
   convert(dstType: VideoBufferType, flipY = false): VideoFrame {
-    const req = new FfiRequest({
+    const req = create(FfiRequestSchema, {
       message: {
         case: 'videoConvert',
         value: {
@@ -87,11 +91,11 @@ export class VideoFrame {
       },
     });
     const resp = FfiClient.instance.request<VideoConvertResponse>(req);
-    if (resp.error) {
-      throw resp.error;
+    if (resp.message.case !== 'buffer') {
+      throw new Error(resp.message.value ?? 'Unknown Error');
     }
 
-    return VideoFrame.fromOwnedInfo(resp.buffer);
+    return VideoFrame.fromOwnedInfo(resp.message.value);
   }
 }
 
@@ -130,13 +134,17 @@ const getPlaneInfos = (
   const chromaHeight = Math.trunc((height + 1) / 2);
   switch (type) {
     case VideoBufferType.I420: {
-      const y = new VideoBufferInfo_ComponentInfo({ dataPtr, stride: width, size: width * height });
-      const u = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
+        dataPtr,
+        stride: width,
+        size: width * height,
+      });
+      const u = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: chromaWidth,
         size: chromaWidth * chromaHeight,
       });
-      const v = new VideoBufferInfo_ComponentInfo({
+      const v = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: u.dataPtr + BigInt(u.size),
         stride: chromaWidth,
         size: chromaWidth * chromaHeight,
@@ -144,18 +152,22 @@ const getPlaneInfos = (
       return [y, u, v];
     }
     case VideoBufferType.I420A: {
-      const y = new VideoBufferInfo_ComponentInfo({ dataPtr, stride: width, size: width * height });
-      const u = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
+        dataPtr,
+        stride: width,
+        size: width * height,
+      });
+      const u = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: chromaWidth,
         size: chromaWidth * chromaHeight,
       });
-      const v = new VideoBufferInfo_ComponentInfo({
+      const v = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: u.dataPtr + BigInt(u.size),
         stride: chromaWidth,
         size: chromaWidth * chromaHeight,
       });
-      const a = new VideoBufferInfo_ComponentInfo({
+      const a = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: v.dataPtr + BigInt(v.size),
         stride: width,
         size: width * height,
@@ -163,13 +175,17 @@ const getPlaneInfos = (
       return [y, u, v, a];
     }
     case VideoBufferType.I422: {
-      const y = new VideoBufferInfo_ComponentInfo({ dataPtr, stride: width, size: width * height });
-      const u = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
+        dataPtr,
+        stride: width,
+        size: width * height,
+      });
+      const u = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: chromaWidth,
         size: chromaWidth * height,
       });
-      const v = new VideoBufferInfo_ComponentInfo({
+      const v = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: u.dataPtr + BigInt(u.size),
         stride: chromaWidth,
         size: chromaWidth * height,
@@ -177,13 +193,17 @@ const getPlaneInfos = (
       return [y, u, v];
     }
     case VideoBufferType.I444: {
-      const y = new VideoBufferInfo_ComponentInfo({ dataPtr, stride: width, size: width * height });
-      const u = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
+        dataPtr,
+        stride: width,
+        size: width * height,
+      });
+      const u = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: width,
         size: width * height,
       });
-      const v = new VideoBufferInfo_ComponentInfo({
+      const v = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: u.dataPtr + BigInt(u.size),
         stride: width,
         size: width * height,
@@ -191,17 +211,17 @@ const getPlaneInfos = (
       return [y, u, v];
     }
     case VideoBufferType.I010: {
-      const y = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr,
         stride: width * 2,
         size: width * height * 2,
       });
-      const u = new VideoBufferInfo_ComponentInfo({
+      const u = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: chromaWidth * 2,
         size: chromaWidth * chromaHeight * 2,
       });
-      const v = new VideoBufferInfo_ComponentInfo({
+      const v = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: u.dataPtr + BigInt(u.size),
         stride: chromaWidth * 2,
         size: chromaWidth * chromaHeight * 2,
@@ -209,8 +229,12 @@ const getPlaneInfos = (
       return [y, u, v];
     }
     case VideoBufferType.NV12: {
-      const y = new VideoBufferInfo_ComponentInfo({ dataPtr, stride: width, size: width * height });
-      const uv = new VideoBufferInfo_ComponentInfo({
+      const y = create(VideoBufferInfo_ComponentInfoSchema, {
+        dataPtr,
+        stride: width,
+        size: width * height,
+      });
+      const uv = create(VideoBufferInfo_ComponentInfoSchema, {
         dataPtr: y.dataPtr + BigInt(y.size),
         stride: chromaWidth * 2,
         size: chromaWidth * chromaHeight * 2,

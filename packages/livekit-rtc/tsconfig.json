@@ -9,7 +9,8 @@
     "lib": ["es2020"],
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "strict": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "vite.config.ts"]

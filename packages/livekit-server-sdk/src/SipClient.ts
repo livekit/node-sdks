@@ -456,7 +456,7 @@ export class SipClient extends ServiceBase {
       participantIdentity: participantIdentity,
       roomName: roomName,
       transferTo: transferTo,
-	  playDialtone: playDialtone,
+      playDialtone: playDialtone,
     }).toJson();
 
     await this.rpc.request(

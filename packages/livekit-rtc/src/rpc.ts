@@ -35,11 +35,11 @@ export class RpcError extends Error {
   }
 
   toProto() {
-    return new RpcError_Proto({
+    return {
       code: this.code as number,
       message: this.message,
       data: this.data,
-    });
+    } as RpcError_Proto;
   }
 
   static ErrorCode = {

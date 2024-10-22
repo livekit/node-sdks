@@ -48,8 +48,6 @@ import type {
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodCallback,
   UnregisterRpcMethodResponse,
-} from './proto/rpc_pb.js';
-import {
   PerformRpcRequest,
   RegisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
@@ -392,13 +390,13 @@ export class LocalParticipant extends Participant {
     payload: string,
     responseTimeoutMs?: number,
   ): Promise<string> {
-    const req = new PerformRpcRequest({
+    const req = {
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
       payload,
       responseTimeoutMs,
-    });
+    } as PerformRpcRequest;
 
     const res = FfiClient.instance.request<PerformRpcResponse>({
       message: { case: 'performRpc', value: req },
@@ -458,10 +456,10 @@ export class LocalParticipant extends Participant {
   ): Promise<void> {
     this.rpcHandlers.set(method, handler);
 
-    const req = new RegisterRpcMethodRequest({
+    const req = {
       localParticipantHandle: this.ffi_handle.handle,
       method,
-    });
+    } as RegisterRpcMethodRequest;
 
     const res = FfiClient.instance.request<RegisterRpcMethodResponse>({
       message: { case: 'registerRpcMethod', value: req },
@@ -480,10 +478,10 @@ export class LocalParticipant extends Participant {
   async unregisterRpcMethod(method: string): Promise<void> {
     this.rpcHandlers.delete(method);
 
-    const req = new UnregisterRpcMethodRequest({
+    const req = {
       localParticipantHandle: this.ffi_handle.handle,
       method,
-    });
+    } as UnregisterRpcMethodRequest;
 
     const res = FfiClient.instance.request<UnregisterRpcMethodResponse>({
       message: { case: 'unregisterRpcMethod', value: req },
@@ -526,12 +524,12 @@ export class LocalParticipant extends Participant {
       }
     }
 
-    const req = new RpcMethodInvocationResponseRequest({
+    const req = {
       localParticipantHandle: this.ffi_handle.handle,
       invocationId,
       error: responseError ? responseError.toProto() : undefined,
       payload: responsePayload ?? undefined,
-    });
+    } as RpcMethodInvocationResponseRequest;
 
     const res = FfiClient.instance.request<RpcMethodInvocationResponseResponse>({
       message: { case: 'rpcMethodInvocationResponse', value: req },

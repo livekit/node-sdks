@@ -3,7 +3,7 @@ import {
   AudioSource,
   LocalAudioTrack,
   Room,
-  TrackPublishOptions,
+  type TrackPublishOptions,
   TrackSource,
   dispose,
 } from '@livekit/rtc-node';
@@ -41,9 +41,10 @@ const dataSize = sample.readUInt32LE(40) / 2;
 // set up audio track
 const source = new AudioSource(sampleRate, channels);
 const track = LocalAudioTrack.createAudioTrack('audio', source);
-const options = new TrackPublishOptions();
+const options = {
+  source: TrackSource.SOURCE_MICROPHONE,
+} as TrackPublishOptions;
 const buffer = new Int16Array(sample.buffer);
-options.source = TrackSource.SOURCE_MICROPHONE;
 await room.localParticipant.publishTrack(track, options).then((pub) => pub.waitForSubscription());
 
 let written = 44; // start of WAVE data stream

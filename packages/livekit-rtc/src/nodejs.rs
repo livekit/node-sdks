@@ -14,7 +14,7 @@ use napi_derive::napi;
 use prost::Message;
 use std::sync::{Arc, OnceLock};
 
-static SDK_VERSION: OnceLock<String> = OnceLock::new();
+const SDK_VERSION: OnceLock<String> = OnceLock::new();
 
 #[napi(
     ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean, sdkVersion: string"

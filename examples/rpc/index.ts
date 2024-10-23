@@ -1,5 +1,4 @@
 import { Room, RpcError } from '@livekit/rtc-node';
-import type { RemoteParticipant } from '@livekit/rtc-node';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
 import { AccessToken } from 'livekit-server-sdk';
@@ -65,8 +64,8 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
   await greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
-      console.log(`[Greeter] Oh ${caller.identity} arrived and said "${payload}"`);
+    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+      console.log(`[Greeter] Oh ${callerIdentity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return "Welcome and have a wonderful day!";
     },
@@ -74,11 +73,11 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
 
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
-    async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
       const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(
-        `[Math Genius] I guess ${caller.identity} wants the square root of ${number}. I've only got ${responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
+        `[Math Genius] I guess ${callerIdentity} wants the square root of ${number}. I've only got ${responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
       );
 
       console.log(`[Math Genius] *doing math*…`);
@@ -93,11 +92,11 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'divide',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (requestId: string, caller: RemoteParticipant, payload: string, responseTimeoutMs: number) => {
+    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
       const jsonData = JSON.parse(payload);
       const { numerator, denominator } = jsonData;
       console.log(
-        `[Math Genius] ${caller.identity} wants to divide ${numerator} by ${denominator}. This could be interesting...`,
+        `[Math Genius] ${callerIdentity} wants to divide ${numerator} by ${denominator}. This could be interesting...`,
       );
 
       if (denominator === 0) {
@@ -220,6 +219,8 @@ const connectParticipant = async (identity: string, roomName: string): Promise<R
       setTimeout(() => reject(new Error('Timed out waiting for participants')), 5000);
     }),
   ]);
+
+  console.log(`${identity} connected to room`);
 
   return room;
 };

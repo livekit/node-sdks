@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.7.3
+
+### Patch Changes
+
+- Allow requesting dialtone during transfer - [#307](https://github.com/livekit/node-sdks/pull/307) ([@biglittlebigben](https://github.com/biglittlebigben))
+
 ## 2.7.2
 
 ### Patch Changes

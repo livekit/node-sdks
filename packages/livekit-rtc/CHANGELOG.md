@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.10.5
+
+### Patch Changes
+
+- Enable strict type checking and update ffi to use proto2 syntax - [#303](https://github.com/livekit/node-sdks/pull/303) ([@lukasIO](https://github.com/lukasIO))
+
+- Use shared mutex helper lib - [#301](https://github.com/livekit/node-sdks/pull/301) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.10.4
 
 ### Patch Changes

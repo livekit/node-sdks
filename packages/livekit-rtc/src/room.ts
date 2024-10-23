@@ -19,6 +19,7 @@ import type {
   DataPacketKind,
   DisconnectReason,
   DisconnectResponse,
+  RoomOptions as FfiRoomOptions,
   IceServer,
   RoomInfo,
 } from './proto/room_pb.js';
@@ -54,12 +55,14 @@ export interface RoomOptions {
   rtcConfig?: RtcConfiguration;
 }
 
-export const defaultRoomOptions: RoomOptions = {
+export const defaultRoomOptions = {
   autoSubscribe: true,
   dynacast: false,
   e2ee: undefined,
   rtcConfig: undefined,
-};
+  adaptiveStream: false,
+  joinRetries: 1,
+} satisfies Omit<FfiRoomOptions, '$typeName'>;
 
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info?: RoomInfo;
@@ -115,19 +118,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const req = create(ConnectRequestSchema, {
       url: url,
       token: token,
-      options: {
-        autoSubscribe: options.autoSubscribe,
-        dynacast: options.dynacast,
-        e2ee: {
-          encryptionType: options.e2ee?.encryptionType,
-          keyProviderOptions: {
-            failureTolerance: options.e2ee?.keyProviderOptions?.failureTolerance,
-            ratchetSalt: options.e2ee?.keyProviderOptions?.ratchetSalt,
-            ratchetWindowSize: options.e2ee?.keyProviderOptions?.ratchetWindowSize,
-            sharedKey: options.e2ee?.keyProviderOptions?.sharedKey,
-          },
-        },
-      },
+      options,
     });
 
     const res = FfiClient.instance.request<ConnectResponse>({
@@ -148,7 +139,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const { room, localParticipant, participants } = cb.message.value;
 
     this.ffiHandle = new FfiHandle(room!.handle!.id);
-    this.e2eeManager = new E2EEManager(this.ffiHandle.handle, options.e2ee);
+    if (options.e2ee) {
+      this.e2eeManager = new E2EEManager(this.ffiHandle.handle, options.e2ee);
+    }
 
     this.info = room!.info;
     this.connectionState = ConnectionState.CONN_CONNECTED;
@@ -321,7 +314,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
       }
     } else if (ev.case == 'connectionQualityChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant =
+        this.localParticipant.identity === ev.value.participantIdentity
+          ? this.localParticipant
+          : this.requireRemoteParticipant(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);

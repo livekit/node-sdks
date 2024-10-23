@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rpc.proto.
  */
 export const file_rpc: GenFile = /*@__PURE__*/
-  fileDesc("CglycGMucHJvdG8SDWxpdmVraXQucHJvdG8iNwoIUnBjRXJyb3ISDAoEY29kZRgBIAIoDRIPCgdtZXNzYWdlGAIgAigJEgwKBGRhdGEYAyABKAkikQEKEVBlcmZvcm1ScGNSZXF1ZXN0EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIcChRkZXN0aW5hdGlvbl9pZGVudGl0eRgCIAIoCRIOCgZtZXRob2QYAyACKAkSDwoHcGF5bG9hZBgEIAIoCRIbChNyZXNwb25zZV90aW1lb3V0X21zGAUgASgNIkwKGFJlZ2lzdGVyUnBjTWV0aG9kUmVxdWVzdBIgChhsb2NhbF9wYXJ0aWNpcGFudF9oYW5kbGUYASACKAQSDgoGbWV0aG9kGAIgAigJIk4KGlVucmVnaXN0ZXJScGNNZXRob2RSZXF1ZXN0EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIOCgZtZXRob2QYAiACKAkilgEKIlJwY01ldGhvZEludm9jYXRpb25SZXNwb25zZVJlcXVlc3QSIAoYbG9jYWxfcGFydGljaXBhbnRfaGFuZGxlGAEgAigEEhUKDWludm9jYXRpb25faWQYAiACKAQSDwoHcGF5bG9hZBgDIAEoCRImCgVlcnJvchgEIAEoCzIXLmxpdmVraXQucHJvdG8uUnBjRXJyb3IiJgoSUGVyZm9ybVJwY1Jlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEIi0KGVJlZ2lzdGVyUnBjTWV0aG9kUmVzcG9uc2USEAoIYXN5bmNfaWQYASACKAQiLwobVW5yZWdpc3RlclJwY01ldGhvZFJlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEIjcKI1JwY01ldGhvZEludm9jYXRpb25SZXNwb25zZVJlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEIl8KElBlcmZvcm1ScGNDYWxsYmFjaxIQCghhc3luY19pZBgBIAIoBBIPCgdwYXlsb2FkGAIgASgJEiYKBWVycm9yGAMgASgLMhcubGl2ZWtpdC5wcm90by5ScGNFcnJvciJGCiNScGNNZXRob2RJbnZvY2F0aW9uUmVzcG9uc2VDYWxsYmFjaxIQCghhc3luY19pZBgBIAIoBBINCgVlcnJvchgCIAEoCSK+AQoYUnBjTWV0aG9kSW52b2NhdGlvbkV2ZW50EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIVCg1pbnZvY2F0aW9uX2lkGAIgAigEEg4KBm1ldGhvZBgDIAIoCRISCgpyZXF1ZXN0X2lkGAQgAigJEhcKD2NhbGxlcl9pZGVudGl0eRgFIAIoCRIPCgdwYXlsb2FkGAYgAigJEhsKE3Jlc3BvbnNlX3RpbWVvdXRfbXMYByACKA1CEKoCDUxpdmVLaXQuUHJvdG8");
+  fileDesc("CglycGMucHJvdG8SDWxpdmVraXQucHJvdG8iNwoIUnBjRXJyb3ISDAoEY29kZRgBIAIoDRIPCgdtZXNzYWdlGAIgAigJEgwKBGRhdGEYAyABKAkikQEKEVBlcmZvcm1ScGNSZXF1ZXN0EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIcChRkZXN0aW5hdGlvbl9pZGVudGl0eRgCIAIoCRIOCgZtZXRob2QYAyACKAkSDwoHcGF5bG9hZBgEIAIoCRIbChNyZXNwb25zZV90aW1lb3V0X21zGAUgASgNIkwKGFJlZ2lzdGVyUnBjTWV0aG9kUmVxdWVzdBIgChhsb2NhbF9wYXJ0aWNpcGFudF9oYW5kbGUYASACKAQSDgoGbWV0aG9kGAIgAigJIk4KGlVucmVnaXN0ZXJScGNNZXRob2RSZXF1ZXN0EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIOCgZtZXRob2QYAiACKAkilgEKIlJwY01ldGhvZEludm9jYXRpb25SZXNwb25zZVJlcXVlc3QSIAoYbG9jYWxfcGFydGljaXBhbnRfaGFuZGxlGAEgAigEEhUKDWludm9jYXRpb25faWQYAiACKAQSDwoHcGF5bG9hZBgDIAEoCRImCgVlcnJvchgEIAEoCzIXLmxpdmVraXQucHJvdG8uUnBjRXJyb3IiJgoSUGVyZm9ybVJwY1Jlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEIi0KGVJlZ2lzdGVyUnBjTWV0aG9kUmVzcG9uc2USEAoIYXN5bmNfaWQYASACKAQiLwobVW5yZWdpc3RlclJwY01ldGhvZFJlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEIkYKI1JwY01ldGhvZEludm9jYXRpb25SZXNwb25zZVJlc3BvbnNlEhAKCGFzeW5jX2lkGAEgAigEEg0KBWVycm9yGAIgASgJIl8KElBlcmZvcm1ScGNDYWxsYmFjaxIQCghhc3luY19pZBgBIAIoBBIPCgdwYXlsb2FkGAIgASgJEiYKBWVycm9yGAMgASgLMhcubGl2ZWtpdC5wcm90by5ScGNFcnJvciK+AQoYUnBjTWV0aG9kSW52b2NhdGlvbkV2ZW50EiAKGGxvY2FsX3BhcnRpY2lwYW50X2hhbmRsZRgBIAIoBBIVCg1pbnZvY2F0aW9uX2lkGAIgAigEEg4KBm1ldGhvZBgDIAIoCRISCgpyZXF1ZXN0X2lkGAQgAigJEhcKD2NhbGxlcl9pZGVudGl0eRgFIAIoCRIPCgdwYXlsb2FkGAYgAigJEhsKE3Jlc3BvbnNlX3RpbWVvdXRfbXMYByACKA1CEKoCDUxpdmVLaXQuUHJvdG8");
 
 /**
  * @generated from message livekit.proto.RpcError
@@ -229,6 +229,11 @@ export type RpcMethodInvocationResponseResponse = Message<"livekit.proto.RpcMeth
    * @generated from field: required uint64 async_id = 1;
    */
   asyncId: bigint;
+
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error: string;
 };
 
 /**
@@ -266,28 +271,6 @@ export type PerformRpcCallback = Message<"livekit.proto.PerformRpcCallback"> & {
  */
 export const PerformRpcCallbackSchema: GenMessage<PerformRpcCallback> = /*@__PURE__*/
   messageDesc(file_rpc, 9);
-
-/**
- * @generated from message livekit.proto.RpcMethodInvocationResponseCallback
- */
-export type RpcMethodInvocationResponseCallback = Message<"livekit.proto.RpcMethodInvocationResponseCallback"> & {
-  /**
-   * @generated from field: required uint64 async_id = 1;
-   */
-  asyncId: bigint;
-
-  /**
-   * @generated from field: optional string error = 2;
-   */
-  error: string;
-};
-
-/**
- * Describes the message livekit.proto.RpcMethodInvocationResponseCallback.
- * Use `create(RpcMethodInvocationResponseCallbackSchema)` to create a new message.
- */
-export const RpcMethodInvocationResponseCallbackSchema: GenMessage<RpcMethodInvocationResponseCallback> = /*@__PURE__*/
-  messageDesc(file_rpc, 10);
 
 /**
  * FFI Events
@@ -336,5 +319,5 @@ export type RpcMethodInvocationEvent = Message<"livekit.proto.RpcMethodInvocatio
  * Use `create(RpcMethodInvocationEventSchema)` to create a new message.
  */
 export const RpcMethodInvocationEventSchema: GenMessage<RpcMethodInvocationEvent> = /*@__PURE__*/
-  messageDesc(file_rpc, 11);
+  messageDesc(file_rpc, 10);
 

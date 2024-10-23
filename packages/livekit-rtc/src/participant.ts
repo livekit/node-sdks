@@ -45,7 +45,6 @@ import type {
   PerformRpcResponse,
   RegisterRpcMethodRequest,
   RegisterRpcMethodResponse,
-  RpcMethodInvocationResponseCallback,
   RpcMethodInvocationResponseRequest,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodRequest,
@@ -525,14 +524,8 @@ export class LocalParticipant extends Participant {
       message: { case: 'rpcMethodInvocationResponse', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<RpcMethodInvocationResponseCallback>((ev) => {
-      return (
-        ev.message.case === 'rpcMethodInvocationResponse' &&
-        ev.message.value.asyncId === res.asyncId
-      );
-    });
-    if (cb.error) {
-      console.warn(`error sending rpc method invocation response: ${cb.error}`);
+    if (res.error) {
+      console.warn(`error sending rpc method invocation response: ${res.error}`);
     }
   }
 }

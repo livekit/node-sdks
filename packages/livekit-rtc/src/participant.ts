@@ -43,13 +43,11 @@ import type {
   PerformRpcCallback,
   PerformRpcRequest,
   PerformRpcResponse,
-  RegisterRpcMethodCallback,
   RegisterRpcMethodRequest,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseCallback,
   RpcMethodInvocationResponseRequest,
   RpcMethodInvocationResponseResponse,
-  UnregisterRpcMethodCallback,
   UnregisterRpcMethodRequest,
   UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
@@ -445,7 +443,7 @@ export class LocalParticipant extends Participant {
    * and they will be received on the caller's side with the message intact.
    * Other errors thrown in your handler will not be transmitted as-is, and will instead arrive to the caller as `1500` ("Application Error").
    */
-  async registerRpcMethod(
+  registerRpcMethod(
     method: string,
     handler: (
       requestId: string,
@@ -453,7 +451,7 @@ export class LocalParticipant extends Participant {
       payload: string,
       responseTimeoutMs: number,
     ) => Promise<string>,
-  ): Promise<void> {
+  ) {
     this.rpcHandlers.set(method, handler);
 
     const req = {
@@ -461,12 +459,8 @@ export class LocalParticipant extends Participant {
       method,
     } as RegisterRpcMethodRequest;
 
-    const res = FfiClient.instance.request<RegisterRpcMethodResponse>({
+    FfiClient.instance.request<RegisterRpcMethodResponse>({
       message: { case: 'registerRpcMethod', value: req },
-    });
-
-    await FfiClient.instance.waitFor<RegisterRpcMethodCallback>((ev) => {
-      return ev.message.case === 'registerRpcMethod' && ev.message.value.asyncId === res.asyncId;
     });
   }
 
@@ -475,7 +469,7 @@ export class LocalParticipant extends Participant {
    *
    * @param method - The name of the RPC method to unregister
    */
-  async unregisterRpcMethod(method: string): Promise<void> {
+  unregisterRpcMethod(method: string) {
     this.rpcHandlers.delete(method);
 
     const req = {
@@ -483,12 +477,8 @@ export class LocalParticipant extends Participant {
       method,
     } as UnregisterRpcMethodRequest;
 
-    const res = FfiClient.instance.request<UnregisterRpcMethodResponse>({
+    FfiClient.instance.request<UnregisterRpcMethodResponse>({
       message: { case: 'unregisterRpcMethod', value: req },
-    });
-
-    await FfiClient.instance.waitFor<UnregisterRpcMethodCallback>((ev) => {
-      return ev.message.case === 'unregisterRpcMethod' && ev.message.value.asyncId === res.asyncId;
     });
   }
 

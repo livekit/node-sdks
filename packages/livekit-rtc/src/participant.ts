@@ -41,17 +41,17 @@ import {
 import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
+  PerformRpcRequest,
   PerformRpcResponse,
   RegisterRpcMethodCallback,
+  RegisterRpcMethodRequest,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseCallback,
+  RpcMethodInvocationResponseRequest,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodCallback,
-  UnregisterRpcMethodResponse,
-  PerformRpcRequest,
-  RegisterRpcMethodRequest,
-  RpcMethodInvocationResponseRequest,
   UnregisterRpcMethodRequest,
+  UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
 import { RpcError } from './rpc.js';
 import type { LocalTrack } from './track.js';

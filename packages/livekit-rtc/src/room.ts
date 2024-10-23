@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import type { E2EEOptions } from './e2ee.js';
@@ -23,7 +22,7 @@ import type {
   RoomInfo,
 } from './proto/room_pb.js';
 import {
-  ConnectRequestSchema,
+  ConnectRequest,
   ConnectionState,
   ContinualGatheringPolicy,
   IceTransportType,
@@ -62,10 +61,10 @@ export const defaultRoomOptions: RoomOptions = {
 };
 
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
-  private info?: RoomInfo;
+  private info: RoomInfo;
   private ffiHandle?: FfiHandle;
 
-  e2eeManager?: E2EEManager;
+  e2eeManager: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
   remoteParticipants: Map<string, RemoteParticipant> = new Map();
@@ -75,12 +74,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     super();
   }
 
-  get name(): string | undefined {
-    return this.info?.name;
+  get name(): string {
+    return this.info.name;
   }
 
-  get metadata(): string | undefined {
-    return this.info?.metadata;
+  get metadata(): string {
+    return this.info.metadata;
   }
 
   get isConnected(): boolean {
@@ -88,31 +87,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   async getSid(): Promise<string> {
-    if (!this.isConnected) {
-      return '';
-    }
-    if (this.info && this.info.sid !== '') {
-      return this.info.sid;
-    }
-    return new Promise((resolve, reject) => {
-      const handleRoomUpdate = (sid: string) => {
-        if (sid !== '') {
-          this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-          resolve(sid);
-        }
-      };
-      this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
-      this.once(RoomEvent.Disconnected, () => {
-        this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-        reject('Room disconnected before room server id was available');
-      });
-    });
+    return this.info.sid; // TODO update this to handle async room updates once rust protocol has been updated
   }
 
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
 
-    const req = create(ConnectRequestSchema, {
+    const req = new ConnectRequest({
       url: url,
       token: token,
       options: {
@@ -141,21 +122,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'connect' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'result') {
-      throw new ConnectError(cb.message.value ?? 'Unknown error');
+    if (cb.error) {
+      throw new ConnectError(cb.error);
     }
 
-    const { room, localParticipant, participants } = cb.message.value;
-
-    this.ffiHandle = new FfiHandle(room!.handle!.id);
+    this.ffiHandle = new FfiHandle(cb.room.handle.id);
     this.e2eeManager = new E2EEManager(this.ffiHandle.handle, options.e2ee);
 
-    this.info = room!.info;
+    this.info = cb.room.info;
     this.connectionState = ConnectionState.CONN_CONNECTED;
-    this.localParticipant = new LocalParticipant(localParticipant!);
+    this.localParticipant = new LocalParticipant(cb.localParticipant);
 
-    for (const pt of participants) {
-      const rp = this.createRemoteParticipant(pt.participant!);
+    for (const pt of cb.participants) {
+      const rp = this.createRemoteParticipant(pt.participant);
 
       for (const pub of pt.publications) {
         const publication = new RemoteTrackPublication(pub);
@@ -167,7 +146,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   async disconnect() {
-    if (!this.isConnected || !this.ffiHandle) {
+    if (!this.isConnected) {
       return;
     }
 
@@ -185,10 +164,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
-    if (!this.localParticipant || !this.ffiHandle || !this.info) {
-      throw TypeError('cannot handle ffi events before connectCallback');
-    }
-
     if (
       ffiEvent.message.case != 'roomEvent' ||
       ffiEvent.message.value.roomHandle != this.ffiHandle.handle
@@ -198,88 +173,66 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
     const ev = ffiEvent.message.value.message;
     if (ev.case == 'participantConnected') {
-      const participant = this.createRemoteParticipant(ev.value.info!);
+      const participant = this.createRemoteParticipant(ev.value.info);
       this.remoteParticipants.set(participant.identity, participant);
       this.emit(RoomEvent.ParticipantConnected, participant);
     } else if (ev.case == 'participantDisconnected') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity);
-      if (participant) {
-        this.remoteParticipants.delete(participant.identity);
-        this.emit(RoomEvent.ParticipantDisconnected, participant);
-      }
+      this.remoteParticipants.delete(participant.identity);
+      this.emit(RoomEvent.ParticipantDisconnected, participant);
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
-      if (!publication) {
-        throw new TypeError('local track publication not found');
-      }
       this.emit(RoomEvent.LocalTrackPublished, publication, this.localParticipant);
     } else if (ev.case == 'localTrackUnpublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid);
       this.localParticipant.trackPublications.delete(ev.value.publicationSid);
-      if (publication) {
-        this.emit(RoomEvent.LocalTrackUnpublished, publication, this.localParticipant);
-      }
+      this.emit(RoomEvent.LocalTrackUnpublished, publication, this.localParticipant);
     } else if (ev.case == 'localTrackSubscribed') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid);
-      if (!publication) {
-        throw new TypeError('local track publication not found');
-      }
       publication.resolveFirstSubscription();
-      this.emit(RoomEvent.LocalTrackSubscribed, publication.track!);
+      this.emit(RoomEvent.LocalTrackSubscribed, publication.track);
     } else if (ev.case == 'trackPublished') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
-      const publication = new RemoteTrackPublication(ev.value.publication!);
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
+      const publication = new RemoteTrackPublication(ev.value.publication);
       participant.trackPublications.set(publication.sid, publication);
       this.emit(RoomEvent.TrackPublished, publication, participant);
     } else if (ev.case == 'trackUnpublished') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       const publication = participant.trackPublications.get(ev.value.publicationSid);
       participant.trackPublications.delete(ev.value.publicationSid);
-      if (publication) {
-        this.emit(RoomEvent.TrackUnpublished, publication, participant);
-      }
+      this.emit(RoomEvent.TrackUnpublished, publication, participant);
     } else if (ev.case == 'trackSubscribed') {
-      const ownedTrack = ev.value.track!;
-      const trackInfo = ownedTrack.info!;
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-        ev.value.participantIdentity,
-        trackInfo.sid,
-      );
+      const ownedTrack = ev.value.track;
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
+      const publication = participant.trackPublications.get(ownedTrack.info.sid);
       publication.subscribed = true;
-      if (trackInfo.kind == TrackKind.KIND_VIDEO) {
+      if (ownedTrack.info.kind == TrackKind.KIND_VIDEO) {
         publication.track = new RemoteVideoTrack(ownedTrack);
-      } else if (trackInfo.kind == TrackKind.KIND_AUDIO) {
+      } else if (ownedTrack.info.kind == TrackKind.KIND_AUDIO) {
         publication.track = new RemoteAudioTrack(ownedTrack);
       }
 
-      this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
+      this.emit(RoomEvent.TrackSubscribed, publication.track, publication, participant);
     } else if (ev.case == 'trackUnsubscribed') {
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-        ev.value.participantIdentity,
-        ev.value.trackSid,
-      );
-      const track = publication.track!;
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
+      const publication = participant.trackPublications.get(ev.value.trackSid);
       publication.track = undefined;
       publication.subscribed = false;
-      this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
+      this.emit(RoomEvent.TrackUnsubscribed, publication.track, publication, participant);
     } else if (ev.case == 'trackSubscriptionFailed') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
       this.emit(RoomEvent.TrackSubscriptionFailed, ev.value.trackSid, participant, ev.value.error);
     } else if (ev.case == 'trackMuted') {
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-        ev.value.participantIdentity,
-        ev.value.trackSid,
-      );
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity);
+      const publication = participant.trackPublications.get(ev.value.trackSid);
       publication.info.muted = true;
       if (publication.track) {
         publication.track.info.muted = true;
       }
       this.emit(RoomEvent.TrackMuted, publication, participant);
     } else if (ev.case == 'trackUnmuted') {
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-        ev.value.participantIdentity,
-        ev.value.trackSid,
-      );
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
+      const publication = participant.trackPublications.get(ev.value.trackSid);
       publication.info.muted = false;
       if (publication.track) {
         publication.track.info.muted = false;
@@ -287,45 +240,32 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.TrackUnmuted, publication, participant);
     } else if (ev.case == 'activeSpeakersChanged') {
       const activeSpeakers = ev.value.participantIdentities.map((identity) =>
-        this.requireRemoteParticipant(identity),
+        this.retrieveParticipantByIdentity(identity),
       );
       this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
     } else if (ev.case == 'roomMetadataChanged') {
       this.info.metadata = ev.value.metadata;
       this.emit(RoomEvent.RoomMetadataChanged, this.info.metadata);
     } else if (ev.case == 'participantMetadataChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       participant.info.metadata = ev.value.metadata;
       this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
     } else if (ev.case == 'participantNameChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       participant.info.name = ev.value.name;
       this.emit(RoomEvent.ParticipantNameChanged, participant.name, participant);
     } else if (ev.case == 'participantAttributesChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
-      participant.info.attributes = ev.value.attributes.reduce(
-        (acc, value) => {
-          acc[value.key] = value.value;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
+      participant.info.attributes = ev.value.attributes;
       if (Object.keys(ev.value.changedAttributes).length > 0) {
-        const changedAttributes = ev.value.changedAttributes.reduce(
-          (acc, value) => {
-            acc[value.key] = value.value;
-            return acc;
-          },
-          {} as Record<string, string>,
-        );
-        this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
+        this.emit(RoomEvent.ParticipantAttributesChanged, ev.value.changedAttributes, participant);
       }
     } else if (ev.case == 'connectionQualityChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
-      const { id, message: messageText, timestamp, editTimestamp, generated } = ev.value.message!;
+      const { id, message: messageText, timestamp, editTimestamp, generated } = ev.value.message;
       const message: ChatMessage = {
         id,
         message: messageText,
@@ -340,9 +280,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const dataPacket = ev.value.value;
       switch (dataPacket.case) {
         case 'user':
-          const data = dataPacket.value.data!.data!;
-          const buffer = FfiClient.instance.copyBuffer(data.dataPtr, Number(data.dataLen));
-          new FfiHandle(dataPacket.value.data!.handle!.id).dispose();
+          const buffer = FfiClient.instance.copyBuffer(
+            dataPacket.value.data.data.dataPtr,
+            Number(dataPacket.value.data.data.dataLen),
+          );
+          new FfiHandle(dataPacket.value.data.handle.id).dispose();
           this.emit(
             RoomEvent.DataReceived,
             buffer,
@@ -374,43 +316,24 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnecting);
     } else if (ev.case == 'reconnected') {
       this.emit(RoomEvent.Reconnected);
-    } else if (ev.case == 'roomSidChanged') {
-      this.emit(RoomEvent.RoomSidChanged, ev.value.sid);
     }
   };
 
-  private retrieveParticipantByIdentity(identity: string): Participant | undefined {
-    if (this.localParticipant?.identity === identity) {
+  private retrieveParticipantByIdentity(identity: string): Participant {
+    if (this.localParticipant.identity === identity) {
       return this.localParticipant;
     } else {
       return this.remoteParticipants.get(identity);
     }
   }
 
-  private requireRemoteParticipant(identity: string) {
-    const participant = this.remoteParticipants.get(identity);
-    if (!participant) {
-      throw new TypeError(`participant ${identity} not found`);
-    }
-    return participant;
-  }
-
-  private requirePublicationOfRemoteParticipant(identity: string, trackSid: string) {
-    const participant = this.requireRemoteParticipant(identity);
-    const publication = participant.trackPublications.get(trackSid);
-    if (!publication) {
-      throw new TypeError(`publication ${trackSid} not found`);
-    }
-    return { participant, publication };
-  }
-
   private createRemoteParticipant(ownedInfo: OwnedParticipant) {
-    if (this.remoteParticipants.has(ownedInfo.info!.identity)) {
+    if (this.remoteParticipants.has(ownedInfo.info.identity)) {
       throw new Error('Participant already exists');
     }
 
     const participant = new RemoteParticipant(ownedInfo);
-    this.remoteParticipants.set(ownedInfo.info!.identity, participant);
+    this.remoteParticipants.set(ownedInfo.info.identity, participant);
     return participant;
   }
 }
@@ -451,7 +374,6 @@ export type RoomCallbacks = {
   trackUnmuted: (publication: TrackPublication, participant: Participant) => void;
   activeSpeakersChanged: (speakers: Participant[]) => void;
   roomMetadataChanged: (metadata: string) => void;
-  roomInfoUpdated: (info: RoomInfo) => void;
   participantMetadataChanged: (metadata: string | undefined, participant: Participant) => void;
   participantNameChanged: (name: string, participant: Participant) => void;
   participantAttributesChanged: (
@@ -466,14 +388,13 @@ export type RoomCallbacks = {
     topic?: string,
   ) => void;
   chatMessage: (message: ChatMessage, participant?: Participant) => void;
-  dtmfReceived: (code: number, digit: string, participant?: RemoteParticipant) => void;
+  dtmfReceived: (code: number, digit: string, participant: RemoteParticipant) => void;
   encryptionError: (error: Error) => void;
   connectionStateChanged: (state: ConnectionState) => void;
   connected: () => void;
   disconnected: (reason: DisconnectReason) => void;
   reconnecting: () => void;
   reconnected: () => void;
-  roomSidChanged: (sid: string) => void;
 };
 
 export enum RoomEvent {
@@ -491,7 +412,6 @@ export enum RoomEvent {
   TrackUnmuted = 'trackUnmuted',
   ActiveSpeakersChanged = 'activeSpeakersChanged',
   RoomMetadataChanged = 'roomMetadataChanged',
-  RoomSidChanged = 'roomSidChanged',
   ParticipantMetadataChanged = 'participantMetadataChanged',
   ParticipantNameChanged = 'participantNameChanged',
   ParticipantAttributesChanged = 'participantAttributesChanged',

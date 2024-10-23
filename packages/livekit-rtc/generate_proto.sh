@@ -11,8 +11,8 @@ FFI_PROTOCOL=./rust-sdks/livekit-ffi/protocol
 FFI_OUT_NODE=./src/proto
 
 # ffi
-PATH=$PATH:$(pwd)/node_modules/.bin \
-  protoc \
+
+protoc \
     -I=$FFI_PROTOCOL \
     --es_out $FFI_OUT_NODE \
     --es_opt target=ts \

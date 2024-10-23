@@ -38,8 +38,8 @@ fn livekit_initialize(cb: JsFunction, capture_logs: bool, sdk_version: String) {
             }
         }),
         capture_logs,
-        sdk: "node",
-        sdk_version: SDK_VERSION.get().unwrap().as_str(),
+        sdk: "node".to_string(),
+        sdk_version: SDK_VERSION.get().unwrap().to_string(),
     });
 }
 

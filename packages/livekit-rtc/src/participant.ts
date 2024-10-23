@@ -25,7 +25,6 @@ import type {
   UnpublishTrackCallback,
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
-import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
   ChatMessageSchema,
   EditChatMessageRequestSchema,

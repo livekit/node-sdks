@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
+import type { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
 
 /**
  * Specialized error handling for RPC methods.
@@ -53,6 +53,7 @@ export class RpcError extends Error {
     UNSUPPORTED_METHOD: 1400,
     RECIPIENT_NOT_FOUND: 1401,
     REQUEST_PAYLOAD_TOO_LARGE: 1402,
+    UNSUPPORTED_SERVER: 1403,
   } as const;
 
   /**
@@ -69,6 +70,7 @@ export class RpcError extends Error {
     UNSUPPORTED_METHOD: 'Method not supported at destination',
     RECIPIENT_NOT_FOUND: 'Recipient not found',
     REQUEST_PAYLOAD_TOO_LARGE: 'Request payload too large',
+    UNSUPPORTED_SERVER: 'RPC not supported by server',
   } as const;
 
   /**

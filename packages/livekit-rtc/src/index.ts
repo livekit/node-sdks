@@ -87,11 +87,15 @@ export class TrackPublishOptions implements TrackPublishOptionsType {
   stream: string;
   red: boolean;
 
-  constructor(init: MessageInitShape<typeof TrackPublishOptionsSchema>) {
+  constructor(init: MessageInitShape<typeof TrackPublishOptionsSchema> = {}) {
     const { videoCodec, videoEncoding, audioEncoding, dtx, simulcast, source, stream, red } = init;
     this.videoCodec = videoCodec ?? VideoCodec.VP8;
-    this.videoEncoding = create(VideoEncodingSchema, videoEncoding);
-    this.audioEncoding = create(AudioEncodingSchema, audioEncoding);
+    if (videoEncoding) {
+      this.videoEncoding = create(VideoEncodingSchema, videoEncoding);
+    }
+    if (audioEncoding) {
+      this.audioEncoding = create(AudioEncodingSchema, audioEncoding);
+    }
     this.dtx = dtx ?? false;
     this.simulcast = simulcast ?? false;
     this.source = source ?? TrackSource.SOURCE_UNKNOWN;

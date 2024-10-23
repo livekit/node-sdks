@@ -20,6 +20,7 @@ import {
   FfiResponse,
   FfiResponseSchema,
 } from './proto/ffi_pb.js';
+import { SDK_VERSION } from './version.js';
 
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
 
@@ -51,7 +52,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
         this.emit(FfiClientEvent.FfiEvent, event);
       },
       true,
-      version,
+      SDK_VERSION,
     );
   }
 

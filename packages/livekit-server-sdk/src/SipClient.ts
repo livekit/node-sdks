@@ -86,7 +86,7 @@ export interface CreateSipParticipantOptions {
   participantName?: string;
   participantMetadata?: string;
   dtmf?: string;
-/** @deprecated - use `playDialtone` instead */
+  /** @deprecated - use `playDialtone` instead */
   playRingtone?: boolean; // Deprecated, use playDialtone instead
   playDialtone?: boolean;
   hidePhoneNumber?: boolean;

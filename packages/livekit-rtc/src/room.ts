@@ -259,7 +259,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
       this.emit(RoomEvent.TrackSubscriptionFailed, ev.value.trackSid, participant, ev.value.error);
     } else if (ev.case == 'trackMuted') {
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
+      const { participant, publication } = this.requirePublicationOfParticipant(
         ev.value.participantIdentity,
         ev.value.trackSid,
       );
@@ -269,7 +269,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
       this.emit(RoomEvent.TrackMuted, publication, participant);
     } else if (ev.case == 'trackUnmuted') {
-      const { participant, publication } = this.requirePublicationOfRemoteParticipant(
+      const { participant, publication } = this.requirePublicationOfParticipant(
         ev.value.participantIdentity,
         ev.value.trackSid,
       );
@@ -280,22 +280,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.TrackUnmuted, publication, participant);
     } else if (ev.case == 'activeSpeakersChanged') {
       const activeSpeakers = ev.value.participantIdentities.map((identity) =>
-        this.requireRemoteParticipant(identity),
+        this.requireParticipantByIdentity(identity),
       );
       this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
     } else if (ev.case == 'roomMetadataChanged') {
       this.info.metadata = ev.value.metadata;
       this.emit(RoomEvent.RoomMetadataChanged, this.info.metadata);
     } else if (ev.case == 'participantMetadataChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.requireParticipantByIdentity(ev.value.participantIdentity);
       participant.info.metadata = ev.value.metadata;
       this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
     } else if (ev.case == 'participantNameChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.requireParticipantByIdentity(ev.value.participantIdentity);
       participant.info.name = ev.value.name;
       this.emit(RoomEvent.ParticipantNameChanged, participant.name, participant);
     } else if (ev.case == 'participantAttributesChanged') {
-      const participant = this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.requireParticipantByIdentity(ev.value.participantIdentity);
       participant.info.attributes = ev.value.attributes.reduce(
         (acc, value) => {
           acc[value.key] = value.value;
@@ -314,10 +314,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
       }
     } else if (ev.case == 'connectionQualityChanged') {
-      const participant =
-        this.localParticipant.identity === ev.value.participantIdentity
-          ? this.localParticipant
-          : this.requireRemoteParticipant(ev.value.participantIdentity);
+      const participant = this.requireParticipantByIdentity(ev.value.participantIdentity);
       this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality, participant);
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity);
@@ -383,12 +380,31 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
   }
 
+  private requireParticipantByIdentity(identity: string): Participant {
+    if (this.localParticipant?.identity === identity) {
+      return this.localParticipant;
+    } else if (this.remoteParticipants.has(identity)) {
+      return this.remoteParticipants.get(identity)!;
+    } else {
+      throw new TypeError(`participant ${identity} not found`);
+    }
+  }
+
   private requireRemoteParticipant(identity: string) {
     const participant = this.remoteParticipants.get(identity);
     if (!participant) {
       throw new TypeError(`participant ${identity} not found`);
     }
     return participant;
+  }
+
+  private requirePublicationOfParticipant(identity: string, trackSid: string) {
+    const participant = this.requireParticipantByIdentity(identity);
+    const publication = participant.trackPublications.get(trackSid);
+    if (!publication) {
+      throw new TypeError(`publication ${trackSid} not found`);
+    }
+    return { participant, publication };
   }
 
   private requirePublicationOfRemoteParticipant(identity: string, trackSid: string) {

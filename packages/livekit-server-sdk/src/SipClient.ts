@@ -86,8 +86,14 @@ export interface CreateSipParticipantOptions {
   participantName?: string;
   participantMetadata?: string;
   dtmf?: string;
-  playRingtone?: boolean;
+  /** @deprecated - use `playDialtone` instead */
+  playRingtone?: boolean; // Deprecated, use playDialtone instead
+  playDialtone?: boolean;
   hidePhoneNumber?: boolean;
+}
+
+export interface TransferSipParticipantOptions {
+  playDialtone?: boolean;
 }
 
 /**
@@ -395,6 +401,7 @@ export class SipClient extends ServiceBase {
     let participantMetadata: string = '';
     let dtmf: string = '';
     let playRingtone: boolean = false;
+    let playDialtone: boolean = false;
     let hidePhoneNumber: boolean = false;
 
     if (opts !== undefined) {
@@ -403,6 +410,7 @@ export class SipClient extends ServiceBase {
       participantMetadata = opts.participantMetadata || '';
       dtmf = opts.dtmf || '';
       playRingtone = opts.playRingtone || false;
+      playDialtone = opts.playDialtone || playRingtone; // Enable PlayDialtone if either PlayDialtone or playRingtone is set
       hidePhoneNumber = opts.hidePhoneNumber || false;
     }
 
@@ -414,7 +422,8 @@ export class SipClient extends ServiceBase {
       participantName: participantName,
       participantMetadata: participantMetadata,
       dtmf: dtmf,
-      playRingtone: playRingtone,
+      playRingtone: playDialtone,
+      playDialtone: playDialtone,
       hidePhoneNumber: hidePhoneNumber,
     }).toJson();
 
@@ -436,11 +445,19 @@ export class SipClient extends ServiceBase {
     roomName: string,
     participantIdentity: string,
     transferTo: string,
+    opts?: TransferSipParticipantOptions,
   ): Promise<void> {
+    let playDialtone: boolean = false;
+
+    if (opts !== undefined) {
+      playDialtone = opts.playDialtone || false;
+    }
+
     const req = new TransferSIPParticipantRequest({
       participantIdentity: participantIdentity,
       roomName: roomName,
       transferTo: transferTo,
+      playDialtone: playDialtone,
     }).toJson();
 
     await this.rpc.request(

@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MessageInitShape, create, fromBinary, toBinary } from '@bufbuild/protobuf';
+import type { MessageInitShape} from '@bufbuild/protobuf';
+import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import {

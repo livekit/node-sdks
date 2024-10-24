@@ -63,11 +63,12 @@ async function main() {
 const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
   greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       requestId: string,
       callerIdentity: string,
       payload: string,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       responseTimeoutMs: number,
     ) => {
       console.log(`[Greeter] Oh ${callerIdentity} arrived and said "${payload}"`);
@@ -79,6 +80,7 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
   mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
     async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       requestId: string,
       callerIdentity: string,
       payload: string,
@@ -101,11 +103,12 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
 
   mathGeniusRoom.localParticipant?.registerRpcMethod(
     'divide',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       requestId: string,
       callerIdentity: string,
       payload: string,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       responseTimeoutMs: number,
     ) => {
       const jsonData = JSON.parse(payload);

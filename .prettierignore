@@ -7,3 +7,4 @@ node_modules
 packages/livekit-rtc/src/napi
 packages/livekit-rtc/src/proto
 packages/livekit-rtc/target
+packages/livekit-rtc/src/version.ts

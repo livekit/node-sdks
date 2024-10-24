@@ -4,9 +4,12 @@
 import { create } from '@bufbuild/protobuf';
 import { FfiClient } from './ffi_client.js';
 import { FfiRequestSchema } from './proto/ffi_pb.js';
-import type { OwnedVideoBuffer, VideoConvertResponse ,
+import type {
+  OwnedVideoBuffer,
   VideoBufferInfo,
-  VideoBufferInfo_ComponentInfo} from './proto/video_frame_pb.js';
+  VideoBufferInfo_ComponentInfo,
+  VideoConvertResponse,
+} from './proto/video_frame_pb.js';
 import {
   VideoBufferInfoSchema,
   VideoBufferInfo_ComponentInfoSchema,

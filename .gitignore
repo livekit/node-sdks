@@ -137,3 +137,6 @@ dist
 
 # ts-docs
 packages/*/docs
+
+# generated version file
+packages/livekit-rtc/src/version.ts

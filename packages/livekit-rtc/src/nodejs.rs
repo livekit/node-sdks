@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use livekit_ffi::FfiHandleId;
 use livekit_ffi::{proto, server, FFI_SERVER};
 use napi::{
     bindgen_prelude::*,
@@ -15,8 +14,10 @@ use napi_derive::napi;
 use prost::Message;
 use std::sync::Arc;
 
-#[napi(ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean")]
-fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
+#[napi(
+    ts_args_type = "callback: (data: Uint8Array) => void, captureLogs: boolean, sdkVersion: string"
+)]
+fn livekit_initialize(cb: JsFunction, capture_logs: bool, sdk_version: String) {
     let tsfn: ThreadsafeFunction<proto::FfiEvent, ErrorStrategy::Fatal> = cb
         .create_threadsafe_function(0, |ctx: ThreadSafeCallContext<proto::FfiEvent>| {
             let data = ctx.value.encode_to_vec();
@@ -33,6 +34,8 @@ fn livekit_initialize(cb: JsFunction, capture_logs: bool) {
             }
         }),
         capture_logs,
+        sdk: "node".to_string(),
+        sdk_version,
     });
 }
 

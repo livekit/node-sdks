@@ -1,12 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { MessageInitShape} from '@bufbuild/protobuf';
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import { create } from '@bufbuild/protobuf';
-import type {
-  AudioEncoding,
-  TrackPublishOptionsSchema,
-  VideoEncoding} from './proto/room_pb.js';
+import type { AudioEncoding, TrackPublishOptionsSchema, VideoEncoding } from './proto/room_pb.js';
 import {
   AudioEncodingSchema,
   IceServerSchema,

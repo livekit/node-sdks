@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { MessageInitShape} from '@bufbuild/protobuf';
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
@@ -21,6 +21,7 @@ import {
   FfiResponse,
   FfiResponseSchema,
 } from './proto/ffi_pb.js';
+import { SDK_VERSION } from './version.js';
 
 export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
 
@@ -46,10 +47,14 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     super();
     this.setMaxListeners(0);
 
-    livekitInitialize((event_data: Uint8Array) => {
-      const event = fromBinary(FfiEventSchema, event_data);
-      this.emit(FfiClientEvent.FfiEvent, event);
-    }, true);
+    livekitInitialize(
+      (event_data: Uint8Array) => {
+        const event = fromBinary(FfiEventSchema, event_data);
+        this.emit(FfiClientEvent.FfiEvent, event);
+      },
+      true,
+      SDK_VERSION,
+    );
   }
 
   request<T>(req: MessageInitShape<typeof FfiRequestSchema>): T {

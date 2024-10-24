@@ -182,7 +182,21 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       throw TypeError('cannot handle ffi events before connectCallback');
     }
 
-    if (
+    if (ffiEvent.message.case == 'rpcMethodInvocation') {
+      if (
+        ffiEvent.message.value.localParticipantHandle == this.localParticipant.ffi_handle.handle
+      ) {
+        this.localParticipant.handleRpcMethodInvocation(
+          ffiEvent.message.value.invocationId,
+          ffiEvent.message.value.method,
+          ffiEvent.message.value.requestId,
+          ffiEvent.message.value.callerIdentity,
+          ffiEvent.message.value.payload,
+          ffiEvent.message.value.responseTimeoutMs,
+        );
+      }
+      return;
+    } else if (
       ffiEvent.message.case != 'roomEvent' ||
       ffiEvent.message.value.roomHandle != this.ffiHandle.handle
     ) {

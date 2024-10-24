@@ -1,15 +1,14 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MessageInitShape, create } from '@bufbuild/protobuf';
+import type { MessageInitShape } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
+import type { AudioEncoding, TrackPublishOptionsSchema, VideoEncoding } from './proto/room_pb.js';
 import {
-  AudioEncoding,
   AudioEncodingSchema,
   IceServerSchema,
   type IceServer as IceServerType,
-  TrackPublishOptionsSchema,
   type TrackPublishOptions as TrackPublishOptionsType,
-  VideoEncoding,
   VideoEncodingSchema,
 } from './proto/room_pb.js';
 import { TrackSource } from './proto/track_pb.js';
@@ -50,6 +49,7 @@ export {
   ContinualGatheringPolicy,
   ConnectionState,
 } from './proto/room_pb.js';
+export { RpcError } from './rpc.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_pb.js';

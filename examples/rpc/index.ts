@@ -23,7 +23,7 @@ async function main() {
   ]);
 
   // Register all methods for the receiving participant
-  await registerReceiverMethods(greetersRoom, mathGeniusRoom);
+  registerReceiverMethods(greetersRoom, mathGeniusRoom);
 
   try {
     console.log('\n\nRunning greeting example...');
@@ -60,8 +60,8 @@ async function main() {
   process.exit(0);
 }
 
-const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room): Promise<void> => {
-  await greetersRoom.localParticipant?.registerRpcMethod(
+const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
+  greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (
@@ -76,7 +76,7 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
     },
   );
 
-  await mathGeniusRoom.localParticipant?.registerRpcMethod(
+  mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
     async (
       requestId: string,
@@ -99,7 +99,7 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
     },
   );
 
-  await mathGeniusRoom.localParticipant?.registerRpcMethod(
+  mathGeniusRoom.localParticipant?.registerRpcMethod(
     'divide',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (
@@ -199,7 +199,7 @@ const performDivision = async (room: Room): Promise<void> => {
   }
 };
 
-const createToken = (identity: string, roomName: string) => {
+const createToken = async (identity: string, roomName: string) => {
   const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
     identity,
   });
@@ -209,7 +209,7 @@ const createToken = (identity: string, roomName: string) => {
     canPublish: true,
     canSubscribe: true,
   });
-  return token.toJwt();
+  return await token.toJwt();
 };
 
 const connectParticipant = async (identity: string, roomName: string): Promise<Room> => {

@@ -55,7 +55,7 @@
     "node": ">= 18"
   },
   "scripts": {
-    "prebuild": "node -p \"'// SPDX-FileCopyrightText: 2024 LiveKit, Inc.\\n//\\n// SPDX-License-Identifier: Apache-2.0\\nexport const SDK_VERSION = ' + JSON.stringify(require('./package.json').version).replace(/\\\"/g,\\\"\\'\\\") + ';'\" > src/version.ts",
+    "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version).replace(/\\\"/g,\\\"\\'\\\") + ';'\" > src/version.ts",
     "build:tsc": "tsc && cp -r src/napi dist/",
     "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",

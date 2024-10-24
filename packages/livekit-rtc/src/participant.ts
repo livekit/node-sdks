@@ -28,26 +28,26 @@ import type {
 import {
   ChatMessageSchema,
   EditChatMessageRequestSchema,
+  PerformRpcRequestSchema,
   PublishDataRequestSchema,
   PublishSipDtmfRequestSchema,
   PublishTrackRequestSchema,
   PublishTranscriptionRequestSchema,
+  RegisterRpcMethodRequestSchema,
+  RpcMethodInvocationResponseRequestSchema,
   SendChatMessageRequestSchema,
   SetLocalAttributesRequestSchema,
   SetLocalMetadataRequestSchema,
   SetLocalNameRequestSchema,
   UnpublishTrackRequestSchema,
+  UnregisterRpcMethodRequestSchema,
 } from './proto/room_pb.js';
 import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
-  PerformRpcRequest,
   PerformRpcResponse,
-  RegisterRpcMethodRequest,
   RegisterRpcMethodResponse,
-  RpcMethodInvocationResponseRequest,
   RpcMethodInvocationResponseResponse,
-  UnregisterRpcMethodRequest,
   UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
 import { RpcError } from './rpc.js';
@@ -387,13 +387,13 @@ export class LocalParticipant extends Participant {
     payload: string,
     responseTimeoutMs?: number,
   ): Promise<string> {
-    const req = {
+    const req = create(PerformRpcRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
       payload,
       responseTimeoutMs,
-    } as PerformRpcRequest;
+    });
 
     const res = FfiClient.instance.request<PerformRpcResponse>({
       message: { case: 'performRpc', value: req },
@@ -453,10 +453,10 @@ export class LocalParticipant extends Participant {
   ) {
     this.rpcHandlers.set(method, handler);
 
-    const req = {
+    const req = create(RegisterRpcMethodRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       method,
-    } as RegisterRpcMethodRequest;
+    });
 
     FfiClient.instance.request<RegisterRpcMethodResponse>({
       message: { case: 'registerRpcMethod', value: req },
@@ -471,10 +471,10 @@ export class LocalParticipant extends Participant {
   unregisterRpcMethod(method: string) {
     this.rpcHandlers.delete(method);
 
-    const req = {
+    const req = create(UnregisterRpcMethodRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       method,
-    } as UnregisterRpcMethodRequest;
+    });
 
     FfiClient.instance.request<UnregisterRpcMethodResponse>({
       message: { case: 'unregisterRpcMethod', value: req },
@@ -513,12 +513,12 @@ export class LocalParticipant extends Participant {
       }
     }
 
-    const req = {
+    const req = create(RpcMethodInvocationResponseRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       invocationId,
       error: responseError ? responseError.toProto() : undefined,
       payload: responsePayload ?? undefined,
-    } as RpcMethodInvocationResponseRequest;
+    });
 
     const res = FfiClient.instance.request<RpcMethodInvocationResponseResponse>({
       message: { case: 'rpcMethodInvocationResponse', value: req },

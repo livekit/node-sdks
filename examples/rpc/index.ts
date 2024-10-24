@@ -64,16 +64,26 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
   await greetersRoom.localParticipant?.registerRpcMethod(
     'arrival',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+    async (
+      requestId: string,
+      callerIdentity: string,
+      payload: string,
+      responseTimeoutMs: number,
+    ) => {
       console.log(`[Greeter] Oh ${callerIdentity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      return "Welcome and have a wonderful day!";
+      return 'Welcome and have a wonderful day!';
     },
   );
 
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'square-root',
-    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+    async (
+      requestId: string,
+      callerIdentity: string,
+      payload: string,
+      responseTimeoutMs: number,
+    ) => {
       const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(
@@ -92,7 +102,12 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
   await mathGeniusRoom.localParticipant?.registerRpcMethod(
     'divide',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+    async (
+      requestId: string,
+      callerIdentity: string,
+      payload: string,
+      responseTimeoutMs: number,
+    ) => {
       const jsonData = JSON.parse(payload);
       const { numerator, denominator } = jsonData;
       console.log(
@@ -112,7 +127,7 @@ const registerReceiverMethods = async (greetersRoom: Room, mathGeniusRoom: Room)
 };
 
 const performGreeting = async (room: Room): Promise<void> => {
-  console.log('[Caller] Letting the greeter know that I\'ve arrived');
+  console.log("[Caller] Letting the greeter know that I've arrived");
   try {
     const response = await room.localParticipant!.performRpc('greeter', 'arrival', 'Hello');
     console.log(`[Caller] That's nice, the greeter said: "${response}"`);
@@ -125,7 +140,11 @@ const performGreeting = async (room: Room): Promise<void> => {
 const performSquareRoot = async (room: Room): Promise<void> => {
   console.log("[Caller] What's the square root of 16?");
   try {
-    const response = await room.localParticipant!.performRpc('math-genius', 'square-root', JSON.stringify({ number: 16 }));
+    const response = await room.localParticipant!.performRpc(
+      'math-genius',
+      'square-root',
+      JSON.stringify({ number: 16 }),
+    );
     const parsedResponse = JSON.parse(response);
     console.log(`[Caller] Nice, the answer was ${parsedResponse.result}`);
   } catch (error) {
@@ -140,7 +159,7 @@ const performQuantumHypergeometricSeries = async (room: Room): Promise<void> => 
     const response = await room.localParticipant!.performRpc(
       'math-genius',
       'quantum-hypergeometric-series',
-      JSON.stringify({ number: 42 })
+      JSON.stringify({ number: 42 }),
     );
     const parsedResponse = JSON.parse(response);
     console.log(`[Caller] genius says ${parsedResponse.result}!`);
@@ -163,7 +182,7 @@ const performDivision = async (room: Room): Promise<void> => {
     const response = await room.localParticipant!.performRpc(
       'math-genius',
       'divide',
-      JSON.stringify({ numerator: 10, denominator: 0 })
+      JSON.stringify({ numerator: 10, denominator: 0 }),
     );
     const parsedResponse = JSON.parse(response);
     console.log(`[Caller] The result is ${parsedResponse.result}`);

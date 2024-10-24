@@ -38,13 +38,13 @@ import {
   SetLocalNameRequestSchema,
   UnpublishTrackRequestSchema,
 } from './proto/room_pb.js';
+import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import {
   PerformRpcRequestSchema,
   RegisterRpcMethodRequestSchema,
   RpcMethodInvocationResponseRequestSchema,
   UnregisterRpcMethodRequestSchema,
 } from './proto/rpc_pb.js';
-import { TranscriptionSegmentSchema } from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,

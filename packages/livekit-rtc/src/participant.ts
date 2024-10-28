@@ -52,7 +52,7 @@ import type {
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
-import { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
+import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';

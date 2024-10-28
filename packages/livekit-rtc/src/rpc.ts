@@ -40,7 +40,6 @@ export interface RpcInvocationData {
   responseTimeout: number;
 }
 
-
 /**
  * Specialized error handling for RPC methods.
  *

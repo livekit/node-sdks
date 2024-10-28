@@ -121,7 +121,7 @@ export class LocalParticipant extends Participant {
       requestId: string,
       callerIdentity: string,
       payload: string,
-      responseTimeoutMs: number,
+      responseTimeout: number,
     ) => Promise<string>
   > = new Map();
 
@@ -379,7 +379,7 @@ export class LocalParticipant extends Participant {
    * @param destinationIdentity - The `identity` of the destination participant
    * @param method - The method name to call
    * @param payload - The method payload
-   * @param responseTimeoutMs - Timeout for receiving a response after initial connection
+   * @param responseTimeout - Timeout for receiving a response after initial connection (milliseconds)
    * @returns A promise that resolves with the response payload or rejects with an error.
    * @throws Error on failure. Details in `message`.
    */
@@ -387,14 +387,14 @@ export class LocalParticipant extends Participant {
     destinationIdentity: string,
     method: string,
     payload: string,
-    responseTimeoutMs?: number,
+    responseTimeout?: number,
   ): Promise<string> {
     const req = create(PerformRpcRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
       payload,
-      responseTimeoutMs,
+      responseTimeoutMs: responseTimeout,
     });
 
     const res = FfiClient.instance.request<PerformRpcResponse>({
@@ -424,7 +424,7 @@ export class LocalParticipant extends Participant {
    * ```typescript
    * room.localParticipant?.registerRpcMethod(
    *   'greet',
-   *   async (requestId: string, callerIdentity: string, payload: string, responseTimeoutMs: number) => {
+   *   async (requestId: string, callerIdentity: string, payload: string, responseTimeout: number) => {
    *     console.log(`Received greeting from ${callerIdentity}: ${payload}`);
    *     return `Hello, ${callerIdentity}!`;
    *   }
@@ -435,10 +435,10 @@ export class LocalParticipant extends Participant {
    * - `requestId`: A unique identifier for this RPC request
    * - `callerIdentity`: The identity of the RemoteParticipant who initiated the RPC call
    * - `payload`: The data sent by the caller (as a string)
-   * - `responseTimeoutMs`: The maximum time available to return a response
+   * - `responseTimeout`: The maximum time available to return a response (milliseconds)
    *
    * The handler should return a Promise that resolves to a string.
-   * If unable to respond within `responseTimeoutMs`, the request will result in an error on the caller's side.
+   * If unable to respond within `responseTimeout`, the request will result in an error on the caller's side.
    *
    * You may throw errors of type `RpcError` with a string `message` in the handler,
    * and they will be received on the caller's side with the message intact.
@@ -450,7 +450,7 @@ export class LocalParticipant extends Participant {
       requestId: string,
       callerIdentity: string,
       payload: string,
-      responseTimeoutMs: number,
+      responseTimeout: number,
     ) => Promise<string>,
   ) {
     this.rpcHandlers.set(method, handler);
@@ -490,7 +490,7 @@ export class LocalParticipant extends Participant {
     requestId: string,
     callerIdentity: string,
     payload: string,
-    responseTimeoutMs: number,
+    responseTimeout: number,
   ) {
     let responseError: RpcError | null = null;
     let responsePayload: string | null = null;
@@ -501,7 +501,7 @@ export class LocalParticipant extends Participant {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
       try {
-        responsePayload = await handler(requestId, callerIdentity, payload, responseTimeoutMs);
+        responsePayload = await handler(requestId, callerIdentity, payload, responseTimeout);
       } catch (error) {
         if (error instanceof RpcError) {
           responseError = error;

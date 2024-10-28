@@ -69,7 +69,7 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
       callerIdentity: string,
       payload: string,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      responseTimeoutMs: number,
+      responseTimeout: number,
     ) => {
       console.log(`[Greeter] Oh ${callerIdentity} arrived and said "${payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -84,12 +84,12 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
       requestId: string,
       callerIdentity: string,
       payload: string,
-      responseTimeoutMs: number,
+      responseTimeout: number,
     ) => {
       const jsonData = JSON.parse(payload);
       const number = jsonData.number;
       console.log(
-        `[Math Genius] I guess ${callerIdentity} wants the square root of ${number}. I've only got ${responseTimeoutMs / 1000} seconds to respond but I think I can pull it off.`,
+        `[Math Genius] I guess ${callerIdentity} wants the square root of ${number}. I've only got ${responseTimeout / 1000} seconds to respond but I think I can pull it off.`,
       );
 
       console.log(`[Math Genius] *doing math*…`);
@@ -109,7 +109,7 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
       callerIdentity: string,
       payload: string,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      responseTimeoutMs: number,
+      responseTimeout: number,
     ) => {
       const jsonData = JSON.parse(payload);
       const { numerator, denominator } = jsonData;

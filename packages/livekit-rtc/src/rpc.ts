@@ -3,6 +3,44 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { RpcError as RpcError_Proto } from './proto/rpc_pb.js';
 
+/** Parameters for initiating an RPC call */
+export interface PerformRpcParams {
+  /** The `identity` of the destination participant */
+  destinationIdentity: string;
+  /** The method name to call */
+  method: string;
+  /** The method payload */
+  payload: string;
+  /** Timeout for receiving a response after initial connection (milliseconds). Default: 10000 */
+  responseTimeout?: number;
+}
+
+/**
+ * Data passed to method handler for incoming RPC invocations
+ */
+export interface RpcInvocationData {
+  /**
+   * The unique request ID. Will match at both sides of the call, useful for debugging or logging.
+   */
+  requestId: string;
+
+  /**
+   * The unique participant identity of the caller.
+   */
+  callerIdentity: string;
+
+  /**
+   * The payload of the request. User-definable format, typically JSON.
+   */
+  payload: string;
+
+  /**
+   * The maximum time the caller will wait for a response.
+   */
+  responseTimeout: number;
+}
+
+
 /**
  * Specialized error handling for RPC methods.
  *

@@ -52,7 +52,7 @@ import type {
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
 } from './proto/rpc_pb.js';
-import { RpcError } from './rpc.js';
+import { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -115,15 +115,7 @@ export type DataPublishOptions = {
 };
 
 export class LocalParticipant extends Participant {
-  private rpcHandlers: Map<
-    string,
-    (
-      requestId: string,
-      callerIdentity: string,
-      payload: string,
-      responseTimeout: number,
-    ) => Promise<string>
-  > = new Map();
+  private rpcHandlers: Map<string, (data: RpcInvocationData) => Promise<string>> = new Map();
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
@@ -376,19 +368,16 @@ export class LocalParticipant extends Participant {
 
   /**
    * Initiate an RPC call to a remote participant.
-   * @param destinationIdentity - The `identity` of the destination participant
-   * @param method - The method name to call
-   * @param payload - The method payload
-   * @param responseTimeout - Timeout for receiving a response after initial connection (milliseconds)
+   * @param params - Parameters for initiating the RPC call, see {@link PerformRpcParams}
    * @returns A promise that resolves with the response payload or rejects with an error.
    * @throws Error on failure. Details in `message`.
    */
-  async performRpc(
-    destinationIdentity: string,
-    method: string,
-    payload: string,
-    responseTimeout?: number,
-  ): Promise<string> {
+  async performRpc({
+    destinationIdentity,
+    method,
+    payload,
+    responseTimeout,
+  }: PerformRpcParams): Promise<string> {
     const req = create(PerformRpcRequestSchema, {
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
@@ -424,18 +413,14 @@ export class LocalParticipant extends Participant {
    * ```typescript
    * room.localParticipant?.registerRpcMethod(
    *   'greet',
-   *   async (requestId: string, callerIdentity: string, payload: string, responseTimeout: number) => {
-   *     console.log(`Received greeting from ${callerIdentity}: ${payload}`);
-   *     return `Hello, ${callerIdentity}!`;
+   *   async (data: RpcInvocationData) => {
+   *     console.log(`Received greeting from ${data.callerIdentity}: ${data.payload}`);
+   *     return `Hello, ${data.callerIdentity}!`;
    *   }
    * );
    * ```
    *
-   * The handler receives the following parameters:
-   * - `requestId`: A unique identifier for this RPC request
-   * - `callerIdentity`: The identity of the RemoteParticipant who initiated the RPC call
-   * - `payload`: The data sent by the caller (as a string)
-   * - `responseTimeout`: The maximum time available to return a response (milliseconds)
+   * See {@link RpcInvocationData} for more details on invocation params.
    *
    * The handler should return a Promise that resolves to a string.
    * If unable to respond within `responseTimeout`, the request will result in an error on the caller's side.
@@ -444,15 +429,7 @@ export class LocalParticipant extends Participant {
    * and they will be received on the caller's side with the message intact.
    * Other errors thrown in your handler will not be transmitted as-is, and will instead arrive to the caller as `1500` ("Application Error").
    */
-  registerRpcMethod(
-    method: string,
-    handler: (
-      requestId: string,
-      callerIdentity: string,
-      payload: string,
-      responseTimeout: number,
-    ) => Promise<string>,
-  ) {
+  registerRpcMethod(method: string, handler: (data: RpcInvocationData) => Promise<string>) {
     this.rpcHandlers.set(method, handler);
 
     const req = create(RegisterRpcMethodRequestSchema, {
@@ -501,7 +478,7 @@ export class LocalParticipant extends Participant {
       responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
     } else {
       try {
-        responsePayload = await handler(requestId, callerIdentity, payload, responseTimeout);
+        responsePayload = await handler({ requestId, callerIdentity, payload, responseTimeout });
       } catch (error) {
         if (error instanceof RpcError) {
           responseError = error;

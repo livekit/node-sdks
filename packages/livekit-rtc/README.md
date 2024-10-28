@@ -92,9 +92,9 @@ room.localParticipant?.registerRpcMethod(
   'greet',
 
   // method handler - will be called when the method is invoked by a RemoteParticipant
-  async (requestId: string, callerIdentity: string, payload: string, responseTimeout: number) => {
-    console.log(`Received greeting from ${caller.identity}: ${payload}`);
-    return `Hello, ${caller.identity}!`;
+  async (data: RpcInvocationData) => {
+    console.log(`Received greeting from ${data.callerIdentity}: ${data.payload}`);
+    return `Hello, ${data.callerIdentity}!`;
   }
 );
 ```
@@ -107,11 +107,11 @@ The caller may then initiate an RPC call like so:
 
 ```typescript
 try {
-  const response = await room.localParticipant!.performRpc(
-    'recipient-identity',
-    'greet',
-    'Hello from RPC!'
-  );
+  const response = await room.localParticipant!.performRpc({
+    destinationIdentity: 'recipient-identity',
+    method: 'greet',
+    payload: 'Hello from RPC!',
+  });
   console.log('RPC response:', response);
 } catch (error) {
   console.error('RPC call failed:', error);

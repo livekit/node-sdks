@@ -49,7 +49,7 @@ export {
   ContinualGatheringPolicy,
   ConnectionState,
 } from './proto/room_pb.js';
-export { RpcError } from './rpc.js';
+export { RpcError, type RpcInvocationData, type PerformRpcParams } from './rpc.js';
 export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_pb.js';

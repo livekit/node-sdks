@@ -56,7 +56,7 @@
   },
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "build:tsc": "tsc && cp -r src/napi dist/",
+    "build:tsc": "pnpm prebuild && tsc && cp -r src/napi dist/",
     "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
     "artifacts": "pnpm build:tsc && napi artifacts",
     "build:debug": "napi build --platform",

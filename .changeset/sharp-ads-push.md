@@ -1,5 +1,4 @@
 ---
-"example-rpc": patch
 "@livekit/rtc-node": patch
 ---
 

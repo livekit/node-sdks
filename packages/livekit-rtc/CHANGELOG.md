@@ -1,5 +1,25 @@
 # @livekit/rtc-node
 
+## 0.11.0
+
+### Minor Changes
+
+- Native RPC support - [#276](https://github.com/livekit/node-sdks/pull/276) ([@bcherry](https://github.com/bcherry))
+
+### Patch Changes
+
+- update to ffi-v0.12.2 - [#318](https://github.com/livekit/node-sdks/pull/318) ([@bcherry](https://github.com/bcherry))
+
+- Enable strict type checking and update ffi to use proto2 syntax - [#303](https://github.com/livekit/node-sdks/pull/303) ([@lukasIO](https://github.com/lukasIO))
+
+- Use shared mutex helper lib - [#301](https://github.com/livekit/node-sdks/pull/301) ([@lukasIO](https://github.com/lukasIO))
+
+- Rename responseTimeoutMs to responseTimeout, other RPC updates - [#314](https://github.com/livekit/node-sdks/pull/314) ([@bcherry](https://github.com/bcherry))
+
+- Send SDK override and version to FFI - [#305](https://github.com/livekit/node-sdks/pull/305) ([@bcherry](https://github.com/bcherry))
+
+- Adopt FFI v0.12.1 - [#311](https://github.com/livekit/node-sdks/pull/311) ([@bcherry](https://github.com/bcherry))
+
 ## 0.10.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.11.1
+
+### Patch Changes
+
+- fix(proto): don't crash on plain JavaScript - [#322](https://github.com/livekit/node-sdks/pull/322) ([@nbsp](https://github.com/nbsp))
+
 ## 0.11.0
 
 ### Minor Changes

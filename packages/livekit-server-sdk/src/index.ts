@@ -51,6 +51,7 @@ export {
   WebEgressRequest,
 } from '@livekit/protocol';
 export * from './AccessToken.js';
+export * from './AgentDispatchClient.js';
 export * from './EgressClient.js';
 export * from './grants.js';
 export * from './IngressClient.js';

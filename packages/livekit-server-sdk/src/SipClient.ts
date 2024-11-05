@@ -103,7 +103,7 @@ export class SipClient extends ServiceBase {
   private readonly rpc: Rpc;
 
   /**
-   * @param host - hostname including protocol. i.e. 'https://cluster.livekit.io'
+   * @param host - hostname including protocol. i.e. 'https://<project>.livekit.cloud'
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    */

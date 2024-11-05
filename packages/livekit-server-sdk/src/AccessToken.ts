@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { RoomConfiguration } from '@livekit/protocol';
-import type { RoomAgentDispatch } from '@livekit/protocol/src/gen/livekit_agent_dispatch_pb.js';
+import type { RoomConfiguration } from '@livekit/protocol';
 import * as jose from 'jose';
 import type { ClaimGrants, SIPGrant, VideoGrant } from './grants.js';
 import { claimsToJwtPayload } from './grants.js';
@@ -164,13 +163,6 @@ export class AccessToken {
 
   set roomConfig(config: RoomConfiguration | undefined) {
     this.grants.roomConfig = config;
-  }
-
-  set agents(agents: RoomAgentDispatch[]) {
-    if (this.grants.roomConfig === undefined) {
-      this.grants.roomConfig = new RoomConfiguration();
-    }
-    this.grants.roomConfig.agents = agents;
   }
 
   /**

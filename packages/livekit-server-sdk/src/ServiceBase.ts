@@ -27,7 +27,9 @@ export default class ServiceBase {
 
   async authHeader(grant: VideoGrant, sip?: SIPGrant): Promise<Record<string, string>> {
     const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
-    at.addGrant(grant);
+    if (grant) {
+      at.addGrant(grant);
+    }
     if (sip) {
       at.addSIPGrant(sip);
     }

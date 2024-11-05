@@ -366,7 +366,8 @@ export class EgressClient extends ServiceBase {
     return (
       (<EncodedOutputs>output).file !== undefined ||
       (<EncodedOutputs>output).stream !== undefined ||
-      (<EncodedOutputs>output).segments !== undefined
+      (<EncodedOutputs>output).segments !== undefined ||
+      (<EncodedOutputs>output).images !== undefined
     );
   }
 

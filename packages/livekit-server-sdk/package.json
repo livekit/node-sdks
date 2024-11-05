@@ -26,7 +26,7 @@
     "test:edge": "vitest --environment edge-runtime run"
   },
   "dependencies": {
-    "@livekit/protocol": "^1.27.0",
+    "@livekit/protocol": "^1.27.1",
     "camelcase-keys": "^9.0.0",
     "jose": "^5.1.2"
   },

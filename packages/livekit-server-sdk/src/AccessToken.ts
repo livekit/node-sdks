@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { RoomConfiguration } from '@livekit/protocol';
+import type { RoomAgentDispatch } from '@livekit/protocol/src/gen/livekit_agent_dispatch_pb.js';
 import * as jose from 'jose';
 import type { ClaimGrants, SIPGrant, VideoGrant } from './grants.js';
 import { claimsToJwtPayload } from './grants.js';
@@ -30,6 +32,11 @@ export interface AccessTokenOptions {
    * custom metadata to be passed to participants
    */
   metadata?: string;
+
+  /**
+   * custom attributes to be passed to participants
+   */
+  attributes?: Record<string, string>;
 }
 
 export class AccessToken {
@@ -75,6 +82,9 @@ export class AccessToken {
     }
     if (options?.metadata) {
       this.metadata = options.metadata;
+    }
+    if (options?.attributes) {
+      this.attributes = options.attributes;
     }
     if (options?.name) {
       this.name = options.name;
@@ -138,6 +148,29 @@ export class AccessToken {
 
   set sha256(sha: string | undefined) {
     this.grants.sha256 = sha;
+  }
+
+  get roomPreset(): string | undefined {
+    return this.grants.roomPreset;
+  }
+
+  set roomPreset(preset: string | undefined) {
+    this.grants.roomPreset = preset;
+  }
+
+  get roomConfig(): RoomConfiguration | undefined {
+    return this.grants.roomConfig;
+  }
+
+  set roomConfig(config: RoomConfiguration | undefined) {
+    this.grants.roomConfig = config;
+  }
+
+  set agents(agents: RoomAgentDispatch[]) {
+    if (this.grants.roomConfig === undefined) {
+      this.grants.roomConfig = new RoomConfiguration();
+    }
+    this.grants.roomConfig.agents = agents;
   }
 
   /**

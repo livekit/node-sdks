@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { RoomConfiguration } from '@livekit/protocol';
 import { TrackSource } from '@livekit/protocol';
 import type { JWTPayload } from 'jose';
 
@@ -108,4 +109,6 @@ export interface ClaimGrants extends JWTPayload {
   metadata?: string;
   attributes?: Record<string, string>;
   sha256?: string;
+  roomPreset?: string;
+  roomConfig?: RoomConfiguration;
 }

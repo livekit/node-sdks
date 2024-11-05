@@ -36,7 +36,8 @@ export class AgentDispatchClient extends ServiceBase {
   }
 
   /**
-   * Create an explicit dispatch for an agent to join a room.
+   * Create an explicit dispatch for an agent to join a room. To use explicit
+   * dispatch, your agent must be registered with an `agentName`.
    * @param roomName - name of the room to dispatch to
    * @param agentName - name of the agent to dispatch
    * @param options - optional metadata to send along with the dispatch
@@ -62,7 +63,7 @@ export class AgentDispatchClient extends ServiceBase {
   }
 
   /**
-   * Delete an explicit dispatch for an agent to join a room.
+   * Delete an explicit dispatch for an agent in a room.
    * @param dispatchId - id of the dispatch to delete
    * @param roomName - name of the room the dispatch is for
    */
@@ -80,7 +81,7 @@ export class AgentDispatchClient extends ServiceBase {
   }
 
   /**
-   * Get an an Agent dispatch by id
+   * Get an Agent dispatch by ID
    * @param dispatchId - id of the dispatch to get
    * @param roomName - name of the room the dispatch is for
    * @returns the dispatch that was found, or undefined if not found

@@ -16,9 +16,13 @@ async function createExplicitDispatch() {
   const agentDispatchClient = new AgentDispatchClient(process.env.LIVEKIT_URL);
 
   // this will create invoke an agent with agentName: test-agent to join `my-room`
-  await agentDispatchClient.createDispatch(roomName, agentName, {
+  const dispatch = await agentDispatchClient.createDispatch(roomName, agentName, {
     metadata: '{"mydata": "myvalue"}',
   });
+  console.log('created dispatch', dispatch);
+
+  const dispatches = await agentDispatchClient.listDispatches(roomName);
+  console.log(`there are ${dispatches.length} dispatches in ${roomName}`);
 }
 
 /**

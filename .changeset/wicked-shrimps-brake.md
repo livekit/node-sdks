@@ -1,5 +1,5 @@
 ---
-'livekit-server-sdk': patch
+'livekit-server-sdk': minor
 ---
 
-Support for room configuration inside tokens
+Explicit agent dispatch via API and token

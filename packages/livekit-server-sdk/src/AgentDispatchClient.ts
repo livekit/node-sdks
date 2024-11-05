@@ -85,7 +85,7 @@ export class AgentDispatchClient extends ServiceBase {
     return res.agentDispatches[0];
   }
 
-  async listDispatches(roomName: string): Promise<AgentDispatch[]> {
+  async listDispatch(roomName: string): Promise<AgentDispatch[]> {
     const req = new ListAgentDispatchRequest({
       room: roomName,
     }).toJson();

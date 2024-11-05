@@ -35,6 +35,13 @@ export class AgentDispatchClient extends ServiceBase {
     this.rpc = new TwirpRpc(host, livekitPackage);
   }
 
+  /**
+   * Create an explicit dispatch for an agent to join a room.
+   * @param roomName - name of the room to dispatch to
+   * @param agentName - name of the agent to dispatch
+   * @param options - optional metadata to send along with the dispatch
+   * @returns the dispatch that was created
+   */
   async createDispatch(
     roomName: string,
     agentName: string,
@@ -54,6 +61,11 @@ export class AgentDispatchClient extends ServiceBase {
     return AgentDispatch.fromJson(data, { ignoreUnknownFields: true });
   }
 
+  /**
+   * Delete an explicit dispatch for an agent to join a room.
+   * @param dispatchId - id of the dispatch to delete
+   * @param roomName - name of the room the dispatch is for
+   */
   async deleteDispatch(dispatchId: string, roomName: string): Promise<void> {
     const req = new DeleteAgentDispatchRequest({
       dispatchId,
@@ -67,6 +79,12 @@ export class AgentDispatchClient extends ServiceBase {
     );
   }
 
+  /**
+   * Get an an Agent dispatch by id
+   * @param dispatchId - id of the dispatch to get
+   * @param roomName - name of the room the dispatch is for
+   * @returns the dispatch that was found, or undefined if not found
+   */
   async getDispatch(dispatchId: string, roomName: string): Promise<AgentDispatch | undefined> {
     const req = new ListAgentDispatchRequest({
       dispatchId,
@@ -85,6 +103,11 @@ export class AgentDispatchClient extends ServiceBase {
     return res.agentDispatches[0];
   }
 
+  /**
+   * List all agent dispatches for a room
+   * @param roomName - name of the room to list dispatches for
+   * @returns the list of dispatches
+   */
   async listDispatch(roomName: string): Promise<AgentDispatch[]> {
     const req = new ListAgentDispatchRequest({
       room: roomName,

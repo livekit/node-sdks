@@ -1,20 +1,20 @@
 {
-  "name": "example-receive-audio",
-  "author": "LiveKit",
+  "name": "agent-dispatch",
+  "version": "0.0.1",
+  "description": "An example demonstrating dispatching agents with an API call",
   "private": "true",
-  "description": "",
+  "author": "LiveKit",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "index.ts",
   "scripts": {
     "build": "tsc --incremental",
     "lint": "eslint -f unix \"**/*.ts\""
   },
-  "keywords": [],
-  "license": "Apache-2.0",
   "dependencies": {
-    "@livekit/rtc-node": "workspace:*",
     "dotenv": "^16.4.5",
-    "livekit-server-sdk": "workspace:*"
+    "livekit-server-sdk": "workspace:*",
+    "@livekit/protocol": "^1.27.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

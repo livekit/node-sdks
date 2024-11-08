@@ -8,8 +8,8 @@ import {
   ListAgentDispatchRequest,
   ListAgentDispatchResponse,
 } from '@livekit/protocol';
-import ServiceBase from './ServiceBase';
-import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC';
+import ServiceBase from './ServiceBase.js';
+import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 interface CreateDispatchOptions {
   // any custom data to send along with the job.

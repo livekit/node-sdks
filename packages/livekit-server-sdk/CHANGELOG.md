@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.8.0
+
+### Minor Changes
+
+- Explicit agent dispatch via API and token - [#324](https://github.com/livekit/node-sdks/pull/324) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.7.3
 
 ### Patch Changes

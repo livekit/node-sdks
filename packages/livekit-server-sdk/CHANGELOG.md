@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.8.1
+
+### Patch Changes
+
+- Fix incorrect import in AgentDispatchClient - [#331](https://github.com/livekit/node-sdks/pull/331) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.8.0
 
 ### Minor Changes

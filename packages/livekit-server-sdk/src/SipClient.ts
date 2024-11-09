@@ -166,11 +166,15 @@ export class SipClient extends ServiceBase {
    * @param name - human-readable name of the trunk
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
+   * @param headers - SIP X-* headers to be included in 200 OK responses (optional)
+   * @param headersToAttributes - map of SIP X-* headers from INVITE to SIP participant attributes (optional)
    */
   async createSipInboundTrunk(
     name: string,
     numbers: string[],
     opts?: CreateSipInboundTrunkOptions,
+    headers?: { [key: string]: string },
+    headersToAttributes?: { [key: string]: string },
   ): Promise<SIPInboundTrunkInfo> {
     let allowedAddresses: string[] | undefined;
     let allowedNumbers: string[] | undefined;
@@ -195,6 +199,8 @@ export class SipClient extends ServiceBase {
         allowedNumbers: allowedNumbers,
         authUsername: authUsername,
         authPassword: authPassword,
+        headers: headers,
+        headersToAttributes: headersToAttributes,
       }),
     }).toJson();
 
@@ -212,12 +218,16 @@ export class SipClient extends ServiceBase {
    * @param address - hostname and port of the SIP server to dial
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
+   * @param headers - SIP X-* headers to be included in 200 OK responses (optional)
+   * @param headersToAttributes - map of SIP X-* headers from INVITE to SIP participant attributes (optional)
    */
   async createSipOutboundTrunk(
     name: string,
     address: string,
     numbers: string[],
     opts?: CreateSipOutboundTrunkOptions,
+    headers?: { [key: string]: string },
+    headersToAttributes?: { [key: string]: string },
   ): Promise<SIPOutboundTrunkInfo> {
     let authUsername: string = '';
     let authPassword: string = '';
@@ -240,6 +250,8 @@ export class SipClient extends ServiceBase {
         transport: transport,
         authUsername: authUsername,
         authPassword: authPassword,
+        headers: headers,
+        headersToAttributes: headersToAttributes,
       }),
     }).toJson();
 

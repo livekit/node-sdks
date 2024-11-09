@@ -54,12 +54,16 @@ export interface CreateSipInboundTrunkOptions {
   allowed_numbers?: string[];
   auth_username?: string;
   auth_password?: string;
+  headers?: { [key: string]: string };
+  headersToAttributes?: { [key: string]: string };
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
   transport: SIPTransport;
   auth_username?: string;
   auth_password?: string;
+  headers?: { [key: string]: string };
+  headersToAttributes?: { [key: string]: string };
 }
 
 export interface SipDispatchRuleDirect {
@@ -177,6 +181,8 @@ export class SipClient extends ServiceBase {
     let authUsername: string = '';
     let authPassword: string = '';
     let metadata: string = '';
+    let headers: { [key: string]: string } = {};
+    let headersToAttributes: { [key: string]: string } = {};
 
     if (opts !== undefined) {
       allowedAddresses = opts.allowed_addresses;
@@ -184,6 +190,8 @@ export class SipClient extends ServiceBase {
       authUsername = opts.auth_username || '';
       authPassword = opts.auth_password || '';
       metadata = opts.metadata || '';
+      headers = opts.headers || {};
+      headersToAttributes = opts.headersToAttributes || {};
     }
 
     const req = new CreateSIPInboundTrunkRequest({
@@ -195,6 +203,8 @@ export class SipClient extends ServiceBase {
         allowedNumbers: allowedNumbers,
         authUsername: authUsername,
         authPassword: authPassword,
+        headers: headers,
+        headersToAttributes: headersToAttributes,
       }),
     }).toJson();
 
@@ -223,12 +233,16 @@ export class SipClient extends ServiceBase {
     let authPassword: string = '';
     let transport: SIPTransport = SIPTransport.SIP_TRANSPORT_AUTO;
     let metadata: string = '';
+    let headers: { [key: string]: string } = {};
+    let headersToAttributes: { [key: string]: string } = {};
 
     if (opts !== undefined) {
       authUsername = opts.auth_username || '';
       authPassword = opts.auth_password || '';
       transport = opts.transport || SIPTransport.SIP_TRANSPORT_AUTO;
       metadata = opts.metadata || '';
+      headers = opts.headers || {};
+      headersToAttributes = opts.headersToAttributes || {};
     }
 
     const req = new CreateSIPOutboundTrunkRequest({
@@ -240,6 +254,8 @@ export class SipClient extends ServiceBase {
         transport: transport,
         authUsername: authUsername,
         authPassword: authPassword,
+        headers: headers,
+        headersToAttributes: headersToAttributes,
       }),
     }).toJson();
 

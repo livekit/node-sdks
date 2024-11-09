@@ -54,12 +54,16 @@ export interface CreateSipInboundTrunkOptions {
   allowed_numbers?: string[];
   auth_username?: string;
   auth_password?: string;
+  headers?: { [key: string]: string };
+  headersToAttributes?: { [key: string]: string };
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
   transport: SIPTransport;
   auth_username?: string;
   auth_password?: string;
+  headers?: { [key: string]: string };
+  headersToAttributes?: { [key: string]: string };
 }
 
 export interface SipDispatchRuleDirect {
@@ -166,21 +170,19 @@ export class SipClient extends ServiceBase {
    * @param name - human-readable name of the trunk
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
-   * @param headers - SIP X-* headers to be included in 200 OK responses (optional)
-   * @param headersToAttributes - map of SIP X-* headers from INVITE to SIP participant attributes (optional)
    */
   async createSipInboundTrunk(
     name: string,
     numbers: string[],
     opts?: CreateSipInboundTrunkOptions,
-    headers?: { [key: string]: string },
-    headersToAttributes?: { [key: string]: string },
   ): Promise<SIPInboundTrunkInfo> {
     let allowedAddresses: string[] | undefined;
     let allowedNumbers: string[] | undefined;
     let authUsername: string = '';
     let authPassword: string = '';
     let metadata: string = '';
+    let headers: { [key: string]: string } = {};
+    let headersToAttributes: { [key: string]: string } = {};
 
     if (opts !== undefined) {
       allowedAddresses = opts.allowed_addresses;
@@ -188,6 +190,8 @@ export class SipClient extends ServiceBase {
       authUsername = opts.auth_username || '';
       authPassword = opts.auth_password || '';
       metadata = opts.metadata || '';
+      headers = opts.headers || {};
+      headersToAttributes = opts.headersToAttributes || {};
     }
 
     const req = new CreateSIPInboundTrunkRequest({
@@ -218,27 +222,27 @@ export class SipClient extends ServiceBase {
    * @param address - hostname and port of the SIP server to dial
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
-   * @param headers - SIP X-* headers to be included in 200 OK responses (optional)
-   * @param headersToAttributes - map of SIP X-* headers from INVITE to SIP participant attributes (optional)
    */
   async createSipOutboundTrunk(
     name: string,
     address: string,
     numbers: string[],
     opts?: CreateSipOutboundTrunkOptions,
-    headers?: { [key: string]: string },
-    headersToAttributes?: { [key: string]: string },
   ): Promise<SIPOutboundTrunkInfo> {
     let authUsername: string = '';
     let authPassword: string = '';
     let transport: SIPTransport = SIPTransport.SIP_TRANSPORT_AUTO;
     let metadata: string = '';
+    let headers: { [key: string]: string } = {};
+    let headersToAttributes: { [key: string]: string } = {};
 
     if (opts !== undefined) {
       authUsername = opts.auth_username || '';
       authPassword = opts.auth_password || '';
       transport = opts.transport || SIPTransport.SIP_TRANSPORT_AUTO;
       metadata = opts.metadata || '';
+      headers = opts.headers || {};
+      headersToAttributes = opts.headersToAttributes || {};
     }
 
     const req = new CreateSIPOutboundTrunkRequest({

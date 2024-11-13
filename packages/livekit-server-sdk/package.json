@@ -8,12 +8,20 @@
   "author": "David Zhao <david@davidzhao.com>",
   "license": "Apache-2.0",
   "type": "module",
+  "require": "dist/index.cjs",
+  "exports": {
+    ".": {
+      "types": "dist/index.d.ts",
+      "import": "dist/index.js",
+      "require": "dist/index.cjs"
+    }
+  },
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
     "changeset": "changeset",
@@ -38,6 +46,7 @@
     "@types/node": "^20.10.1",
     "happy-dom": "^15.0.0",
     "prettier": "^3.0.0",
+    "tsup": "^8.3.5",
     "typedoc": "^0.26.0",
     "typescript": "5.6.x",
     "vite": "^5.2.9",

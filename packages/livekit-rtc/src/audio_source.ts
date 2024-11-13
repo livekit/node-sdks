@@ -66,7 +66,7 @@ export class AudioSource {
 
   get queuedDuration(): number {
     return Math.max(
-      this.currentQueueSize - Number(process.hrtime.bigint() / 1000000n) + this.lastCapture,
+      this.currentQueueSize - Number(process.hrtime.bigint() / BigInt(1000000)) + this.lastCapture,
       0,
     );
   }
@@ -102,7 +102,7 @@ export class AudioSource {
   }
 
   async captureFrame(frame: AudioFrame) {
-    const now = Number(process.hrtime.bigint() / 1000000n);
+    const now = Number(process.hrtime.bigint() / BigInt(1000000));
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
     const frameDurationMs = (frame.samplesPerChannel / frame.sampleRate) * 1000;
     this.currentQueueSize += frameDurationMs - elapsed;

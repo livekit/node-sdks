@@ -190,7 +190,7 @@ export class KeyProvider {
 }
 
 export class FrameCryptor {
-  private roomHandle = 0n;
+  private roomHandle = BigInt(0);
   participantIdentity: string;
   keyIndex: number;
   enabled: boolean;
@@ -246,7 +246,7 @@ export class FrameCryptor {
 }
 
 export class E2EEManager {
-  private roomHandle = 0n;
+  private roomHandle = BigInt(0);
   private options: E2EEOptions;
   private keyProvider?: KeyProvider;
 

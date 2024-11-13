@@ -48,7 +48,7 @@ export class VideoSource {
     this.ffiHandle = new FfiHandle(res.source!.handle!.id);
   }
 
-  captureFrame(frame: VideoFrame, timestampUs = 0n, rotation = VideoRotation.VIDEO_ROTATION_0) {
+  captureFrame(frame: VideoFrame, timestampUs = BigInt(0), rotation = VideoRotation.VIDEO_ROTATION_0) {
     const req = create(CaptureVideoFrameRequestSchema, {
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),

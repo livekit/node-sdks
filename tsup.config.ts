@@ -8,8 +8,7 @@ const defaultOptions: Options = {
   // for the type maps to work, we use tsc's declaration-only command
   dts: false,
   clean: true,
-  target: 'es6',
-  external: [/\.\/.*.node/],
+  target: 'node16',
   esbuildOptions: (options, context) => {
     if (context.format === 'esm') {
       options.packages = 'external';

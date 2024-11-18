@@ -78,7 +78,7 @@ export class VideoFrame {
     const planeInfos = getPlaneInfos(this.dataPtr, this.type, this.width, this.height);
     if (planeNth >= planeInfos.length) return;
 
-    const planeInfo = planeInfos[planeNth];
+    const planeInfo = planeInfos[planeNth]!;
     return FfiClient.instance.copyBuffer(planeInfo.dataPtr, planeInfo.size);
   }
 

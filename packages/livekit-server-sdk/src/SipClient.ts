@@ -31,6 +31,7 @@ import {
 import ServiceBase from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { Duration } from '@bufbuild/protobuf';
 
 const svc = 'SIP';
 
@@ -94,6 +95,9 @@ export interface CreateSipParticipantOptions {
   playRingtone?: boolean; // Deprecated, use playDialtone instead
   playDialtone?: boolean;
   hidePhoneNumber?: boolean;
+  ringingTimeout?: number; // Duration in seconds
+  maxCallDuration?: number; // Duration in seconds
+  enableKrisp?: boolean;
 }
 
 export interface TransferSipParticipantOptions {
@@ -419,6 +423,9 @@ export class SipClient extends ServiceBase {
     let playRingtone: boolean = false;
     let playDialtone: boolean = false;
     let hidePhoneNumber: boolean = false;
+    let ringingTimeout: number = 0;
+    let maxCallDuration: number = 0;
+    let enableKrisp: boolean = false;
 
     if (opts !== undefined) {
       participantIdentity = opts.participantIdentity || '';
@@ -428,6 +435,9 @@ export class SipClient extends ServiceBase {
       playRingtone = opts.playRingtone || false;
       playDialtone = opts.playDialtone || playRingtone; // Enable PlayDialtone if either PlayDialtone or playRingtone is set
       hidePhoneNumber = opts.hidePhoneNumber || false;
+      ringingTimeout = opts.ringingTimeout || 0;
+      maxCallDuration = opts.maxCallDuration || 0;
+      enableKrisp = opts.enableKrisp || false;
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -441,6 +451,9 @@ export class SipClient extends ServiceBase {
       playRingtone: playDialtone,
       playDialtone: playDialtone,
       hidePhoneNumber: hidePhoneNumber,
+      ringingTimeout: new Duration({ seconds: BigInt(ringingTimeout) }),
+      maxCallDuration: new Duration({ seconds: BigInt(maxCallDuration) }),
+      enableKrisp: enableKrisp,
     }).toJson();
 
     const data = await this.rpc.request(

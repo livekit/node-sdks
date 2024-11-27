@@ -10,7 +10,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "vite.config.ts"]

@@ -72,8 +72,8 @@ export const combineAudioFrames = (buffer: AudioFrame | AudioFrame[]): AudioFram
     throw new Error('buffer is empty');
   }
 
-  const sampleRate = buffer[0].sampleRate;
-  const channels = buffer[0].channels;
+  const sampleRate = buffer[0]!.sampleRate;
+  const channels = buffer[0]!.channels;
 
   let totalSamplesPerChannel = 0;
   for (const frame of buffer) {

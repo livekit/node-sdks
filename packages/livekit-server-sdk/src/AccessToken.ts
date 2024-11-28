@@ -63,7 +63,9 @@ export class AccessToken {
     }
     if (!apiKey || !apiSecret) {
       throw Error('api-key and api-secret must be set');
-    } else if (typeof document !== 'undefined') {
+    }
+    // @ts-expect-error we're not including dom lib for the server sdk so document is not defined
+    else if (typeof document !== 'undefined') {
       // check against document rather than window because deno provides window
       console.error(
         'You should not include your API secret in your web client bundle.\n\n' +

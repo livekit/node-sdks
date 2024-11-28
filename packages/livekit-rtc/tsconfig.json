@@ -1,17 +1,8 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "ES2015",
-    "esModuleInterop": true,
-    "allowJs": true,
-    "declaration": true,
-    "declarationMap": true,
-    "target": "es2015",
-    "lib": ["es2015"],
-    "moduleResolution": "node",
-    "sourceMap": true,
     "outDir": "dist",
-    "strict": true,
-    "noUncheckedIndexedAccess": true
+    "declarationDir": "dist"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "vite.config.ts"]

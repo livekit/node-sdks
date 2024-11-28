@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.12.1
+
+### Patch Changes
+
+- Enable verbatimModuleSyntax and isolatedModules - [#341](https://github.com/livekit/node-sdks/pull/341) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.12.0
 
 ### Minor Changes

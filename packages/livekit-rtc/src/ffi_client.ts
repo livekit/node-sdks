@@ -14,16 +14,16 @@ import {
   livekitRetrievePtr,
 } from './napi/native.js';
 import {
-  FfiEvent,
+  type FfiEvent,
   FfiEventSchema,
-  FfiRequest,
+  type FfiRequest,
   FfiRequestSchema,
-  FfiResponse,
+  type FfiResponse,
   FfiResponseSchema,
 } from './proto/ffi_pb.js';
 import { SDK_VERSION } from './version.js';
 
-export { FfiHandle, FfiEvent, FfiResponse, FfiRequest, livekitDispose as dispose };
+export { FfiHandle, type FfiEvent, type FfiResponse, type FfiRequest, livekitDispose as dispose };
 
 export type FfiClientCallbacks = {
   ffi_event: (event: FfiEvent) => void;

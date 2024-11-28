@@ -49,7 +49,7 @@ export class TwirpRpc {
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
     }
-    const parsedResp = await response.json();
+    const parsedResp = (await response.json()) as Record<string, unknown>;
     const camelcaseKeys = await import('camelcase-keys').then((mod) => mod.default);
     return camelcaseKeys(parsedResp, { deep: true });
   }

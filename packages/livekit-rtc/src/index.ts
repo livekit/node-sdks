@@ -14,24 +14,24 @@ import {
 import { TrackSource } from './proto/track_pb.js';
 import { VideoCodec } from './proto/video_frame_pb.js';
 
-export { Room, RoomEvent, ConnectError, RoomOptions, RtcConfiguration } from './room.js';
+export { Room, RoomEvent, ConnectError, type RoomOptions, type RtcConfiguration } from './room.js';
 export { Participant, RemoteParticipant, LocalParticipant } from './participant.js';
 export {
   Track,
-  LocalTrack,
-  RemoteTrack,
-  VideoTrack,
+  type LocalTrack,
+  type RemoteTrack,
+  type VideoTrack,
   LocalAudioTrack,
   LocalVideoTrack,
   RemoteAudioTrack,
   RemoteVideoTrack,
-  AudioTrack,
+  type AudioTrack,
 } from './track.js';
 export { VideoFrame } from './video_frame.js';
 export { AudioFrame, combineAudioFrames } from './audio_frame.js';
 export { AudioStream } from './audio_stream.js';
 export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
-export { VideoStream, VideoFrameEvent } from './video_stream.js';
+export { VideoStream, type VideoFrameEvent } from './video_stream.js';
 export { AudioSource } from './audio_source.js';
 export { VideoSource } from './video_source.js';
 export {
@@ -39,8 +39,14 @@ export {
   RemoteTrackPublication,
   LocalTrackPublication,
 } from './track_publication.js';
-export { Transcription, TranscriptionSegment } from './transcription.js';
-export { E2EEManager, E2EEOptions, KeyProviderOptions, KeyProvider, FrameCryptor } from './e2ee.js';
+export { type Transcription, type TranscriptionSegment } from './transcription.js';
+export {
+  E2EEManager,
+  type E2EEOptions,
+  type KeyProviderOptions,
+  KeyProvider,
+  FrameCryptor,
+} from './e2ee.js';
 
 export {
   ConnectionQuality,

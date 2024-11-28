@@ -451,8 +451,12 @@ export class SipClient extends ServiceBase {
       playRingtone: playDialtone,
       playDialtone: playDialtone,
       hidePhoneNumber: hidePhoneNumber,
-      ringingTimeout: ringingTimeout ? new Duration({ seconds: BigInt(ringingTimeout) }) : undefined,
-      maxCallDuration: maxCallDuration ? new Duration({ seconds: BigInt(maxCallDuration) }) : undefined,
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
+        : undefined,
+      maxCallDuration: maxCallDuration
+        ? new Duration({ seconds: BigInt(maxCallDuration) })
+        : undefined,
       enableKrisp: enableKrisp,
     }).toJson();
 

@@ -423,9 +423,9 @@ export class SipClient extends ServiceBase {
     let playRingtone: boolean = false;
     let playDialtone: boolean = false;
     let hidePhoneNumber: boolean = false;
-    let ringingTimeout: number = 0;
-    let maxCallDuration: number = 0;
-    let enableKrisp: boolean = false;
+    let ringingTimeout: number | undefined = undefined;
+    let maxCallDuration: number | undefined = undefined;
+    let enableKrisp: boolean | undefined = undefined;
 
     if (opts !== undefined) {
       participantIdentity = opts.participantIdentity || '';
@@ -435,9 +435,9 @@ export class SipClient extends ServiceBase {
       playRingtone = opts.playRingtone || false;
       playDialtone = opts.playDialtone || playRingtone; // Enable PlayDialtone if either PlayDialtone or playRingtone is set
       hidePhoneNumber = opts.hidePhoneNumber || false;
-      ringingTimeout = opts.ringingTimeout || 0;
-      maxCallDuration = opts.maxCallDuration || 0;
-      enableKrisp = opts.enableKrisp || false;
+      ringingTimeout = opts.ringingTimeout || undefined;
+      maxCallDuration = opts.maxCallDuration || undefined;
+      enableKrisp = opts.enableKrisp || undefined;
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -451,8 +451,8 @@ export class SipClient extends ServiceBase {
       playRingtone: playDialtone,
       playDialtone: playDialtone,
       hidePhoneNumber: hidePhoneNumber,
-      ringingTimeout: new Duration({ seconds: BigInt(ringingTimeout) }),
-      maxCallDuration: new Duration({ seconds: BigInt(maxCallDuration) }),
+      ringingTimeout: ringingTimeout ? new Duration({ seconds: BigInt(ringingTimeout) }) : undefined,
+      maxCallDuration: maxCallDuration ? new Duration({ seconds: BigInt(maxCallDuration) }) : undefined,
       enableKrisp: enableKrisp,
     }).toJson();
 

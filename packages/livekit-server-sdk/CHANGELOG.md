@@ -1,5 +1,17 @@
 # livekit-server-sdk
 
+## 2.9.0
+
+### Minor Changes
+
+- natively support CommonJS - [#334](https://github.com/livekit/node-sdks/pull/334) ([@nbsp](https://github.com/nbsp))
+
+- SIP: Add missing params in CreateSIPParticipant - [#337](https://github.com/livekit/node-sdks/pull/337) ([@umarniz](https://github.com/umarniz))
+
+### Patch Changes
+
+- SIP: added headers options to SIP inbound and output create requests - [#332](https://github.com/livekit/node-sdks/pull/332) ([@s-hamdananwar](https://github.com/s-hamdananwar))
+
 ## 2.8.1
 
 ### Patch Changes

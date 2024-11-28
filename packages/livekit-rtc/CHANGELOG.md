@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.12.0
+
+### Minor Changes
+
+- natively support CommonJS - [#334](https://github.com/livekit/node-sdks/pull/334) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- chore(tsconfig): enable `noUncheckedIndexedAccess` - [#336](https://github.com/livekit/node-sdks/pull/336) ([@nbsp](https://github.com/nbsp))
+
 ## 0.11.1
 
 ### Patch Changes

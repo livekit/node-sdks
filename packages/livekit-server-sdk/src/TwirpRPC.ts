@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { JsonValue } from '@bufbuild/protobuf';
-import camelcaseKeys from 'camelcase-keys';
 
 // twirp RPC adapter for client implementation
 
@@ -51,6 +50,7 @@ export class TwirpRpc {
       throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
     }
     const parsedResp = await response.json();
+    const camelcaseKeys = await import('camelcase-keys').then((mod) => mod.default);
     return camelcaseKeys(parsedResp, { deep: true });
   }
 }

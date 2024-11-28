@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "module": "ES2020",
+    "module": "ES2015",
     "esModuleInterop": true,
     "allowJs": true,
     "declaration": true,
     "declarationMap": true,
-    "target": "es2020",
-    "lib": ["es2020"],
+    "target": "es2015",
+    "lib": ["es2015"],
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",

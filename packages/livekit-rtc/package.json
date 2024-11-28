@@ -5,7 +5,15 @@
   "author": "LiveKit",
   "version": "0.11.1",
   "main": "dist/index.js",
+  "require": "dist/index.cjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "type": "module",
   "repository": {
     "type": "git",
@@ -42,6 +50,7 @@
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^20.9.2",
     "prettier": "^3.0.3",
+    "tsup": "^8.3.5",
     "typescript": "^5.2.2"
   },
   "optionalDependencies": {
@@ -56,9 +65,9 @@
   },
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "build:tsc": "pnpm prebuild && tsc && cp -r src/napi dist/",
-    "build": "pnpm build:tsc && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
-    "artifacts": "pnpm build:tsc && napi artifacts",
+    "build:ts": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\" && cp -r src/napi dist/ && cp -r src/napi/* dist/",
+    "build": "pnpm build:ts && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
+    "artifacts": "pnpm build:ts && napi artifacts",
     "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
     "universal": "napi universal",

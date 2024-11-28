@@ -29,7 +29,7 @@ import {
   SIPTrunkInfo,
   TransferSIPParticipantRequest,
 } from '@livekit/protocol';
-import ServiceBase from './ServiceBase.js';
+import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 

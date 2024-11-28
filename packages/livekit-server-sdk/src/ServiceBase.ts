@@ -7,7 +7,7 @@ import type { SIPGrant, VideoGrant } from './grants.js';
 /**
  * Utilities to handle authentication
  */
-export default class ServiceBase {
+export class ServiceBase {
   private readonly apiKey?: string;
 
   private readonly secret?: string;

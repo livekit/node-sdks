@@ -1,6 +1,6 @@
 ---
-"@livekit/rtc-node": patch
-"livekit-server-sdk": patch
+"@livekit/rtc-node": minor
+"livekit-server-sdk": minor
 ---
 
-chore: support CommonJS modules
+natively support CommonJS

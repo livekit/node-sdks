@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.9.1
+
+### Patch Changes
+
+- Enable verbatimModuleSyntax and isolatedModules - [#341](https://github.com/livekit/node-sdks/pull/341) ([@lukasIO](https://github.com/lukasIO))
+
+- Update protocol dependency - [#344](https://github.com/livekit/node-sdks/pull/344) ([@lukasIO](https://github.com/lukasIO))
+
+- Update protocol dependency - [#342](https://github.com/livekit/node-sdks/pull/342) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.0
 
 ### Minor Changes

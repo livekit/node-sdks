@@ -242,8 +242,8 @@ importers:
   packages/livekit-server-sdk:
     dependencies:
       '@livekit/protocol':
-        specifier: ^1.28.1
-        version: 1.28.1
+        specifier: ^1.29.0
+        version: 1.29.0
       camelcase-keys:
         specifier: ^9.0.0
         version: 9.1.3
@@ -931,8 +931,8 @@ packages:
   '@livekit/protocol@1.28.0':
     resolution: {integrity: sha512-j7ifbZ1TVfrLDQEuyl4M5rOAS8mRNhpgGoSKE4z03gc012hUHThx227bD1M1BfFPTqNFHzpaGCu/HYE/l09dHw==}
 
-  '@livekit/protocol@1.28.1':
-    resolution: {integrity: sha512-IQVgNmFoU6VTe0d4vZ2+Y5tZWfKwaKKF3BTHymAI1V9ROMtqi9BQ2fSVegLlTH+Ys5YArgPWz+xE/iEdeAE2WA==}
+  '@livekit/protocol@1.29.0':
+    resolution: {integrity: sha512-M5YRsHnFgafRnGr4tkF3zIOSuudAj7sNKIO/y5S9S6rreS0mrkmChaiNsZBOPKNxMUQw21tk6X4IYsMLWg4vCw==}
 
   '@livekit/typed-emitter@3.0.0':
     resolution: {integrity: sha512-9bl0k4MgBPZu3Qu3R3xy12rmbW17e3bE9yf4YY85gJIQ3ezLEj/uzpKHWBsLaDoL5Mozz8QCgggwIBudYQWeQg==}
@@ -3967,7 +3967,7 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.0
 
-  '@livekit/protocol@1.28.1':
+  '@livekit/protocol@1.29.0':
     dependencies:
       '@bufbuild/protobuf': 1.10.0
 

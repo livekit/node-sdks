@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Duration } from '@bufbuild/protobuf';
 import {
   CreateSIPDispatchRuleRequest,
   CreateSIPInboundTrunkRequest,
@@ -94,6 +95,9 @@ export interface CreateSipParticipantOptions {
   playRingtone?: boolean; // Deprecated, use playDialtone instead
   playDialtone?: boolean;
   hidePhoneNumber?: boolean;
+  ringingTimeout?: number; // Duration in seconds
+  maxCallDuration?: number; // Duration in seconds
+  enableKrisp?: boolean;
 }
 
 export interface TransferSipParticipantOptions {
@@ -419,6 +423,9 @@ export class SipClient extends ServiceBase {
     let playRingtone: boolean = false;
     let playDialtone: boolean = false;
     let hidePhoneNumber: boolean = false;
+    let ringingTimeout: number | undefined = undefined;
+    let maxCallDuration: number | undefined = undefined;
+    let enableKrisp: boolean | undefined = undefined;
 
     if (opts !== undefined) {
       participantIdentity = opts.participantIdentity || '';
@@ -428,6 +435,9 @@ export class SipClient extends ServiceBase {
       playRingtone = opts.playRingtone || false;
       playDialtone = opts.playDialtone || playRingtone; // Enable PlayDialtone if either PlayDialtone or playRingtone is set
       hidePhoneNumber = opts.hidePhoneNumber || false;
+      ringingTimeout = opts.ringingTimeout || undefined;
+      maxCallDuration = opts.maxCallDuration || undefined;
+      enableKrisp = opts.enableKrisp || undefined;
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -441,6 +451,13 @@ export class SipClient extends ServiceBase {
       playRingtone: playDialtone,
       playDialtone: playDialtone,
       hidePhoneNumber: hidePhoneNumber,
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
+        : undefined,
+      maxCallDuration: maxCallDuration
+        ? new Duration({ seconds: BigInt(maxCallDuration) })
+        : undefined,
+      enableKrisp: enableKrisp,
     }).toJson();
 
     const data = await this.rpc.request(

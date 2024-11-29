@@ -8,7 +8,7 @@ import {
   ListAgentDispatchRequest,
   ListAgentDispatchResponse,
 } from '@livekit/protocol';
-import ServiceBase from './ServiceBase.js';
+import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 interface CreateDispatchOptions {

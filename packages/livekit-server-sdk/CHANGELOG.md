@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.9.2
+
+### Patch Changes
+
+- fix(cjs): don't default export ServiceBase - [#346](https://github.com/livekit/node-sdks/pull/346) ([@nbsp](https://github.com/nbsp))
+
 ## 2.9.1
 
 ### Patch Changes

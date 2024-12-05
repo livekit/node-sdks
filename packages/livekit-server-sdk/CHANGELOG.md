@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.9.3
+
+### Patch Changes
+
+- support for node v18 - [#349](https://github.com/livekit/node-sdks/pull/349) ([@lalitkapoor](https://github.com/lalitkapoor))
+
 ## 2.9.2
 
 ### Patch Changes

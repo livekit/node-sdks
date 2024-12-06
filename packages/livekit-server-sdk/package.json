@@ -34,12 +34,12 @@
     "test:edge": "vitest --environment edge-runtime run"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^1.7.2",
     "@livekit/protocol": "^1.29.1",
     "camelcase-keys": "^9.0.0",
     "jose": "^5.1.2"
   },
   "devDependencies": {
-    "@bufbuild/protobuf": "^1.7.2",
     "@changesets/cli": "^2.27.1",
     "@edge-runtime/vm": "^4.0.0",
     "@livekit/changesets-changelog-github": "^0.0.4",

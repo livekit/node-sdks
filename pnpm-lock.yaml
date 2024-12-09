@@ -16,7 +16,7 @@ importers:
         version: 0.0.4
       '@rushstack/heft':
         specifier: ^0.68.0
-        version: 0.68.2(@types/node@20.16.11)
+        version: 0.68.2(@types/node@22.9.0)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^4.3.0
         version: 4.3.0(prettier@3.3.3)
@@ -70,7 +70,7 @@ importers:
         version: 5.6.2
       vitest:
         specifier: ^2.0.0
-        version: 2.1.2(@edge-runtime/vm@4.0.3)(@types/node@20.16.11)(happy-dom@15.10.2)
+        version: 2.1.2(@edge-runtime/vm@4.0.3)(@types/node@22.9.0)(happy-dom@15.10.2)
 
   examples/agent-dispatch:
     dependencies:
@@ -217,8 +217,8 @@ importers:
         specifier: ^2.18.0
         version: 2.18.4
       '@types/node':
-        specifier: ^20.9.2
-        version: 20.16.11
+        specifier: ^22.0.0
+        version: 22.9.0
       prettier:
         specifier: ^3.0.3
         version: 3.3.3
@@ -264,8 +264,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       '@types/node':
-        specifier: ^20.10.1
-        version: 20.16.11
+        specifier: ^22.0.0
+        version: 22.9.0
       happy-dom:
         specifier: ^15.0.0
         version: 15.10.2
@@ -283,10 +283,10 @@ importers:
         version: 5.6.2
       vite:
         specifier: ^5.2.9
-        version: 5.4.6(@types/node@20.16.11)
+        version: 5.4.6(@types/node@22.9.0)
       vitest:
         specifier: ^2.0.0
-        version: 2.1.2(@edge-runtime/vm@4.0.3)(@types/node@20.16.11)(happy-dom@15.10.2)
+        version: 2.1.2(@edge-runtime/vm@4.0.3)(@types/node@22.9.0)(happy-dom@15.10.2)
 
 packages:
 
@@ -1240,6 +1240,9 @@ packages:
 
   '@types/node@20.16.11':
     resolution: {integrity: sha512-y+cTCACu92FyA5fgQSAI8A1H429g7aSK2HsO7K4XYUWc4dY5IUz55JSDIYT6/VsOLfGy8vmvQYC2hfb0iF16Uw==}
+
+  '@types/node@22.9.0':
+    resolution: {integrity: sha512-vuyHg81vvWA1Z1ELfvLko2c8f34gyA0zaic0+Rllc5lbCnbSyuvb2Oxpm6TAUAC/2xZN3QGqxBNggD1nNR2AfQ==}
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -4120,23 +4123,23 @@ snapshots:
 
   '@rushstack/eslint-patch@1.10.4': {}
 
-  '@rushstack/heft-config-file@0.15.7(@types/node@20.16.11)':
+  '@rushstack/heft-config-file@0.15.7(@types/node@22.9.0)':
     dependencies:
-      '@rushstack/node-core-library': 5.9.0(@types/node@20.16.11)
+      '@rushstack/node-core-library': 5.9.0(@types/node@22.9.0)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.14.2(@types/node@20.16.11)
+      '@rushstack/terminal': 0.14.2(@types/node@22.9.0)
       jsonpath-plus: 4.0.0
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/heft@0.68.2(@types/node@20.16.11)':
+  '@rushstack/heft@0.68.2(@types/node@22.9.0)':
     dependencies:
-      '@rushstack/heft-config-file': 0.15.7(@types/node@20.16.11)
-      '@rushstack/node-core-library': 5.9.0(@types/node@20.16.11)
-      '@rushstack/operation-graph': 0.2.33(@types/node@20.16.11)
+      '@rushstack/heft-config-file': 0.15.7(@types/node@22.9.0)
+      '@rushstack/node-core-library': 5.9.0(@types/node@22.9.0)
+      '@rushstack/operation-graph': 0.2.33(@types/node@22.9.0)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.14.2(@types/node@20.16.11)
-      '@rushstack/ts-command-line': 4.22.8(@types/node@20.16.11)
+      '@rushstack/terminal': 0.14.2(@types/node@22.9.0)
+      '@rushstack/ts-command-line': 4.22.8(@types/node@22.9.0)
       '@types/tapable': 1.0.6
       fast-glob: 3.3.2
       git-repo-info: 2.1.1
@@ -4147,7 +4150,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/node-core-library@5.9.0(@types/node@20.16.11)':
+  '@rushstack/node-core-library@5.9.0(@types/node@22.9.0)':
     dependencies:
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
@@ -4158,30 +4161,30 @@ snapshots:
       resolve: 1.22.8
       semver: 7.5.4
     optionalDependencies:
-      '@types/node': 20.16.11
+      '@types/node': 22.9.0
 
-  '@rushstack/operation-graph@0.2.33(@types/node@20.16.11)':
+  '@rushstack/operation-graph@0.2.33(@types/node@22.9.0)':
     dependencies:
-      '@rushstack/node-core-library': 5.9.0(@types/node@20.16.11)
-      '@rushstack/terminal': 0.14.2(@types/node@20.16.11)
+      '@rushstack/node-core-library': 5.9.0(@types/node@22.9.0)
+      '@rushstack/terminal': 0.14.2(@types/node@22.9.0)
     optionalDependencies:
-      '@types/node': 20.16.11
+      '@types/node': 22.9.0
 
   '@rushstack/rig-package@0.5.3':
     dependencies:
       resolve: 1.22.8
       strip-json-comments: 3.1.1
 
-  '@rushstack/terminal@0.14.2(@types/node@20.16.11)':
+  '@rushstack/terminal@0.14.2(@types/node@22.9.0)':
     dependencies:
-      '@rushstack/node-core-library': 5.9.0(@types/node@20.16.11)
+      '@rushstack/node-core-library': 5.9.0(@types/node@22.9.0)
       supports-color: 8.1.1
     optionalDependencies:
-      '@types/node': 20.16.11
+      '@types/node': 22.9.0
 
-  '@rushstack/ts-command-line@4.22.8(@types/node@20.16.11)':
+  '@rushstack/ts-command-line@4.22.8(@types/node@22.9.0)':
     dependencies:
-      '@rushstack/terminal': 0.14.2(@types/node@20.16.11)
+      '@rushstack/terminal': 0.14.2(@types/node@22.9.0)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -4250,6 +4253,10 @@ snapshots:
   '@types/node@18.7.18': {}
 
   '@types/node@20.16.11':
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@22.9.0':
     dependencies:
       undici-types: 6.19.8
 
@@ -4368,13 +4375,13 @@ snapshots:
       chai: 5.1.1
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.2(@vitest/spy@2.1.2)(vite@5.4.6(@types/node@20.16.11))':
+  '@vitest/mocker@2.1.2(@vitest/spy@2.1.2)(vite@5.4.6(@types/node@22.9.0))':
     dependencies:
       '@vitest/spy': 2.1.2
       estree-walker: 3.0.3
       magic-string: 0.30.11
     optionalDependencies:
-      vite: 5.4.6(@types/node@20.16.11)
+      vite: 5.4.6(@types/node@22.9.0)
 
   '@vitest/pretty-format@2.1.2':
     dependencies:
@@ -6554,12 +6561,12 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  vite-node@2.1.2(@types/node@20.16.11):
+  vite-node@2.1.2(@types/node@22.9.0):
     dependencies:
       cac: 6.7.14
       debug: 4.3.7
       pathe: 1.1.2
-      vite: 5.4.6(@types/node@20.16.11)
+      vite: 5.4.6(@types/node@22.9.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -6571,19 +6578,19 @@ snapshots:
       - supports-color
       - terser
 
-  vite@5.4.6(@types/node@20.16.11):
+  vite@5.4.6(@types/node@22.9.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.47
       rollup: 4.24.0
     optionalDependencies:
-      '@types/node': 20.16.11
+      '@types/node': 22.9.0
       fsevents: 2.3.3
 
-  vitest@2.1.2(@edge-runtime/vm@4.0.3)(@types/node@20.16.11)(happy-dom@15.10.2):
+  vitest@2.1.2(@edge-runtime/vm@4.0.3)(@types/node@22.9.0)(happy-dom@15.10.2):
     dependencies:
       '@vitest/expect': 2.1.2
-      '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.6(@types/node@20.16.11))
+      '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.6(@types/node@22.9.0))
       '@vitest/pretty-format': 2.1.2
       '@vitest/runner': 2.1.2
       '@vitest/snapshot': 2.1.2
@@ -6598,12 +6605,12 @@ snapshots:
       tinyexec: 0.3.0
       tinypool: 1.0.1
       tinyrainbow: 1.2.0
-      vite: 5.4.6(@types/node@20.16.11)
-      vite-node: 2.1.2(@types/node@20.16.11)
+      vite: 5.4.6(@types/node@22.9.0)
+      vite-node: 2.1.2(@types/node@22.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@edge-runtime/vm': 4.0.3
-      '@types/node': 20.16.11
+      '@types/node': 22.9.0
       happy-dom: 15.10.2
     transitivePeerDependencies:
       - less

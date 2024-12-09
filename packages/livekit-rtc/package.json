@@ -48,7 +48,7 @@
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.2.0",
     "@napi-rs/cli": "^2.18.0",
-    "@types/node": "^20.9.2",
+    "@types/node": "^22.0.0",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
     "typescript": "^5.2.2"

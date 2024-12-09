@@ -249,7 +249,7 @@ importers:
         version: 9.1.3
       jose:
         specifier: ^5.1.2
-        version: 5.4.1
+        version: 5.9.6
     devDependencies:
       '@bufbuild/protobuf':
         specifier: ^1.7.2
@@ -2326,8 +2326,8 @@ packages:
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
-  jose@5.4.1:
-    resolution: {integrity: sha512-U6QajmpV/nhL9SyfAewo000fkiRQ+Yd2H0lBxJJ9apjpOgkOcBQJWOrMo917lxLptdS/n/o/xPzMkXhF46K8hQ==}
+  jose@5.9.6:
+    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -5615,7 +5615,7 @@ snapshots:
 
   jju@1.4.0: {}
 
-  jose@5.4.1: {}
+  jose@5.9.6: {}
 
   joycon@3.1.1: {}
 

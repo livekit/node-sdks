@@ -9,8 +9,8 @@ import {
 } from '@livekit/protocol';
 import * as jose from 'jose';
 import { describe, expect, it } from 'vitest';
-import { AccessToken, TokenVerifier } from './AccessToken';
-import type { ClaimGrants } from './grants';
+import { AccessToken, TokenVerifier } from './AccessToken.js';
+import type { ClaimGrants } from './grants.js';
 
 const testApiKey = 'abcdefg';
 const testSecret = 'abababa';
@@ -143,10 +143,10 @@ describe('room configuration with agents and egress', () => {
     expect(decoded.roomConfig?.name).toEqual('test-room');
     expect(decoded.roomConfig?.maxParticipants).toEqual(10);
     expect(decoded.roomConfig?.agents).toHaveLength(2);
-    expect(decoded.roomConfig?.agents?.[0].agentName).toEqual('agent1');
-    expect(decoded.roomConfig?.agents?.[0].metadata).toEqual('metadata-1');
-    expect(decoded.roomConfig?.agents?.[1].agentName).toEqual('agent2');
-    expect(decoded.roomConfig?.agents?.[1].metadata).toEqual('metadata-2');
+    expect(decoded.roomConfig?.agents?.[0]?.agentName).toEqual('agent1');
+    expect(decoded.roomConfig?.agents?.[0]?.metadata).toEqual('metadata-1');
+    expect(decoded.roomConfig?.agents?.[1]?.agentName).toEqual('agent2');
+    expect(decoded.roomConfig?.agents?.[1]?.metadata).toEqual('metadata-2');
     expect(decoded.roomConfig?.egress?.room?.roomName).toEqual('test-room');
   });
 });

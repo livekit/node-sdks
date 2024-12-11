@@ -1,12 +1,12 @@
-import { Options } from 'tsup';
+import type { Options } from 'tsup';
 
 const defaultOptions: Options = {
-  entry: ['src/**/*.ts'],
+  entry: ['src/**/*.ts', '!src/**/*.test.ts'],
   format: ['cjs', 'esm'],
   splitting: false,
   sourcemap: true,
   // for the type maps to work, we use tsc's declaration-only command
-  dts: false,
+  dts: true,
   clean: true,
   bundle: false,
   target: 'node16',

@@ -5,7 +5,10 @@
   "main": "dist/index.js",
   "require": "dist/index.cjs",
   "types": "dist/index.d.ts",
-  "repository": "git@github.com:livekit/server-sdk-js.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/livekit/server-sdk-js.git"
+  },
   "author": "David Zhao <david@davidzhao.com>",
   "license": "Apache-2.0",
   "type": "module",

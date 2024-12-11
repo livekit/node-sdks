@@ -20,7 +20,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
+    "build": "tsup --onSuccess \"tsc --declaration --emitDeclarationOnly && cp ./dist/index.d.ts ./dist/index.d.cts\"",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
     "changeset": "changeset",

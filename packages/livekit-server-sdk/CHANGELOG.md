@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.9.4
+
+### Patch Changes
+
+- Fix types export for CJS and build config - [#359](https://github.com/livekit/node-sdks/pull/359) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.3
 
 ### Patch Changes

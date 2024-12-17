@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file participant.proto.
  */
 export const file_participant: GenFile = /*@__PURE__*/
-  fileDesc("ChFwYXJ0aWNpcGFudC5wcm90bxINbGl2ZWtpdC5wcm90byL1AQoPUGFydGljaXBhbnRJbmZvEgsKA3NpZBgBIAIoCRIMCgRuYW1lGAIgAigJEhAKCGlkZW50aXR5GAMgAigJEhAKCG1ldGFkYXRhGAQgAigJEkIKCmF0dHJpYnV0ZXMYBSADKAsyLi5saXZla2l0LnByb3RvLlBhcnRpY2lwYW50SW5mby5BdHRyaWJ1dGVzRW50cnkSLAoEa2luZBgGIAIoDjIeLmxpdmVraXQucHJvdG8uUGFydGljaXBhbnRLaW5kGjEKD0F0dHJpYnV0ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIm8KEE93bmVkUGFydGljaXBhbnQSLQoGaGFuZGxlGAEgAigLMh0ubGl2ZWtpdC5wcm90by5GZmlPd25lZEhhbmRsZRIsCgRpbmZvGAIgAigLMh4ubGl2ZWtpdC5wcm90by5QYXJ0aWNpcGFudEluZm8qoQEKD1BhcnRpY2lwYW50S2luZBIdChlQQVJUSUNJUEFOVF9LSU5EX1NUQU5EQVJEEAASHAoYUEFSVElDSVBBTlRfS0lORF9JTkdSRVNTEAESGwoXUEFSVElDSVBBTlRfS0lORF9FR1JFU1MQAhIYChRQQVJUSUNJUEFOVF9LSU5EX1NJUBADEhoKFlBBUlRJQ0lQQU5UX0tJTkRfQUdFTlQQBEIQqgINTGl2ZUtpdC5Qcm90bw", [file_handle]);
+  fileDesc("ChFwYXJ0aWNpcGFudC5wcm90bxINbGl2ZWtpdC5wcm90byKxAgoPUGFydGljaXBhbnRJbmZvEgsKA3NpZBgBIAIoCRIMCgRuYW1lGAIgAigJEhAKCGlkZW50aXR5GAMgAigJEhAKCG1ldGFkYXRhGAQgAigJEkIKCmF0dHJpYnV0ZXMYBSADKAsyLi5saXZla2l0LnByb3RvLlBhcnRpY2lwYW50SW5mby5BdHRyaWJ1dGVzRW50cnkSLAoEa2luZBgGIAIoDjIeLmxpdmVraXQucHJvdG8uUGFydGljaXBhbnRLaW5kEjoKEWRpc2Nvbm5lY3RfcmVhc29uGAcgAigOMh8ubGl2ZWtpdC5wcm90by5EaXNjb25uZWN0UmVhc29uGjEKD0F0dHJpYnV0ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIm8KEE93bmVkUGFydGljaXBhbnQSLQoGaGFuZGxlGAEgAigLMh0ubGl2ZWtpdC5wcm90by5GZmlPd25lZEhhbmRsZRIsCgRpbmZvGAIgAigLMh4ubGl2ZWtpdC5wcm90by5QYXJ0aWNpcGFudEluZm8qoQEKD1BhcnRpY2lwYW50S2luZBIdChlQQVJUSUNJUEFOVF9LSU5EX1NUQU5EQVJEEAASHAoYUEFSVElDSVBBTlRfS0lORF9JTkdSRVNTEAESGwoXUEFSVElDSVBBTlRfS0lORF9FR1JFU1MQAhIYChRQQVJUSUNJUEFOVF9LSU5EX1NJUBADEhoKFlBBUlRJQ0lQQU5UX0tJTkRfQUdFTlQQBCqsAgoQRGlzY29ubmVjdFJlYXNvbhISCg5VTktOT1dOX1JFQVNPThAAEhQKEENMSUVOVF9JTklUSUFURUQQARIWChJEVVBMSUNBVEVfSURFTlRJVFkQAhITCg9TRVJWRVJfU0hVVERPV04QAxIXChNQQVJUSUNJUEFOVF9SRU1PVkVEEAQSEAoMUk9PTV9ERUxFVEVEEAUSEgoOU1RBVEVfTUlTTUFUQ0gQBhIQCgxKT0lOX0ZBSUxVUkUQBxINCglNSUdSQVRJT04QCBIQCgxTSUdOQUxfQ0xPU0UQCRIPCgtST09NX0NMT1NFRBAKEhQKEFVTRVJfVU5BVkFJTEFCTEUQCxIRCg1VU0VSX1JFSkVDVEVEEAwSFQoRU0lQX1RSVU5LX0ZBSUxVUkUQDUIQqgINTGl2ZUtpdC5Qcm90bw", [file_handle]);
 
 /**
  * @generated from message livekit.proto.ParticipantInfo
@@ -61,6 +61,11 @@ export type ParticipantInfo = Message<"livekit.proto.ParticipantInfo"> & {
    * @generated from field: required livekit.proto.ParticipantKind kind = 6;
    */
   kind: ParticipantKind;
+
+  /**
+   * @generated from field: required livekit.proto.DisconnectReason disconnect_reason = 7;
+   */
+  disconnectReason: DisconnectReason;
 };
 
 /**
@@ -127,4 +132,111 @@ export enum ParticipantKind {
  */
 export const ParticipantKindSchema: GenEnum<ParticipantKind> = /*@__PURE__*/
   enumDesc(file_participant, 0);
+
+/**
+ * @generated from enum livekit.proto.DisconnectReason
+ */
+export enum DisconnectReason {
+  /**
+   * @generated from enum value: UNKNOWN_REASON = 0;
+   */
+  UNKNOWN_REASON = 0,
+
+  /**
+   * the client initiated the disconnect
+   *
+   * @generated from enum value: CLIENT_INITIATED = 1;
+   */
+  CLIENT_INITIATED = 1,
+
+  /**
+   * another participant with the same identity has joined the room
+   *
+   * @generated from enum value: DUPLICATE_IDENTITY = 2;
+   */
+  DUPLICATE_IDENTITY = 2,
+
+  /**
+   * the server instance is shutting down
+   *
+   * @generated from enum value: SERVER_SHUTDOWN = 3;
+   */
+  SERVER_SHUTDOWN = 3,
+
+  /**
+   * RoomService.RemoveParticipant was called
+   *
+   * @generated from enum value: PARTICIPANT_REMOVED = 4;
+   */
+  PARTICIPANT_REMOVED = 4,
+
+  /**
+   * RoomService.DeleteRoom was called
+   *
+   * @generated from enum value: ROOM_DELETED = 5;
+   */
+  ROOM_DELETED = 5,
+
+  /**
+   * the client is attempting to resume a session, but server is not aware of it
+   *
+   * @generated from enum value: STATE_MISMATCH = 6;
+   */
+  STATE_MISMATCH = 6,
+
+  /**
+   * client was unable to connect fully
+   *
+   * @generated from enum value: JOIN_FAILURE = 7;
+   */
+  JOIN_FAILURE = 7,
+
+  /**
+   * Cloud-only, the server requested Participant to migrate the connection elsewhere
+   *
+   * @generated from enum value: MIGRATION = 8;
+   */
+  MIGRATION = 8,
+
+  /**
+   * the signal websocket was closed unexpectedly
+   *
+   * @generated from enum value: SIGNAL_CLOSE = 9;
+   */
+  SIGNAL_CLOSE = 9,
+
+  /**
+   * the room was closed, due to all Standard and Ingress participants having left
+   *
+   * @generated from enum value: ROOM_CLOSED = 10;
+   */
+  ROOM_CLOSED = 10,
+
+  /**
+   * SIP callee did not respond in time
+   *
+   * @generated from enum value: USER_UNAVAILABLE = 11;
+   */
+  USER_UNAVAILABLE = 11,
+
+  /**
+   * SIP callee rejected the call (busy)
+   *
+   * @generated from enum value: USER_REJECTED = 12;
+   */
+  USER_REJECTED = 12,
+
+  /**
+   * SIP protocol failure or unexpected response
+   *
+   * @generated from enum value: SIP_TRUNK_FAILURE = 13;
+   */
+  SIP_TRUNK_FAILURE = 13,
+}
+
+/**
+ * Describes the enum livekit.proto.DisconnectReason.
+ */
+export const DisconnectReasonSchema: GenEnum<DisconnectReason> = /*@__PURE__*/
+  enumDesc(file_participant, 1);
 

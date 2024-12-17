@@ -62,6 +62,7 @@ export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_
 export { ParticipantKind } from './proto/participant_pb.js';
 export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';
+export * from './data_streams/index.js';
 
 // exposing helpers for API compatibility with 1.x version of protobuf-es where these were class instances
 

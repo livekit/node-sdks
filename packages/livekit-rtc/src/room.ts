@@ -2,22 +2,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { create } from '@bufbuild/protobuf';
+import { DataStream_Chunk, DataStream_Header } from '@livekit/protocol';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
+import { ReadableStream } from 'node:stream/web';
+import { BinaryStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
+import type { FileStreamInfo, StreamController, TextStreamInfo } from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
-import type { OwnedParticipant } from './proto/participant_pb.js';
+import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
 import type {
   ConnectCallback,
   ConnectResponse,
   ConnectionQuality,
   DataPacketKind,
-  DisconnectReason,
   DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   IceServer,
@@ -35,6 +39,7 @@ import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
 import type { ChatMessage } from './types.js';
+import { bigIntToNumber } from './utils.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -383,6 +388,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     } else if (ev.case == 'roomSidChanged') {
       this.emit(RoomEvent.RoomSidChanged, ev.value.sid);
+    } else if (ev.case === 'streamHeader') {
+      // FIXME this needs proper participant info passed
+      this.handleStreamHeader(new DataStream_Header(ev.value), 'todo');
+    } else if (ev.case === 'streamChunk') {
+      this.handleStreamChunk(new DataStream_Chunk(ev.value));
     }
   };
 
@@ -438,6 +448,96 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const participant = new RemoteParticipant(ownedInfo);
     this.remoteParticipants.set(ownedInfo.info!.identity, participant);
     return participant;
+  }
+
+  fileStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+
+  textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+
+  private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {
+    if (streamHeader.contentHeader.case === 'fileHeader') {
+      if (this.listeners(RoomEvent.FileStreamReceived).length === 0) {
+        log.debug('ignoring incoming file stream due to no listeners');
+        return;
+      }
+      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
+      const stream = new ReadableStream({
+        start: (controller) => {
+          streamController = controller;
+          this.fileStreamControllers.set(streamHeader.streamId, {
+            header: streamHeader,
+            controller: streamController,
+            startTime: Date.now(),
+          });
+        },
+      });
+      const info: FileStreamInfo = {
+        id: streamHeader.streamId,
+        fileName: streamHeader.contentHeader.value.fileName ?? 'unknown',
+        mimeType: streamHeader.mimeType,
+        size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        topic: streamHeader.topic,
+        timestamp: bigIntToNumber(streamHeader.timestamp),
+        extensions: streamHeader.extensions,
+      };
+      this.emit(
+        RoomEvent.FileStreamReceived,
+        new BinaryStreamReader(info, stream, bigIntToNumber(streamHeader.totalChunks)),
+        { identity: participantIdentity },
+      );
+    } else if (streamHeader.contentHeader.case === 'textHeader') {
+      if (this.listeners(RoomEvent.TextStreamReceived).length === 0) {
+        log.debug('ignoring incoming text stream due to no listeners');
+        return;
+      }
+      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
+      const stream = new ReadableStream<DataStream_Chunk>({
+        start: (controller) => {
+          streamController = controller;
+          this.textStreamControllers.set(streamHeader.streamId, {
+            header: streamHeader,
+            controller: streamController,
+            startTime: Date.now(),
+          });
+        },
+      });
+      const info: TextStreamInfo = {
+        id: streamHeader.streamId,
+        mimeType: streamHeader.mimeType,
+        size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        topic: streamHeader.topic,
+        timestamp: Number(streamHeader.timestamp),
+        extensions: streamHeader.extensions,
+      };
+      this.emit(
+        RoomEvent.TextStreamReceived,
+        new TextStreamReader(info, stream, bigIntToNumber(streamHeader.totalChunks)),
+        { identity: participantIdentity },
+      );
+    }
+  }
+
+  private handleStreamChunk(chunk: DataStream_Chunk) {
+    const fileBuffer = this.fileStreamControllers.get(chunk.streamId);
+    if (fileBuffer) {
+      if (chunk.content.length > 0) {
+        fileBuffer.controller.enqueue(chunk);
+      }
+      if (chunk.complete === true) {
+        fileBuffer.controller.close();
+        this.fileStreamControllers.delete(chunk.streamId);
+      }
+    }
+    const textBuffer = this.textStreamControllers.get(chunk.streamId);
+    if (textBuffer) {
+      if (chunk.content.length > 0) {
+        textBuffer.controller.enqueue(chunk);
+      }
+      if (chunk.complete === true) {
+        textBuffer.controller.close();
+        this.fileStreamControllers.delete(chunk.streamId);
+      }
+    }
   }
 }
 
@@ -500,6 +600,8 @@ export type RoomCallbacks = {
   reconnecting: () => void;
   reconnected: () => void;
   roomSidChanged: (sid: string) => void;
+  textStreamReceived: (reader: TextStreamReader, participantInfo: { identity: string }) => void;
+  fileStreamReceived: (reader: BinaryStreamReader, participantInfo: { identity: string }) => void;
 };
 
 export enum RoomEvent {
@@ -531,4 +633,6 @@ export enum RoomEvent {
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',
   Reconnected = 'reconnected',
+  TextStreamReceived = 'textStreamReceived',
+  FileStreamReceived = 'fileStreamReceived',
 }

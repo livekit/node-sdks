@@ -186,7 +186,7 @@ importers:
     dependencies:
       '@bufbuild/protobuf':
         specifier: ^2.2.0
-        version: 2.2.0
+        version: 2.2.1
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.1.0
@@ -212,7 +212,7 @@ importers:
     devDependencies:
       '@bufbuild/protoc-gen-es':
         specifier: ^2.2.0
-        version: 2.2.0(@bufbuild/protobuf@2.2.0)
+        version: 2.2.0(@bufbuild/protobuf@2.2.1)
       '@napi-rs/cli':
         specifier: ^2.18.0
         version: 2.18.4
@@ -253,7 +253,7 @@ importers:
     devDependencies:
       '@bufbuild/protobuf':
         specifier: ^1.7.2
-        version: 1.10.0
+        version: 2.2.1
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.9
@@ -360,6 +360,9 @@ packages:
 
   '@bufbuild/protobuf@2.2.0':
     resolution: {integrity: sha512-+imAQkHf7U/Rwvu0wk1XWgsP3WnpCWmK7B48f0XqSNzgk64+grljTKC7pnO/xBiEMUziF7vKRfbBnOQhg126qQ==}
+
+  '@bufbuild/protobuf@2.2.1':
+    resolution: {integrity: sha512-gdWzq7eX017a1kZCU/bP/sbk4e0GZ6idjsXOcMrQwODCb/rx985fHJJ8+hCu79KpuG7PfZh7bo3BBjPH37JuZw==}
 
   '@bufbuild/protoc-gen-es@2.2.0':
     resolution: {integrity: sha512-PmUTtbJJfgcabTsoF59W0bsAr7xO5aGcMe69G8vOq0ogYV1aWmvFKhHKHDtn295pOLhTXmfrDSUNi/OTHuDdpw==}
@@ -3506,11 +3509,13 @@ snapshots:
 
   '@bufbuild/protobuf@2.2.0': {}
 
-  '@bufbuild/protoc-gen-es@2.2.0(@bufbuild/protobuf@2.2.0)':
+  '@bufbuild/protobuf@2.2.1': {}
+
+  '@bufbuild/protoc-gen-es@2.2.0(@bufbuild/protobuf@2.2.1)':
     dependencies:
       '@bufbuild/protoplugin': 2.2.0
     optionalDependencies:
-      '@bufbuild/protobuf': 2.2.0
+      '@bufbuild/protobuf': 2.2.1
     transitivePeerDependencies:
       - supports-color
 

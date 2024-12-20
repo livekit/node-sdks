@@ -231,7 +231,7 @@ export class LocalParticipant extends Participant {
       header: {
         streamId,
         mimeType: 'text/plain',
-        topic: options?.topic ?? 'test',
+        topic: options?.topic ?? '',
         timestamp: numberToBigInt(Date.now()),
         extensions: options?.extensions,
         contentHeader: {

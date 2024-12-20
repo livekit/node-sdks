@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.12.2
+
+### Patch Changes
+
+- Fix types export for CJS and build config - [#359](https://github.com/livekit/node-sdks/pull/359) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.12.1
 
 ### Patch Changes

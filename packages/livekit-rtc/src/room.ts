@@ -388,11 +388,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     } else if (ev.case == 'roomSidChanged') {
       this.emit(RoomEvent.RoomSidChanged, ev.value.sid);
-    } else if (ev.case === 'streamHeader') {
-      // FIXME this needs proper participant info passed
-      this.handleStreamHeader(new DataStream_Header(ev.value), 'todo');
-    } else if (ev.case === 'streamChunk') {
-      this.handleStreamChunk(new DataStream_Chunk(ev.value));
+    } else if (ev.case === 'streamHeaderReceived') {
+      this.handleStreamHeader(new DataStream_Header(ev.value.header), ev.value.participantIdentity);
+    } else if (ev.case === 'streamChunkReceived') {
+      this.handleStreamChunk(new DataStream_Chunk(ev.value.chunk));
     }
   };
 

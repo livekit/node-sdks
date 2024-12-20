@@ -24,6 +24,6 @@ class BaseStreamWriter<T> {
   }
 }
 
-export class TextStreamWriter extends BaseStreamWriter<string> {}
+export class TextStreamWriter extends BaseStreamWriter<[string, number?]> {}
 
 export class BinaryStreamWriter extends BaseStreamWriter<Uint8Array> {}

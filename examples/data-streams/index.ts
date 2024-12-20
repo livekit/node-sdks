@@ -17,7 +17,7 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
   });
 
   for (const c of greeting) {
-    await streamWriter?.write(c);
+    await streamWriter?.write([c]);
   }
 
   await streamWriter?.close();

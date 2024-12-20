@@ -264,9 +264,9 @@ export class LocalParticipant extends Participant {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const localP = this;
 
-    const writableStream = new WritableStream<string>({
+    const writableStream = new WritableStream<[string, number?]>({
       // Implement the sink
-      write(textChunk) {
+      write([textChunk, overrideChunkId]) {
         const textInBytes = new TextEncoder().encode(textChunk);
 
         if (textInBytes.byteLength > STREAM_CHUNK_SIZE) {
@@ -285,7 +285,7 @@ export class LocalParticipant extends Participant {
             chunk: {
               content: textInBytes,
               streamId,
-              chunkIndex: numberToBigInt(chunkId),
+              chunkIndex: numberToBigInt(overrideChunkId ?? chunkId),
             },
           });
 

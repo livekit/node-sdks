@@ -1,4 +1,4 @@
-import { Room, RoomEvent, type TextStreamReader } from '@livekit/rtc-node';
+import { RemoteParticipant, Room, RoomEvent, type TextStreamReader } from '@livekit/rtc-node';
 import { config } from 'dotenv';
 import { AccessToken } from 'livekit-server-sdk';
 
@@ -9,6 +9,19 @@ const LIVEKIT_URL = process.env.LIVEKIT_URL;
 if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
   throw new Error('Missing required environment variables. Please check your .env.local file.');
 }
+
+const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
+  const greeting = 'Hi this is just a text sample';
+  const streamWriter = await room.localParticipant?.streamText({
+    destinationIdentities: [recipient.identity],
+  });
+
+  for (const c of greeting) {
+    await streamWriter?.write(c);
+  }
+
+  await streamWriter?.close();
+};
 
 const main = async () => {
   const roomName = `dev`;
@@ -25,6 +38,10 @@ const main = async () => {
     for await (const { collected } of reader) {
       console.log(collected);
     }
+  });
+
+  room.on(RoomEvent.ParticipantConnected, async (participant) => {
+    await greetParticipant(room, participant);
   });
 
   await room.connect(LIVEKIT_URL, token);

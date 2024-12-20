@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { create } from '@bufbuild/protobuf';
+import { TextStreamWriter } from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
 import type {
@@ -15,6 +16,10 @@ import type {
   PublishTranscriptionResponse,
   SendChatMessageCallback,
   SendChatMessageResponse,
+  SendStreamChunkCallback,
+  SendStreamChunkResponse,
+  SendStreamHeaderCallback,
+  SendStreamHeaderResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
   SetLocalMetadataCallback,
@@ -27,12 +32,15 @@ import type {
 } from './proto/room_pb.js';
 import {
   ChatMessageSchema,
+  DataStream_OperationType,
   EditChatMessageRequestSchema,
   PublishDataRequestSchema,
   PublishSipDtmfRequestSchema,
   PublishTrackRequestSchema,
   PublishTranscriptionRequestSchema,
   SendChatMessageRequestSchema,
+  SendStreamChunkRequestSchema,
+  SendStreamHeaderRequestSchema,
   SetLocalAttributesRequestSchema,
   SetLocalMetadataRequestSchema,
   SetLocalNameRequestSchema,
@@ -58,6 +66,9 @@ import type { RemoteTrackPublication, TrackPublication } from './track_publicati
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
 import type { ChatMessage } from './types.js';
+import { numberToBigInt } from './utils.js';
+
+const STREAM_CHUNK_SIZE = 15_000;
 
 export abstract class Participant {
   /** @internal */
@@ -205,6 +216,128 @@ export class LocalParticipant extends Participant {
     await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
       return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
+  }
+
+  async streamText(options?: {
+    topic?: string;
+    extensions?: Record<string, string>;
+    destinationIdentities?: Array<string>;
+  }): Promise<TextStreamWriter> {
+    const senderIdentity = this.identity;
+    const streamId = crypto.randomUUID();
+    const headerReq = create(SendStreamHeaderRequestSchema, {
+      senderIdentity,
+      localParticipantHandle: this.ffi_handle.handle,
+      header: {
+        streamId,
+        mimeType: 'text/plain',
+        topic: options?.topic ?? 'test',
+        timestamp: numberToBigInt(Date.now()),
+        extensions: options?.extensions,
+        contentHeader: {
+          case: 'textHeader',
+          value: {
+            operationType: DataStream_OperationType.CREATE,
+            version: 0,
+            replyToStreamId: '',
+            generated: false,
+          },
+        },
+      },
+    });
+
+    const destinationIdentities = options?.destinationIdentities;
+
+    const res = FfiClient.instance.request<SendStreamHeaderResponse>({
+      message: { case: 'sendStreamHeader', value: headerReq },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>((ev) => {
+      return ev.message.case == 'sendStreamHeader' && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+
+    let chunkId = 0;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const localP = this;
+
+    const writableStream = new WritableStream<string>({
+      // Implement the sink
+      write(textChunk) {
+        const textInBytes = new TextEncoder().encode(textChunk);
+
+        if (textInBytes.byteLength > STREAM_CHUNK_SIZE) {
+          this.abort?.();
+          throw new Error('chunk size too large');
+        }
+
+        return new Promise(async (resolve) => {
+          // FIXME we need an equivalent for this on the rust layer
+          // await localP.engine.waitForBufferStatusLow(DataPacket_Kind.RELIABLE);
+
+          const chunkRequest = create(SendStreamChunkRequestSchema, {
+            senderIdentity,
+            localParticipantHandle: localP.ffi_handle.handle,
+            destinationIdentities,
+            chunk: {
+              content: textInBytes,
+              streamId,
+              chunkIndex: numberToBigInt(chunkId),
+            },
+          });
+
+          const res = FfiClient.instance.request<SendStreamHeaderResponse>({
+            message: { case: 'sendStreamChunk', value: chunkRequest },
+          });
+
+          const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
+            return ev.message.case == 'sendStreamChunk' && ev.message.value.asyncId == res.asyncId;
+          });
+
+          if (cb.error) {
+            throw new Error(cb.error);
+          }
+
+          chunkId += 1;
+          resolve();
+        });
+      },
+      async close() {
+        const chunkReq = create(SendStreamChunkRequestSchema, {
+          senderIdentity,
+          localParticipantHandle: localP.ffi_handle.handle,
+          destinationIdentities,
+          chunk: {
+            streamId,
+            chunkIndex: numberToBigInt(chunkId),
+            complete: true,
+            content: Uint8Array.from([]),
+          },
+        });
+        const res = FfiClient.instance.request<SendStreamChunkResponse>({
+          message: { case: 'sendStreamChunk', value: chunkReq },
+        });
+
+        const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
+          return ev.message.case == 'sendStreamHeader' && ev.message.value.asyncId == res.asyncId;
+        });
+
+        if (cb.error) {
+          throw new Error(cb.error);
+        }
+      },
+      abort(err) {
+        console.log('Sink error:', err);
+        // TODO handle aborts to signal something to receiver side
+      },
+    });
+
+    const writer = new TextStreamWriter(writableStream);
+
+    return writer;
   }
 
   /**

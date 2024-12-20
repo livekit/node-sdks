@@ -48,7 +48,10 @@
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.0",
     "@livekit/mutex": "^1.0.0",
-    "@livekit/typed-emitter": "^3.0.0"
+    "@livekit/protocol": "^1.29.4",
+    "@livekit/typed-emitter": "^3.0.0",
+    "pino": "^8.19.0",
+    "pino-pretty": "^11.0.0"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.2.0",

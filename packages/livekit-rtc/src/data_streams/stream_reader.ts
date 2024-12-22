@@ -28,6 +28,9 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
   abstract readAll(): Promise<string | Array<Uint8Array>>;
 }
 
+/**
+ * A class to read chunks from a ReadableStream and provide them in a structured format.
+ */
 export class BinaryStreamReader extends BaseStreamReader<FileStreamInfo> {
   private chunksReceived: Set<number>;
 

@@ -330,6 +330,7 @@ export class LocalParticipant extends Participant {
     return writer;
   }
 
+  /** Sends a file provided as PathLike to specified recipients */
   async sendFile(path: PathLike, options?: FileStreamOptions) {
     const fileStats = await stat(path);
     const file = await open(path);

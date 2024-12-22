@@ -65,7 +65,6 @@ export class BinaryStreamReader extends BaseStreamReader<FileStreamInfo> {
             return { done: false, value: value.content };
           }
         } catch (error) {
-          // TODO handle errors
           log.error('error processing stream update', error);
           return { done: true, value: undefined };
         }
@@ -150,7 +149,6 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
             };
           }
         } catch (error) {
-          // TODO handle errors
           log.error('error processing stream update', error);
           return { done: true, value: undefined };
         }

@@ -320,8 +320,7 @@ export class LocalParticipant extends Participant {
         await sendChunk(chunkReq);
       },
       abort(err) {
-        console.log('Sink error:', err);
-        // TODO handle aborts to signal something to receiver side
+        log.error('Sink error:', err);
       },
     });
 

@@ -1,10 +1,6 @@
-# RPC Example
+# Data Streams Example
 
-This example demonstrates how to use RPC between two participants with LiveKit.
-
-The example includes two scenarios:
-1. A simple greeting exchange.
-2. A contrived function-calling service with JSON data payloads and multiple method types.
+This example demonstrates how to use DataStreams to stream and receive both text and files from other LiveKit participants.
 
 ## Prerequisites
 
@@ -17,6 +13,7 @@ Before running this example, make sure you have:
 ## Setup
 
 1. Install dependencies:
+
    ```
    pnpm install
    ```

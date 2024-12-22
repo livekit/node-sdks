@@ -340,7 +340,6 @@ export class LocalParticipant extends Participant {
       const streamId = crypto.randomUUID();
       const destinationIdentities = options?.destinationIdentities;
       const totalLength = numberToBigInt(fileStats.size);
-      const totalChunks = numberToBigInt(Math.ceil(fileStats.size / STREAM_CHUNK_SIZE));
 
       const headerReq = create(SendStreamHeaderRequestSchema, {
         senderIdentity,
@@ -353,7 +352,6 @@ export class LocalParticipant extends Participant {
           timestamp: numberToBigInt(Date.now()),
           extensions: options?.extensions,
           totalLength,
-          totalChunks,
           contentHeader: {
             case: 'fileHeader',
             value: {

@@ -29,10 +29,19 @@ export type TextStreamChunk = {
   collected: string;
 };
 
-export interface SendTextOptions {
+export interface DataStreamOptions {
   topic?: string;
-  // replyToMessageId?: string;
   destinationIdentities?: Array<string>;
-  attachments?: Array<File>;
+  extensions?: Record<string, string>;
+  mimeType?: string;
+}
+
+export interface TextStreamOptions extends DataStreamOptions {
+  // replyToMessageId?: string;
+  attachments?: [];
+}
+
+export interface FileStreamOptions extends DataStreamOptions {
+  fileName?: string;
   onProgress?: (progress: number) => void;
 }

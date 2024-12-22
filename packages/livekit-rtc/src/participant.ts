@@ -2,8 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { create } from '@bufbuild/protobuf';
-import { TextStreamWriter } from './data_streams/index.js';
+import type { PathLike } from 'node:fs';
+import { open, stat } from 'node:fs/promises';
+import { type FileStreamOptions, TextStreamWriter } from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
+import { log } from './log.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
 import type {
   PublishDataCallback,
@@ -17,8 +20,10 @@ import type {
   SendChatMessageCallback,
   SendChatMessageResponse,
   SendStreamChunkCallback,
+  SendStreamChunkRequest,
   SendStreamChunkResponse,
   SendStreamHeaderCallback,
+  SendStreamHeaderRequest,
   SendStreamHeaderResponse,
   SetLocalAttributesCallback,
   SetLocalAttributesResponse,
@@ -218,6 +223,10 @@ export class LocalParticipant extends Participant {
     });
   }
 
+  /**
+   * Returns a `StreamWriter` instance that allows to write individual chunks of text to a stream.
+   * Well suited for TTS and/or streaming LLM output.
+   */
   async streamText(options?: {
     topic?: string;
     extensions?: Record<string, string>;
@@ -225,8 +234,11 @@ export class LocalParticipant extends Participant {
   }): Promise<TextStreamWriter> {
     const senderIdentity = this.identity;
     const streamId = crypto.randomUUID();
+    const destinationIdentities = options?.destinationIdentities;
+
     const headerReq = create(SendStreamHeaderRequestSchema, {
       senderIdentity,
+      destinationIdentities,
       localParticipantHandle: this.ffi_handle.handle,
       header: {
         streamId,
@@ -246,23 +258,11 @@ export class LocalParticipant extends Participant {
       },
     });
 
-    const destinationIdentities = options?.destinationIdentities;
-
-    const res = FfiClient.instance.request<SendStreamHeaderResponse>({
-      message: { case: 'sendStreamHeader', value: headerReq },
-    });
-
-    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>((ev) => {
-      return ev.message.case == 'sendStreamHeader' && ev.message.value.asyncId == res.asyncId;
-    });
-
-    if (cb.error) {
-      throw new Error(cb.error);
-    }
+    await this.sendStreamHeader(headerReq);
 
     let chunkId = 0;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const localP = this;
+    const localHandle = this.ffi_handle.handle;
+    const sendChunk = this.sendStreamChunk;
 
     const writableStream = new WritableStream<[string, number?]>({
       // Implement the sink
@@ -280,7 +280,7 @@ export class LocalParticipant extends Participant {
 
           const chunkRequest = create(SendStreamChunkRequestSchema, {
             senderIdentity,
-            localParticipantHandle: localP.ffi_handle.handle,
+            localParticipantHandle: localHandle,
             destinationIdentities,
             chunk: {
               content: textInBytes,
@@ -308,7 +308,7 @@ export class LocalParticipant extends Participant {
       async close() {
         const chunkReq = create(SendStreamChunkRequestSchema, {
           senderIdentity,
-          localParticipantHandle: localP.ffi_handle.handle,
+          localParticipantHandle: localHandle,
           destinationIdentities,
           chunk: {
             streamId,
@@ -317,17 +317,7 @@ export class LocalParticipant extends Participant {
             content: Uint8Array.from([]),
           },
         });
-        const res = FfiClient.instance.request<SendStreamChunkResponse>({
-          message: { case: 'sendStreamChunk', value: chunkReq },
-        });
-
-        const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
-          return ev.message.case == 'sendStreamHeader' && ev.message.value.asyncId == res.asyncId;
-        });
-
-        if (cb.error) {
-          throw new Error(cb.error);
-        }
+        await sendChunk(chunkReq);
       },
       abort(err) {
         console.log('Sink error:', err);
@@ -338,6 +328,115 @@ export class LocalParticipant extends Participant {
     const writer = new TextStreamWriter(writableStream);
 
     return writer;
+  }
+
+  async sendFile(path: PathLike, options?: FileStreamOptions) {
+    const fileStats = await stat(path);
+    const file = await open(path);
+    try {
+      const stream: ReadableStream<Uint8Array> = file.readableWebStream({ type: 'bytes' });
+
+      const senderIdentity = this.identity;
+      const streamId = crypto.randomUUID();
+      const destinationIdentities = options?.destinationIdentities;
+      const totalLength = numberToBigInt(fileStats.size);
+      const totalChunks = numberToBigInt(Math.ceil(fileStats.size / STREAM_CHUNK_SIZE));
+
+      const headerReq = create(SendStreamHeaderRequestSchema, {
+        senderIdentity,
+        destinationIdentities,
+        localParticipantHandle: this.ffi_handle.handle,
+        header: {
+          streamId,
+          mimeType: options?.mimeType ?? 'application/octet-stream',
+          topic: options?.topic ?? '',
+          timestamp: numberToBigInt(Date.now()),
+          extensions: options?.extensions,
+          totalLength,
+          totalChunks,
+          contentHeader: {
+            case: 'fileHeader',
+            value: {
+              fileName: options?.fileName ?? 'unknown',
+            },
+          },
+        },
+      });
+
+      await this.sendStreamHeader(headerReq);
+
+      let chunkId = 0;
+      for await (const chunk of stream) {
+        const biteSizeChunks = Math.ceil(chunk.byteLength / STREAM_CHUNK_SIZE);
+
+        for (let i = 0; i < biteSizeChunks; i++) {
+          const offset = i * STREAM_CHUNK_SIZE;
+          const chunkyChunk = chunk.slice(
+            offset,
+            Math.min(offset + STREAM_CHUNK_SIZE, chunk.byteLength),
+          );
+          const chunkReq = create(SendStreamChunkRequestSchema, {
+            senderIdentity,
+            localParticipantHandle: this.ffi_handle.handle,
+            destinationIdentities,
+            chunk: {
+              streamId,
+              chunkIndex: numberToBigInt(chunkId),
+              complete: false,
+              content: chunkyChunk,
+            },
+          });
+          await this.sendStreamChunk(chunkReq);
+          chunkId += 1;
+        }
+      }
+
+      // close stream
+      const chunkReq = create(SendStreamChunkRequestSchema, {
+        senderIdentity,
+        localParticipantHandle: this.ffi_handle.handle,
+        destinationIdentities,
+        chunk: {
+          streamId,
+          chunkIndex: numberToBigInt(chunkId),
+          complete: true,
+          content: Uint8Array.from([]),
+        },
+      });
+      await this.sendStreamChunk(chunkReq);
+    } finally {
+      await file.close();
+    }
+  }
+
+  private async sendStreamHeader(req: SendStreamHeaderRequest) {
+    const type = 'sendStreamHeader';
+    const res = FfiClient.instance.request<SendStreamHeaderResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  private async sendStreamChunk(req: SendStreamChunkRequest) {
+    const type = 'sendStreamChunk';
+    const res = FfiClient.instance.request<SendStreamChunkResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
   }
 
   /**

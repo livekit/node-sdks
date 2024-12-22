@@ -3,8 +3,6 @@ import { pino } from 'pino';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-console.log({ isProduction });
-
 const defaultOptions: LoggerOptions = { name: 'lk-rtc' };
 
 const devOptions: LoggerOptions = {

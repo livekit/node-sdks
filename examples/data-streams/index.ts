@@ -20,7 +20,17 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
     await streamWriter?.write([c]);
   }
 
-  await streamWriter?.close();
+  streamWriter?.close();
+};
+
+const sendFile = async (room: Room, recipient: RemoteParticipant) => {
+  console.log('sending file');
+  await room.localParticipant?.sendFile('./assets/maybemexico.png', {
+    destinationIdentities: [recipient.identity],
+    fileName: 'mex',
+    mimeType: 'image/png',
+  });
+  console.log('done sending file');
 };
 
 const main = async () => {
@@ -35,12 +45,14 @@ const main = async () => {
   });
 
   room.on(RoomEvent.TextStreamReceived, async (reader: TextStreamReader) => {
-    for await (const { collected } of reader) {
-      console.log(collected);
-    }
+    console.log(await reader.readAll());
+    // for await (const { collected } of reader) {
+    //   console.log(collected);
+    // }
   });
 
   room.on(RoomEvent.ParticipantConnected, async (participant) => {
+    await sendFile(room, participant);
     await greetParticipant(room, participant);
   });
 

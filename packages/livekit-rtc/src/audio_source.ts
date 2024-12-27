@@ -134,4 +134,8 @@ export class AudioSource {
       throw new Error(cb.error);
     }
   }
+
+  close() {
+    this.ffiHandle.dispose();
+  }
 }

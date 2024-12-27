@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Duration } from '@bufbuild/protobuf';
+import type { RoomConfiguration, SIPHeaderOptions } from '@livekit/protocol';
 import {
   CreateSIPDispatchRuleRequest,
   CreateSIPInboundTrunkRequest,
@@ -51,20 +52,37 @@ export interface CreateSipTrunkOptions {
 }
 export interface CreateSipInboundTrunkOptions {
   metadata?: string;
+  /** @deprecated - use `allowedAddresses` instead */
   allowed_addresses?: string[];
+  allowedAddresses?: string[];
+  /** @deprecated - use `allowedNumbers` instead */
   allowed_numbers?: string[];
+  allowedNumbers?: string[];
+  /** @deprecated - use `authUsername` instead */
   auth_username?: string;
+  authUsername?: string;
+  /** @deprecated - use `authPassword` instead */
   auth_password?: string;
+  authPassword?: string;
   headers?: { [key: string]: string };
   headersToAttributes?: { [key: string]: string };
+  // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
+  includeHeaders?: SIPHeaderOptions;
+  krispEnabled?: boolean;
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
   transport: SIPTransport;
+  /** @deprecated - use `authUsername` instead */
   auth_username?: string;
+  authUsername?: string;
+  /** @deprecated - use `authPassword` instead */
   auth_password?: string;
+  authPassword?: string;
   headers?: { [key: string]: string };
   headersToAttributes?: { [key: string]: string };
+  // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
+  includeHeaders?: SIPHeaderOptions;
 }
 
 export interface SipDispatchRuleDirect {
@@ -84,16 +102,24 @@ export interface CreateSipDispatchRuleOptions {
   metadata?: string;
   trunkIds?: string[];
   hidePhoneNumber?: boolean;
+  attributes?: { [key: string]: string };
+  roomPreset?: string;
+  roomConfig?: RoomConfiguration;
 }
 
 export interface CreateSipParticipantOptions {
   participantIdentity?: string;
   participantName?: string;
   participantMetadata?: string;
+  participantAttributes?: { [key: string]: string };
   dtmf?: string;
   /** @deprecated - use `playDialtone` instead */
   playRingtone?: boolean; // Deprecated, use playDialtone instead
   playDialtone?: boolean;
+  // These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint.
+  headers?: { [key: string]: string };
+  // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
+  includeHeaders?: SIPHeaderOptions;
   hidePhoneNumber?: boolean;
   ringingTimeout?: number; // Duration in seconds
   maxCallDuration?: number; // Duration in seconds
@@ -102,6 +128,7 @@ export interface CreateSipParticipantOptions {
 
 export interface TransferSipParticipantOptions {
   playDialtone?: boolean;
+  headers?: { [key: string]: string };
 }
 
 /**
@@ -180,35 +207,22 @@ export class SipClient extends ServiceBase {
     numbers: string[],
     opts?: CreateSipInboundTrunkOptions,
   ): Promise<SIPInboundTrunkInfo> {
-    let allowedAddresses: string[] | undefined;
-    let allowedNumbers: string[] | undefined;
-    let authUsername: string = '';
-    let authPassword: string = '';
-    let metadata: string = '';
-    let headers: { [key: string]: string } = {};
-    let headersToAttributes: { [key: string]: string } = {};
-
-    if (opts !== undefined) {
-      allowedAddresses = opts.allowed_addresses;
-      allowedNumbers = opts.allowed_numbers;
-      authUsername = opts.auth_username || '';
-      authPassword = opts.auth_password || '';
-      metadata = opts.metadata || '';
-      headers = opts.headers || {};
-      headersToAttributes = opts.headersToAttributes || {};
+    if (opts === undefined) {
+      opts = {};
     }
-
     const req = new CreateSIPInboundTrunkRequest({
       trunk: new SIPInboundTrunkInfo({
         name: name,
         numbers: numbers,
-        metadata: metadata,
-        allowedAddresses: allowedAddresses,
-        allowedNumbers: allowedNumbers,
-        authUsername: authUsername,
-        authPassword: authPassword,
-        headers: headers,
-        headersToAttributes: headersToAttributes,
+        metadata: opts?.metadata,
+        allowedAddresses: opts.allowedAddresses ?? opts.allowed_addresses,
+        allowedNumbers: opts.allowedNumbers ?? opts.allowed_numbers,
+        authUsername: opts.authUsername ?? opts.auth_username,
+        authPassword: opts.authPassword ?? opts.auth_password,
+        headers: opts.headers,
+        headersToAttributes: opts.headersToAttributes,
+        includeHeaders: opts.includeHeaders,
+        krispEnabled: opts.krispEnabled,
       }),
     }).toJson();
 
@@ -233,20 +247,10 @@ export class SipClient extends ServiceBase {
     numbers: string[],
     opts?: CreateSipOutboundTrunkOptions,
   ): Promise<SIPOutboundTrunkInfo> {
-    let authUsername: string = '';
-    let authPassword: string = '';
-    let transport: SIPTransport = SIPTransport.SIP_TRANSPORT_AUTO;
-    let metadata: string = '';
-    let headers: { [key: string]: string } = {};
-    let headersToAttributes: { [key: string]: string } = {};
-
-    if (opts !== undefined) {
-      authUsername = opts.auth_username || '';
-      authPassword = opts.auth_password || '';
-      transport = opts.transport || SIPTransport.SIP_TRANSPORT_AUTO;
-      metadata = opts.metadata || '';
-      headers = opts.headers || {};
-      headersToAttributes = opts.headersToAttributes || {};
+    if (opts === undefined) {
+      opts = {
+        transport: SIPTransport.SIP_TRANSPORT_AUTO,
+      };
     }
 
     const req = new CreateSIPOutboundTrunkRequest({
@@ -254,12 +258,13 @@ export class SipClient extends ServiceBase {
         name: name,
         address: address,
         numbers: numbers,
-        metadata: metadata,
-        transport: transport,
-        authUsername: authUsername,
-        authPassword: authPassword,
-        headers: headers,
-        headersToAttributes: headersToAttributes,
+        metadata: opts.metadata,
+        transport: opts.transport,
+        authUsername: opts.authUsername ?? opts.auth_username,
+        authPassword: opts.authPassword ?? opts.auth_password,
+        headers: opts.headers,
+        headersToAttributes: opts.headersToAttributes,
+        includeHeaders: opts.includeHeaders,
       }),
     }).toJson();
 
@@ -329,18 +334,10 @@ export class SipClient extends ServiceBase {
     rule: SipDispatchRuleDirect | SipDispatchRuleIndividual,
     opts?: CreateSipDispatchRuleOptions,
   ): Promise<SIPDispatchRuleInfo> {
-    let trunkIds: string[] | undefined;
-    let hidePhoneNumber: boolean = false;
-    let name: string = '';
-    let metadata: string = '';
-    let ruleProto: SIPDispatchRule | undefined = undefined;
-
-    if (opts !== undefined) {
-      trunkIds = opts.trunkIds;
-      hidePhoneNumber = opts.hidePhoneNumber || false;
-      name = opts.name || '';
-      metadata = opts.metadata || '';
+    if (opts === undefined) {
+      opts = {};
     }
+    let ruleProto: SIPDispatchRule | undefined = undefined;
     if (rule.type == 'direct') {
       ruleProto = new SIPDispatchRule({
         rule: {
@@ -365,10 +362,13 @@ export class SipClient extends ServiceBase {
 
     const req = new CreateSIPDispatchRuleRequest({
       rule: ruleProto,
-      trunkIds: trunkIds,
-      hidePhoneNumber: hidePhoneNumber,
-      name: name,
-      metadata: metadata,
+      trunkIds: opts.trunkIds,
+      hidePhoneNumber: opts.hidePhoneNumber,
+      name: opts.name,
+      metadata: opts.metadata,
+      attributes: opts.attributes,
+      roomPreset: opts.roomPreset,
+      roomConfig: opts.roomConfig,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -416,48 +416,29 @@ export class SipClient extends ServiceBase {
     roomName: string,
     opts?: CreateSipParticipantOptions,
   ): Promise<SIPParticipantInfo> {
-    let participantIdentity: string = '';
-    let participantName: string = '';
-    let participantMetadata: string = '';
-    let dtmf: string = '';
-    let playRingtone: boolean = false;
-    let playDialtone: boolean = false;
-    let hidePhoneNumber: boolean = false;
-    let ringingTimeout: number | undefined = undefined;
-    let maxCallDuration: number | undefined = undefined;
-    let enableKrisp: boolean | undefined = undefined;
-
-    if (opts !== undefined) {
-      participantIdentity = opts.participantIdentity || '';
-      participantName = opts.participantName || '';
-      participantMetadata = opts.participantMetadata || '';
-      dtmf = opts.dtmf || '';
-      playRingtone = opts.playRingtone || false;
-      playDialtone = opts.playDialtone || playRingtone; // Enable PlayDialtone if either PlayDialtone or playRingtone is set
-      hidePhoneNumber = opts.hidePhoneNumber || false;
-      ringingTimeout = opts.ringingTimeout || undefined;
-      maxCallDuration = opts.maxCallDuration || undefined;
-      enableKrisp = opts.enableKrisp || undefined;
+    if (opts === undefined) {
+      opts = {};
     }
 
     const req = new CreateSIPParticipantRequest({
       sipTrunkId: sipTrunkId,
       sipCallTo: number,
       roomName: roomName,
-      participantIdentity: participantIdentity,
-      participantName: participantName,
-      participantMetadata: participantMetadata,
-      dtmf: dtmf,
-      playRingtone: playDialtone,
-      playDialtone: playDialtone,
-      hidePhoneNumber: hidePhoneNumber,
-      ringingTimeout: ringingTimeout
-        ? new Duration({ seconds: BigInt(ringingTimeout) })
+      participantIdentity: opts.participantIdentity || 'sip-participant',
+      participantName: opts.participantName,
+      participantMetadata: opts.participantMetadata,
+      dtmf: opts.dtmf,
+      playDialtone: opts.playDialtone ?? opts.playRingtone,
+      headers: opts.headers,
+      hidePhoneNumber: opts.hidePhoneNumber,
+      includeHeaders: opts.includeHeaders,
+      ringingTimeout: opts.ringingTimeout
+        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
         : undefined,
-      maxCallDuration: maxCallDuration
-        ? new Duration({ seconds: BigInt(maxCallDuration) })
+      maxCallDuration: opts.maxCallDuration
+        ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
         : undefined,
-      enableKrisp: enableKrisp,
+      enableKrisp: opts.enableKrisp,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -480,17 +461,16 @@ export class SipClient extends ServiceBase {
     transferTo: string,
     opts?: TransferSipParticipantOptions,
   ): Promise<void> {
-    let playDialtone: boolean = false;
-
-    if (opts !== undefined) {
-      playDialtone = opts.playDialtone || false;
+    if (opts === undefined) {
+      opts = {};
     }
 
     const req = new TransferSIPParticipantRequest({
       participantIdentity: participantIdentity,
       roomName: roomName,
       transferTo: transferTo,
-      playDialtone: playDialtone,
+      playDialtone: opts.playDialtone,
+      headers: opts.headers,
     }).toJson();
 
     await this.rpc.request(

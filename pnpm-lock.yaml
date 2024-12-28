@@ -30,8 +30,8 @@ importers:
         specifier: ^8.56.0
         version: 8.57.1
       eslint-config-next:
-        specifier: ^14.2.4
-        version: 14.2.22(eslint@8.57.1)(typescript@5.7.2)
+        specifier: ^15.0.0
+        version: 15.1.3(eslint@8.57.1)(typescript@5.7.2)
       eslint-config-prettier:
         specifier: ^9.0.0
         version: 9.1.0(eslint@8.57.1)
@@ -174,7 +174,7 @@ importers:
         version: 14.2.7
       '@types/node':
         specifier: 18.7.18
-        version: 20.17.10
+        version: 18.7.18
       '@types/react':
         specifier: 18.0.20
         version: 18.0.20
@@ -985,11 +985,11 @@ packages:
   '@next/env@12.3.0':
     resolution: {integrity: sha512-PTJpjAFVbzBQ9xXpzMTroShvD5YDIIy46jQ7d4LrWpY+/5a8H90Tm8hE3Hvkc5RBRspVo7kvEOnqQms0A+2Q6w==}
 
-  '@next/eslint-plugin-next@14.2.22':
-    resolution: {integrity: sha512-8xCmBMd+hUapMpviPp5g3oDhoWRtbE/QeN/Nvth+SZrdt7xt9TBsH8cePkRwRjXFpwHndpRDNVQROxR/1HiVbg==}
-
   '@next/eslint-plugin-next@14.2.7':
     resolution: {integrity: sha512-+7xh142AdhZGjY9/L0iFo7mqRBMJHe+q+uOL+hto1Lfo9DeWCGcR6no4StlFbVSVcA6fQLKEX6y6qhMsSKbgNQ==}
+
+  '@next/eslint-plugin-next@15.1.3':
+    resolution: {integrity: sha512-oeP1vnc5Cq9UoOb8SYHAEPbCXMzOgG70l+Zfd+Ie00R25FOm+CCVNrcIubJvB1tvBgakXE37MmqSycksXVPRqg==}
 
   '@next/swc-android-arm-eabi@12.3.0':
     resolution: {integrity: sha512-/PuirPnAKsYBw93w/7Q9hqy+KGOU9mjYprZ/faxMUJh/dc6v3rYLxkZKNG9nFPIW4QKNTCnhP40xF9hLnxO+xg==}
@@ -1348,6 +1348,9 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
+
+  '@types/node@18.7.18':
+    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
 
   '@types/node@20.17.10':
     resolution: {integrity: sha512-/jrvh5h6NXhEauFFexRin69nA0uHJ5gwk4iDivp/DeoEua3uwCUto6PC86IpRITBOs4+6i2I56K5x5b6WYGXHA==}
@@ -1916,10 +1919,10 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  eslint-config-next@14.2.22:
-    resolution: {integrity: sha512-4C26Xkqh5RWO9ieNOg7flfWsGiIfzblhXWQHUCa4wgswfjeFm4ku4M/Zc2IGBwA2BmrSn5kyJ8vt+JQg55g65Q==}
+  eslint-config-next@15.1.3:
+    resolution: {integrity: sha512-wGYlNuWnh4ujuKtZvH+7B2Z2vy9nONZE6ztd+DKF7hAsIabkrxmD4TzYHzASHENo42lmz2tnT2B+zN2sOHvpJg==}
     peerDependencies:
-      eslint: ^7.23.0 || ^8.0.0
+      eslint: ^7.23.0 || ^8.0.0 || ^9.0.0
       typescript: '>=3.3.1'
     peerDependenciesMeta:
       typescript:
@@ -2030,11 +2033,11 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  eslint-plugin-react-hooks@5.0.0-canary-7118f5dd7-20230705:
-    resolution: {integrity: sha512-AZYbMo/NW9chdL7vk6HQzQhT+PvTAEVqWk9ziruUoW2kAOcN5qNyelv70e0F1VNQAbvutOC9oc+xfWycI9FxDw==}
+  eslint-plugin-react-hooks@5.1.0:
+    resolution: {integrity: sha512-mpJRtPgHN2tNAvZ35AMfqeB3Xqeo273QxrHJsbBEPWODRM4r0yB6jfoROqKEYrOn27UtRPpcpHc2UqyBSuUNTw==}
     engines: {node: '>=10'}
     peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
 
   eslint-plugin-react@7.37.3:
     resolution: {integrity: sha512-DomWuTQPFYZwF/7c9W2fkKkStqZmBd3uugfqBYLdkZ3Hii23WzZuOLUskGxB8qkSKqftxEeGL1TB2kMhrce0jA==}
@@ -2112,6 +2115,10 @@ packages:
 
   fast-diff@1.3.0:
     resolution: {integrity: sha512-VxPP4NqbUjj6MaAOafWeUn2cXWLcCtljklUtZf0Ind4XQ+QPtmA0b18zZy0jIQx+ExRVCR/ZQpBmik5lXshNsw==}
+
+  fast-glob@3.3.1:
+    resolution: {integrity: sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==}
+    engines: {node: '>=8.6.0'}
 
   fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
@@ -4209,13 +4216,13 @@ snapshots:
 
   '@next/env@12.3.0': {}
 
-  '@next/eslint-plugin-next@14.2.22':
-    dependencies:
-      glob: 10.3.10
-
   '@next/eslint-plugin-next@14.2.7':
     dependencies:
       glob: 10.3.10
+
+  '@next/eslint-plugin-next@15.1.3':
+    dependencies:
+      fast-glob: 3.3.1
 
   '@next/swc-android-arm-eabi@12.3.0':
     optional: true
@@ -4490,6 +4497,8 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/node@12.20.55': {}
+
+  '@types/node@18.7.18': {}
 
   '@types/node@20.17.10':
     dependencies:
@@ -5288,9 +5297,9 @@ snapshots:
       eslint: 8.57.1
       semver: 7.6.3
 
-  eslint-config-next@14.2.22(eslint@8.57.1)(typescript@5.7.2):
+  eslint-config-next@15.1.3(eslint@8.57.1)(typescript@5.7.2):
     dependencies:
-      '@next/eslint-plugin-next': 14.2.22
+      '@next/eslint-plugin-next': 15.1.3
       '@rushstack/eslint-patch': 1.10.4
       '@typescript-eslint/eslint-plugin': 8.18.2(@typescript-eslint/parser@8.18.2(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2)
       '@typescript-eslint/parser': 8.18.2(eslint@8.57.1)(typescript@5.7.2)
@@ -5300,7 +5309,7 @@ snapshots:
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.2(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.3(eslint@8.57.1)
-      eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
+      eslint-plugin-react-hooks: 5.1.0(eslint@8.57.1)
     optionalDependencies:
       typescript: 5.7.2
     transitivePeerDependencies:
@@ -5440,7 +5449,7 @@ snapshots:
       '@eslint-community/eslint-utils': 4.4.1(eslint@8.57.1)
       eslint: 8.57.1
 
-  eslint-plugin-react-hooks@5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1):
+  eslint-plugin-react-hooks@5.1.0(eslint@8.57.1):
     dependencies:
       eslint: 8.57.1
 
@@ -5565,6 +5574,14 @@ snapshots:
   fast-deep-equal@3.1.3: {}
 
   fast-diff@1.3.0: {}
+
+  fast-glob@3.3.1:
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      '@nodelib/fs.walk': 1.2.8
+      glob-parent: 5.1.2
+      merge2: 1.4.1
+      micromatch: 4.0.8
 
   fast-glob@3.3.2:
     dependencies:

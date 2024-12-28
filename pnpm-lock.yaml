@@ -174,7 +174,7 @@ importers:
         version: 14.2.7
       '@types/node':
         specifier: 18.7.18
-        version: 20.17.10
+        version: 18.7.18
       '@types/react':
         specifier: 18.0.20
         version: 18.0.20
@@ -186,7 +186,7 @@ importers:
     dependencies:
       '@bufbuild/protobuf':
         specifier: ^2.2.0
-        version: 2.2.0
+        version: 2.2.3
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.1.0
@@ -212,7 +212,7 @@ importers:
     devDependencies:
       '@bufbuild/protoc-gen-es':
         specifier: ^2.2.0
-        version: 2.2.3(@bufbuild/protobuf@2.2.0)
+        version: 2.2.3(@bufbuild/protobuf@2.2.3)
       '@napi-rs/cli':
         specifier: ^2.18.0
         version: 2.18.4
@@ -253,7 +253,7 @@ importers:
     devDependencies:
       '@bufbuild/protobuf':
         specifier: ^1.7.2
-        version: 1.10.0
+        version: 2.2.3
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.11
@@ -357,9 +357,6 @@ packages:
 
   '@bufbuild/protobuf@1.10.0':
     resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
-
-  '@bufbuild/protobuf@2.2.0':
-    resolution: {integrity: sha512-+imAQkHf7U/Rwvu0wk1XWgsP3WnpCWmK7B48f0XqSNzgk64+grljTKC7pnO/xBiEMUziF7vKRfbBnOQhg126qQ==}
 
   '@bufbuild/protobuf@2.2.3':
     resolution: {integrity: sha512-tFQoXHJdkEOSwj5tRIZSPNUuXK3RaR7T1nUrPgbYX1pUbvqqaaZAsfo+NXBPsz5rZMSKVFrgK1WL8Q/MSLvprg==}
@@ -1348,6 +1345,9 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
+
+  '@types/node@18.7.18':
+    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
 
   '@types/node@20.17.10':
     resolution: {integrity: sha512-/jrvh5h6NXhEauFFexRin69nA0uHJ5gwk4iDivp/DeoEua3uwCUto6PC86IpRITBOs4+6i2I56K5x5b6WYGXHA==}
@@ -3688,15 +3688,13 @@ snapshots:
 
   '@bufbuild/protobuf@1.10.0': {}
 
-  '@bufbuild/protobuf@2.2.0': {}
-
   '@bufbuild/protobuf@2.2.3': {}
 
-  '@bufbuild/protoc-gen-es@2.2.3(@bufbuild/protobuf@2.2.0)':
+  '@bufbuild/protoc-gen-es@2.2.3(@bufbuild/protobuf@2.2.3)':
     dependencies:
       '@bufbuild/protoplugin': 2.2.3
     optionalDependencies:
-      '@bufbuild/protobuf': 2.2.0
+      '@bufbuild/protobuf': 2.2.3
     transitivePeerDependencies:
       - supports-color
 
@@ -4490,6 +4488,8 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/node@12.20.55': {}
+
+  '@types/node@18.7.18': {}
 
   '@types/node@20.17.10':
     dependencies:

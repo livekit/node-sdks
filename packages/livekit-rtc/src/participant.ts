@@ -22,10 +22,9 @@ import type {
   SetLocalNameResponse,
   TrackPublishOptions,
   UnpublishTrackCallback,
-  UnpublishTrackResponse} from './proto/room_pb.js';
-import {
-  ChatMessage as ChatMessageModel
+  UnpublishTrackResponse,
 } from './proto/room_pb.js';
+import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
   EditChatMessageRequest,
   TranscriptionSegment as ProtoTranscriptionSegment,
@@ -44,12 +43,13 @@ import type {
   PerformRpcResponse,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseResponse,
-  UnregisterRpcMethodResponse} from './proto/rpc_pb.js';
+  UnregisterRpcMethodResponse,
+} from './proto/rpc_pb.js';
 import {
   PerformRpcRequest,
   RegisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
-  UnregisterRpcMethodRequest
+  UnregisterRpcMethodRequest,
 } from './proto/rpc_pb.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';

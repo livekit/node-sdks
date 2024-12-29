@@ -11,8 +11,7 @@ import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { OwnedParticipant } from './proto/participant_pb.js';
-import type {
-  DisconnectReason} from './proto/room_pb.js';
+import type { DisconnectReason } from './proto/room_pb.js';
 import {
   type ConnectCallback,
   type ConnectResponse,

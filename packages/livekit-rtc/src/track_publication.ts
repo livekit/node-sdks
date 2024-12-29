@@ -24,7 +24,7 @@ export abstract class TrackPublication {
 
   constructor(ownedInfo: OwnedTrackPublication) {
     this.info = ownedInfo.info;
-    this.ffiHandle = new FfiHandle(ownedInfo.handle.id);
+    this.ffiHandle = new FfiHandle(ownedInfo.handle!.id!);
   }
 
   get sid(): string | undefined {

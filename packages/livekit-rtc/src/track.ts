@@ -23,7 +23,7 @@ export abstract class Track {
 
   constructor(owned: OwnedTrack) {
     this.info = owned.info;
-    this.ffi_handle = new FfiHandle(owned.handle.id);
+    this.ffi_handle = new FfiHandle(owned.handle!.id!);
   }
 
   get sid(): string | undefined {

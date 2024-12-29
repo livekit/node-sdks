@@ -78,7 +78,7 @@ export class AudioResampler {
 
     switch (res.message.case) {
       case 'resampler':
-        this.#ffiHandle = new FfiHandle(res.message.value.handle.id);
+        this.#ffiHandle = new FfiHandle(res.message.value.handle!.id!);
         break;
       case 'error':
       default:

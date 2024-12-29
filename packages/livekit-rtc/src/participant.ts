@@ -58,7 +58,7 @@ import type { ChatMessage } from './types.js';
 
 export abstract class Participant {
   /** @internal */
-  info?: ParticipantInfo;
+  info: ParticipantInfo;
 
   /** @internal */
   ffi_handle: FfiHandle;
@@ -66,32 +66,32 @@ export abstract class Participant {
   trackPublications = new Map<string, TrackPublication>();
 
   constructor(owned_info: OwnedParticipant) {
-    this.info = owned_info.info;
-    this.ffi_handle = new FfiHandle(owned_info.handle.id);
+    this.info = owned_info!.info!;
+    this.ffi_handle = new FfiHandle(owned_info.handle!.id!);
   }
 
   get sid(): string | undefined {
-    return this.info?.sid;
+    return this.info.sid;
   }
 
   get name(): string | undefined {
-    return this.info?.name;
+    return this.info.name;
   }
 
   get identity(): string | undefined {
-    return this.info?.identity;
+    return this.info.identity;
   }
 
   get metadata(): string | undefined {
-    return this.info?.metadata;
+    return this.info.metadata;
   }
 
   get attributes(): Record<string, string> | undefined {
-    return this.info?.attributes;
+    return this.info.attributes;
   }
 
   get kind(): ParticipantKind | undefined {
-    return this.info?.kind;
+    return this.info.kind;
   }
 }
 

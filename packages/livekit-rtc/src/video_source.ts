@@ -44,7 +44,7 @@ export class VideoSource {
     });
 
     this.info = res.source?.info;
-    this.ffiHandle = new FfiHandle(res.source?.handle.id);
+    this.ffiHandle = new FfiHandle(res.source!.handle!.id!);
   }
 
   captureFrame(frame: VideoFrame, timestampUs = BigInt(0), rotation = VideoRotation.VIDEO_ROTATION_0) {

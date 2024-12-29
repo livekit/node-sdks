@@ -49,7 +49,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
     });
 
     this.info = res.stream?.info;
-    this.ffiHandle = new FfiHandle(res.stream?.handle.id);
+    this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -67,12 +67,23 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       case 'frameReceived':
         const rotation = streamEvent.value.rotation;
         const timestampUs = streamEvent.value.timestampUs;
-        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer);
+        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
         const value = { rotation, timestampUs, frame };
         if (this.queueResolve) {
-          this.queueResolve({ done: false, value });
+          this.queueResolve({
+            done: false,
+            value: {
+              frame: value.frame,
+              timestampUs: value.timestampUs!,
+              rotation: value.rotation!,
+            },
+          });
         } else {
-          this.eventQueue.push(value);
+          this.eventQueue.push({
+            frame: value.frame,
+            timestampUs: value.timestampUs!,
+            rotation: value.rotation!,
+          });
         }
         break;
       case 'eos':

@@ -11,7 +11,7 @@ import type { Track } from './track.js';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
-  info?: AudioStreamInfo;
+  info: AudioStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
@@ -44,8 +44,8 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       },
     });
 
-    this.info = res.stream?.info;
-    this.ffiHandle = new FfiHandle(res.stream?.handle.id);
+    this.info = res.stream!.info!;
+    this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -61,7 +61,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     const streamEvent = ev.message.value.message;
     switch (streamEvent.case) {
       case 'frameReceived':
-        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame);
+        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
         if (this.queueResolve) {
           this.queueResolve({ done: false, value: frame });
         } else {

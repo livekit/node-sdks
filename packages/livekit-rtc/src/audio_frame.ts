@@ -33,7 +33,7 @@ export class AudioFrame {
     const info = owned.info!;
     const len = info.numChannels! * info.samplesPerChannel! * 2; // c_int16
     const data = FfiClient.instance.copyBuffer(info.dataPtr!, len);
-    new FfiHandle(owned.handle.id).dispose();
+    new FfiHandle(owned.handle!.id!).dispose();
     return new AudioFrame(
       new Int16Array(data.buffer),
       info.sampleRate!,

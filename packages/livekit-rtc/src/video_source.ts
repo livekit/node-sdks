@@ -59,4 +59,8 @@ export class VideoSource {
       message: { case: 'captureVideoFrame', value: req },
     });
   }
+
+  async close() {
+    this.ffiHandle.dispose();
+  }
 }

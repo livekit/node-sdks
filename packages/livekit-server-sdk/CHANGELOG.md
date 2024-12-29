@@ -1,5 +1,13 @@
 # livekit-server-sdk
 
+## 2.9.4
+
+### Patch Changes
+
+- Fix screenshare option not being applied to participant egress - [#362](https://github.com/livekit/node-sdks/pull/362) ([@chrisackermann](https://github.com/chrisackermann))
+
+- Fix types export for CJS and build config - [#359](https://github.com/livekit/node-sdks/pull/359) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.3
 
 ### Patch Changes

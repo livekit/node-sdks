@@ -135,7 +135,7 @@ export class AudioSource {
     }
   }
 
-  close() {
+  async close() {
     this.ffiHandle.dispose();
   }
 }

@@ -65,7 +65,7 @@ export class VideoSource {
     });
   }
 
-  close() {
+  async close() {
     this.ffiHandle.dispose();
   }
 }

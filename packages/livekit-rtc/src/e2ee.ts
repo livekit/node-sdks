@@ -99,7 +99,7 @@ export class KeyProvider {
       },
     });
 
-    return (res.message.value as GetSharedKeyResponse).key;
+    return (res.message.value as GetSharedKeyResponse).key!;
   }
 
   ratchetSharedKey(keyIndex: number): Uint8Array {
@@ -120,7 +120,7 @@ export class KeyProvider {
       },
     });
 
-    return (res.message.value as RatchetSharedKeyResponse).newKey;
+    return (res.message.value as RatchetSharedKeyResponse).newKey!;
   }
 
   setKey(participantIdentity: string, keyIndex: number) {
@@ -162,7 +162,7 @@ export class KeyProvider {
       },
     });
 
-    return (res.message.value as GetKeyResponse).key;
+    return (res.message.value as GetKeyResponse).key!;
   }
 
   ratchetKey(participantIdentity: string, keyIndex: number): Uint8Array {
@@ -184,7 +184,7 @@ export class KeyProvider {
       },
     });
 
-    return (res.message.value as RatchetKeyResponse).newKey;
+    return (res.message.value as RatchetKeyResponse).newKey!;
   }
 }
 
@@ -255,12 +255,11 @@ export class E2EEManager {
     this.roomHandle = roomHandle;
     this.enabled = opts !== undefined;
 
-    if (opts !== undefined) {
-      const options = { ...defaultE2EEOptions, ...opts };
+    opts ??= defaultE2EEOptions;
+    const options = { ...defaultE2EEOptions, ...opts };
 
-      this.options = options;
-      this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
-    }
+    this.options = options;
+    this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
   }
 
   setEnabled(enabled: boolean) {
@@ -305,9 +304,9 @@ export class E2EEManager {
       (cryptor) =>
         new FrameCryptor(
           this.roomHandle,
-          cryptor.participantIdentity,
-          cryptor.keyIndex,
-          cryptor.enabled,
+          cryptor.participantIdentity!,
+          cryptor.keyIndex!,
+          cryptor.enabled!,
         ),
     );
 

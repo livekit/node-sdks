@@ -21,7 +21,7 @@ export type VideoFrameEvent = {
 
 export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
-  info: VideoStreamInfo;
+  info?: VideoStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
@@ -48,8 +48,8 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       },
     });
 
-    this.info = res.stream.info;
-    this.ffiHandle = new FfiHandle(res.stream.handle.id);
+    this.info = res.stream?.info;
+    this.ffiHandle = new FfiHandle(res.stream?.handle.id);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }

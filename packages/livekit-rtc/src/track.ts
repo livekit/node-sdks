@@ -16,7 +16,7 @@ import type { VideoSource } from './video_source.js';
 
 export abstract class Track {
   /** @internal */
-  info: TrackInfo;
+  info?: TrackInfo;
 
   /** @internal */
   ffi_handle: FfiHandle;
@@ -26,24 +26,24 @@ export abstract class Track {
     this.ffi_handle = new FfiHandle(owned.handle.id);
   }
 
-  get sid(): string {
-    return this.info.sid;
+  get sid(): string | undefined {
+    return this.info?.sid;
   }
 
-  get name(): string {
-    return this.info.name;
+  get name(): string | undefined {
+    return this.info?.name;
   }
 
-  get kind(): TrackKind {
-    return this.info.kind;
+  get kind(): TrackKind | undefined {
+    return this.info?.kind;
   }
 
-  get stream_state(): StreamState {
-    return this.info.streamState;
+  get stream_state(): StreamState | undefined {
+    return this.info?.streamState;
   }
 
-  get muted(): boolean {
-    return this.info.muted;
+  get muted(): boolean | undefined {
+    return this.info?.muted;
   }
 }
 
@@ -62,7 +62,7 @@ export class LocalAudioTrack extends Track {
       message: { case: 'createAudioTrack', value: req },
     });
 
-    return new LocalAudioTrack(res.track);
+    return new LocalAudioTrack(res.track!);
   }
 }
 
@@ -81,7 +81,7 @@ export class LocalVideoTrack extends Track {
       message: { case: 'createVideoTrack', value: req },
     });
 
-    return new LocalVideoTrack(res.track);
+    return new LocalVideoTrack(res.track!);
   }
 }
 

@@ -15,7 +15,7 @@ import {
 import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
 import { SDK_VERSION } from './version.js';
 
-export { FfiHandle, type FfiEvent, type FfiResponse, type FfiRequest, livekitDispose as dispose };
+export { FfiHandle, type FfiEvent, type FfiResponse, FfiRequest, livekitDispose as dispose };
 
 export type FfiClientCallbacks = {
   ffi_event: (event: FfiEvent) => void;

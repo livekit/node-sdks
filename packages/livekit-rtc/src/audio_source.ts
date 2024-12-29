@@ -20,7 +20,7 @@ import {
 
 export class AudioSource {
   /** @internal */
-  info: AudioSourceInfo;
+  info?: AudioSourceInfo;
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
@@ -59,8 +59,8 @@ export class AudioSource {
       },
     });
 
-    this.info = res.source.info;
-    this.ffiHandle = new FfiHandle(res.source.handle.id);
+    this.info = res.source?.info;
+    this.ffiHandle = new FfiHandle(res.source?.handle.id);
   }
 
   get queuedDuration(): number {

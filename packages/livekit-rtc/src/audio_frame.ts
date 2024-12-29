@@ -30,15 +30,15 @@ export class AudioFrame {
 
   /** @internal */
   static fromOwnedInfo(owned: OwnedAudioFrameBuffer): AudioFrame {
-    const info = owned.info;
-    const len = info.numChannels * info.samplesPerChannel * 2; // c_int16
-    const data = FfiClient.instance.copyBuffer(info.dataPtr, len);
+    const info = owned.info!;
+    const len = info.numChannels! * info.samplesPerChannel! * 2; // c_int16
+    const data = FfiClient.instance.copyBuffer(info.dataPtr!, len);
     new FfiHandle(owned.handle.id).dispose();
     return new AudioFrame(
       new Int16Array(data.buffer),
-      info.sampleRate,
-      info.numChannels,
-      info.samplesPerChannel,
+      info.sampleRate!,
+      info.numChannels!,
+      info.samplesPerChannel!,
     );
   }
 
@@ -63,8 +63,8 @@ export class AudioFrame {
  * @param buffer - a single AudioFrame or list thereof
  */
 export const combineAudioFrames = (buffer: AudioFrame | AudioFrame[]): AudioFrame => {
-  if (!buffer['length']) {
-    return buffer as AudioFrame;
+  if (!Array.isArray(buffer)) {
+    return buffer;
   }
   buffer = buffer as AudioFrame[];
 

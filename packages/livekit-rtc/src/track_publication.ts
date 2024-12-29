@@ -19,7 +19,7 @@ export abstract class TrackPublication {
   ffiHandle: FfiHandle;
 
   /** @internal */
-  info: TrackPublicationInfo;
+  info?: TrackPublicationInfo;
   track?: Track;
 
   constructor(ownedInfo: OwnedTrackPublication) {
@@ -27,44 +27,44 @@ export abstract class TrackPublication {
     this.ffiHandle = new FfiHandle(ownedInfo.handle.id);
   }
 
-  get sid(): string {
-    return this.info.sid;
+  get sid(): string | undefined {
+    return this.info?.sid;
   }
 
-  get name(): string {
-    return this.info.name;
+  get name(): string | undefined {
+    return this.info?.name;
   }
 
-  get kind(): TrackKind {
-    return this.info.kind;
+  get kind(): TrackKind | undefined {
+    return this.info?.kind;
   }
 
-  get source(): TrackSource {
-    return this.info.source;
+  get source(): TrackSource | undefined {
+    return this.info?.source;
   }
 
-  get simulcasted(): boolean {
-    return this.info.simulcasted;
+  get simulcasted(): boolean | undefined {
+    return this.info?.simulcasted;
   }
 
-  get width(): number {
-    return this.info.width;
+  get width(): number | undefined {
+    return this.info?.width;
   }
 
-  get height(): number {
-    return this.info.height;
+  get height(): number | undefined {
+    return this.info?.height;
   }
 
-  get mimeType(): string {
-    return this.info.mimeType;
+  get mimeType(): string | undefined {
+    return this.info?.mimeType;
   }
 
-  get muted(): boolean {
-    return this.info.muted;
+  get muted(): boolean | undefined {
+    return this.info?.muted;
   }
 
-  get encryptionType(): EncryptionType {
-    return this.info.encryptionType;
+  get encryptionType(): EncryptionType | undefined {
+    return this.info?.encryptionType;
   }
 }
 

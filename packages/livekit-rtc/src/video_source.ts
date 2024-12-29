@@ -17,7 +17,7 @@ import type { VideoFrame } from './video_frame.js';
 
 export class VideoSource {
   /** @internal */
-  info: VideoSourceInfo;
+  info?: VideoSourceInfo;
   /** @internal */
   ffiHandle: FfiHandle;
 
@@ -43,8 +43,8 @@ export class VideoSource {
       },
     });
 
-    this.info = res.source.info;
-    this.ffiHandle = new FfiHandle(res.source.handle.id);
+    this.info = res.source?.info;
+    this.ffiHandle = new FfiHandle(res.source?.handle.id);
   }
 
   captureFrame(frame: VideoFrame, timestampUs = BigInt(0), rotation = VideoRotation.VIDEO_ROTATION_0) {

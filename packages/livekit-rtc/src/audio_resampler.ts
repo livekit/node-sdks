@@ -75,11 +75,15 @@ export class AudioResampler {
       },
     });
 
-    if (res.error) {
-      throw new Error(res.error);
-    }
 
-    this.#ffiHandle = new FfiHandle(res.resampler.handle.id);
+    switch (res.message.case) {
+      case 'resampler':
+        this.#ffiHandle = new FfiHandle(res.message.value.handle.id);
+        break;
+      case 'error':
+      default:
+        throw new Error(res.message.value);
+    }
   }
 
   /**
@@ -115,7 +119,7 @@ export class AudioResampler {
       return [];
     }
 
-    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
+    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size!);
     return [
       new AudioFrame(
         new Int16Array(outputData.buffer),
@@ -153,7 +157,7 @@ export class AudioResampler {
       return [];
     }
 
-    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
+    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size!);
     return [
       new AudioFrame(
         new Int16Array(outputData.buffer),

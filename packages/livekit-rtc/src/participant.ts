@@ -38,8 +38,18 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from './proto/rpc_pb.js';
-import { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
+import {
+  PerformRpcCallback,
+  PerformRpcRequest,
+  PerformRpcResponse,
+  RegisterRpcMethodRequest,
+  RegisterRpcMethodResponse,
+  RpcMethodInvocationResponseRequest,
+  RpcMethodInvocationResponseResponse,
+  UnregisterRpcMethodRequest,
+  UnregisterRpcMethodResponse,
+} from './proto/rpc_pb.js';
+import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -48,7 +58,7 @@ import type { ChatMessage } from './types.js';
 
 export abstract class Participant {
   /** @internal */
-  info: ParticipantInfo;
+  info?: ParticipantInfo;
 
   /** @internal */
   ffi_handle: FfiHandle;
@@ -60,28 +70,28 @@ export abstract class Participant {
     this.ffi_handle = new FfiHandle(owned_info.handle.id);
   }
 
-  get sid(): string {
-    return this.info.sid;
+  get sid(): string | undefined {
+    return this.info?.sid;
   }
 
-  get name(): string {
-    return this.info.name;
+  get name(): string | undefined {
+    return this.info?.name;
   }
 
-  get identity(): string {
-    return this.info.identity;
+  get identity(): string | undefined {
+    return this.info?.identity;
   }
 
-  get metadata(): string {
-    return this.info.metadata;
+  get metadata(): string | undefined {
+    return this.info?.metadata;
   }
 
-  get attributes(): Record<string, string> {
-    return this.info.attributes;
+  get attributes(): Record<string, string> | undefined {
+    return this.info?.attributes;
   }
 
-  get kind(): ParticipantKind {
-    return this.info.kind;
+  get kind(): ParticipantKind | undefined {
+    return this.info?.kind;
   }
 }
 
@@ -223,11 +233,19 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.error) {
-      throw new Error(cb.error);
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   /**
@@ -261,11 +279,19 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.error) {
-      throw new Error(cb.error);
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.chatMessage!;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async updateName(name: string) {
@@ -286,7 +312,7 @@ export class LocalParticipant extends Participant {
   async setAttributes(attributes: Record<string, string>) {
     const req = new SetLocalAttributesRequest({
       localParticipantHandle: this.ffi_handle.handle,
-      attributes: attributes,
+      attributes: Object.entries(attributes).map(([key, value]) => ({ key, value })),
     });
 
     const res = FfiClient.instance.request<SetLocalAttributesResponse>({
@@ -316,15 +342,17 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.error) {
-      throw new Error(cb.error);
+    switch (cb.message.case) {
+      case 'publication':
+        const track_publication = new LocalTrackPublication(cb.message.value!);
+        track_publication.track = track;
+        this.trackPublications.set(track_publication.sid!, track_publication);
+
+        return track_publication;
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-
-    const track_publication = new LocalTrackPublication(cb.publication!);
-    track_publication.track = track;
-    this.trackPublications.set(track_publication.sid, track_publication);
-
-    return track_publication;
   }
 
   async unpublishTrack(trackSid: string) {
@@ -384,7 +412,7 @@ export class LocalParticipant extends Participant {
       throw RpcError.fromProto(cb.error);
     }
 
-    return cb.payload;
+    return cb.payload!;
   }
 
   /**

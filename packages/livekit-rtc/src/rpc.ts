@@ -68,7 +68,7 @@ export class RpcError extends Error {
   }
 
   static fromProto(proto: RpcError_Proto) {
-    return new RpcError(proto.code, proto.message, proto.data);
+    return new RpcError(proto.code!, proto.message!, proto.data);
   }
 
   toProto() {

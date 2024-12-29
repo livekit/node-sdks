@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import type { AudioFrame } from './audio_frame.js';
 import { FfiClient } from './ffi_client.js';
 import { FfiHandle } from './napi/native.js';
@@ -14,9 +13,9 @@ import type {
 } from './proto/audio_frame_pb.js';
 import {
   AudioSourceType,
-  CaptureAudioFrameRequestSchema,
-  ClearAudioBufferRequestSchema,
-  NewAudioSourceRequestSchema,
+  CaptureAudioFrameRequest,
+  ClearAudioBufferRequest,
+  NewAudioSourceRequest,
 } from './proto/audio_frame_pb.js';
 
 export class AudioSource {
@@ -46,7 +45,7 @@ export class AudioSource {
     this.lastCapture = 0;
     this.currentQueueSize = 0;
 
-    const req = create(NewAudioSourceRequestSchema, {
+    const req = new NewAudioSourceRequest({
       type: AudioSourceType.AUDIO_SOURCE_NATIVE,
       sampleRate: sampleRate,
       numChannels: numChannels,
@@ -60,8 +59,8 @@ export class AudioSource {
       },
     });
 
-    this.info = res.source!.info!;
-    this.ffiHandle = new FfiHandle(res.source!.handle!.id);
+    this.info = res.source.info;
+    this.ffiHandle = new FfiHandle(res.source.handle.id);
   }
 
   get queuedDuration(): number {
@@ -72,7 +71,7 @@ export class AudioSource {
   }
 
   clearQueue() {
-    const req = create(ClearAudioBufferRequestSchema, {
+    const req = new ClearAudioBufferRequest({
       sourceHandle: this.ffiHandle.handle,
     });
 
@@ -117,7 +116,7 @@ export class AudioSource {
     // (e.g. using wait_for_playout for very small chunks)
     this.timeout = setTimeout(this.release, this.currentQueueSize - 50);
 
-    const req = create(CaptureAudioFrameRequestSchema, {
+    const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),
     });

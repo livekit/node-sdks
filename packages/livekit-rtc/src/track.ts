@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import type { AudioSource } from './audio_source.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
@@ -12,7 +11,7 @@ import type {
   TrackInfo,
   TrackKind,
 } from './proto/track_pb.js';
-import { CreateAudioTrackRequestSchema, CreateVideoTrackRequestSchema } from './proto/track_pb.js';
+import { CreateAudioTrackRequest, CreateVideoTrackRequest } from './proto/track_pb.js';
 import type { VideoSource } from './video_source.js';
 
 export abstract class Track {
@@ -23,8 +22,8 @@ export abstract class Track {
   ffi_handle: FfiHandle;
 
   constructor(owned: OwnedTrack) {
-    this.info = owned.info!;
-    this.ffi_handle = new FfiHandle(owned.handle!.id);
+    this.info = owned.info;
+    this.ffi_handle = new FfiHandle(owned.handle.id);
   }
 
   get sid(): string {
@@ -54,7 +53,7 @@ export class LocalAudioTrack extends Track {
   }
 
   static createAudioTrack(name: string, source: AudioSource): LocalAudioTrack {
-    const req = create(CreateAudioTrackRequestSchema, {
+    const req = new CreateAudioTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });
@@ -63,7 +62,7 @@ export class LocalAudioTrack extends Track {
       message: { case: 'createAudioTrack', value: req },
     });
 
-    return new LocalAudioTrack(res.track!);
+    return new LocalAudioTrack(res.track);
   }
 }
 
@@ -73,7 +72,7 @@ export class LocalVideoTrack extends Track {
   }
 
   static createVideoTrack(name: string, source: VideoSource): LocalVideoTrack {
-    const req = create(CreateVideoTrackRequestSchema, {
+    const req = new CreateVideoTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });
@@ -82,7 +81,7 @@ export class LocalVideoTrack extends Track {
       message: { case: 'createVideoTrack', value: req },
     });
 
-    return new LocalVideoTrack(res.track!);
+    return new LocalVideoTrack(res.track);
   }
 }
 

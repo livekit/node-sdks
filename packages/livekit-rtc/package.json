@@ -46,17 +46,17 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.2.0",
+    "@bufbuild/protobuf": "^1.4.2",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0"
   },
   "devDependencies": {
-    "@bufbuild/protoc-gen-es": "^2.2.0",
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^20.9.2",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@bufbuild/protoc-gen-es": "^1.4.2"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",

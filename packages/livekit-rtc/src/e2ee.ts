@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { FfiClient } from './ffi_client.js';
 import type {
   E2eeManagerGetFrameCryptorsResponse,
@@ -12,17 +11,17 @@ import type {
   RatchetSharedKeyResponse,
 } from './proto/e2ee_pb.js';
 import {
-  E2eeManagerSetEnabledRequestSchema,
-  E2eeRequestSchema,
+  E2eeManagerSetEnabledRequest,
+  E2eeRequest,
   EncryptionType,
-  FrameCryptorSetEnabledRequestSchema,
-  FrameCryptorSetKeyIndexRequestSchema,
-  GetKeyRequestSchema,
-  GetSharedKeyRequestSchema,
-  RatchetKeyRequestSchema,
-  RatchetSharedKeyRequestSchema,
-  SetKeyRequestSchema,
-  SetSharedKeyRequestSchema,
+  FrameCryptorSetEnabledRequest,
+  FrameCryptorSetKeyIndexRequest,
+  GetKeyRequest,
+  GetSharedKeyRequest,
+  RatchetKeyRequest,
+  RatchetSharedKeyRequest,
+  SetKeyRequest,
+  SetSharedKeyRequest,
 } from './proto/e2ee_pb.js';
 
 const DEFAULT_RATCHET_SALT = new TextEncoder().encode('LKFrameEncryptionKey');
@@ -63,11 +62,11 @@ export class KeyProvider {
   }
 
   setSharedKey(sharedKey: Uint8Array, keyIndex: number) {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'setSharedKey',
-        value: create(SetSharedKeyRequestSchema, {
+        value: new SetSharedKeyRequest({
           keyIndex: keyIndex,
           sharedKey: sharedKey,
         }),
@@ -83,11 +82,11 @@ export class KeyProvider {
   }
 
   exportSharedKey(keyIndex: number): Uint8Array {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'getSharedKey',
-        value: create(GetSharedKeyRequestSchema, {
+        value: new GetSharedKeyRequest({
           keyIndex: keyIndex,
         }),
       },
@@ -104,11 +103,11 @@ export class KeyProvider {
   }
 
   ratchetSharedKey(keyIndex: number): Uint8Array {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'ratchetSharedKey',
-        value: create(RatchetSharedKeyRequestSchema, {
+        value: new RatchetSharedKeyRequest({
           keyIndex: keyIndex,
         }),
       },
@@ -125,11 +124,11 @@ export class KeyProvider {
   }
 
   setKey(participantIdentity: string, keyIndex: number) {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'setKey',
-        value: create(SetKeyRequestSchema, {
+        value: new SetKeyRequest({
           keyIndex: keyIndex,
           participantIdentity: participantIdentity,
         }),
@@ -145,11 +144,11 @@ export class KeyProvider {
   }
 
   exportKey(participantIdentity: string, keyIndex: number): Uint8Array {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'getKey',
-        value: create(GetKeyRequestSchema, {
+        value: new GetKeyRequest({
           keyIndex: keyIndex,
           participantIdentity: participantIdentity,
         }),
@@ -167,11 +166,11 @@ export class KeyProvider {
   }
 
   ratchetKey(participantIdentity: string, keyIndex: number): Uint8Array {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'ratchetKey',
-        value: create(RatchetKeyRequestSchema, {
+        value: new RatchetKeyRequest({
           keyIndex: keyIndex,
           participantIdentity: participantIdentity,
         }),
@@ -204,11 +203,11 @@ export class FrameCryptor {
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'cryptorSetEnabled',
-        value: create(FrameCryptorSetEnabledRequestSchema, {
+        value: new FrameCryptorSetEnabledRequest({
           participantIdentity: this.participantIdentity,
           enabled: this.enabled,
         }),
@@ -225,11 +224,11 @@ export class FrameCryptor {
 
   setKeyIndex(keyIndex: number) {
     this.keyIndex = keyIndex;
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'cryptorSetKeyIndex',
-        value: create(FrameCryptorSetKeyIndexRequestSchema, {
+        value: new FrameCryptorSetKeyIndexRequest({
           participantIdentity: this.participantIdentity,
           keyIndex: this.keyIndex,
         }),
@@ -256,20 +255,21 @@ export class E2EEManager {
     this.roomHandle = roomHandle;
     this.enabled = opts !== undefined;
 
-    opts ??= defaultE2EEOptions;
-    const options = { ...defaultE2EEOptions, ...opts };
+    if (opts !== undefined) {
+      const options = { ...defaultE2EEOptions, ...opts };
 
-    this.options = options;
-    this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
+      this.options = options;
+      this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
+    }
   }
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'managerSetEnabled',
-        value: create(E2eeManagerSetEnabledRequestSchema, {
+        value: new E2eeManagerSetEnabledRequest({
           enabled: this.enabled,
         }),
       },
@@ -284,7 +284,7 @@ export class E2EEManager {
   }
 
   frameCryptors(): FrameCryptor[] {
-    const req = create(E2eeRequestSchema, {
+    const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
         case: 'managerGetFrameCryptors',

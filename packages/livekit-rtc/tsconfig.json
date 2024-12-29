@@ -2,7 +2,16 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "module": "ES2020",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "declaration": true,
+    "declarationMap": true,
+    "target": "es2020",
+    "lib": ["es2020"],
+    "moduleResolution": "node",
+    "sourceMap": true,
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "vite.config.ts"]

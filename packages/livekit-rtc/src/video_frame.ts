@@ -93,7 +93,7 @@ export class VideoFrame {
         return VideoFrame.fromOwnedInfo(resp.message.value);
       case 'error':
       default:
-        throw resp.message.value
+        throw resp.message.value;
     }
   }
 }

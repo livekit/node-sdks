@@ -16,9 +16,9 @@ import {
   type ConnectResponse,
   type ConnectionQuality,
   type DataPacketKind,
+  DisconnectReason,
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
-  DisconnectReason,
   type IceServer,
   type RoomInfo,
 } from './proto/room_pb.js';

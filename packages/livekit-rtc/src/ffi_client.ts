@@ -39,10 +39,14 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     super();
     this.setMaxListeners(0);
 
-    livekitInitialize((event_data: Uint8Array) => {
-      const event = FfiEvent.fromBinary(event_data);
-      this.emit(FfiClientEvent.FfiEvent, event);
-    }, true, SDK_VERSION);
+    livekitInitialize(
+      (event_data: Uint8Array) => {
+        const event = FfiEvent.fromBinary(event_data);
+        this.emit(FfiClientEvent.FfiEvent, event);
+      },
+      true,
+      SDK_VERSION,
+    );
   }
 
   request<T>(req: PartialMessage<FfiRequest>): T {

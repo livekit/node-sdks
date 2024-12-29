@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
-import {
-  ChatMessage as ChatMessageModel,
+import type {
   PublishDataCallback,
   PublishDataResponse,
   PublishSipDtmfCallback,
@@ -23,7 +22,9 @@ import {
   SetLocalNameResponse,
   TrackPublishOptions,
   UnpublishTrackCallback,
-  UnpublishTrackResponse,
+  UnpublishTrackResponse} from './proto/room_pb.js';
+import {
+  ChatMessage as ChatMessageModel
 } from './proto/room_pb.js';
 import {
   EditChatMessageRequest,
@@ -38,16 +39,17 @@ import {
   SetLocalNameRequest,
   UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import {
+import type {
   PerformRpcCallback,
-  PerformRpcRequest,
   PerformRpcResponse,
-  RegisterRpcMethodRequest,
   RegisterRpcMethodResponse,
-  RpcMethodInvocationResponseRequest,
   RpcMethodInvocationResponseResponse,
-  UnregisterRpcMethodRequest,
-  UnregisterRpcMethodResponse,
+  UnregisterRpcMethodResponse} from './proto/rpc_pb.js';
+import {
+  PerformRpcRequest,
+  RegisterRpcMethodRequest,
+  RpcMethodInvocationResponseRequest,
+  UnregisterRpcMethodRequest
 } from './proto/rpc_pb.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';

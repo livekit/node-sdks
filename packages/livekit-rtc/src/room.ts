@@ -11,12 +11,13 @@ import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { OwnedParticipant } from './proto/participant_pb.js';
+import type {
+  DisconnectReason} from './proto/room_pb.js';
 import {
   type ConnectCallback,
   type ConnectResponse,
   type ConnectionQuality,
   type DataPacketKind,
-  DisconnectReason,
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
@@ -119,11 +120,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.e2eeManager = new E2EEManager(this.ffiHandle.handle, {
           keyProviderOptions: {
             sharedKey: options.e2ee?.keyProviderOptions?.sharedKey,
-            ratchetSalt: options.e2ee?.keyProviderOptions?.ratchetSalt!,
-            ratchetWindowSize: options.e2ee?.keyProviderOptions?.ratchetWindowSize!,
-            failureTolerance: options.e2ee?.keyProviderOptions?.failureTolerance!,
+            ratchetSalt: options.e2ee!.keyProviderOptions!.ratchetSalt!,
+            ratchetWindowSize: options.e2ee!.keyProviderOptions!.ratchetWindowSize!,
+            failureTolerance: options.e2ee!.keyProviderOptions!.failureTolerance!,
           },
-          encryptionType: options.e2ee?.encryptionType!,
+          encryptionType: options.e2ee!.encryptionType!,
         });
 
         this.info = cb.message.value.room!.info;

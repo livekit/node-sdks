@@ -77,13 +77,13 @@ const room = new Room();
 let trackToProcess: string | null = null;
 let writer: fs.WriteStream | null = null;
 
-room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+room.on(RoomEvent.TrackSubscribed, async (track, publication, participant) => {
   console.log('subscribed to track', track.sid, publication, participant.identity);
   if (track.kind === TrackKind.KIND_AUDIO) {
     const stream = new AudioStream(track);
     trackToProcess = track.sid;
 
-    stream.on('frameReceived', (ev) => {
+    for await (const frame of stream) {
       if (!trackToProcess) {
         return;
       }
@@ -92,14 +92,14 @@ room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
         // create file on first frame
         // also guard when track is unsubscribed
         writer = fs.createWriteStream('output.wav');
-        writeWavHeader(writer, ev.frame);
+        writeWavHeader(writer, frame);
       }
 
       if (writer) {
-        const buf = Buffer.from(ev.frame.data.buffer);
+        const buf = Buffer.from(frame.data.buffer);
         writer.write(buf);
       }
-    });
+    }
   }
 });
 

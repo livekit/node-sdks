@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.12.3
+
+### Patch Changes
+
+- add close method to AudioSource and VideoSource - [#365](https://github.com/livekit/node-sdks/pull/365) ([@davidzhao](https://github.com/davidzhao))
+
 ## 0.12.2
 
 ### Patch Changes

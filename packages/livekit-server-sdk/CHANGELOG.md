@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.9.5
+
+### Patch Changes
+
+- updated SIP APIs to include new API options - [#364](https://github.com/livekit/node-sdks/pull/364) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.9.4
 
 ### Patch Changes

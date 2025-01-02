@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { Mutex } from '@livekit/mutex';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -10,7 +9,7 @@ import type {
   VideoRotation,
   VideoStreamInfo,
 } from './proto/video_frame_pb.js';
-import { NewVideoStreamRequestSchema, VideoStreamType } from './proto/video_frame_pb.js';
+import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
 import { VideoFrame } from './video_frame.js';
 
@@ -22,7 +21,7 @@ export type VideoFrameEvent = {
 
 export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
-  info: VideoStreamInfo;
+  info?: VideoStreamInfo;
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
@@ -37,7 +36,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   constructor(track: Track) {
     this.track = track;
 
-    const req = create(NewVideoStreamRequestSchema, {
+    const req = new NewVideoStreamRequest({
       type: VideoStreamType.VIDEO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
     });
@@ -49,8 +48,8 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       },
     });
 
-    this.info = res.stream!.info!;
-    this.ffiHandle = new FfiHandle(res.stream!.handle!.id);
+    this.info = res.stream?.info;
+    this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -71,9 +70,20 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
         const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
         const value = { rotation, timestampUs, frame };
         if (this.queueResolve) {
-          this.queueResolve({ done: false, value });
+          this.queueResolve({
+            done: false,
+            value: {
+              frame: value.frame,
+              timestampUs: value.timestampUs!,
+              rotation: value.rotation!,
+            },
+          });
         } else {
-          this.eventQueue.push(value);
+          this.eventQueue.push({
+            frame: value.frame,
+            timestampUs: value.timestampUs!,
+            rotation: value.rotation!,
+          });
         }
         break;
       case 'eos':

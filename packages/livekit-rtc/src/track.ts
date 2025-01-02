@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import type { AudioSource } from './audio_source.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
@@ -12,39 +11,39 @@ import type {
   TrackInfo,
   TrackKind,
 } from './proto/track_pb.js';
-import { CreateAudioTrackRequestSchema, CreateVideoTrackRequestSchema } from './proto/track_pb.js';
+import { CreateAudioTrackRequest, CreateVideoTrackRequest } from './proto/track_pb.js';
 import type { VideoSource } from './video_source.js';
 
 export abstract class Track {
   /** @internal */
-  info: TrackInfo;
+  info?: TrackInfo;
 
   /** @internal */
   ffi_handle: FfiHandle;
 
   constructor(owned: OwnedTrack) {
-    this.info = owned.info!;
-    this.ffi_handle = new FfiHandle(owned.handle!.id);
+    this.info = owned.info;
+    this.ffi_handle = new FfiHandle(owned.handle!.id!);
   }
 
-  get sid(): string {
-    return this.info.sid;
+  get sid(): string | undefined {
+    return this.info?.sid;
   }
 
-  get name(): string {
-    return this.info.name;
+  get name(): string | undefined {
+    return this.info?.name;
   }
 
-  get kind(): TrackKind {
-    return this.info.kind;
+  get kind(): TrackKind | undefined {
+    return this.info?.kind;
   }
 
-  get stream_state(): StreamState {
-    return this.info.streamState;
+  get stream_state(): StreamState | undefined {
+    return this.info?.streamState;
   }
 
-  get muted(): boolean {
-    return this.info.muted;
+  get muted(): boolean | undefined {
+    return this.info?.muted;
   }
 }
 
@@ -54,7 +53,7 @@ export class LocalAudioTrack extends Track {
   }
 
   static createAudioTrack(name: string, source: AudioSource): LocalAudioTrack {
-    const req = create(CreateAudioTrackRequestSchema, {
+    const req = new CreateAudioTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });
@@ -73,7 +72,7 @@ export class LocalVideoTrack extends Track {
   }
 
   static createVideoTrack(name: string, source: VideoSource): LocalVideoTrack {
-    const req = create(CreateVideoTrackRequestSchema, {
+    const req = new CreateVideoTrackRequest({
       name: name,
       sourceHandle: source.ffiHandle.handle,
     });

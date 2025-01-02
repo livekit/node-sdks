@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { AudioFrame } from './audio_frame.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
@@ -10,9 +9,9 @@ import type {
   PushSoxResamplerResponse,
 } from './proto/audio_frame_pb.js';
 import {
-  FlushSoxResamplerRequestSchema,
-  NewSoxResamplerRequestSchema,
-  PushSoxResamplerRequestSchema,
+  FlushSoxResamplerRequest,
+  NewSoxResamplerRequest,
+  PushSoxResamplerRequest,
   SoxQualityRecipe,
   SoxResamplerDataType,
 } from './proto/audio_frame_pb.js';
@@ -59,7 +58,7 @@ export class AudioResampler {
     this.#outputRate = outputRate;
     this.#channels = channels;
 
-    const req = create(NewSoxResamplerRequestSchema, {
+    const req = new NewSoxResamplerRequest({
       inputRate,
       outputRate,
       numChannels: channels,
@@ -76,11 +75,14 @@ export class AudioResampler {
       },
     });
 
-    if (res.message.case !== 'resampler') {
-      throw new Error(res.message.value ?? 'Unknown Error');
+    switch (res.message.case) {
+      case 'resampler':
+        this.#ffiHandle = new FfiHandle(res.message.value.handle!.id!);
+        break;
+      case 'error':
+      default:
+        throw new Error(res.message.value);
     }
-
-    this.#ffiHandle = new FfiHandle(res.message.value.handle!.id);
   }
 
   /**
@@ -95,7 +97,7 @@ export class AudioResampler {
    * be empty if no output data is available yet.
    */
   push(data: AudioFrame): AudioFrame[] {
-    const req = create(PushSoxResamplerRequestSchema, {
+    const req = new PushSoxResamplerRequest({
       resamplerHandle: this.#ffiHandle.handle,
       dataPtr: data.protoInfo().dataPtr,
       size: data.data.byteLength,
@@ -116,7 +118,7 @@ export class AudioResampler {
       return [];
     }
 
-    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
+    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size!);
     return [
       new AudioFrame(
         new Int16Array(outputData.buffer),
@@ -135,7 +137,7 @@ export class AudioResampler {
    * internal buffers are processed and all resampled data is output.
    */
   flush(): AudioFrame[] {
-    const req = create(FlushSoxResamplerRequestSchema, {
+    const req = new FlushSoxResamplerRequest({
       resamplerHandle: this.#ffiHandle.handle,
     });
 
@@ -154,7 +156,7 @@ export class AudioResampler {
       return [];
     }
 
-    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size);
+    const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size!);
     return [
       new AudioFrame(
         new Int16Array(outputData.buffer),

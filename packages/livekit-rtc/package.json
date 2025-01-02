@@ -46,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.4.2",
+    "@bufbuild/protobuf": "^1.10.0",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0"
   },
@@ -56,7 +56,7 @@
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
     "typescript": "^5.2.2",
-    "@bufbuild/protoc-gen-es": "^1.4.2"
+    "@bufbuild/protoc-gen-es": "^1.10.0"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",

@@ -47,7 +47,7 @@
     "jose": "^5.1.2"
   },
   "devDependencies": {
-    "@bufbuild/protobuf": "^1.7.2",
+    "@bufbuild/protobuf": "^2.0.0",
     "@changesets/cli": "^2.27.1",
     "@edge-runtime/vm": "^4.0.0",
     "@livekit/changesets-changelog-github": "^0.0.4",

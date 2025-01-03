@@ -25,6 +25,7 @@ import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequ
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
+import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
 
 /**
  * @generated from enum livekit.proto.LogLevel
@@ -324,6 +325,20 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: RpcMethodInvocationResponseRequest;
     case: "rpcMethodInvocationResponse";
+  } | {
+    /**
+     * Track Publication
+     *
+     * @generated from field: livekit.proto.EnableRemoteTrackPublicationRequest enable_remote_track_publication = 42;
+     */
+    value: EnableRemoteTrackPublicationRequest;
+    case: "enableRemoteTrackPublication";
+  } | {
+    /**
+     * @generated from field: livekit.proto.UpdateRemoteTrackPublicationDimensionRequest update_remote_track_publication_dimension = 43;
+     */
+    value: UpdateRemoteTrackPublicationDimensionRequest;
+    case: "updateRemoteTrackPublicationDimension";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -374,6 +389,8 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 39, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodRequest, oneof: "message" },
     { no: 40, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodRequest, oneof: "message" },
     { no: 41, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseRequest, oneof: "message" },
+    { no: 42, name: "enable_remote_track_publication", kind: "message", T: EnableRemoteTrackPublicationRequest, oneof: "message" },
+    { no: 43, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -646,6 +663,20 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: RpcMethodInvocationResponseResponse;
     case: "rpcMethodInvocationResponse";
+  } | {
+    /**
+     * Track Publication
+     *
+     * @generated from field: livekit.proto.EnableRemoteTrackPublicationResponse enable_remote_track_publication = 41;
+     */
+    value: EnableRemoteTrackPublicationResponse;
+    case: "enableRemoteTrackPublication";
+  } | {
+    /**
+     * @generated from field: livekit.proto.UpdateRemoteTrackPublicationDimensionResponse update_remote_track_publication_dimension = 42;
+     */
+    value: UpdateRemoteTrackPublicationDimensionResponse;
+    case: "updateRemoteTrackPublicationDimension";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -695,6 +726,8 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 38, name: "register_rpc_method", kind: "message", T: RegisterRpcMethodResponse, oneof: "message" },
     { no: 39, name: "unregister_rpc_method", kind: "message", T: UnregisterRpcMethodResponse, oneof: "message" },
     { no: 40, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseResponse, oneof: "message" },
+    { no: 41, name: "enable_remote_track_publication", kind: "message", T: EnableRemoteTrackPublicationResponse, oneof: "message" },
+    { no: 42, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

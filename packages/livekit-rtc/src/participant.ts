@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type {
+import {
   DisconnectReason,
-  OwnedParticipant,
-  ParticipantInfo,
-  ParticipantKind,
+  type OwnedParticipant,
+  type ParticipantInfo,
+  type ParticipantKind,
 } from './proto/participant_pb.js';
 import type {
   PublishDataCallback,
@@ -102,6 +102,9 @@ export abstract class Participant {
   }
 
   get disconnectReason(): DisconnectReason | undefined {
+    if (this.info.disconnectReason === DisconnectReason.UNKNOWN_REASON) {
+      return undefined;
+    }
     return this.info.disconnectReason;
   }
 }

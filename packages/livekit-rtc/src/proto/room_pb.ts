@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
-import { OwnedParticipant } from "./participant_pb.js";
+import { DisconnectReason, OwnedParticipant } from "./participant_pb.js";
 import { OwnedTrack, OwnedTrackPublication, TrackSource } from "./track_pb.js";
 import { RtcStats } from "./stats_pb.js";
 import { VideoCodec } from "./video_frame_pb.js";
@@ -148,100 +148,6 @@ export enum DataPacketKind {
 proto2.util.setEnumType(DataPacketKind, "livekit.proto.DataPacketKind", [
   { no: 0, name: "KIND_LOSSY" },
   { no: 1, name: "KIND_RELIABLE" },
-]);
-
-/**
- * @generated from enum livekit.proto.DisconnectReason
- */
-export enum DisconnectReason {
-  /**
-   * @generated from enum value: UNKNOWN_REASON = 0;
-   */
-  UNKNOWN_REASON = 0,
-
-  /**
-   * the client initiated the disconnect
-   *
-   * @generated from enum value: CLIENT_INITIATED = 1;
-   */
-  CLIENT_INITIATED = 1,
-
-  /**
-   * another participant with the same identity has joined the room
-   *
-   * @generated from enum value: DUPLICATE_IDENTITY = 2;
-   */
-  DUPLICATE_IDENTITY = 2,
-
-  /**
-   * the server instance is shutting down
-   *
-   * @generated from enum value: SERVER_SHUTDOWN = 3;
-   */
-  SERVER_SHUTDOWN = 3,
-
-  /**
-   * RoomService.RemoveParticipant was called
-   *
-   * @generated from enum value: PARTICIPANT_REMOVED = 4;
-   */
-  PARTICIPANT_REMOVED = 4,
-
-  /**
-   * RoomService.DeleteRoom was called
-   *
-   * @generated from enum value: ROOM_DELETED = 5;
-   */
-  ROOM_DELETED = 5,
-
-  /**
-   * the client is attempting to resume a session, but server is not aware of it
-   *
-   * @generated from enum value: STATE_MISMATCH = 6;
-   */
-  STATE_MISMATCH = 6,
-
-  /**
-   * client was unable to connect fully
-   *
-   * @generated from enum value: JOIN_FAILURE = 7;
-   */
-  JOIN_FAILURE = 7,
-
-  /**
-   * Cloud-only, the server requested Participant to migrate the connection elsewhere
-   *
-   * @generated from enum value: MIGRATION = 8;
-   */
-  MIGRATION = 8,
-
-  /**
-   * the signal websocket was closed unexpectedly
-   *
-   * @generated from enum value: SIGNAL_CLOSE = 9;
-   */
-  SIGNAL_CLOSE = 9,
-
-  /**
-   * the room was closed, due to all Standard and Ingress participants having left
-   *
-   * @generated from enum value: ROOM_CLOSED = 10;
-   */
-  ROOM_CLOSED = 10,
-}
-// Retrieve enum metadata with: proto2.getEnumType(DisconnectReason)
-proto2.util.setEnumType(DisconnectReason, "livekit.proto.DisconnectReason", [
-  { no: 0, name: "UNKNOWN_REASON" },
-  { no: 1, name: "CLIENT_INITIATED" },
-  { no: 2, name: "DUPLICATE_IDENTITY" },
-  { no: 3, name: "SERVER_SHUTDOWN" },
-  { no: 4, name: "PARTICIPANT_REMOVED" },
-  { no: 5, name: "ROOM_DELETED" },
-  { no: 6, name: "STATE_MISMATCH" },
-  { no: 7, name: "JOIN_FAILURE" },
-  { no: 8, name: "MIGRATION" },
-  { no: 9, name: "SIGNAL_CLOSE" },
-  { no: 10, name: "ROOM_CLOSED" },
 ]);
 
 /**
@@ -2844,6 +2750,18 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: ChatMessageReceived;
     case: "chatMessage";
+  } | {
+    /**
+     * @generated from field: livekit.proto.DataStream.Header stream_header = 30;
+     */
+    value: DataStream_Header;
+    case: "streamHeader";
+  } | {
+    /**
+     * @generated from field: livekit.proto.DataStream.Chunk stream_chunk = 31;
+     */
+    value: DataStream_Chunk;
+    case: "streamChunk";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2883,6 +2801,8 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 27, name: "data_packet_received", kind: "message", T: DataPacketReceived, oneof: "message" },
     { no: 28, name: "transcription_received", kind: "message", T: TranscriptionReceived, oneof: "message" },
     { no: 29, name: "chat_message", kind: "message", T: ChatMessageReceived, oneof: "message" },
+    { no: 30, name: "stream_header", kind: "message", T: DataStream_Header, oneof: "message" },
+    { no: 31, name: "stream_chunk", kind: "message", T: DataStream_Chunk, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -4332,6 +4252,366 @@ export class RoomEOS extends Message<RoomEOS> {
 
   static equals(a: RoomEOS | PlainMessage<RoomEOS> | undefined, b: RoomEOS | PlainMessage<RoomEOS> | undefined): boolean {
     return proto2.util.equals(RoomEOS, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.DataStream
+ */
+export class DataStream extends Message<DataStream> {
+  constructor(data?: PartialMessage<DataStream>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream {
+    return new DataStream().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream {
+    return new DataStream().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream {
+    return new DataStream().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream | PlainMessage<DataStream> | undefined, b: DataStream | PlainMessage<DataStream> | undefined): boolean {
+    return proto2.util.equals(DataStream, a, b);
+  }
+}
+
+/**
+ * enum for operation types (specific to TextHeader)
+ *
+ * @generated from enum livekit.proto.DataStream.OperationType
+ */
+export enum DataStream_OperationType {
+  /**
+   * @generated from enum value: CREATE = 0;
+   */
+  CREATE = 0,
+
+  /**
+   * @generated from enum value: UPDATE = 1;
+   */
+  UPDATE = 1,
+
+  /**
+   * @generated from enum value: DELETE = 2;
+   */
+  DELETE = 2,
+
+  /**
+   * @generated from enum value: REACTION = 3;
+   */
+  REACTION = 3,
+}
+// Retrieve enum metadata with: proto2.getEnumType(DataStream_OperationType)
+proto2.util.setEnumType(DataStream_OperationType, "livekit.proto.DataStream.OperationType", [
+  { no: 0, name: "CREATE" },
+  { no: 1, name: "UPDATE" },
+  { no: 2, name: "DELETE" },
+  { no: 3, name: "REACTION" },
+]);
+
+/**
+ * header properties specific to text streams
+ *
+ * @generated from message livekit.proto.DataStream.TextHeader
+ */
+export class DataStream_TextHeader extends Message<DataStream_TextHeader> {
+  /**
+   * @generated from field: required livekit.proto.DataStream.OperationType operation_type = 1;
+   */
+  operationType?: DataStream_OperationType;
+
+  /**
+   * Optional: Version for updates/edits
+   *
+   * @generated from field: required int32 version = 2;
+   */
+  version?: number;
+
+  /**
+   * Optional: Reply to specific message
+   *
+   * @generated from field: required string reply_to_stream_id = 3;
+   */
+  replyToStreamId?: string;
+
+  /**
+   * file attachments for text streams
+   *
+   * @generated from field: repeated string attached_stream_ids = 4;
+   */
+  attachedStreamIds: string[] = [];
+
+  /**
+   * true if the text has been generated by an agent from a participant's audio transcription
+   *
+   * @generated from field: required bool generated = 5;
+   */
+  generated?: boolean;
+
+  constructor(data?: PartialMessage<DataStream_TextHeader>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream.TextHeader";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "operation_type", kind: "enum", T: proto2.getEnumType(DataStream_OperationType), req: true },
+    { no: 2, name: "version", kind: "scalar", T: 5 /* ScalarType.INT32 */, req: true },
+    { no: 3, name: "reply_to_stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 4, name: "attached_stream_ids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 5, name: "generated", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_TextHeader {
+    return new DataStream_TextHeader().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_TextHeader {
+    return new DataStream_TextHeader().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_TextHeader {
+    return new DataStream_TextHeader().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream_TextHeader | PlainMessage<DataStream_TextHeader> | undefined, b: DataStream_TextHeader | PlainMessage<DataStream_TextHeader> | undefined): boolean {
+    return proto2.util.equals(DataStream_TextHeader, a, b);
+  }
+}
+
+/**
+ * header properties specific to file or image streams
+ *
+ * @generated from message livekit.proto.DataStream.FileHeader
+ */
+export class DataStream_FileHeader extends Message<DataStream_FileHeader> {
+  /**
+   * name of the file
+   *
+   * @generated from field: required string file_name = 1;
+   */
+  fileName?: string;
+
+  constructor(data?: PartialMessage<DataStream_FileHeader>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream.FileHeader";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "file_name", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_FileHeader {
+    return new DataStream_FileHeader().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_FileHeader {
+    return new DataStream_FileHeader().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_FileHeader {
+    return new DataStream_FileHeader().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream_FileHeader | PlainMessage<DataStream_FileHeader> | undefined, b: DataStream_FileHeader | PlainMessage<DataStream_FileHeader> | undefined): boolean {
+    return proto2.util.equals(DataStream_FileHeader, a, b);
+  }
+}
+
+/**
+ * main DataStream.Header that contains a oneof for specific headers
+ *
+ * @generated from message livekit.proto.DataStream.Header
+ */
+export class DataStream_Header extends Message<DataStream_Header> {
+  /**
+   * unique identifier for this data stream
+   *
+   * @generated from field: required string stream_id = 1;
+   */
+  streamId?: string;
+
+  /**
+   * using int64 for Unix timestamp
+   *
+   * @generated from field: required int64 timestamp = 2;
+   */
+  timestamp?: bigint;
+
+  /**
+   * @generated from field: required string topic = 3;
+   */
+  topic?: string;
+
+  /**
+   * @generated from field: required string mime_type = 4;
+   */
+  mimeType?: string;
+
+  /**
+   * only populated for finite streams, if it's a stream of unknown size this stays empty
+   *
+   * @generated from field: optional uint64 total_length = 5;
+   */
+  totalLength?: bigint;
+
+  /**
+   * only populated for finite streams, if it's a stream of unknown size this stays empty
+   *
+   * @generated from field: optional uint64 total_chunks = 6;
+   */
+  totalChunks?: bigint;
+
+  /**
+   * user defined extensions map that can carry additional info
+   *
+   * @generated from field: map<string, string> extensions = 7;
+   */
+  extensions: { [key: string]: string } = {};
+
+  /**
+   * oneof to choose between specific header types
+   *
+   * @generated from oneof livekit.proto.DataStream.Header.content_header
+   */
+  contentHeader: {
+    /**
+     * @generated from field: livekit.proto.DataStream.TextHeader text_header = 8;
+     */
+    value: DataStream_TextHeader;
+    case: "textHeader";
+  } | {
+    /**
+     * @generated from field: livekit.proto.DataStream.FileHeader file_header = 9;
+     */
+    value: DataStream_FileHeader;
+    case: "fileHeader";
+  } | { case: undefined; value?: undefined } = { case: undefined };
+
+  constructor(data?: PartialMessage<DataStream_Header>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream.Header";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */, req: true },
+    { no: 3, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 4, name: "mime_type", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 5, name: "total_length", kind: "scalar", T: 4 /* ScalarType.UINT64 */, opt: true },
+    { no: 6, name: "total_chunks", kind: "scalar", T: 4 /* ScalarType.UINT64 */, opt: true },
+    { no: 7, name: "extensions", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 8, name: "text_header", kind: "message", T: DataStream_TextHeader, oneof: "content_header" },
+    { no: 9, name: "file_header", kind: "message", T: DataStream_FileHeader, oneof: "content_header" },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Header {
+    return new DataStream_Header().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_Header {
+    return new DataStream_Header().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_Header {
+    return new DataStream_Header().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream_Header | PlainMessage<DataStream_Header> | undefined, b: DataStream_Header | PlainMessage<DataStream_Header> | undefined): boolean {
+    return proto2.util.equals(DataStream_Header, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.DataStream.Chunk
+ */
+export class DataStream_Chunk extends Message<DataStream_Chunk> {
+  /**
+   * unique identifier for this data stream to map it to the correct header
+   *
+   * @generated from field: required string stream_id = 1;
+   */
+  streamId?: string;
+
+  /**
+   * @generated from field: required uint64 chunk_index = 2;
+   */
+  chunkIndex?: bigint;
+
+  /**
+   * content as binary (bytes)
+   *
+   * @generated from field: required bytes content = 3;
+   */
+  content?: Uint8Array;
+
+  /**
+   * true only if this is the last chunk of this stream - can also be sent with empty content
+   *
+   * @generated from field: required bool complete = 4;
+   */
+  complete?: boolean;
+
+  /**
+   * a version indicating that this chunk_index has been retroactively modified and the original one needs to be replaced
+   *
+   * @generated from field: required int32 version = 5;
+   */
+  version?: number;
+
+  /**
+   * optional, initialization vector for AES-GCM encryption
+   *
+   * @generated from field: optional bytes iv = 6;
+   */
+  iv?: Uint8Array;
+
+  constructor(data?: PartialMessage<DataStream_Chunk>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream.Chunk";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "chunk_index", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 3, name: "content", kind: "scalar", T: 12 /* ScalarType.BYTES */, req: true },
+    { no: 4, name: "complete", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+    { no: 5, name: "version", kind: "scalar", T: 5 /* ScalarType.INT32 */, req: true },
+    { no: 6, name: "iv", kind: "scalar", T: 12 /* ScalarType.BYTES */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Chunk {
+    return new DataStream_Chunk().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_Chunk {
+    return new DataStream_Chunk().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_Chunk {
+    return new DataStream_Chunk().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream_Chunk | PlainMessage<DataStream_Chunk> | undefined, b: DataStream_Chunk | PlainMessage<DataStream_Chunk> | undefined): boolean {
+    return proto2.util.equals(DataStream_Chunk, a, b);
   }
 }
 

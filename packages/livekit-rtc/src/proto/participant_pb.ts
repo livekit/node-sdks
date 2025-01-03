@@ -60,6 +60,124 @@ proto2.util.setEnumType(ParticipantKind, "livekit.proto.ParticipantKind", [
 ]);
 
 /**
+ * @generated from enum livekit.proto.DisconnectReason
+ */
+export enum DisconnectReason {
+  /**
+   * @generated from enum value: UNKNOWN_REASON = 0;
+   */
+  UNKNOWN_REASON = 0,
+
+  /**
+   * the client initiated the disconnect
+   *
+   * @generated from enum value: CLIENT_INITIATED = 1;
+   */
+  CLIENT_INITIATED = 1,
+
+  /**
+   * another participant with the same identity has joined the room
+   *
+   * @generated from enum value: DUPLICATE_IDENTITY = 2;
+   */
+  DUPLICATE_IDENTITY = 2,
+
+  /**
+   * the server instance is shutting down
+   *
+   * @generated from enum value: SERVER_SHUTDOWN = 3;
+   */
+  SERVER_SHUTDOWN = 3,
+
+  /**
+   * RoomService.RemoveParticipant was called
+   *
+   * @generated from enum value: PARTICIPANT_REMOVED = 4;
+   */
+  PARTICIPANT_REMOVED = 4,
+
+  /**
+   * RoomService.DeleteRoom was called
+   *
+   * @generated from enum value: ROOM_DELETED = 5;
+   */
+  ROOM_DELETED = 5,
+
+  /**
+   * the client is attempting to resume a session, but server is not aware of it
+   *
+   * @generated from enum value: STATE_MISMATCH = 6;
+   */
+  STATE_MISMATCH = 6,
+
+  /**
+   * client was unable to connect fully
+   *
+   * @generated from enum value: JOIN_FAILURE = 7;
+   */
+  JOIN_FAILURE = 7,
+
+  /**
+   * Cloud-only, the server requested Participant to migrate the connection elsewhere
+   *
+   * @generated from enum value: MIGRATION = 8;
+   */
+  MIGRATION = 8,
+
+  /**
+   * the signal websocket was closed unexpectedly
+   *
+   * @generated from enum value: SIGNAL_CLOSE = 9;
+   */
+  SIGNAL_CLOSE = 9,
+
+  /**
+   * the room was closed, due to all Standard and Ingress participants having left
+   *
+   * @generated from enum value: ROOM_CLOSED = 10;
+   */
+  ROOM_CLOSED = 10,
+
+  /**
+   * SIP callee did not respond in time
+   *
+   * @generated from enum value: USER_UNAVAILABLE = 11;
+   */
+  USER_UNAVAILABLE = 11,
+
+  /**
+   * SIP callee rejected the call (busy)
+   *
+   * @generated from enum value: USER_REJECTED = 12;
+   */
+  USER_REJECTED = 12,
+
+  /**
+   * SIP protocol failure or unexpected response
+   *
+   * @generated from enum value: SIP_TRUNK_FAILURE = 13;
+   */
+  SIP_TRUNK_FAILURE = 13,
+}
+// Retrieve enum metadata with: proto2.getEnumType(DisconnectReason)
+proto2.util.setEnumType(DisconnectReason, "livekit.proto.DisconnectReason", [
+  { no: 0, name: "UNKNOWN_REASON" },
+  { no: 1, name: "CLIENT_INITIATED" },
+  { no: 2, name: "DUPLICATE_IDENTITY" },
+  { no: 3, name: "SERVER_SHUTDOWN" },
+  { no: 4, name: "PARTICIPANT_REMOVED" },
+  { no: 5, name: "ROOM_DELETED" },
+  { no: 6, name: "STATE_MISMATCH" },
+  { no: 7, name: "JOIN_FAILURE" },
+  { no: 8, name: "MIGRATION" },
+  { no: 9, name: "SIGNAL_CLOSE" },
+  { no: 10, name: "ROOM_CLOSED" },
+  { no: 11, name: "USER_UNAVAILABLE" },
+  { no: 12, name: "USER_REJECTED" },
+  { no: 13, name: "SIP_TRUNK_FAILURE" },
+]);
+
+/**
  * @generated from message livekit.proto.ParticipantInfo
  */
 export class ParticipantInfo extends Message<ParticipantInfo> {
@@ -93,6 +211,11 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
    */
   kind?: ParticipantKind;
 
+  /**
+   * @generated from field: required livekit.proto.DisconnectReason disconnect_reason = 7;
+   */
+  disconnectReason?: DisconnectReason;
+
   constructor(data?: PartialMessage<ParticipantInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -107,6 +230,7 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
     { no: 4, name: "metadata", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 5, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
     { no: 6, name: "kind", kind: "enum", T: proto2.getEnumType(ParticipantKind), req: true },
+    { no: 7, name: "disconnect_reason", kind: "enum", T: proto2.getEnumType(DisconnectReason), req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantInfo {

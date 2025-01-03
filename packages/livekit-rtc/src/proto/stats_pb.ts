@@ -439,7 +439,13 @@ export class RtcStats extends Message<RtcStats> {
     case: "certificate";
   } | {
     /**
-     * @generated from field: livekit.proto.RtcStats.Track track = 17;
+     * @generated from field: livekit.proto.RtcStats.Stream stream = 17;
+     */
+    value: RtcStats_Stream;
+    case: "stream";
+  } | {
+    /**
+     * @generated from field: livekit.proto.RtcStats.Track track = 18;
      */
     value: RtcStats_Track;
     case: "track";
@@ -467,7 +473,8 @@ export class RtcStats extends Message<RtcStats> {
     { no: 14, name: "local_candidate", kind: "message", T: RtcStats_LocalCandidate, oneof: "stats" },
     { no: 15, name: "remote_candidate", kind: "message", T: RtcStats_RemoteCandidate, oneof: "stats" },
     { no: 16, name: "certificate", kind: "message", T: RtcStats_Certificate, oneof: "stats" },
-    { no: 17, name: "track", kind: "message", T: RtcStats_Track, oneof: "stats" },
+    { no: 17, name: "stream", kind: "message", T: RtcStats_Stream, oneof: "stats" },
+    { no: 18, name: "track", kind: "message", T: RtcStats_Track, oneof: "stats" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RtcStats {
@@ -1146,6 +1153,49 @@ export class RtcStats_Certificate extends Message<RtcStats_Certificate> {
 
   static equals(a: RtcStats_Certificate | PlainMessage<RtcStats_Certificate> | undefined, b: RtcStats_Certificate | PlainMessage<RtcStats_Certificate> | undefined): boolean {
     return proto2.util.equals(RtcStats_Certificate, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.RtcStats.Stream
+ */
+export class RtcStats_Stream extends Message<RtcStats_Stream> {
+  /**
+   * @generated from field: required livekit.proto.RtcStatsData rtc = 1;
+   */
+  rtc?: RtcStatsData;
+
+  /**
+   * @generated from field: required livekit.proto.StreamStats stream = 2;
+   */
+  stream?: StreamStats;
+
+  constructor(data?: PartialMessage<RtcStats_Stream>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.RtcStats.Stream";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "rtc", kind: "message", T: RtcStatsData, req: true },
+    { no: 2, name: "stream", kind: "message", T: StreamStats, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RtcStats_Stream {
+    return new RtcStats_Stream().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RtcStats_Stream {
+    return new RtcStats_Stream().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RtcStats_Stream {
+    return new RtcStats_Stream().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RtcStats_Stream | PlainMessage<RtcStats_Stream> | undefined, b: RtcStats_Stream | PlainMessage<RtcStats_Stream> | undefined): boolean {
+    return proto2.util.equals(RtcStats_Stream, a, b);
   }
 }
 
@@ -2950,6 +3000,51 @@ export class CertificateStats extends Message<CertificateStats> {
 
   static equals(a: CertificateStats | PlainMessage<CertificateStats> | undefined, b: CertificateStats | PlainMessage<CertificateStats> | undefined): boolean {
     return proto2.util.equals(CertificateStats, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.StreamStats
+ */
+export class StreamStats extends Message<StreamStats> {
+  /**
+   * @generated from field: required string id = 1;
+   */
+  id?: string;
+
+  /**
+   * required int64 timestamp = 3;
+   *
+   * @generated from field: required string stream_identifier = 2;
+   */
+  streamIdentifier?: string;
+
+  constructor(data?: PartialMessage<StreamStats>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.StreamStats";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "stream_identifier", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StreamStats {
+    return new StreamStats().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StreamStats {
+    return new StreamStats().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StreamStats {
+    return new StreamStats().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: StreamStats | PlainMessage<StreamStats> | undefined, b: StreamStats | PlainMessage<StreamStats> | undefined): boolean {
+    return proto2.util.equals(StreamStats, a, b);
   }
 }
 

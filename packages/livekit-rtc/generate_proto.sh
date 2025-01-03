@@ -23,6 +23,7 @@ PATH=$PATH:$(pwd)/node_modules/.bin \
     $FFI_PROTOCOL/participant.proto \
     $FFI_PROTOCOL/room.proto \
     $FFI_PROTOCOL/track.proto \
+    $FFI_PROTOCOL/track_publication.proto \
     $FFI_PROTOCOL/video_frame.proto \
     $FFI_PROTOCOL/e2ee.proto \
     $FFI_PROTOCOL/stats.proto \

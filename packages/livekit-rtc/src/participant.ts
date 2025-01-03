@@ -2,7 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type { DisconnectReason, OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
+import type {
+  DisconnectReason,
+  OwnedParticipant,
+  ParticipantInfo,
+  ParticipantKind,
+} from './proto/participant_pb.js';
 import type {
   PublishDataCallback,
   PublishDataResponse,

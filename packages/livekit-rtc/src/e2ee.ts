@@ -259,7 +259,7 @@ export class E2EEManager {
     const options = { ...defaultE2EEOptions, ...opts };
 
     this.options = options;
-    this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
+    this.keyProvider = options.keyProviderOptions && new KeyProvider(roomHandle, options.keyProviderOptions);
   }
 
   setEnabled(enabled: boolean) {

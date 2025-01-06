@@ -30,9 +30,9 @@ const DEFAULT_FAILURE_TOLERANCE = -1;
 
 export interface KeyProviderOptions {
   sharedKey?: Uint8Array;
-  ratchetSalt: Uint8Array;
-  ratchetWindowSize: number;
-  failureTolerance: number;
+  ratchetSalt?: Uint8Array;
+  ratchetWindowSize?: number;
+  failureTolerance?: number;
 }
 
 export const defaultKeyProviderOptions: KeyProviderOptions = {
@@ -42,8 +42,8 @@ export const defaultKeyProviderOptions: KeyProviderOptions = {
 };
 
 export interface E2EEOptions {
-  keyProviderOptions: KeyProviderOptions;
-  encryptionType: EncryptionType;
+  keyProviderOptions?: KeyProviderOptions;
+  encryptionType?: EncryptionType;
 }
 
 export const defaultE2EEOptions: E2EEOptions = {

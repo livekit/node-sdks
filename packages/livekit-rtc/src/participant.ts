@@ -373,6 +373,7 @@ export class LocalParticipant extends Participant {
     const req = new UnpublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackSid: trackSid,
+      stopOnUnpublish: true,
     });
 
     const res = FfiClient.instance.request<UnpublishTrackResponse>({

@@ -4,7 +4,7 @@
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import type { E2EEOptions } from './e2ee.js';
-import { E2EEManager } from './e2ee.js';
+import { defaultE2EEOptions, E2EEManager } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
@@ -94,6 +94,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
+    options.e2ee = { ...defaultE2EEOptions, ...options.e2ee }
 
     const req = new ConnectRequest({
       url: url,

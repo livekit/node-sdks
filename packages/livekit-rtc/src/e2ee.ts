@@ -42,7 +42,7 @@ export const defaultKeyProviderOptions: KeyProviderOptions = {
 };
 
 export interface E2EEOptions {
-  keyProviderOptions?: KeyProviderOptions;
+  keyProviderOptions: KeyProviderOptions;
   encryptionType?: EncryptionType;
 }
 
@@ -247,7 +247,7 @@ export class FrameCryptor {
 export class E2EEManager {
   private roomHandle = BigInt(0);
   private options: E2EEOptions;
-  private keyProvider?: KeyProvider;
+  private keyProvider: KeyProvider;
 
   enabled: boolean;
 
@@ -259,8 +259,7 @@ export class E2EEManager {
     const options = { ...defaultE2EEOptions, ...opts };
 
     this.options = options;
-    this.keyProvider =
-      options.keyProviderOptions && new KeyProvider(roomHandle, options.keyProviderOptions);
+    this.keyProvider = new KeyProvider(roomHandle, options.keyProviderOptions);
   }
 
   setEnabled(enabled: boolean) {

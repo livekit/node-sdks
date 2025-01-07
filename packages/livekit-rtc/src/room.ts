@@ -4,7 +4,7 @@
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import type { E2EEOptions } from './e2ee.js';
-import { E2EEManager } from './e2ee.js';
+import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
@@ -94,6 +94,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
+    options.e2ee = { ...defaultE2EEOptions, ...options.e2ee };
 
     const req = new ConnectRequest({
       url: url,
@@ -115,15 +116,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     switch (cb.message.case) {
       case 'result':
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
-        this.e2eeManager = new E2EEManager(this.ffiHandle.handle, {
-          keyProviderOptions: {
-            sharedKey: options.e2ee?.keyProviderOptions?.sharedKey,
-            ratchetSalt: options.e2ee!.keyProviderOptions!.ratchetSalt!,
-            ratchetWindowSize: options.e2ee!.keyProviderOptions!.ratchetWindowSize!,
-            failureTolerance: options.e2ee!.keyProviderOptions!.failureTolerance!,
-          },
-          encryptionType: options.e2ee!.encryptionType!,
-        });
+        this.e2eeManager = new E2EEManager(this.ffiHandle.handle, options.e2ee);
 
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;

@@ -30,9 +30,9 @@ const DEFAULT_FAILURE_TOLERANCE = -1;
 
 export interface KeyProviderOptions {
   sharedKey?: Uint8Array;
-  ratchetSalt: Uint8Array;
-  ratchetWindowSize: number;
-  failureTolerance: number;
+  ratchetSalt?: Uint8Array;
+  ratchetWindowSize?: number;
+  failureTolerance?: number;
 }
 
 export const defaultKeyProviderOptions: KeyProviderOptions = {
@@ -43,7 +43,7 @@ export const defaultKeyProviderOptions: KeyProviderOptions = {
 
 export interface E2EEOptions {
   keyProviderOptions: KeyProviderOptions;
-  encryptionType: EncryptionType;
+  encryptionType?: EncryptionType;
 }
 
 export const defaultE2EEOptions: E2EEOptions = {
@@ -247,7 +247,7 @@ export class FrameCryptor {
 export class E2EEManager {
   private roomHandle = BigInt(0);
   private options: E2EEOptions;
-  private keyProvider?: KeyProvider;
+  private keyProvider: KeyProvider;
 
   enabled: boolean;
 

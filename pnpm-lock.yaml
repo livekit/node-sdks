@@ -241,6 +241,9 @@ importers:
 
   packages/livekit-server-sdk:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^1.7.2
+        version: 1.10.0
       '@livekit/protocol':
         specifier: ^1.30.0
         version: 1.30.0
@@ -251,9 +254,6 @@ importers:
         specifier: ^5.1.2
         version: 5.9.6
     devDependencies:
-      '@bufbuild/protobuf':
-        specifier: ^1.7.2
-        version: 1.10.0
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.11

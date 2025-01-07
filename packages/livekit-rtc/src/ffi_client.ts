@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { MessageInitShape } from '@bufbuild/protobuf';
-import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
+import type { PartialMessage } from '@bufbuild/protobuf';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import {
@@ -13,17 +12,10 @@ import {
   livekitInitialize,
   livekitRetrievePtr,
 } from './napi/native.js';
-import {
-  type FfiEvent,
-  FfiEventSchema,
-  type FfiRequest,
-  FfiRequestSchema,
-  type FfiResponse,
-  FfiResponseSchema,
-} from './proto/ffi_pb.js';
+import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
 import { SDK_VERSION } from './version.js';
 
-export { FfiHandle, type FfiEvent, type FfiResponse, type FfiRequest, livekitDispose as dispose };
+export { FfiHandle, type FfiEvent, type FfiResponse, FfiRequest, livekitDispose as dispose };
 
 export type FfiClientCallbacks = {
   ffi_event: (event: FfiEvent) => void;
@@ -49,7 +41,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
     livekitInitialize(
       (event_data: Uint8Array) => {
-        const event = fromBinary(FfiEventSchema, event_data);
+        const event = FfiEvent.fromBinary(event_data);
         this.emit(FfiClientEvent.FfiEvent, event);
       },
       true,
@@ -57,11 +49,11 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     );
   }
 
-  request<T>(req: MessageInitShape<typeof FfiRequestSchema>): T {
-    const request = create(FfiRequestSchema, req);
-    const req_data = toBinary(FfiRequestSchema, request);
+  request<T>(req: PartialMessage<FfiRequest>): T {
+    const request = new FfiRequest(req);
+    const req_data = request.toBinary();
     const res_data = livekitFfiRequest(req_data);
-    return fromBinary(FfiResponseSchema, res_data).message.value as T;
+    return FfiResponse.fromBinary(res_data).message.value as T;
   }
 
   copyBuffer(ptr: bigint, len: number): Uint8Array {

@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
-import { type AudioFrameBufferInfo, AudioFrameBufferInfoSchema } from './proto/audio_frame_pb.js';
+import { AudioFrameBufferInfo } from './proto/audio_frame_pb.js';
 
 export class AudioFrame {
   data: Int16Array;
@@ -32,20 +31,20 @@ export class AudioFrame {
   /** @internal */
   static fromOwnedInfo(owned: OwnedAudioFrameBuffer): AudioFrame {
     const info = owned.info!;
-    const len = info.numChannels * info.samplesPerChannel * 2; // c_int16
-    const data = FfiClient.instance.copyBuffer(info.dataPtr, len);
-    new FfiHandle(owned.handle!.id).dispose();
+    const len = info.numChannels! * info.samplesPerChannel! * 2; // c_int16
+    const data = FfiClient.instance.copyBuffer(info.dataPtr!, len);
+    new FfiHandle(owned.handle!.id!).dispose();
     return new AudioFrame(
       new Int16Array(data.buffer),
-      info.sampleRate,
-      info.numChannels,
-      info.samplesPerChannel,
+      info.sampleRate!,
+      info.numChannels!,
+      info.samplesPerChannel!,
     );
   }
 
   /** @internal */
   protoInfo(): AudioFrameBufferInfo {
-    return create(AudioFrameBufferInfoSchema, {
+    return new AudioFrameBufferInfo({
       dataPtr: FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer)),
       sampleRate: this.sampleRate,
       numChannels: this.channels,
@@ -65,8 +64,9 @@ export class AudioFrame {
  */
 export const combineAudioFrames = (buffer: AudioFrame | AudioFrame[]): AudioFrame => {
   if (!Array.isArray(buffer)) {
-    return buffer as AudioFrame;
+    return buffer;
   }
+  buffer = buffer as AudioFrame[];
 
   if (buffer.length === 0) {
     throw new Error('buffer is empty');

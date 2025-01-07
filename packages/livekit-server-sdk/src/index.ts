@@ -4,6 +4,7 @@
 
 export {
   AliOSSUpload,
+  AudioCodec,
   AutoParticipantEgress,
   AutoTrackEgress,
   AzureBlobUpload,
@@ -49,6 +50,7 @@ export {
   TrackSource,
   TrackType,
   WebEgressRequest,
+  VideoCodec,
 } from '@livekit/protocol';
 export * from './AccessToken.js';
 export * from './AgentDispatchClient.js';

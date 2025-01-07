@@ -1,6 +1,6 @@
 {
   "name": "agent-dispatch",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "An example demonstrating dispatching agents with an API call",
   "private": "true",
   "author": "LiveKit",
@@ -14,7 +14,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "livekit-server-sdk": "workspace:*",
-    "@livekit/protocol": "^1.28.0"
+    "@livekit/protocol": "^1.30.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

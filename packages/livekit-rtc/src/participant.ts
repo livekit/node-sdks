@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
+import {
+  DisconnectReason,
+  type OwnedParticipant,
+  type ParticipantInfo,
+  type ParticipantKind,
+} from './proto/participant_pb.js';
 import type {
   PublishDataCallback,
   PublishDataResponse,
@@ -25,32 +29,32 @@ import type {
   UnpublishTrackCallback,
   UnpublishTrackResponse,
 } from './proto/room_pb.js';
+import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
-  ChatMessageSchema,
-  EditChatMessageRequestSchema,
-  PublishDataRequestSchema,
-  PublishSipDtmfRequestSchema,
-  PublishTrackRequestSchema,
-  PublishTranscriptionRequestSchema,
-  SendChatMessageRequestSchema,
-  SetLocalAttributesRequestSchema,
-  SetLocalMetadataRequestSchema,
-  SetLocalNameRequestSchema,
-  UnpublishTrackRequestSchema,
+  EditChatMessageRequest,
+  TranscriptionSegment as ProtoTranscriptionSegment,
+  PublishDataRequest,
+  PublishSipDtmfRequest,
+  PublishTrackRequest,
+  PublishTranscriptionRequest,
+  SendChatMessageRequest,
+  SetLocalAttributesRequest,
+  SetLocalMetadataRequest,
+  SetLocalNameRequest,
+  UnpublishTrackRequest,
 } from './proto/room_pb.js';
-import { TranscriptionSegmentSchema } from './proto/room_pb.js';
-import {
-  PerformRpcRequestSchema,
-  RegisterRpcMethodRequestSchema,
-  RpcMethodInvocationResponseRequestSchema,
-  UnregisterRpcMethodRequestSchema,
-} from './proto/rpc_pb.js';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
+} from './proto/rpc_pb.js';
+import {
+  PerformRpcRequest,
+  RegisterRpcMethodRequest,
+  RpcMethodInvocationResponseRequest,
+  UnregisterRpcMethodRequest,
 } from './proto/rpc_pb.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
@@ -69,32 +73,39 @@ export abstract class Participant {
   trackPublications = new Map<string, TrackPublication>();
 
   constructor(owned_info: OwnedParticipant) {
-    this.info = owned_info.info!;
-    this.ffi_handle = new FfiHandle(owned_info.handle!.id);
+    this.info = owned_info!.info!;
+    this.ffi_handle = new FfiHandle(owned_info.handle!.id!);
   }
 
-  get sid(): string {
+  get sid(): string | undefined {
     return this.info.sid;
   }
 
-  get name(): string {
+  get name(): string | undefined {
     return this.info.name;
   }
 
-  get identity(): string {
+  get identity(): string | undefined {
     return this.info.identity;
   }
 
-  get metadata(): string {
+  get metadata(): string | undefined {
     return this.info.metadata;
   }
 
-  get attributes(): Record<string, string> {
+  get attributes(): Record<string, string> | undefined {
     return this.info.attributes;
   }
 
-  get kind(): ParticipantKind {
+  get kind(): ParticipantKind | undefined {
     return this.info.kind;
+  }
+
+  get disconnectReason(): DisconnectReason | undefined {
+    if (this.info.disconnectReason === DisconnectReason.UNKNOWN_REASON) {
+      return undefined;
+    }
+    return this.info.disconnectReason;
   }
 }
 
@@ -120,7 +131,7 @@ export class LocalParticipant extends Participant {
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
-    const req = create(PublishDataRequestSchema, {
+    const req = new PublishDataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
@@ -143,7 +154,7 @@ export class LocalParticipant extends Participant {
   }
 
   async publishDtmf(code: number, digit: string) {
-    const req = create(PublishSipDtmfRequestSchema, {
+    const req = new PublishSipDtmfRequest({
       localParticipantHandle: this.ffi_handle.handle,
       code,
       digit,
@@ -163,18 +174,19 @@ export class LocalParticipant extends Participant {
   }
 
   async publishTranscription(transcription: Transcription) {
-    const req = create(PublishTranscriptionRequestSchema, {
+    const req = new PublishTranscriptionRequest({
       localParticipantHandle: this.ffi_handle.handle,
       participantIdentity: transcription.participantIdentity,
-      segments: transcription.segments.map((s) =>
-        create(TranscriptionSegmentSchema, {
-          id: s.id,
-          text: s.text,
-          startTime: s.startTime,
-          endTime: s.endTime,
-          final: s.final,
-          language: s.language,
-        }),
+      segments: transcription.segments.map(
+        (s) =>
+          new ProtoTranscriptionSegment({
+            id: s.id,
+            text: s.text,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            final: s.final,
+            language: s.language,
+          }),
       ),
       trackId: transcription.trackSid,
     });
@@ -193,7 +205,7 @@ export class LocalParticipant extends Participant {
   }
 
   async updateMetadata(metadata: string) {
-    const req = create(SetLocalMetadataRequestSchema, {
+    const req = new SetLocalMetadataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       metadata: metadata,
     });
@@ -220,7 +232,7 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
   ): Promise<ChatMessage> {
-    const req = create(SendChatMessageRequestSchema, {
+    const req = new SendChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       message: text,
       destinationIdentities,
@@ -235,11 +247,19 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'chatMessage') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.message.value;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   /**
@@ -251,10 +271,10 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
   ): Promise<ChatMessage> {
-    const req = create(EditChatMessageRequestSchema, {
+    const req = new EditChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       editText,
-      originalMessage: create(ChatMessageSchema, {
+      originalMessage: new ChatMessageModel({
         ...originalMessage,
         timestamp: BigInt(originalMessage.timestamp),
         editTimestamp: originalMessage.editTimestamp
@@ -273,15 +293,23 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'chatMessage') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.message.value;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async updateName(name: string) {
-    const req = create(SetLocalNameRequestSchema, {
+    const req = new SetLocalNameRequest({
       localParticipantHandle: this.ffi_handle.handle,
       name: name,
     });
@@ -296,11 +324,9 @@ export class LocalParticipant extends Participant {
   }
 
   async setAttributes(attributes: Record<string, string>) {
-    const req = create(SetLocalAttributesRequestSchema, {
+    const req = new SetLocalAttributesRequest({
       localParticipantHandle: this.ffi_handle.handle,
-      attributes: Array.from(Object.entries(attributes)).map(([key, value]) => {
-        return { key, value };
-      }),
+      attributes: Object.entries(attributes).map(([key, value]) => ({ key, value })),
     });
 
     const res = FfiClient.instance.request<SetLocalAttributesResponse>({
@@ -316,7 +342,7 @@ export class LocalParticipant extends Participant {
     track: LocalTrack,
     options: TrackPublishOptions,
   ): Promise<LocalTrackPublication> {
-    const req = create(PublishTrackRequestSchema, {
+    const req = new PublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackHandle: track.ffi_handle.handle,
       options: options,
@@ -330,19 +356,21 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'publication') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'publication':
+        const track_publication = new LocalTrackPublication(cb.message.value!);
+        track_publication.track = track;
+        this.trackPublications.set(track_publication.sid!, track_publication);
+
+        return track_publication;
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-
-    const track_publication = new LocalTrackPublication(cb.message.value!);
-    track_publication.track = track;
-    this.trackPublications.set(track_publication.sid, track_publication);
-
-    return track_publication;
   }
 
   async unpublishTrack(trackSid: string) {
-    const req = create(UnpublishTrackRequestSchema, {
+    const req = new UnpublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackSid: trackSid,
     });
@@ -378,7 +406,7 @@ export class LocalParticipant extends Participant {
     payload,
     responseTimeout,
   }: PerformRpcParams): Promise<string> {
-    const req = create(PerformRpcRequestSchema, {
+    const req = new PerformRpcRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
@@ -398,7 +426,7 @@ export class LocalParticipant extends Participant {
       throw RpcError.fromProto(cb.error);
     }
 
-    return cb.payload;
+    return cb.payload!;
   }
 
   /**
@@ -432,7 +460,7 @@ export class LocalParticipant extends Participant {
   registerRpcMethod(method: string, handler: (data: RpcInvocationData) => Promise<string>) {
     this.rpcHandlers.set(method, handler);
 
-    const req = create(RegisterRpcMethodRequestSchema, {
+    const req = new RegisterRpcMethodRequest({
       localParticipantHandle: this.ffi_handle.handle,
       method,
     });
@@ -450,7 +478,7 @@ export class LocalParticipant extends Participant {
   unregisterRpcMethod(method: string) {
     this.rpcHandlers.delete(method);
 
-    const req = create(UnregisterRpcMethodRequestSchema, {
+    const req = new UnregisterRpcMethodRequest({
       localParticipantHandle: this.ffi_handle.handle,
       method,
     });
@@ -492,7 +520,7 @@ export class LocalParticipant extends Participant {
       }
     }
 
-    const req = create(RpcMethodInvocationResponseRequestSchema, {
+    const req = new RpcMethodInvocationResponseRequest({
       localParticipantHandle: this.ffi_handle.handle,
       invocationId,
       error: responseError ? responseError.toProto() : undefined,

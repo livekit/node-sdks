@@ -1,5 +1,19 @@
 # livekit-server-sdk
 
+## 2.9.5
+
+### Patch Changes
+
+- updated SIP APIs to include new API options - [#364](https://github.com/livekit/node-sdks/pull/364) ([@davidzhao](https://github.com/davidzhao))
+
+## 2.9.4
+
+### Patch Changes
+
+- Fix screenshare option not being applied to participant egress - [#362](https://github.com/livekit/node-sdks/pull/362) ([@chrisackermann](https://github.com/chrisackermann))
+
+- Fix types export for CJS and build config - [#359](https://github.com/livekit/node-sdks/pull/359) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.3
 
 ### Patch Changes

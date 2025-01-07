@@ -274,6 +274,7 @@ export class EgressClient extends ServiceBase {
     const req = new ParticipantEgressRequest({
       roomName,
       identity,
+      screenShare: opts?.screenShare ?? false,
       options,
       fileOutputs,
       streamOutputs,

@@ -21,7 +21,7 @@ async function createExplicitDispatch() {
   });
   console.log('created dispatch', dispatch);
 
-  const dispatches = await agentDispatchClient.listDispatches(roomName);
+  const dispatches = await agentDispatchClient.listDispatch(roomName);
   console.log(`there are ${dispatches.length} dispatches in ${roomName}`);
 }
 

@@ -1,5 +1,21 @@
 # @livekit/rtc-node
 
+## 0.13.0
+
+### Minor Changes
+
+- feat(rtc): expose DisconnectReason - [#372](https://github.com/livekit/node-sdks/pull/372) ([@nbsp](https://github.com/nbsp))
+
+### Patch Changes
+
+- add close method to AudioSource and VideoSource - [#365](https://github.com/livekit/node-sdks/pull/365) ([@davidzhao](https://github.com/davidzhao))
+
+## 0.12.2
+
+### Patch Changes
+
+- Fix types export for CJS and build config - [#359](https://github.com/livekit/node-sdks/pull/359) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.12.1
 
 ### Patch Changes

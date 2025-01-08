@@ -1,69 +1,75 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
+import { DataStream_Header } from '@livekit/protocol';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import { type FileStreamOptions, TextStreamWriter } from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
-import type { OwnedParticipant, ParticipantInfo, ParticipantKind } from './proto/participant_pb.js';
-import type {
-  PublishDataCallback,
-  PublishDataResponse,
-  PublishSipDtmfCallback,
-  PublishSipDtmfResponse,
-  PublishTrackCallback,
-  PublishTrackResponse,
-  PublishTranscriptionCallback,
-  PublishTranscriptionResponse,
-  SendChatMessageCallback,
-  SendChatMessageResponse,
-  SendStreamChunkCallback,
-  SendStreamChunkRequest,
-  SendStreamChunkResponse,
-  SendStreamHeaderCallback,
-  SendStreamHeaderRequest,
-  SendStreamHeaderResponse,
-  SetLocalAttributesCallback,
-  SetLocalAttributesResponse,
-  SetLocalMetadataCallback,
-  SetLocalMetadataResponse,
-  SetLocalNameCallback,
-  SetLocalNameResponse,
-  TrackPublishOptions,
-  UnpublishTrackCallback,
-  UnpublishTrackResponse,
-} from './proto/room_pb.js';
 import {
-  ChatMessageSchema,
+  DisconnectReason,
+  type OwnedParticipant,
+  type ParticipantInfo,
+  type ParticipantKind,
+} from './proto/participant_pb.js';
+import {
+  DataStream_Chunk,
+  DataStream_FileHeader,
   DataStream_OperationType,
-  EditChatMessageRequestSchema,
-  PublishDataRequestSchema,
-  PublishSipDtmfRequestSchema,
-  PublishTrackRequestSchema,
-  PublishTranscriptionRequestSchema,
-  SendChatMessageRequestSchema,
-  SendStreamChunkRequestSchema,
-  SendStreamHeaderRequestSchema,
-  SetLocalAttributesRequestSchema,
-  SetLocalMetadataRequestSchema,
-  SetLocalNameRequestSchema,
-  UnpublishTrackRequestSchema,
+  DataStream_TextHeader,
+  type PublishDataCallback,
+  type PublishDataResponse,
+  type PublishSipDtmfCallback,
+  type PublishSipDtmfResponse,
+  type PublishTrackCallback,
+  type PublishTrackResponse,
+  type PublishTranscriptionCallback,
+  type PublishTranscriptionResponse,
+  type SendChatMessageCallback,
+  type SendChatMessageResponse,
+  type SendStreamChunkCallback,
+  SendStreamChunkRequest,
+  type SendStreamChunkResponse,
+  type SendStreamHeaderCallback,
+  SendStreamHeaderRequest,
+  type SendStreamHeaderResponse,
+  type SetLocalAttributesCallback,
+  type SetLocalAttributesResponse,
+  type SetLocalMetadataCallback,
+  type SetLocalMetadataResponse,
+  type SetLocalNameCallback,
+  type SetLocalNameResponse,
+  type TrackPublishOptions,
+  type UnpublishTrackCallback,
+  type UnpublishTrackResponse,
 } from './proto/room_pb.js';
-import { TranscriptionSegmentSchema } from './proto/room_pb.js';
+import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
-  PerformRpcRequestSchema,
-  RegisterRpcMethodRequestSchema,
-  RpcMethodInvocationResponseRequestSchema,
-  UnregisterRpcMethodRequestSchema,
-} from './proto/rpc_pb.js';
+  EditChatMessageRequest,
+  TranscriptionSegment as ProtoTranscriptionSegment,
+  PublishDataRequest,
+  PublishSipDtmfRequest,
+  PublishTrackRequest,
+  PublishTranscriptionRequest,
+  SendChatMessageRequest,
+  SetLocalAttributesRequest,
+  SetLocalMetadataRequest,
+  SetLocalNameRequest,
+  UnpublishTrackRequest,
+} from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
+} from './proto/rpc_pb.js';
+import {
+  PerformRpcRequest,
+  RegisterRpcMethodRequest,
+  RpcMethodInvocationResponseRequest,
+  UnregisterRpcMethodRequest,
 } from './proto/rpc_pb.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
@@ -85,32 +91,39 @@ export abstract class Participant {
   trackPublications = new Map<string, TrackPublication>();
 
   constructor(owned_info: OwnedParticipant) {
-    this.info = owned_info.info!;
-    this.ffi_handle = new FfiHandle(owned_info.handle!.id);
+    this.info = owned_info!.info!;
+    this.ffi_handle = new FfiHandle(owned_info.handle!.id!);
   }
 
-  get sid(): string {
+  get sid(): string | undefined {
     return this.info.sid;
   }
 
-  get name(): string {
+  get name(): string | undefined {
     return this.info.name;
   }
 
-  get identity(): string {
+  get identity(): string | undefined {
     return this.info.identity;
   }
 
-  get metadata(): string {
+  get metadata(): string | undefined {
     return this.info.metadata;
   }
 
-  get attributes(): Record<string, string> {
+  get attributes(): Record<string, string> | undefined {
     return this.info.attributes;
   }
 
-  get kind(): ParticipantKind {
+  get kind(): ParticipantKind | undefined {
     return this.info.kind;
+  }
+
+  get disconnectReason(): DisconnectReason | undefined {
+    if (this.info.disconnectReason === DisconnectReason.UNKNOWN_REASON) {
+      return undefined;
+    }
+    return this.info.disconnectReason;
   }
 }
 
@@ -136,7 +149,7 @@ export class LocalParticipant extends Participant {
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
-    const req = create(PublishDataRequestSchema, {
+    const req = new PublishDataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       dataPtr: FfiClient.instance.retrievePtr(data),
       dataLen: BigInt(data.byteLength),
@@ -159,7 +172,7 @@ export class LocalParticipant extends Participant {
   }
 
   async publishDtmf(code: number, digit: string) {
-    const req = create(PublishSipDtmfRequestSchema, {
+    const req = new PublishSipDtmfRequest({
       localParticipantHandle: this.ffi_handle.handle,
       code,
       digit,
@@ -179,18 +192,19 @@ export class LocalParticipant extends Participant {
   }
 
   async publishTranscription(transcription: Transcription) {
-    const req = create(PublishTranscriptionRequestSchema, {
+    const req = new PublishTranscriptionRequest({
       localParticipantHandle: this.ffi_handle.handle,
       participantIdentity: transcription.participantIdentity,
-      segments: transcription.segments.map((s) =>
-        create(TranscriptionSegmentSchema, {
-          id: s.id,
-          text: s.text,
-          startTime: s.startTime,
-          endTime: s.endTime,
-          final: s.final,
-          language: s.language,
-        }),
+      segments: transcription.segments.map(
+        (s) =>
+          new ProtoTranscriptionSegment({
+            id: s.id,
+            text: s.text,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            final: s.final,
+            language: s.language,
+          }),
       ),
       trackId: transcription.trackSid,
     });
@@ -209,7 +223,7 @@ export class LocalParticipant extends Participant {
   }
 
   async updateMetadata(metadata: string) {
-    const req = create(SetLocalMetadataRequestSchema, {
+    const req = new SetLocalMetadataRequest({
       localParticipantHandle: this.ffi_handle.handle,
       metadata: metadata,
     });
@@ -236,11 +250,11 @@ export class LocalParticipant extends Participant {
     const streamId = crypto.randomUUID();
     const destinationIdentities = options?.destinationIdentities;
 
-    const headerReq = create(SendStreamHeaderRequestSchema, {
+    const headerReq = new SendStreamHeaderRequest({
       senderIdentity,
       destinationIdentities,
       localParticipantHandle: this.ffi_handle.handle,
-      header: {
+      header: new DataStream_Header({
         streamId,
         mimeType: 'text/plain',
         topic: options?.topic ?? '',
@@ -248,14 +262,14 @@ export class LocalParticipant extends Participant {
         extensions: options?.extensions,
         contentHeader: {
           case: 'textHeader',
-          value: {
+          value: new DataStream_TextHeader({
             operationType: DataStream_OperationType.CREATE,
             version: 0,
             replyToStreamId: '',
             generated: false,
-          },
+          }),
         },
-      },
+      }),
     });
 
     await this.sendStreamHeader(headerReq);
@@ -278,15 +292,15 @@ export class LocalParticipant extends Participant {
           // FIXME we need an equivalent for this on the rust layer
           // await localP.engine.waitForBufferStatusLow(DataPacket_Kind.RELIABLE);
 
-          const chunkRequest = create(SendStreamChunkRequestSchema, {
+          const chunkRequest = new SendStreamChunkRequest({
             senderIdentity,
             localParticipantHandle: localHandle,
             destinationIdentities,
-            chunk: {
+            chunk: new DataStream_Chunk({
               content: textInBytes,
               streamId,
               chunkIndex: numberToBigInt(overrideChunkId ?? chunkId),
-            },
+            }),
           });
 
           const res = FfiClient.instance.request<SendStreamHeaderResponse>({
@@ -306,16 +320,16 @@ export class LocalParticipant extends Participant {
         });
       },
       async close() {
-        const chunkReq = create(SendStreamChunkRequestSchema, {
+        const chunkReq = new SendStreamChunkRequest({
           senderIdentity,
           localParticipantHandle: localHandle,
           destinationIdentities,
-          chunk: {
+          chunk: new DataStream_Chunk({
             streamId,
             chunkIndex: numberToBigInt(chunkId),
             complete: true,
             content: Uint8Array.from([]),
-          },
+          }),
         });
         await sendChunk(chunkReq);
       },
@@ -341,11 +355,11 @@ export class LocalParticipant extends Participant {
       const destinationIdentities = options?.destinationIdentities;
       const totalLength = numberToBigInt(fileStats.size);
 
-      const headerReq = create(SendStreamHeaderRequestSchema, {
+      const headerReq = new SendStreamHeaderRequest({
         senderIdentity,
         destinationIdentities,
         localParticipantHandle: this.ffi_handle.handle,
-        header: {
+        header: new DataStream_Header({
           streamId,
           mimeType: options?.mimeType ?? 'application/octet-stream',
           topic: options?.topic ?? '',
@@ -354,11 +368,11 @@ export class LocalParticipant extends Participant {
           totalLength,
           contentHeader: {
             case: 'fileHeader',
-            value: {
+            value: new DataStream_FileHeader({
               fileName: options?.fileName ?? 'unknown',
-            },
+            }),
           },
-        },
+        }),
       });
 
       await this.sendStreamHeader(headerReq);
@@ -373,16 +387,16 @@ export class LocalParticipant extends Participant {
             offset,
             Math.min(offset + STREAM_CHUNK_SIZE, chunk.byteLength),
           );
-          const chunkReq = create(SendStreamChunkRequestSchema, {
+          const chunkReq = new SendStreamChunkRequest({
             senderIdentity,
             localParticipantHandle: this.ffi_handle.handle,
             destinationIdentities,
-            chunk: {
+            chunk: new DataStream_Chunk({
               streamId,
               chunkIndex: numberToBigInt(chunkId),
               complete: false,
               content: chunkyChunk,
-            },
+            }),
           });
           await this.sendStreamChunk(chunkReq);
           chunkId += 1;
@@ -390,16 +404,16 @@ export class LocalParticipant extends Participant {
       }
 
       // close stream
-      const chunkReq = create(SendStreamChunkRequestSchema, {
+      const chunkReq = new SendStreamChunkRequest({
         senderIdentity,
         localParticipantHandle: this.ffi_handle.handle,
         destinationIdentities,
-        chunk: {
+        chunk: new DataStream_Chunk({
           streamId,
           chunkIndex: numberToBigInt(chunkId),
           complete: true,
           content: Uint8Array.from([]),
-        },
+        }),
       });
       await this.sendStreamChunk(chunkReq);
     } finally {
@@ -450,7 +464,7 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
   ): Promise<ChatMessage> {
-    const req = create(SendChatMessageRequestSchema, {
+    const req = new SendChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       message: text,
       destinationIdentities,
@@ -465,11 +479,19 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'chatMessage') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.message.value;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   /**
@@ -481,10 +503,10 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>,
     senderIdentity?: string,
   ): Promise<ChatMessage> {
-    const req = create(EditChatMessageRequestSchema, {
+    const req = new EditChatMessageRequest({
       localParticipantHandle: this.ffi_handle.handle,
       editText,
-      originalMessage: create(ChatMessageSchema, {
+      originalMessage: new ChatMessageModel({
         ...originalMessage,
         timestamp: BigInt(originalMessage.timestamp),
         editTimestamp: originalMessage.editTimestamp
@@ -503,15 +525,23 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'chatMessage') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'chatMessage':
+        const { id, timestamp, editTimestamp, message } = cb.message.value!;
+        return {
+          id: id!,
+          timestamp: Number(timestamp),
+          editTimestamp: Number(editTimestamp),
+          message: message!,
+        };
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-    const { id, timestamp, editTimestamp, message } = cb.message.value;
-    return { id, timestamp: Number(timestamp), editTimestamp: Number(editTimestamp), message };
   }
 
   async updateName(name: string) {
-    const req = create(SetLocalNameRequestSchema, {
+    const req = new SetLocalNameRequest({
       localParticipantHandle: this.ffi_handle.handle,
       name: name,
     });
@@ -526,11 +556,9 @@ export class LocalParticipant extends Participant {
   }
 
   async setAttributes(attributes: Record<string, string>) {
-    const req = create(SetLocalAttributesRequestSchema, {
+    const req = new SetLocalAttributesRequest({
       localParticipantHandle: this.ffi_handle.handle,
-      attributes: Array.from(Object.entries(attributes)).map(([key, value]) => {
-        return { key, value };
-      }),
+      attributes: Object.entries(attributes).map(([key, value]) => ({ key, value })),
     });
 
     const res = FfiClient.instance.request<SetLocalAttributesResponse>({
@@ -546,7 +574,7 @@ export class LocalParticipant extends Participant {
     track: LocalTrack,
     options: TrackPublishOptions,
   ): Promise<LocalTrackPublication> {
-    const req = create(PublishTrackRequestSchema, {
+    const req = new PublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackHandle: track.ffi_handle.handle,
       options: options,
@@ -560,19 +588,21 @@ export class LocalParticipant extends Participant {
       return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
     });
 
-    if (cb.message.case !== 'publication') {
-      throw new Error(cb.message.value ?? 'Unknown Error');
+    switch (cb.message.case) {
+      case 'publication':
+        const track_publication = new LocalTrackPublication(cb.message.value!);
+        track_publication.track = track;
+        this.trackPublications.set(track_publication.sid!, track_publication);
+
+        return track_publication;
+      case 'error':
+      default:
+        throw new Error(cb.message.value);
     }
-
-    const track_publication = new LocalTrackPublication(cb.message.value!);
-    track_publication.track = track;
-    this.trackPublications.set(track_publication.sid, track_publication);
-
-    return track_publication;
   }
 
   async unpublishTrack(trackSid: string) {
-    const req = create(UnpublishTrackRequestSchema, {
+    const req = new UnpublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackSid: trackSid,
     });
@@ -608,7 +638,7 @@ export class LocalParticipant extends Participant {
     payload,
     responseTimeout,
   }: PerformRpcParams): Promise<string> {
-    const req = create(PerformRpcRequestSchema, {
+    const req = new PerformRpcRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
       method,
@@ -628,7 +658,7 @@ export class LocalParticipant extends Participant {
       throw RpcError.fromProto(cb.error);
     }
 
-    return cb.payload;
+    return cb.payload!;
   }
 
   /**
@@ -662,7 +692,7 @@ export class LocalParticipant extends Participant {
   registerRpcMethod(method: string, handler: (data: RpcInvocationData) => Promise<string>) {
     this.rpcHandlers.set(method, handler);
 
-    const req = create(RegisterRpcMethodRequestSchema, {
+    const req = new RegisterRpcMethodRequest({
       localParticipantHandle: this.ffi_handle.handle,
       method,
     });
@@ -680,7 +710,7 @@ export class LocalParticipant extends Participant {
   unregisterRpcMethod(method: string) {
     this.rpcHandlers.delete(method);
 
-    const req = create(UnregisterRpcMethodRequestSchema, {
+    const req = new UnregisterRpcMethodRequest({
       localParticipantHandle: this.ffi_handle.handle,
       method,
     });
@@ -722,7 +752,7 @@ export class LocalParticipant extends Participant {
       }
     }
 
-    const req = create(RpcMethodInvocationResponseRequestSchema, {
+    const req = new RpcMethodInvocationResponseRequest({
       localParticipantHandle: this.ffi_handle.handle,
       invocationId,
       error: responseError ? responseError.toProto() : undefined,

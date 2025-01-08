@@ -63,6 +63,10 @@ while (written < dataSize) {
   written += frameSize;
 }
 await source.waitForPlayout();
+// release resources allocated for audio publishing
+await source.close();
 
 await room.disconnect();
+
+// disposes all resources, only use if no more sessions are expected
 await dispose();

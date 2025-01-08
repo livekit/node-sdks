@@ -16,13 +16,14 @@ PATH=$PATH:$(pwd)/node_modules/.bin \
     -I=$FFI_PROTOCOL \
     --es_out $FFI_OUT_NODE \
     --es_opt target=ts \
-    --es_opt import_extension=js \
+    --es_opt import_extension=.js \
     $FFI_PROTOCOL/audio_frame.proto \
     $FFI_PROTOCOL/ffi.proto \
     $FFI_PROTOCOL/handle.proto \
     $FFI_PROTOCOL/participant.proto \
     $FFI_PROTOCOL/room.proto \
     $FFI_PROTOCOL/track.proto \
+    $FFI_PROTOCOL/track_publication.proto \
     $FFI_PROTOCOL/video_frame.proto \
     $FFI_PROTOCOL/e2ee.proto \
     $FFI_PROTOCOL/stats.proto \

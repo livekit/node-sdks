@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { create } from '@bufbuild/protobuf';
 import { FfiClient } from './ffi_client.js';
 import { FfiHandle } from './napi/native.js';
 import type { EncryptionType } from './proto/e2ee_pb.js';
 import type { SetSubscribedResponse } from './proto/room_pb.js';
-import { SetSubscribedRequestSchema } from './proto/room_pb.js';
+import { SetSubscribedRequest } from './proto/room_pb.js';
 import type {
   OwnedTrackPublication,
   TrackKind,
@@ -20,52 +19,52 @@ export abstract class TrackPublication {
   ffiHandle: FfiHandle;
 
   /** @internal */
-  info: TrackPublicationInfo;
+  info?: TrackPublicationInfo;
   track?: Track;
 
   constructor(ownedInfo: OwnedTrackPublication) {
-    this.info = ownedInfo.info!;
-    this.ffiHandle = new FfiHandle(ownedInfo!.handle!.id);
+    this.info = ownedInfo.info;
+    this.ffiHandle = new FfiHandle(ownedInfo.handle!.id!);
   }
 
-  get sid(): string {
-    return this.info.sid;
+  get sid(): string | undefined {
+    return this.info?.sid;
   }
 
-  get name(): string {
-    return this.info.name;
+  get name(): string | undefined {
+    return this.info?.name;
   }
 
-  get kind(): TrackKind {
-    return this.info.kind;
+  get kind(): TrackKind | undefined {
+    return this.info?.kind;
   }
 
-  get source(): TrackSource {
-    return this.info.source;
+  get source(): TrackSource | undefined {
+    return this.info?.source;
   }
 
-  get simulcasted(): boolean {
-    return this.info.simulcasted;
+  get simulcasted(): boolean | undefined {
+    return this.info?.simulcasted;
   }
 
-  get width(): number {
-    return this.info.width;
+  get width(): number | undefined {
+    return this.info?.width;
   }
 
-  get height(): number {
-    return this.info.height;
+  get height(): number | undefined {
+    return this.info?.height;
   }
 
-  get mimeType(): string {
-    return this.info.mimeType;
+  get mimeType(): string | undefined {
+    return this.info?.mimeType;
   }
 
-  get muted(): boolean {
-    return this.info.muted;
+  get muted(): boolean | undefined {
+    return this.info?.muted;
   }
 
-  get encryptionType(): EncryptionType {
-    return this.info.encryptionType;
+  get encryptionType(): EncryptionType | undefined {
+    return this.info?.encryptionType;
   }
 }
 
@@ -101,7 +100,7 @@ export class RemoteTrackPublication extends TrackPublication {
   }
 
   setSubscribed(subscribed: boolean) {
-    const req = create(SetSubscribedRequestSchema, {
+    const req = new SetSubscribedRequest({
       subscribe: subscribed,
       publicationHandle: this.ffiHandle.handle,
     });

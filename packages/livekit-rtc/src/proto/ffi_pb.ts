@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
-import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
+import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SendStreamChunkCallback, SendStreamChunkRequest, SendStreamChunkResponse, SendStreamHeaderCallback, SendStreamHeaderRequest, SendStreamHeaderResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
@@ -339,6 +339,20 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: UpdateRemoteTrackPublicationDimensionRequest;
     case: "updateRemoteTrackPublicationDimension";
+  } | {
+    /**
+     * Data Streams
+     *
+     * @generated from field: livekit.proto.SendStreamHeaderRequest send_stream_header = 44;
+     */
+    value: SendStreamHeaderRequest;
+    case: "sendStreamHeader";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamChunkRequest send_stream_chunk = 45;
+     */
+    value: SendStreamChunkRequest;
+    case: "sendStreamChunk";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -391,6 +405,8 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 41, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseRequest, oneof: "message" },
     { no: 42, name: "enable_remote_track_publication", kind: "message", T: EnableRemoteTrackPublicationRequest, oneof: "message" },
     { no: 43, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionRequest, oneof: "message" },
+    { no: 44, name: "send_stream_header", kind: "message", T: SendStreamHeaderRequest, oneof: "message" },
+    { no: 45, name: "send_stream_chunk", kind: "message", T: SendStreamChunkRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -677,6 +693,20 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: UpdateRemoteTrackPublicationDimensionResponse;
     case: "updateRemoteTrackPublicationDimension";
+  } | {
+    /**
+     * Data Streams
+     *
+     * @generated from field: livekit.proto.SendStreamHeaderResponse send_stream_header = 43;
+     */
+    value: SendStreamHeaderResponse;
+    case: "sendStreamHeader";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamChunkResponse send_stream_chunk = 44;
+     */
+    value: SendStreamChunkResponse;
+    case: "sendStreamChunk";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -728,6 +758,8 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 40, name: "rpc_method_invocation_response", kind: "message", T: RpcMethodInvocationResponseResponse, oneof: "message" },
     { no: 41, name: "enable_remote_track_publication", kind: "message", T: EnableRemoteTrackPublicationResponse, oneof: "message" },
     { no: 42, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionResponse, oneof: "message" },
+    { no: 43, name: "send_stream_header", kind: "message", T: SendStreamHeaderResponse, oneof: "message" },
+    { no: 44, name: "send_stream_chunk", kind: "message", T: SendStreamChunkResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -896,6 +928,18 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: RpcMethodInvocationEvent;
     case: "rpcMethodInvocation";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamHeaderCallback send_stream_header = 25;
+     */
+    value: SendStreamHeaderCallback;
+    case: "sendStreamHeader";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamChunkCallback send_stream_chunk = 26;
+     */
+    value: SendStreamChunkCallback;
+    case: "sendStreamChunk";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -929,6 +973,8 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 22, name: "chat_message", kind: "message", T: SendChatMessageCallback, oneof: "message" },
     { no: 23, name: "perform_rpc", kind: "message", T: PerformRpcCallback, oneof: "message" },
     { no: 24, name: "rpc_method_invocation", kind: "message", T: RpcMethodInvocationEvent, oneof: "message" },
+    { no: 25, name: "send_stream_header", kind: "message", T: SendStreamHeaderCallback, oneof: "message" },
+    { no: 26, name: "send_stream_chunk", kind: "message", T: SendStreamChunkCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

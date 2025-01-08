@@ -369,11 +369,11 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  async unpublishTrack(trackSid: string) {
+  async unpublishTrack(trackSid: string, stopOnUnpublish?: boolean) {
     const req = new UnpublishTrackRequest({
       localParticipantHandle: this.ffi_handle.handle,
       trackSid: trackSid,
-      stopOnUnpublish: true,
+      stopOnUnpublish: stopOnUnpublish ?? true,
     });
 
     const res = FfiClient.instance.request<UnpublishTrackResponse>({

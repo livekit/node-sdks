@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 /** convert bigints to numbers preserving undefined values */
 export function bigIntToNumber<T extends bigint | undefined>(
   value: T,

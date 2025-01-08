@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import type { DataStream_Chunk } from '@livekit/protocol';
 import type { ReadableStream } from 'node:stream/web';
 import { log } from '../log.js';

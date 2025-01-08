@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import type { DataStream_Chunk, DataStream_Header } from '@livekit/protocol';
 
 export interface StreamController<T extends DataStream_Chunk> {

@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.9.7
+
+### Patch Changes
+
+- Fix cjs usage of WebhookReceiver - [#382](https://github.com/livekit/node-sdks/pull/382) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.6
 
 ### Patch Changes

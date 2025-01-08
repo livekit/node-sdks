@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.1
+
+### Patch Changes
+
+- e2ee: types can include undefined - [#376](https://github.com/livekit/node-sdks/pull/376) ([@nbsp](https://github.com/nbsp))
+
+- fixed Participant.unpublishTrack error - [#379](https://github.com/livekit/node-sdks/pull/379) ([@s-hamdananwar](https://github.com/s-hamdananwar))
+
 ## 0.13.0
 
 ### Minor Changes

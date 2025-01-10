@@ -4,7 +4,11 @@
 import { DataStream_Header } from '@livekit/protocol';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
-import { type FileStreamOptions, TextStreamWriter } from './data_streams/index.js';
+import {
+  type FileStreamOptions,
+  type TextStreamInfo,
+  TextStreamWriter,
+} from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import {
@@ -250,15 +254,22 @@ export class LocalParticipant extends Participant {
     const streamId = crypto.randomUUID();
     const destinationIdentities = options?.destinationIdentities;
 
+    const info: TextStreamInfo = {
+      id: streamId,
+      mimeType: 'text/plain',
+      topic: options?.topic ?? '',
+      timestamp: Date.now(),
+    };
+
     const headerReq = new SendStreamHeaderRequest({
       senderIdentity,
       destinationIdentities,
       localParticipantHandle: this.ffi_handle.handle,
       header: new DataStream_Header({
         streamId,
-        mimeType: 'text/plain',
-        topic: options?.topic ?? '',
-        timestamp: numberToBigInt(Date.now()),
+        mimeType: info.mimeType,
+        topic: info.topic,
+        timestamp: numberToBigInt(info.timestamp),
         extensions: options?.extensions,
         contentHeader: {
           case: 'textHeader',
@@ -338,7 +349,7 @@ export class LocalParticipant extends Participant {
       },
     });
 
-    const writer = new TextStreamWriter(writableStream);
+    const writer = new TextStreamWriter(writableStream, info);
 
     return writer;
   }

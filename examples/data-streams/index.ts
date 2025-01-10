@@ -1,4 +1,4 @@
-import { RemoteParticipant, Room, RoomEvent, type TextStreamReader } from '@livekit/rtc-node';
+import { type RemoteParticipant, Room, RoomEvent, type TextStreamReader } from '@livekit/rtc-node';
 import { config } from 'dotenv';
 import { AccessToken } from 'livekit-server-sdk';
 
@@ -17,7 +17,7 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
   });
 
   for (const c of greeting) {
-    await streamWriter?.write([c]);
+    await streamWriter?.write(c);
   }
 
   streamWriter?.close();

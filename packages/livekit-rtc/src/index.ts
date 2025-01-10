@@ -30,6 +30,7 @@ export {
 export type { Transcription, TranscriptionSegment } from './transcription.js';
 export { E2EEManager, KeyProvider, FrameCryptor } from './e2ee.js';
 export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
+export * from './data_streams/index.js';
 export {
   ConnectionQuality,
   IceServer,

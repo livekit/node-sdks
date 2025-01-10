@@ -11,7 +11,7 @@ import {
   DisconnectReason,
   type OwnedParticipant,
   type ParticipantInfo,
-  type ParticipantKind,
+  ParticipantKind,
 } from './proto/participant_pb.js';
 import {
   DataStream_Chunk,
@@ -103,20 +103,20 @@ export abstract class Participant {
     return this.info.name;
   }
 
-  get identity(): string | undefined {
-    return this.info.identity;
+  get identity(): string {
+    return this.info.identity ?? '';
   }
 
-  get metadata(): string | undefined {
-    return this.info.metadata;
+  get metadata(): string {
+    return this.info.metadata ?? '';
   }
 
-  get attributes(): Record<string, string> | undefined {
-    return this.info.attributes;
+  get attributes(): Record<string, string> {
+    return this.info.attributes ?? {};
   }
 
-  get kind(): ParticipantKind | undefined {
-    return this.info.kind;
+  get kind(): ParticipantKind {
+    return this.info.kind ?? ParticipantKind.STANDARD;
   }
 
   get disconnectReason(): DisconnectReason | undefined {

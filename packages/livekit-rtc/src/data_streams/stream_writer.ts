@@ -4,20 +4,20 @@
 import type { WritableStream } from 'node:stream/web';
 
 class BaseStreamWriter<T> {
-  protected writableStream: WritableStream<T>;
+  protected writableStream: WritableStream<[T, number?]>;
 
-  protected defaultWriter: WritableStreamDefaultWriter<T>;
+  protected defaultWriter: WritableStreamDefaultWriter<[T, number?]>;
 
   protected onClose?: () => void;
 
-  constructor(writableStream: WritableStream<T>, onClose?: () => void) {
+  constructor(writableStream: WritableStream<[T, number?]>, onClose?: () => void) {
     this.writableStream = writableStream;
     this.defaultWriter = writableStream.getWriter();
     this.onClose = onClose;
   }
 
-  write(chunk: T): Promise<void> {
-    return this.defaultWriter.write(chunk);
+  write(chunk: T, chunkIndex?: number): Promise<void> {
+    return this.defaultWriter.write([chunk, chunkIndex]);
   }
 
   async close() {
@@ -27,6 +27,6 @@ class BaseStreamWriter<T> {
   }
 }
 
-export class TextStreamWriter extends BaseStreamWriter<[string, number?]> {}
+export class TextStreamWriter extends BaseStreamWriter<string> {}
 
 export class BinaryStreamWriter extends BaseStreamWriter<Uint8Array> {}

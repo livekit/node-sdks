@@ -15,11 +15,11 @@ import { join } from 'node:path';
 config();
 
 // create access token from API credentials
-const token = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
+const token = new AccessToken('devkey', 'secret', {
   identity: 'example-participant',
 });
 token.addGrant({
-  room: 'example-room',
+  room: 'dev',
   roomJoin: true,
   roomCreate: true,
   canPublish: true,
@@ -28,7 +28,7 @@ const jwt = await token.toJwt();
 
 // set up room
 const room = new Room();
-await room.connect(process.env.LIVEKIT_URL, jwt, { autoSubscribe: true, dynacast: true });
+await room.connect('ws://localhost:7880', jwt, { autoSubscribe: true, dynacast: true });
 console.log('connected to room', room);
 
 // read relevant metadata from wav file

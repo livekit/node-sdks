@@ -249,9 +249,10 @@ export class LocalParticipant extends Participant {
     topic?: string;
     extensions?: Record<string, string>;
     destinationIdentities?: Array<string>;
+    messageId?: string
   }): Promise<TextStreamWriter> {
     const senderIdentity = this.identity;
-    const streamId = crypto.randomUUID();
+    const streamId = options?.messageId ?? crypto.randomUUID();
     const destinationIdentities = options?.destinationIdentities;
 
     const info: TextStreamInfo = {

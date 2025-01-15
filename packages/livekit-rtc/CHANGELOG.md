@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.2
+
+### Patch Changes
+
+- fix(e2ee): Create e2eeManager only if set - [#386](https://github.com/livekit/node-sdks/pull/386) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.1
 
 ### Patch Changes

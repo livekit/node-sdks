@@ -85,7 +85,7 @@ import type { RemoteTrackPublication, TrackPublication } from './track_publicati
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
 import type { ChatMessage } from './types.js';
-import { numberToBigInt } from './utils.js';
+import { numberToBigInt, splitUtf8 } from './utils.js';
 
 const STREAM_CHUNK_SIZE = 15_000;
 
@@ -247,7 +247,7 @@ export class LocalParticipant extends Participant {
 
   /**
    * Returns a `StreamWriter` instance that allows to write individual chunks of text to a stream.
-   * Well suited for TTS and/or streaming LLM output.
+   * Well suited for TTS and/or streaming LLM output. If you want to simply send a text then use sendText() instead
    */
   async streamText(options?: {
     topic?: string;
@@ -345,6 +345,24 @@ export class LocalParticipant extends Participant {
     const writer = new TextStreamWriter(writableStream, info);
 
     return writer;
+  }
+
+  async sendText(
+    text: string,
+    options?: {
+      topic?: string;
+      extensions?: Record<string, string>;
+      destinationIdentities?: Array<string>;
+      messageId?: string;
+    },
+  ) {
+    const writer = await this.streamText(options);
+
+    for (const chunk in splitUtf8(text, STREAM_CHUNK_SIZE)) {
+      await writer.write(chunk);
+    }
+    await writer.close();
+    return writer.info;
   }
 
   /** Sends a file provided as PathLike to specified recipients */

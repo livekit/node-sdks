@@ -102,7 +102,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
-    options.e2ee = { ...defaultE2EEOptions, ...options.e2ee };
+    const e2eeOptions = { ...defaultE2EEOptions, ...options.e2ee };
 
     const req = new ConnectRequest({
       url: url,
@@ -124,7 +124,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     switch (cb.message.case) {
       case 'result':
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
-        this.e2eeManager = new E2EEManager(this.ffiHandle.handle, options.e2ee);
+        this.e2eeManager = options.e2ee && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
 
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;

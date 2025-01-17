@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataStream_Chunk } from '@livekit/protocol';
 import type { ReadableStream } from 'node:stream/web';
 import { log } from '../log.js';
+import type { DataStream_Chunk } from '../proto/room_pb.js';
 import { bigIntToNumber } from '../utils.js';
 import type { BaseStreamInfo, FileStreamInfo, TextStreamChunk, TextStreamInfo } from './types.js';
 
@@ -39,7 +39,7 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
  */
 export class BinaryStreamReader extends BaseStreamReader<FileStreamInfo> {
   protected handleChunkReceived(chunk: DataStream_Chunk) {
-    this.bytesReceived += chunk.content.byteLength;
+    this.bytesReceived += chunk.content!.byteLength;
     const currentProgress = this.totalByteSize
       ? this.bytesReceived / this.totalByteSize
       : undefined;
@@ -57,7 +57,7 @@ export class BinaryStreamReader extends BaseStreamReader<FileStreamInfo> {
             return { done: true, value: undefined as any };
           } else {
             this.handleChunkReceived(value);
-            return { done: false, value: value.content };
+            return { done: false, value: value.content! };
           }
         } catch (error) {
           log.error('error processing stream update', error);
@@ -101,9 +101,9 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
   }
 
   protected handleChunkReceived(chunk: DataStream_Chunk) {
-    const index = bigIntToNumber(chunk.chunkIndex);
-    const previousChunkAtIndex = this.receivedChunks.get(index);
-    if (previousChunkAtIndex && previousChunkAtIndex.version > chunk.version) {
+    const index = bigIntToNumber(chunk.chunkIndex!);
+    const previousChunkAtIndex = this.receivedChunks.get(index!);
+    if (previousChunkAtIndex && previousChunkAtIndex.version! > chunk.version!) {
       // we have a newer version already, dropping the old one
       return;
     }
@@ -134,11 +134,11 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
             return {
               done: false,
               value: {
-                index: bigIntToNumber(value.chunkIndex),
-                current: decoder.decode(value.content),
+                index: bigIntToNumber(value.chunkIndex)!,
+                current: decoder.decode(value.content!),
                 collected: Array.from(this.receivedChunks.values())
-                  .sort((a, b) => bigIntToNumber(a.chunkIndex) - bigIntToNumber(b.chunkIndex))
-                  .map((chunk) => decoder.decode(chunk.content))
+                  .sort((a, b) => bigIntToNumber(a.chunkIndex!) - bigIntToNumber(b.chunkIndex!))
+                  .map((chunk) => decoder.decode(chunk.content!))
                   .join(''),
               },
             };

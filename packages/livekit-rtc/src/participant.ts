@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DataStream_Header } from '@livekit/protocol';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import {
@@ -20,8 +19,10 @@ import {
 import {
   DataStream_Chunk,
   DataStream_FileHeader,
+  DataStream_Header,
   DataStream_OperationType,
   DataStream_TextHeader,
+  DataStream_Trailer,
   type PublishDataCallback,
   type PublishDataResponse,
   type PublishSipDtmfCallback,
@@ -38,6 +39,9 @@ import {
   type SendStreamHeaderCallback,
   SendStreamHeaderRequest,
   type SendStreamHeaderResponse,
+  type SendStreamTrailerCallback,
+  SendStreamTrailerRequest,
+  type SendStreamTrailerResponse,
   type SetLocalAttributesCallback,
   type SetLocalAttributesResponse,
   type SetLocalMetadataCallback,
@@ -249,7 +253,7 @@ export class LocalParticipant extends Participant {
     topic?: string;
     extensions?: Record<string, string>;
     destinationIdentities?: Array<string>;
-    messageId?: string
+    messageId?: string;
   }): Promise<TextStreamWriter> {
     const senderIdentity = this.identity;
     const streamId = options?.messageId ?? crypto.randomUUID();
@@ -288,6 +292,7 @@ export class LocalParticipant extends Participant {
 
     let chunkId = 0;
     const localHandle = this.ffi_handle.handle;
+    const sendTrailer = this.sendStreamTrailer;
     const sendChunk = this.sendStreamChunk;
 
     const writableStream = new WritableStream<[string, number?]>({
@@ -301,9 +306,6 @@ export class LocalParticipant extends Participant {
         }
 
         return new Promise(async (resolve) => {
-          // FIXME we need an equivalent for this on the rust layer
-          // await localP.engine.waitForBufferStatusLow(DataPacket_Kind.RELIABLE);
-
           const chunkRequest = new SendStreamChunkRequest({
             senderIdentity,
             localParticipantHandle: localHandle,
@@ -315,35 +317,25 @@ export class LocalParticipant extends Participant {
             }),
           });
 
-          const res = FfiClient.instance.request<SendStreamHeaderResponse>({
-            message: { case: 'sendStreamChunk', value: chunkRequest },
-          });
+          await sendChunk(chunkRequest);
 
-          const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
-            return ev.message.case == 'sendStreamChunk' && ev.message.value.asyncId == res.asyncId;
-          });
-
-          if (cb.error) {
-            throw new Error(cb.error);
+          if (!overrideChunkId) {
+            chunkId += 1;
+            resolve();
           }
-
-          chunkId += 1;
-          resolve();
         });
       },
       async close() {
-        const chunkReq = new SendStreamChunkRequest({
+        const trailerReq = new SendStreamTrailerRequest({
           senderIdentity,
           localParticipantHandle: localHandle,
           destinationIdentities,
-          chunk: new DataStream_Chunk({
+          trailer: new DataStream_Trailer({
             streamId,
-            chunkIndex: numberToBigInt(chunkId),
-            complete: true,
-            content: Uint8Array.from([]),
+            reason: '',
           }),
         });
-        await sendChunk(chunkReq);
+        await sendTrailer(trailerReq);
       },
       abort(err) {
         log.error('Sink error:', err);
@@ -406,7 +398,6 @@ export class LocalParticipant extends Participant {
             chunk: new DataStream_Chunk({
               streamId,
               chunkIndex: numberToBigInt(chunkId),
-              complete: false,
               content: chunkyChunk,
             }),
           });
@@ -416,18 +407,13 @@ export class LocalParticipant extends Participant {
       }
 
       // close stream
-      const chunkReq = new SendStreamChunkRequest({
+      const trailerReq = new SendStreamTrailerRequest({
         senderIdentity,
         localParticipantHandle: this.ffi_handle.handle,
         destinationIdentities,
-        chunk: new DataStream_Chunk({
-          streamId,
-          chunkIndex: numberToBigInt(chunkId),
-          complete: true,
-          content: Uint8Array.from([]),
-        }),
+        trailer: new DataStream_Trailer({ streamId, reason: '' }),
       });
-      await this.sendStreamChunk(chunkReq);
+      await this.sendStreamTrailer(trailerReq);
     } finally {
       await file.close();
     }
@@ -455,6 +441,21 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  private async sendStreamTrailer(req: SendStreamTrailerRequest) {
+    const type = 'sendStreamTrailer';
+    const res = FfiClient.instance.request<SendStreamTrailerResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamTrailerCallback>((ev) => {
       return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
     });
 

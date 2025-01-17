@@ -2762,6 +2762,12 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: DataStreamChunkReceived;
     case: "streamChunkReceived";
+  } | {
+    /**
+     * @generated from field: livekit.proto.DataStreamTrailerReceived stream_trailer_received = 32;
+     */
+    value: DataStreamTrailerReceived;
+    case: "streamTrailerReceived";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2803,6 +2809,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 29, name: "chat_message", kind: "message", T: ChatMessageReceived, oneof: "message" },
     { no: 30, name: "stream_header_received", kind: "message", T: DataStreamHeaderReceived, oneof: "message" },
     { no: 31, name: "stream_chunk_received", kind: "message", T: DataStreamChunkReceived, oneof: "message" },
+    { no: 32, name: "stream_trailer_received", kind: "message", T: DataStreamTrailerReceived, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -4554,23 +4561,16 @@ export class DataStream_Chunk extends Message<DataStream_Chunk> {
   content?: Uint8Array;
 
   /**
-   * true only if this is the last chunk of this stream - can also be sent with empty content
-   *
-   * @generated from field: optional bool complete = 4;
-   */
-  complete?: boolean;
-
-  /**
    * a version indicating that this chunk_index has been retroactively modified and the original one needs to be replaced
    *
-   * @generated from field: optional int32 version = 5;
+   * @generated from field: optional int32 version = 4;
    */
   version?: number;
 
   /**
    * optional, initialization vector for AES-GCM encryption
    *
-   * @generated from field: optional bytes iv = 6;
+   * @generated from field: optional bytes iv = 5;
    */
   iv?: Uint8Array;
 
@@ -4585,9 +4585,8 @@ export class DataStream_Chunk extends Message<DataStream_Chunk> {
     { no: 1, name: "stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 2, name: "chunk_index", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 3, name: "content", kind: "scalar", T: 12 /* ScalarType.BYTES */, req: true },
-    { no: 4, name: "complete", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
-    { no: 5, name: "version", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
-    { no: 6, name: "iv", kind: "scalar", T: 12 /* ScalarType.BYTES */, opt: true },
+    { no: 4, name: "version", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
+    { no: 5, name: "iv", kind: "scalar", T: 12 /* ScalarType.BYTES */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Chunk {
@@ -4604,6 +4603,61 @@ export class DataStream_Chunk extends Message<DataStream_Chunk> {
 
   static equals(a: DataStream_Chunk | PlainMessage<DataStream_Chunk> | undefined, b: DataStream_Chunk | PlainMessage<DataStream_Chunk> | undefined): boolean {
     return proto2.util.equals(DataStream_Chunk, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.DataStream.Trailer
+ */
+export class DataStream_Trailer extends Message<DataStream_Trailer> {
+  /**
+   * unique identifier for this data stream
+   *
+   * @generated from field: required string stream_id = 1;
+   */
+  streamId?: string;
+
+  /**
+   * reason why the stream was closed (could contain "error" / "interrupted" / empty for expected end)
+   *
+   * @generated from field: required string reason = 2;
+   */
+  reason?: string;
+
+  /**
+   * finalizing updates for the stream, can also include additional insights for errors or endTime for transcription
+   *
+   * @generated from field: map<string, string> extensions = 3;
+   */
+  extensions: { [key: string]: string } = {};
+
+  constructor(data?: PartialMessage<DataStream_Trailer>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStream.Trailer";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "reason", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 3, name: "extensions", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Trailer {
+    return new DataStream_Trailer().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_Trailer {
+    return new DataStream_Trailer().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_Trailer {
+    return new DataStream_Trailer().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStream_Trailer | PlainMessage<DataStream_Trailer> | undefined, b: DataStream_Trailer | PlainMessage<DataStream_Trailer> | undefined): boolean {
+    return proto2.util.equals(DataStream_Trailer, a, b);
   }
 }
 
@@ -4694,6 +4748,49 @@ export class DataStreamChunkReceived extends Message<DataStreamChunkReceived> {
 }
 
 /**
+ * @generated from message livekit.proto.DataStreamTrailerReceived
+ */
+export class DataStreamTrailerReceived extends Message<DataStreamTrailerReceived> {
+  /**
+   * @generated from field: required string participant_identity = 1;
+   */
+  participantIdentity?: string;
+
+  /**
+   * @generated from field: required livekit.proto.DataStream.Trailer trailer = 2;
+   */
+  trailer?: DataStream_Trailer;
+
+  constructor(data?: PartialMessage<DataStreamTrailerReceived>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataStreamTrailerReceived";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "trailer", kind: "message", T: DataStream_Trailer, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStreamTrailerReceived {
+    return new DataStreamTrailerReceived().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStreamTrailerReceived {
+    return new DataStreamTrailerReceived().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStreamTrailerReceived {
+    return new DataStreamTrailerReceived().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataStreamTrailerReceived | PlainMessage<DataStreamTrailerReceived> | undefined, b: DataStreamTrailerReceived | PlainMessage<DataStreamTrailerReceived> | undefined): boolean {
+    return proto2.util.equals(DataStreamTrailerReceived, a, b);
+  }
+}
+
+/**
  * @generated from message livekit.proto.SendStreamHeaderRequest
  */
 export class SendStreamHeaderRequest extends Message<SendStreamHeaderRequest> {
@@ -4713,7 +4810,7 @@ export class SendStreamHeaderRequest extends Message<SendStreamHeaderRequest> {
   destinationIdentities: string[] = [];
 
   /**
-   * @generated from field: optional string sender_identity = 4;
+   * @generated from field: required string sender_identity = 4;
    */
   senderIdentity?: string;
 
@@ -4728,7 +4825,7 @@ export class SendStreamHeaderRequest extends Message<SendStreamHeaderRequest> {
     { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 2, name: "header", kind: "message", T: DataStream_Header, req: true },
     { no: 3, name: "destination_identities", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendStreamHeaderRequest {
@@ -4768,7 +4865,7 @@ export class SendStreamChunkRequest extends Message<SendStreamChunkRequest> {
   destinationIdentities: string[] = [];
 
   /**
-   * @generated from field: optional string sender_identity = 4;
+   * @generated from field: required string sender_identity = 4;
    */
   senderIdentity?: string;
 
@@ -4783,7 +4880,7 @@ export class SendStreamChunkRequest extends Message<SendStreamChunkRequest> {
     { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 2, name: "chunk", kind: "message", T: DataStream_Chunk, req: true },
     { no: 3, name: "destination_identities", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendStreamChunkRequest {
@@ -4800,6 +4897,61 @@ export class SendStreamChunkRequest extends Message<SendStreamChunkRequest> {
 
   static equals(a: SendStreamChunkRequest | PlainMessage<SendStreamChunkRequest> | undefined, b: SendStreamChunkRequest | PlainMessage<SendStreamChunkRequest> | undefined): boolean {
     return proto2.util.equals(SendStreamChunkRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SendStreamTrailerRequest
+ */
+export class SendStreamTrailerRequest extends Message<SendStreamTrailerRequest> {
+  /**
+   * @generated from field: required uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle?: bigint;
+
+  /**
+   * @generated from field: required livekit.proto.DataStream.Trailer trailer = 2;
+   */
+  trailer?: DataStream_Trailer;
+
+  /**
+   * @generated from field: repeated string destination_identities = 3;
+   */
+  destinationIdentities: string[] = [];
+
+  /**
+   * @generated from field: required string sender_identity = 4;
+   */
+  senderIdentity?: string;
+
+  constructor(data?: PartialMessage<SendStreamTrailerRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SendStreamTrailerRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "trailer", kind: "message", T: DataStream_Trailer, req: true },
+    { no: 3, name: "destination_identities", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 4, name: "sender_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendStreamTrailerRequest {
+    return new SendStreamTrailerRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendStreamTrailerRequest {
+    return new SendStreamTrailerRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendStreamTrailerRequest {
+    return new SendStreamTrailerRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendStreamTrailerRequest | PlainMessage<SendStreamTrailerRequest> | undefined, b: SendStreamTrailerRequest | PlainMessage<SendStreamTrailerRequest> | undefined): boolean {
+    return proto2.util.equals(SendStreamTrailerRequest, a, b);
   }
 }
 
@@ -4874,6 +5026,43 @@ export class SendStreamChunkResponse extends Message<SendStreamChunkResponse> {
 
   static equals(a: SendStreamChunkResponse | PlainMessage<SendStreamChunkResponse> | undefined, b: SendStreamChunkResponse | PlainMessage<SendStreamChunkResponse> | undefined): boolean {
     return proto2.util.equals(SendStreamChunkResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SendStreamTrailerResponse
+ */
+export class SendStreamTrailerResponse extends Message<SendStreamTrailerResponse> {
+  /**
+   * @generated from field: required uint64 async_id = 1;
+   */
+  asyncId?: bigint;
+
+  constructor(data?: PartialMessage<SendStreamTrailerResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SendStreamTrailerResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendStreamTrailerResponse {
+    return new SendStreamTrailerResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendStreamTrailerResponse {
+    return new SendStreamTrailerResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendStreamTrailerResponse {
+    return new SendStreamTrailerResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendStreamTrailerResponse | PlainMessage<SendStreamTrailerResponse> | undefined, b: SendStreamTrailerResponse | PlainMessage<SendStreamTrailerResponse> | undefined): boolean {
+    return proto2.util.equals(SendStreamTrailerResponse, a, b);
   }
 }
 
@@ -4960,6 +5149,49 @@ export class SendStreamChunkCallback extends Message<SendStreamChunkCallback> {
 
   static equals(a: SendStreamChunkCallback | PlainMessage<SendStreamChunkCallback> | undefined, b: SendStreamChunkCallback | PlainMessage<SendStreamChunkCallback> | undefined): boolean {
     return proto2.util.equals(SendStreamChunkCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SendStreamTrailerCallback
+ */
+export class SendStreamTrailerCallback extends Message<SendStreamTrailerCallback> {
+  /**
+   * @generated from field: required uint64 async_id = 1;
+   */
+  asyncId?: bigint;
+
+  /**
+   * @generated from field: optional string error = 2;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<SendStreamTrailerCallback>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SendStreamTrailerCallback";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendStreamTrailerCallback {
+    return new SendStreamTrailerCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendStreamTrailerCallback {
+    return new SendStreamTrailerCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendStreamTrailerCallback {
+    return new SendStreamTrailerCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendStreamTrailerCallback | PlainMessage<SendStreamTrailerCallback> | undefined, b: SendStreamTrailerCallback | PlainMessage<SendStreamTrailerCallback> | undefined): boolean {
+    return proto2.util.equals(SendStreamTrailerCallback, a, b);
   }
 }
 

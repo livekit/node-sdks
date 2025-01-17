@@ -209,9 +209,6 @@ importers:
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.1.0
-      '@livekit/protocol':
-        specifier: ^1.29.4
-        version: 1.29.4
       '@livekit/typed-emitter':
         specifier: ^3.0.0
         version: 3.0.0
@@ -977,9 +974,6 @@ packages:
 
   '@livekit/mutex@1.1.0':
     resolution: {integrity: sha512-XRLG+z/0uoyDioupjUiskjI06Y51U/IXVPJn7qJ+R3J75XX01irYVBM9MpxeJahpVoe9QhU4moIEolX+HO9U9g==}
-
-  '@livekit/protocol@1.29.4':
-    resolution: {integrity: sha512-dsqxvABHilrMA0BU5m1w8cMWSVeDjV2ZUIUDClNQZju3c30DLMfEYDHU5nmXDfaaHjNIgoRbYR7upJMozG8JJg==}
 
   '@livekit/protocol@1.30.0':
     resolution: {integrity: sha512-SDI9ShVKj8N3oOSinr8inaxD3FXgmgoJlqN35uU/Yx1sdoDeQbzAuBFox7bYjM+VhnZ1V22ivIDjAsKr00H+XQ==}
@@ -4309,10 +4303,6 @@ snapshots:
       - encoding
 
   '@livekit/mutex@1.1.0': {}
-
-  '@livekit/protocol@1.29.4':
-    dependencies:
-      '@bufbuild/protobuf': 1.10.0
 
   '@livekit/protocol@1.30.0':
     dependencies:

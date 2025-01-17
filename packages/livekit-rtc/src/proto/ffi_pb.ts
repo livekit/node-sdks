@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
-import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SendStreamChunkCallback, SendStreamChunkRequest, SendStreamChunkResponse, SendStreamHeaderCallback, SendStreamHeaderRequest, SendStreamHeaderResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
+import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SendStreamChunkCallback, SendStreamChunkRequest, SendStreamChunkResponse, SendStreamHeaderCallback, SendStreamHeaderRequest, SendStreamHeaderResponse, SendStreamTrailerCallback, SendStreamTrailerRequest, SendStreamTrailerResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
@@ -353,6 +353,12 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: SendStreamChunkRequest;
     case: "sendStreamChunk";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamTrailerRequest send_stream_trailer = 46;
+     */
+    value: SendStreamTrailerRequest;
+    case: "sendStreamTrailer";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -407,6 +413,7 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 43, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionRequest, oneof: "message" },
     { no: 44, name: "send_stream_header", kind: "message", T: SendStreamHeaderRequest, oneof: "message" },
     { no: 45, name: "send_stream_chunk", kind: "message", T: SendStreamChunkRequest, oneof: "message" },
+    { no: 46, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -707,6 +714,12 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: SendStreamChunkResponse;
     case: "sendStreamChunk";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamTrailerResponse send_stream_trailer = 45;
+     */
+    value: SendStreamTrailerResponse;
+    case: "sendStreamTrailer";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -760,6 +773,7 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 42, name: "update_remote_track_publication_dimension", kind: "message", T: UpdateRemoteTrackPublicationDimensionResponse, oneof: "message" },
     { no: 43, name: "send_stream_header", kind: "message", T: SendStreamHeaderResponse, oneof: "message" },
     { no: 44, name: "send_stream_chunk", kind: "message", T: SendStreamChunkResponse, oneof: "message" },
+    { no: 45, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -940,6 +954,12 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: SendStreamChunkCallback;
     case: "sendStreamChunk";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SendStreamTrailerCallback send_stream_trailer = 27;
+     */
+    value: SendStreamTrailerCallback;
+    case: "sendStreamTrailer";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -975,6 +995,7 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 24, name: "rpc_method_invocation", kind: "message", T: RpcMethodInvocationEvent, oneof: "message" },
     { no: 25, name: "send_stream_header", kind: "message", T: SendStreamHeaderCallback, oneof: "message" },
     { no: 26, name: "send_stream_chunk", kind: "message", T: SendStreamChunkCallback, oneof: "message" },
+    { no: 27, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

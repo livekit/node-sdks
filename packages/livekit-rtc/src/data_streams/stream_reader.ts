@@ -5,7 +5,7 @@ import type { ReadableStream } from 'node:stream/web';
 import { log } from '../log.js';
 import type { DataStream_Chunk } from '../proto/room_pb.js';
 import { bigIntToNumber } from '../utils.js';
-import type { BaseStreamInfo, FileStreamInfo, TextStreamChunk, TextStreamInfo } from './types.js';
+import type { BaseStreamInfo, ByteStreamInfo, TextStreamChunk, TextStreamInfo } from './types.js';
 
 abstract class BaseStreamReader<T extends BaseStreamInfo> {
   protected reader: ReadableStream<DataStream_Chunk>;
@@ -37,7 +37,7 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
 /**
  * A class to read chunks from a ReadableStream and provide them in a structured format.
  */
-export class BinaryStreamReader extends BaseStreamReader<FileStreamInfo> {
+export class BinaryStreamReader extends BaseStreamReader<ByteStreamInfo> {
   protected handleChunkReceived(chunk: DataStream_Chunk) {
     this.bytesReceived += chunk.content!.byteLength;
     const currentProgress = this.totalByteSize

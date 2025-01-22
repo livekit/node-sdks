@@ -11,16 +11,16 @@ export interface StreamController<T extends DataStream_Chunk> {
 }
 
 export interface BaseStreamInfo {
-  id: string;
+  streamId: string;
   mimeType: string;
   topic: string;
   timestamp: number;
   /** total size in bytes for finite streams and undefined for streams of unknown size */
-  size?: number;
+  totalSize?: number;
   attributes?: Record<string, string>;
 }
 
-export type FileStreamInfo = BaseStreamInfo & {
+export type ByteStreamInfo = BaseStreamInfo & {
   name: string;
 };
 

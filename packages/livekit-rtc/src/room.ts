@@ -5,7 +5,7 @@ import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { ReadableStream } from 'node:stream/web';
 import { BinaryStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
-import type { FileStreamInfo, StreamController, TextStreamInfo } from './data_streams/types.js';
+import type { ByteStreamInfo, StreamController, TextStreamInfo } from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -428,11 +428,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           });
         },
       });
-      const info: FileStreamInfo = {
-        id: streamHeader.streamId!,
+      const info: ByteStreamInfo = {
+        streamId: streamHeader.streamId!,
         name: streamHeader.contentHeader.value.name ?? 'unknown',
         mimeType: streamHeader.mimeType!,
-        size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
         topic: streamHeader.topic!,
         timestamp: bigIntToNumber(streamHeader.timestamp!),
         attributes: streamHeader.attributes,
@@ -459,9 +459,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         },
       });
       const info: TextStreamInfo = {
-        id: streamHeader.streamId!,
+        streamId: streamHeader.streamId!,
         mimeType: streamHeader.mimeType!,
-        size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
         topic: streamHeader.topic!,
         timestamp: Number(streamHeader.timestamp),
         attributes: streamHeader.attributes,

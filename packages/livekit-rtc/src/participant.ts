@@ -1,10 +1,13 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Mutex } from '@livekit/mutex';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import {
+  type ByteStreamInfo,
   type ByteStreamOptions,
+  ByteStreamWriter,
   type TextStreamInfo,
   TextStreamWriter,
 } from './data_streams/index.js';
@@ -253,14 +256,14 @@ export class LocalParticipant extends Participant {
     topic?: string;
     attributes?: Record<string, string>;
     destinationIdentities?: Array<string>;
-    messageId?: string;
+    streamId?: string;
   }): Promise<TextStreamWriter> {
     const senderIdentity = this.identity;
-    const streamId = options?.messageId ?? crypto.randomUUID();
+    const streamId = options?.streamId ?? crypto.randomUUID();
     const destinationIdentities = options?.destinationIdentities;
 
     const info: TextStreamInfo = {
-      id: streamId,
+      streamId: streamId,
       mimeType: 'text/plain',
       topic: options?.topic ?? '',
       timestamp: Date.now(),
@@ -353,7 +356,7 @@ export class LocalParticipant extends Participant {
       topic?: string;
       attributes?: Record<string, string>;
       destinationIdentities?: Array<string>;
-      messageId?: string;
+      streamId?: string;
     },
   ) {
     const writer = await this.streamText(options);
@@ -365,73 +368,129 @@ export class LocalParticipant extends Participant {
     return writer.info;
   }
 
+  async streamBytes(options?: {
+    name?: string;
+    topic?: string;
+    attributes?: Record<string, string>;
+    destinationIdentities?: Array<string>;
+    streamId?: string;
+    mimeType?: string;
+    totalSize?: number;
+  }) {
+    const senderIdentity = this.identity;
+    const streamId = options?.streamId ?? crypto.randomUUID();
+    const destinationIdentities = options?.destinationIdentities;
+
+    const info: ByteStreamInfo = {
+      streamId: streamId,
+      mimeType: options?.mimeType ?? 'application/octet-stream',
+      topic: options?.topic ?? '',
+      timestamp: Date.now(),
+      attributes: options?.attributes,
+      totalSize: options?.totalSize,
+      name: options?.name ?? 'unknown',
+    };
+
+    const headerReq = new SendStreamHeaderRequest({
+      senderIdentity,
+      destinationIdentities,
+      localParticipantHandle: this.ffi_handle.handle,
+      header: new DataStream_Header({
+        streamId,
+        mimeType: info.mimeType,
+        topic: info.topic,
+        timestamp: numberToBigInt(info.timestamp),
+        attributes: info.attributes,
+        totalLength: numberToBigInt(info.totalSize),
+        contentHeader: {
+          case: 'byteHeader',
+          value: new DataStream_ByteHeader({
+            name: info.name,
+          }),
+        },
+      }),
+    });
+
+    await this.sendStreamHeader(headerReq);
+
+    let chunkId = 0;
+    const localHandle = this.ffi_handle.handle;
+    const sendTrailer = this.sendStreamTrailer;
+    const sendChunk = this.sendStreamChunk;
+    const writeMutex = new Mutex();
+
+    const writableStream = new WritableStream<[Uint8Array, number?]>({
+      async write([chunk]) {
+        const unlock = await writeMutex.lock();
+
+        let byteOffset = 0;
+        try {
+          while (byteOffset < chunk.byteLength) {
+            const subChunk = chunk.slice(byteOffset, byteOffset + STREAM_CHUNK_SIZE);
+            const chunkRequest = new SendStreamChunkRequest({
+              senderIdentity,
+              localParticipantHandle: localHandle,
+              destinationIdentities,
+              chunk: new DataStream_Chunk({
+                content: subChunk,
+                streamId,
+                chunkIndex: numberToBigInt(chunkId),
+              }),
+            });
+
+            await sendChunk(chunkRequest);
+            chunkId += 1;
+            byteOffset += subChunk.byteLength;
+          }
+        } finally {
+          unlock();
+        }
+      },
+      async close() {
+        const trailerReq = new SendStreamTrailerRequest({
+          senderIdentity,
+          localParticipantHandle: localHandle,
+          destinationIdentities,
+          trailer: new DataStream_Trailer({
+            streamId,
+            reason: '',
+          }),
+        });
+        await sendTrailer(trailerReq);
+      },
+      abort(err) {
+        log.error('Sink error:', err);
+      },
+    });
+
+    const byteWriter = new ByteStreamWriter(writableStream, info);
+
+    return byteWriter;
+  }
+
   /** Sends a file provided as PathLike to specified recipients */
   async sendFile(path: PathLike, options?: ByteStreamOptions) {
     const fileStats = await stat(path);
     const file = await open(path);
     try {
       const stream: ReadableStream<Uint8Array> = file.readableWebStream({ type: 'bytes' });
-
-      const senderIdentity = this.identity;
       const streamId = crypto.randomUUID();
       const destinationIdentities = options?.destinationIdentities;
-      const totalLength = numberToBigInt(fileStats.size);
 
-      const headerReq = new SendStreamHeaderRequest({
-        senderIdentity,
+      const writer = await this.streamBytes({
+        streamId: streamId,
+        name: options?.name,
+        totalSize: fileStats.size,
         destinationIdentities,
-        localParticipantHandle: this.ffi_handle.handle,
-        header: new DataStream_Header({
-          streamId,
-          mimeType: options?.mimeType ?? 'application/octet-stream',
-          topic: options?.topic ?? '',
-          timestamp: numberToBigInt(Date.now()),
-          attributes: options?.attributes,
-          totalLength,
-          contentHeader: {
-            case: 'byteHeader',
-            value: new DataStream_ByteHeader({
-              name: options?.name ?? 'unknown',
-            }),
-          },
-        }),
+        topic: options?.topic,
+        mimeType: options?.mimeType,
+        attributes: options?.attributes,
       });
 
-      await this.sendStreamHeader(headerReq);
-
-      let chunkId = 0;
       for await (const chunk of stream) {
-        const biteSizeChunks = Math.ceil(chunk.byteLength / STREAM_CHUNK_SIZE);
-
-        for (let i = 0; i < biteSizeChunks; i++) {
-          const offset = i * STREAM_CHUNK_SIZE;
-          const chunkyChunk = chunk.slice(
-            offset,
-            Math.min(offset + STREAM_CHUNK_SIZE, chunk.byteLength),
-          );
-          const chunkReq = new SendStreamChunkRequest({
-            senderIdentity,
-            localParticipantHandle: this.ffi_handle.handle,
-            destinationIdentities,
-            chunk: new DataStream_Chunk({
-              streamId,
-              chunkIndex: numberToBigInt(chunkId),
-              content: chunkyChunk,
-            }),
-          });
-          await this.sendStreamChunk(chunkReq);
-          chunkId += 1;
-        }
+        await writer.write(chunk);
       }
-
-      // close stream
-      const trailerReq = new SendStreamTrailerRequest({
-        senderIdentity,
-        localParticipantHandle: this.ffi_handle.handle,
-        destinationIdentities,
-        trailer: new DataStream_Trailer({ streamId, reason: '' }),
-      });
-      await this.sendStreamTrailer(trailerReq);
+      await writer.close();
     } finally {
       await file.close();
     }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { WritableStream } from 'node:stream/web';
-import type { BaseStreamInfo, FileStreamInfo, TextStreamInfo } from './types.js';
+import type { BaseStreamInfo, ByteStreamInfo, TextStreamInfo } from './types.js';
 
 class BaseStreamWriter<T, InfoType extends BaseStreamInfo> {
   protected writableStream: WritableStream<[T, number?]>;
@@ -33,4 +33,4 @@ class BaseStreamWriter<T, InfoType extends BaseStreamInfo> {
 
 export class TextStreamWriter extends BaseStreamWriter<string, TextStreamInfo> {}
 
-export class BinaryStreamWriter extends BaseStreamWriter<Uint8Array, FileStreamInfo> {}
+export class ByteStreamWriter extends BaseStreamWriter<Uint8Array, ByteStreamInfo> {}

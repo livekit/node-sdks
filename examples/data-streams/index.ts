@@ -14,6 +14,7 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
   const greeting = 'Hi this is just a text sample';
   const streamWriter = await room.localParticipant?.streamText({
     destinationIdentities: [recipient.identity],
+    topic: 'chat',
   });
 
   for (const c of greeting) {
@@ -27,7 +28,7 @@ const sendFile = async (room: Room, recipient: RemoteParticipant) => {
   console.log('sending file');
   await room.localParticipant?.sendFile('./assets/maybemexico.png', {
     destinationIdentities: [recipient.identity],
-    fileName: 'mex',
+    name: 'mex',
     mimeType: 'image/png',
   });
   console.log('done sending file');

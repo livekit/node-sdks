@@ -1,6 +1,5 @@
 import {
-  type ByteStreamHandler,
-  ByteStreamReader,
+  type ByteStreamReader,
   type RemoteParticipant,
   Room,
   RoomEvent,

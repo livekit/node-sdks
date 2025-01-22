@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { DataStream_Chunk, DataStream_Header } from '../proto/room_pb.js';
+import type { ByteStreamReader, TextStreamReader } from './stream_reader.js';
 
 export interface StreamController<T extends DataStream_Chunk> {
   header: DataStream_Header;
@@ -48,3 +49,13 @@ export interface ByteStreamOptions extends DataStreamOptions {
   name?: string;
   onProgress?: (progress: number) => void;
 }
+
+export type ByteStreamHandler = (
+  reader: ByteStreamReader,
+  participantInfo: { identity: string },
+) => void;
+
+export type TextStreamHandler = (
+  reader: TextStreamReader,
+  participantInfo: { identity: string },
+) => void;

@@ -45,12 +45,12 @@ const main = async () => {
     room.on(RoomEvent.ParticipantDisconnected, resolve);
   });
 
-  room.on(RoomEvent.TextStreamReceived, async (reader: TextStreamReader) => {
+  room.setTextStreamHandler(async (reader: TextStreamReader) => {
     console.log(await reader.readAll());
     // for await (const { collected } of reader) {
     //   console.log(collected);
     // }
-  });
+  }, 'chat');
 
   room.on(RoomEvent.ParticipantConnected, async (participant) => {
     await sendFile(room, participant);

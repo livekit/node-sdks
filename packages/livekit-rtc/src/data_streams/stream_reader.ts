@@ -37,7 +37,7 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
 /**
  * A class to read chunks from a ReadableStream and provide them in a structured format.
  */
-export class BinaryStreamReader extends BaseStreamReader<ByteStreamInfo> {
+export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
   protected handleChunkReceived(chunk: DataStream_Chunk) {
     this.bytesReceived += chunk.content!.byteLength;
     const currentProgress = this.totalByteSize

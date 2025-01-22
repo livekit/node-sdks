@@ -4,8 +4,14 @@
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { ReadableStream } from 'node:stream/web';
-import { BinaryStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
-import type { ByteStreamInfo, StreamController, TextStreamInfo } from './data_streams/types.js';
+import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
+import type {
+  ByteStreamHandler,
+  ByteStreamInfo,
+  StreamController,
+  TextStreamHandler,
+  TextStreamInfo,
+} from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -73,6 +79,11 @@ export const defaultRoomOptions = new FfiRoomOptions({
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info?: RoomInfo;
   private ffiHandle?: FfiHandle;
+
+  private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+  private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+  private byteStreamHandlers = new Map<string, ByteStreamHandler>();
+  private textStreamHandlers = new Map<string, TextStreamHandler>();
 
   e2eeManager?: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
@@ -163,6 +174,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
+  }
+
+  setTextStreamHandler(callback: TextStreamHandler | undefined, topic: string = '') {
+    if (!callback) {
+      this.textStreamHandlers.delete(topic);
+    } else {
+      this.textStreamHandlers.set(topic, callback);
+    }
+  }
+
+  setByteStreamHandler(callback: ByteStreamHandler | undefined, topic: string = '') {
+    if (!callback) {
+      this.byteStreamHandlers.delete(topic);
+    } else {
+      this.byteStreamHandlers.set(topic, callback);
+    }
   }
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
@@ -407,21 +434,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return participant;
   }
 
-  fileStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
-
-  textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
-
   private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {
     if (streamHeader.contentHeader.case === 'byteHeader') {
-      if (this.listeners(RoomEvent.FileStreamReceived).length === 0) {
-        log.debug('ignoring incoming file stream due to no listeners');
+      const streamHandlerCallback = this.byteStreamHandlers.get(streamHeader.topic ?? '');
+
+      if (!streamHandlerCallback) {
+        log.debug('ignoring incoming byte stream due to no handler for topic', streamHeader.topic);
         return;
       }
       let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
       const stream = new ReadableStream({
         start: (controller) => {
           streamController = controller;
-          this.fileStreamControllers.set(streamHeader.streamId!, {
+          this.byteStreamControllers.set(streamHeader.streamId!, {
             header: streamHeader,
             controller: streamController,
             startTime: Date.now(),
@@ -437,14 +462,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         timestamp: bigIntToNumber(streamHeader.timestamp!),
         attributes: streamHeader.attributes,
       };
-      this.emit(
-        RoomEvent.FileStreamReceived,
-        new BinaryStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
+      streamHandlerCallback(
+        new ByteStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
         { identity: participantIdentity },
       );
     } else if (streamHeader.contentHeader.case === 'textHeader') {
-      if (this.listeners(RoomEvent.TextStreamReceived).length === 0) {
-        log.debug('ignoring incoming text stream due to no listeners');
+      const streamHandlerCallback = this.textStreamHandlers.get(streamHeader.topic ?? '');
+
+      if (!streamHandlerCallback) {
+        log.debug('ignoring incoming text stream due to no handler for topic', streamHeader.topic);
         return;
       }
       let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
@@ -466,8 +492,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         timestamp: Number(streamHeader.timestamp),
         attributes: streamHeader.attributes,
       };
-      this.emit(
-        RoomEvent.TextStreamReceived,
+      streamHandlerCallback(
         new TextStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
         { identity: participantIdentity },
       );
@@ -475,7 +500,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   private handleStreamChunk(chunk: DataStream_Chunk) {
-    const fileBuffer = this.fileStreamControllers.get(chunk.streamId!);
+    const fileBuffer = this.byteStreamControllers.get(chunk.streamId!);
     if (fileBuffer) {
       if (chunk.content!.length > 0) {
         fileBuffer.controller.enqueue(chunk);
@@ -491,15 +516,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private handleStreamTrailer(trailer: DataStream_Trailer) {
     const streamId = trailer.streamId!;
-    const fileBuffer = this.fileStreamControllers.get(streamId);
+    const fileBuffer = this.byteStreamControllers.get(streamId);
     if (fileBuffer) {
       fileBuffer.controller.close();
-      this.fileStreamControllers.delete(streamId);
+      this.byteStreamControllers.delete(streamId);
     }
     const textBuffer = this.textStreamControllers.get(streamId);
     if (textBuffer) {
       textBuffer.controller.close();
-      this.fileStreamControllers.delete(streamId);
+      this.byteStreamControllers.delete(streamId);
     }
   }
 }
@@ -562,8 +587,6 @@ export type RoomCallbacks = {
   reconnecting: () => void;
   reconnected: () => void;
   roomSidChanged: (sid: string) => void;
-  textStreamReceived: (reader: TextStreamReader, participantInfo: { identity: string }) => void;
-  fileStreamReceived: (reader: BinaryStreamReader, participantInfo: { identity: string }) => void;
 };
 
 export enum RoomEvent {
@@ -594,7 +617,5 @@ export enum RoomEvent {
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',
   Reconnected = 'reconnected',
-  TextStreamReceived = 'textStreamReceived',
-  FileStreamReceived = 'fileStreamReceived',
   RoomSidChanged = 'roomSidChanged',
 }

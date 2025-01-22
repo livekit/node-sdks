@@ -29,6 +29,7 @@ const sendFile = async (room: Room, recipient: RemoteParticipant) => {
   await room.localParticipant?.sendFile('./assets/maybemexico.png', {
     destinationIdentities: [recipient.identity],
     name: 'mex',
+    topic: 'demo',
     mimeType: 'image/png',
   });
   console.log('done sending file');
@@ -45,8 +46,8 @@ const main = async () => {
     room.on(RoomEvent.ParticipantDisconnected, resolve);
   });
 
-  room.setTextStreamHandler(async (reader: TextStreamReader) => {
-    console.log(await reader.readAll());
+  room.setTextStreamHandler(async (reader: TextStreamReader, { identity }) => {
+    console.log(`chat message from ${identity}: ${await reader.readAll()}`);
     // for await (const { collected } of reader) {
     //   console.log(collected);
     // }

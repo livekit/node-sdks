@@ -37,7 +37,7 @@ const sendFile = async (room: Room, recipient: RemoteParticipant) => {
     destinationIdentities: [recipient.identity],
     name: 'mex',
     topic: 'welcome',
-    mimeType: 'image/png',
+    mimeType: 'image/jpg',
   });
   console.log('done sending file');
 };

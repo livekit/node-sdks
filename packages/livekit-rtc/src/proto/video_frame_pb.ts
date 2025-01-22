@@ -87,6 +87,9 @@ proto2.util.setEnumType(VideoRotation, "livekit.proto.VideoRotation", [
 ]);
 
 /**
+ * Values of this enum must not be changed
+ * It is used to serialize a rtc.VideoFrame on Python
+ *
  * @generated from enum livekit.proto.VideoBufferType
  */
 export enum VideoBufferType {

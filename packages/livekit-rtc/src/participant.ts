@@ -4,7 +4,7 @@
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import {
-  type FileStreamOptions,
+  type ByteStreamOptions,
   type TextStreamInfo,
   TextStreamWriter,
 } from './data_streams/index.js';
@@ -17,8 +17,8 @@ import {
   ParticipantKind,
 } from './proto/participant_pb.js';
 import {
+  DataStream_ByteHeader,
   DataStream_Chunk,
-  DataStream_FileHeader,
   DataStream_Header,
   DataStream_OperationType,
   DataStream_TextHeader,
@@ -251,7 +251,7 @@ export class LocalParticipant extends Participant {
    */
   async streamText(options?: {
     topic?: string;
-    extensions?: Record<string, string>;
+    attributes?: Record<string, string>;
     destinationIdentities?: Array<string>;
     messageId?: string;
   }): Promise<TextStreamWriter> {
@@ -275,7 +275,7 @@ export class LocalParticipant extends Participant {
         mimeType: info.mimeType,
         topic: info.topic,
         timestamp: numberToBigInt(info.timestamp),
-        extensions: options?.extensions,
+        attributes: options?.attributes,
         contentHeader: {
           case: 'textHeader',
           value: new DataStream_TextHeader({
@@ -351,7 +351,7 @@ export class LocalParticipant extends Participant {
     text: string,
     options?: {
       topic?: string;
-      extensions?: Record<string, string>;
+      attributes?: Record<string, string>;
       destinationIdentities?: Array<string>;
       messageId?: string;
     },
@@ -366,7 +366,7 @@ export class LocalParticipant extends Participant {
   }
 
   /** Sends a file provided as PathLike to specified recipients */
-  async sendFile(path: PathLike, options?: FileStreamOptions) {
+  async sendFile(path: PathLike, options?: ByteStreamOptions) {
     const fileStats = await stat(path);
     const file = await open(path);
     try {
@@ -386,12 +386,12 @@ export class LocalParticipant extends Participant {
           mimeType: options?.mimeType ?? 'application/octet-stream',
           topic: options?.topic ?? '',
           timestamp: numberToBigInt(Date.now()),
-          extensions: options?.extensions,
+          attributes: options?.attributes,
           totalLength,
           contentHeader: {
-            case: 'fileHeader',
-            value: new DataStream_FileHeader({
-              fileName: options?.fileName ?? 'unknown',
+            case: 'byteHeader',
+            value: new DataStream_ByteHeader({
+              name: options?.name ?? 'unknown',
             }),
           },
         }),

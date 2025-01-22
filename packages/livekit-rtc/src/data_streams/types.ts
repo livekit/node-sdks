@@ -17,11 +17,11 @@ export interface BaseStreamInfo {
   timestamp: number;
   /** total size in bytes for finite streams and undefined for streams of unknown size */
   size?: number;
-  extensions?: Record<string, string>;
+  attributes?: Record<string, string>;
 }
 
 export type FileStreamInfo = BaseStreamInfo & {
-  fileName: string;
+  name: string;
 };
 
 export type TextStreamInfo = BaseStreamInfo;
@@ -35,7 +35,7 @@ export type TextStreamChunk = {
 export interface DataStreamOptions {
   topic?: string;
   destinationIdentities?: Array<string>;
-  extensions?: Record<string, string>;
+  attributes?: Record<string, string>;
   mimeType?: string;
 }
 
@@ -44,7 +44,7 @@ export interface TextStreamOptions extends DataStreamOptions {
   attachments?: [];
 }
 
-export interface FileStreamOptions extends DataStreamOptions {
-  fileName?: string;
+export interface ByteStreamOptions extends DataStreamOptions {
+  name?: string;
   onProgress?: (progress: number) => void;
 }

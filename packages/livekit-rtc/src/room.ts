@@ -412,7 +412,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
 
   private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {
-    if (streamHeader.contentHeader.case === 'fileHeader') {
+    if (streamHeader.contentHeader.case === 'byteHeader') {
       if (this.listeners(RoomEvent.FileStreamReceived).length === 0) {
         log.debug('ignoring incoming file stream due to no listeners');
         return;
@@ -430,12 +430,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       });
       const info: FileStreamInfo = {
         id: streamHeader.streamId!,
-        fileName: streamHeader.contentHeader.value.fileName ?? 'unknown',
+        name: streamHeader.contentHeader.value.name ?? 'unknown',
         mimeType: streamHeader.mimeType!,
         size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
         topic: streamHeader.topic!,
         timestamp: bigIntToNumber(streamHeader.timestamp!),
-        extensions: streamHeader.extensions,
+        attributes: streamHeader.attributes,
       };
       this.emit(
         RoomEvent.FileStreamReceived,
@@ -464,7 +464,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         size: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
         topic: streamHeader.topic!,
         timestamp: Number(streamHeader.timestamp),
-        extensions: streamHeader.extensions,
+        attributes: streamHeader.attributes,
       };
       this.emit(
         RoomEvent.TextStreamReceived,

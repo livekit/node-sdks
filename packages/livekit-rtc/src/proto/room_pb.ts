@@ -2768,6 +2768,12 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: DataStreamTrailerReceived;
     case: "streamTrailerReceived";
+  } | {
+    /**
+     * @generated from field: livekit.proto.DataChannelBufferedAmountLowThresholdChanged data_channel_low_threshold_changed = 33;
+     */
+    value: DataChannelBufferedAmountLowThresholdChanged;
+    case: "dataChannelLowThresholdChanged";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2810,6 +2816,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 30, name: "stream_header_received", kind: "message", T: DataStreamHeaderReceived, oneof: "message" },
     { no: 31, name: "stream_chunk_received", kind: "message", T: DataStreamChunkReceived, oneof: "message" },
     { no: 32, name: "stream_trailer_received", kind: "message", T: DataStreamTrailerReceived, oneof: "message" },
+    { no: 33, name: "data_channel_low_threshold_changed", kind: "message", T: DataChannelBufferedAmountLowThresholdChanged, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -2848,6 +2855,16 @@ export class RoomInfo extends Message<RoomInfo> {
    */
   metadata?: string;
 
+  /**
+   * @generated from field: required uint64 lossy_dc_buffered_amount_low_threshold = 4;
+   */
+  lossyDcBufferedAmountLowThreshold?: bigint;
+
+  /**
+   * @generated from field: required uint64 reliable_dc_buffered_amount_low_threshold = 5;
+   */
+  reliableDcBufferedAmountLowThreshold?: bigint;
+
   constructor(data?: PartialMessage<RoomInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2859,6 +2876,8 @@ export class RoomInfo extends Message<RoomInfo> {
     { no: 1, name: "sid", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 3, name: "metadata", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 4, name: "lossy_dc_buffered_amount_low_threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 5, name: "reliable_dc_buffered_amount_low_threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomInfo {
@@ -4399,43 +4418,41 @@ export class DataStream_TextHeader extends Message<DataStream_TextHeader> {
 }
 
 /**
- * header properties specific to file or image streams
+ * header properties specific to byte or file streams
  *
- * @generated from message livekit.proto.DataStream.FileHeader
+ * @generated from message livekit.proto.DataStream.ByteHeader
  */
-export class DataStream_FileHeader extends Message<DataStream_FileHeader> {
+export class DataStream_ByteHeader extends Message<DataStream_ByteHeader> {
   /**
-   * name of the file
-   *
-   * @generated from field: required string file_name = 1;
+   * @generated from field: required string name = 1;
    */
-  fileName?: string;
+  name?: string;
 
-  constructor(data?: PartialMessage<DataStream_FileHeader>) {
+  constructor(data?: PartialMessage<DataStream_ByteHeader>) {
     super();
     proto2.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto2 = proto2;
-  static readonly typeName = "livekit.proto.DataStream.FileHeader";
+  static readonly typeName = "livekit.proto.DataStream.ByteHeader";
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
-    { no: 1, name: "file_name", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_FileHeader {
-    return new DataStream_FileHeader().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_ByteHeader {
+    return new DataStream_ByteHeader().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_FileHeader {
-    return new DataStream_FileHeader().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataStream_ByteHeader {
+    return new DataStream_ByteHeader().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_FileHeader {
-    return new DataStream_FileHeader().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataStream_ByteHeader {
+    return new DataStream_ByteHeader().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DataStream_FileHeader | PlainMessage<DataStream_FileHeader> | undefined, b: DataStream_FileHeader | PlainMessage<DataStream_FileHeader> | undefined): boolean {
-    return proto2.util.equals(DataStream_FileHeader, a, b);
+  static equals(a: DataStream_ByteHeader | PlainMessage<DataStream_ByteHeader> | undefined, b: DataStream_ByteHeader | PlainMessage<DataStream_ByteHeader> | undefined): boolean {
+    return proto2.util.equals(DataStream_ByteHeader, a, b);
   }
 }
 
@@ -4477,11 +4494,11 @@ export class DataStream_Header extends Message<DataStream_Header> {
   totalLength?: bigint;
 
   /**
-   * user defined extensions map that can carry additional info
+   * user defined attributes map that can carry additional info
    *
-   * @generated from field: map<string, string> extensions = 6;
+   * @generated from field: map<string, string> attributes = 6;
    */
-  extensions: { [key: string]: string } = {};
+  attributes: { [key: string]: string } = {};
 
   /**
    * oneof to choose between specific header types
@@ -4496,10 +4513,10 @@ export class DataStream_Header extends Message<DataStream_Header> {
     case: "textHeader";
   } | {
     /**
-     * @generated from field: livekit.proto.DataStream.FileHeader file_header = 8;
+     * @generated from field: livekit.proto.DataStream.ByteHeader byte_header = 8;
      */
-    value: DataStream_FileHeader;
-    case: "fileHeader";
+    value: DataStream_ByteHeader;
+    case: "byteHeader";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<DataStream_Header>) {
@@ -4515,9 +4532,9 @@ export class DataStream_Header extends Message<DataStream_Header> {
     { no: 3, name: "mime_type", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 4, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 5, name: "total_length", kind: "scalar", T: 4 /* ScalarType.UINT64 */, opt: true },
-    { no: 6, name: "extensions", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 6, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
     { no: 7, name: "text_header", kind: "message", T: DataStream_TextHeader, oneof: "content_header" },
-    { no: 8, name: "file_header", kind: "message", T: DataStream_FileHeader, oneof: "content_header" },
+    { no: 8, name: "byte_header", kind: "message", T: DataStream_ByteHeader, oneof: "content_header" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Header {
@@ -4627,9 +4644,9 @@ export class DataStream_Trailer extends Message<DataStream_Trailer> {
   /**
    * finalizing updates for the stream, can also include additional insights for errors or endTime for transcription
    *
-   * @generated from field: map<string, string> extensions = 3;
+   * @generated from field: map<string, string> attributes = 3;
    */
-  extensions: { [key: string]: string } = {};
+  attributes: { [key: string]: string } = {};
 
   constructor(data?: PartialMessage<DataStream_Trailer>) {
     super();
@@ -4641,7 +4658,7 @@ export class DataStream_Trailer extends Message<DataStream_Trailer> {
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
     { no: 1, name: "stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 2, name: "reason", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
-    { no: 3, name: "extensions", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 3, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataStream_Trailer {
@@ -5192,6 +5209,129 @@ export class SendStreamTrailerCallback extends Message<SendStreamTrailerCallback
 
   static equals(a: SendStreamTrailerCallback | PlainMessage<SendStreamTrailerCallback> | undefined, b: SendStreamTrailerCallback | PlainMessage<SendStreamTrailerCallback> | undefined): boolean {
     return proto2.util.equals(SendStreamTrailerCallback, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SetDataChannelBufferedAmountLowThresholdRequest
+ */
+export class SetDataChannelBufferedAmountLowThresholdRequest extends Message<SetDataChannelBufferedAmountLowThresholdRequest> {
+  /**
+   * @generated from field: required uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle?: bigint;
+
+  /**
+   * @generated from field: required uint64 threshold = 2;
+   */
+  threshold?: bigint;
+
+  /**
+   * @generated from field: required livekit.proto.DataPacketKind kind = 3;
+   */
+  kind?: DataPacketKind;
+
+  constructor(data?: PartialMessage<SetDataChannelBufferedAmountLowThresholdRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetDataChannelBufferedAmountLowThresholdRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 3, name: "kind", kind: "enum", T: proto2.getEnumType(DataPacketKind), req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetDataChannelBufferedAmountLowThresholdRequest {
+    return new SetDataChannelBufferedAmountLowThresholdRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetDataChannelBufferedAmountLowThresholdRequest {
+    return new SetDataChannelBufferedAmountLowThresholdRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetDataChannelBufferedAmountLowThresholdRequest {
+    return new SetDataChannelBufferedAmountLowThresholdRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetDataChannelBufferedAmountLowThresholdRequest | PlainMessage<SetDataChannelBufferedAmountLowThresholdRequest> | undefined, b: SetDataChannelBufferedAmountLowThresholdRequest | PlainMessage<SetDataChannelBufferedAmountLowThresholdRequest> | undefined): boolean {
+    return proto2.util.equals(SetDataChannelBufferedAmountLowThresholdRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SetDataChannelBufferedAmountLowThresholdResponse
+ */
+export class SetDataChannelBufferedAmountLowThresholdResponse extends Message<SetDataChannelBufferedAmountLowThresholdResponse> {
+  constructor(data?: PartialMessage<SetDataChannelBufferedAmountLowThresholdResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetDataChannelBufferedAmountLowThresholdResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetDataChannelBufferedAmountLowThresholdResponse {
+    return new SetDataChannelBufferedAmountLowThresholdResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetDataChannelBufferedAmountLowThresholdResponse {
+    return new SetDataChannelBufferedAmountLowThresholdResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetDataChannelBufferedAmountLowThresholdResponse {
+    return new SetDataChannelBufferedAmountLowThresholdResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetDataChannelBufferedAmountLowThresholdResponse | PlainMessage<SetDataChannelBufferedAmountLowThresholdResponse> | undefined, b: SetDataChannelBufferedAmountLowThresholdResponse | PlainMessage<SetDataChannelBufferedAmountLowThresholdResponse> | undefined): boolean {
+    return proto2.util.equals(SetDataChannelBufferedAmountLowThresholdResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.DataChannelBufferedAmountLowThresholdChanged
+ */
+export class DataChannelBufferedAmountLowThresholdChanged extends Message<DataChannelBufferedAmountLowThresholdChanged> {
+  /**
+   * @generated from field: required livekit.proto.DataPacketKind kind = 1;
+   */
+  kind?: DataPacketKind;
+
+  /**
+   * @generated from field: required uint64 threshold = 2;
+   */
+  threshold?: bigint;
+
+  constructor(data?: PartialMessage<DataChannelBufferedAmountLowThresholdChanged>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.DataChannelBufferedAmountLowThresholdChanged";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "kind", kind: "enum", T: proto2.getEnumType(DataPacketKind), req: true },
+    { no: 2, name: "threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DataChannelBufferedAmountLowThresholdChanged {
+    return new DataChannelBufferedAmountLowThresholdChanged().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DataChannelBufferedAmountLowThresholdChanged {
+    return new DataChannelBufferedAmountLowThresholdChanged().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DataChannelBufferedAmountLowThresholdChanged {
+    return new DataChannelBufferedAmountLowThresholdChanged().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DataChannelBufferedAmountLowThresholdChanged | PlainMessage<DataChannelBufferedAmountLowThresholdChanged> | undefined, b: DataChannelBufferedAmountLowThresholdChanged | PlainMessage<DataChannelBufferedAmountLowThresholdChanged> | undefined): boolean {
+    return proto2.util.equals(DataChannelBufferedAmountLowThresholdChanged, a, b);
   }
 }
 

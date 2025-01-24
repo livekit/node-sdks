@@ -55,13 +55,27 @@ export class TwirpRpc {
       },
       body: JSON.stringify(data),
     });
-    const parsedResp = (await response.json()) as Record<string, unknown>;
 
     if (!response.ok) {
-      const errorName = 'code' in parsedResp ? <string>parsedResp.code : response.statusText;
-      const errorMessage = 'msg' in parsedResp ? <string>parsedResp.msg : 'Unknown internal error';
+      const isJson = response.headers.get('content-type') === 'application/json';
+      let errorMessage = 'Unknown internal error';
+      let errorName = response.statusText;
+      if (isJson) {
+        const parsedError = (await response.json()) as Record<string, unknown>;
+        if ('msg' in parsedError) {
+          errorMessage = <string>parsedError.msg;
+        }
+        if ('code' in parsedError) {
+          errorName = <string>parsedError.code;
+        }
+      } else {
+        errorMessage = await response.text();
+      }
+
       throw new TwirpError(response.status, errorName, errorMessage);
     }
+    const parsedResp = (await response.json()) as Record<string, unknown>;
+
     const camelcaseKeys = await import('camelcase-keys').then((mod) => mod.default);
     return camelcaseKeys(parsedResp, { deep: true });
   }

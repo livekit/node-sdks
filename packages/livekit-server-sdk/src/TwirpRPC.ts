@@ -15,11 +15,13 @@ export interface Rpc {
 
 export class TwirpError extends Error {
   status: number;
+  code?: string;
 
-  constructor(status: number, name: string, message: string) {
+  constructor(name: string, message: string, status: number, code?: string) {
     super(message);
     this.name = name;
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -59,7 +61,7 @@ export class TwirpRpc {
     if (!response.ok) {
       const isJson = response.headers.get('content-type') === 'application/json';
       let errorMessage = 'Unknown internal error';
-      let errorName = response.statusText;
+      let errorCode: string | undefined = undefined;
       try {
         if (isJson) {
           const parsedError = (await response.json()) as Record<string, unknown>;
@@ -67,7 +69,7 @@ export class TwirpRpc {
             errorMessage = <string>parsedError.msg;
           }
           if ('code' in parsedError) {
-            errorName = <string>parsedError.code;
+            errorCode = <string>parsedError.code;
           }
         } else {
           errorMessage = await response.text();
@@ -77,7 +79,7 @@ export class TwirpRpc {
         console.debug(`Error when trying to parse error message, using defaults`, e);
       }
 
-      throw new TwirpError(response.status, errorName, errorMessage);
+      throw new TwirpError(response.statusText, errorMessage, response.status, errorCode);
     }
     const parsedResp = (await response.json()) as Record<string, unknown>;
 

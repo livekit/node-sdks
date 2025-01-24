@@ -14,12 +14,12 @@ export interface Rpc {
 }
 
 export class TwirpError extends Error {
-  statusCode: number;
+  status: number;
 
-  constructor(statusCode: number, name: string, message: string) {
+  constructor(status: number, name: string, message: string) {
     super(message);
     this.name = name;
-    this.statusCode = statusCode;
+    this.status = status;
   }
 }
 

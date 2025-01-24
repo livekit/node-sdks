@@ -60,16 +60,21 @@ export class TwirpRpc {
       const isJson = response.headers.get('content-type') === 'application/json';
       let errorMessage = 'Unknown internal error';
       let errorName = response.statusText;
-      if (isJson) {
-        const parsedError = (await response.json()) as Record<string, unknown>;
-        if ('msg' in parsedError) {
-          errorMessage = <string>parsedError.msg;
+      try {
+        if (isJson) {
+          const parsedError = (await response.json()) as Record<string, unknown>;
+          if ('msg' in parsedError) {
+            errorMessage = <string>parsedError.msg;
+          }
+          if ('code' in parsedError) {
+            errorName = <string>parsedError.code;
+          }
+        } else {
+          errorMessage = await response.text();
         }
-        if ('code' in parsedError) {
-          errorName = <string>parsedError.code;
-        }
-      } else {
-        errorMessage = await response.text();
+      } catch (e) {
+        // parsing went wrong, no op and we keep default error message
+        console.debug(`Error when trying to parse error message, using defaults`, e);
       }
 
       throw new TwirpError(response.status, errorName, errorMessage);

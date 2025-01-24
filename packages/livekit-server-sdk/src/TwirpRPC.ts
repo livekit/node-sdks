@@ -13,6 +13,16 @@ export interface Rpc {
   request(service: string, method: string, data: JsonValue, headers?: any): Promise<string>;
 }
 
+export class TwirpError extends Error {
+  statusCode: number;
+
+  constructor(statusCode: number, name: string, message: string) {
+    super(message);
+    this.name = name;
+    this.statusCode = statusCode;
+  }
+}
+
 /**
  * JSON based Twirp V7 RPC
  */
@@ -45,11 +55,13 @@ export class TwirpRpc {
       },
       body: JSON.stringify(data),
     });
+    const parsedResp = (await response.json()) as Record<string, unknown>;
 
     if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+      const errorName = 'code' in parsedResp ? <string>parsedResp.code : response.statusText;
+      const errorMessage = 'msg' in parsedResp ? <string>parsedResp.msg : 'Unknown internal error';
+      throw new TwirpError(response.status, errorName, errorMessage);
     }
-    const parsedResp = (await response.json()) as Record<string, unknown>;
     const camelcaseKeys = await import('camelcase-keys').then((mod) => mod.default);
     return camelcaseKeys(parsedResp, { deep: true });
   }

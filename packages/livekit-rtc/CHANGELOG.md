@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.3
+
+### Patch Changes
+
+- Fix RPC invocation and room sid update - [#391](https://github.com/livekit/node-sdks/pull/391) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.2
 
 ### Patch Changes

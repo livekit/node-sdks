@@ -13,6 +13,18 @@ export interface Rpc {
   request(service: string, method: string, data: JsonValue, headers?: any): Promise<string>;
 }
 
+export class TwirpError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(name: string, message: string, status: number, code?: string) {
+    super(message);
+    this.name = name;
+    this.status = status;
+    this.code = code;
+  }
+}
+
 /**
  * JSON based Twirp V7 RPC
  */
@@ -47,9 +59,30 @@ export class TwirpRpc {
     });
 
     if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+      const isJson = response.headers.get('content-type') === 'application/json';
+      let errorMessage = 'Unknown internal error';
+      let errorCode: string | undefined = undefined;
+      try {
+        if (isJson) {
+          const parsedError = (await response.json()) as Record<string, unknown>;
+          if ('msg' in parsedError) {
+            errorMessage = <string>parsedError.msg;
+          }
+          if ('code' in parsedError) {
+            errorCode = <string>parsedError.code;
+          }
+        } else {
+          errorMessage = await response.text();
+        }
+      } catch (e) {
+        // parsing went wrong, no op and we keep default error message
+        console.debug(`Error when trying to parse error message, using defaults`, e);
+      }
+
+      throw new TwirpError(response.statusText, errorMessage, response.status, errorCode);
     }
     const parsedResp = (await response.json()) as Record<string, unknown>;
+
     const camelcaseKeys = await import('camelcase-keys').then((mod) => mod.default);
     return camelcaseKeys(parsedResp, { deep: true });
   }

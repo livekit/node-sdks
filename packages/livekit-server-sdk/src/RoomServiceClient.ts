@@ -23,6 +23,7 @@ import {
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { getRandomBytes } from './crypto/uuid.js';
 
 /**
  * Options for when creating a room
@@ -383,6 +384,7 @@ export class RoomServiceClient extends ServiceBase {
     if (!Array.isArray(options) && options.destinationIdentities) {
       req.destinationIdentities = options.destinationIdentities;
     }
+    req.nonce = await getRandomBytes(16);
     await this.rpc.request(
       svc,
       'SendData',

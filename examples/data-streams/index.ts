@@ -35,7 +35,7 @@ const sendFile = async (room: Room, recipient: RemoteParticipant) => {
   console.log('sending file');
   await room.localParticipant?.sendFile('./assets/maybemexico.jpg', {
     destinationIdentities: [recipient.identity],
-    name: 'mex',
+    name: 'mex.jpg',
     topic: 'welcome',
     mimeType: 'image/jpg',
   });

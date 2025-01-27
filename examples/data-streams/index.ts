@@ -6,6 +6,7 @@ import {
   type TextStreamReader,
 } from '@livekit/rtc-node';
 import { config } from 'dotenv';
+import fs from 'fs';
 import { AccessToken } from 'livekit-server-sdk';
 
 config({ path: '.env.local', override: false });
@@ -32,7 +33,7 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
 
 const sendFile = async (room: Room, recipient: RemoteParticipant) => {
   console.log('sending file');
-  await room.localParticipant?.sendFile('./assets/maybemexico.png', {
+  await room.localParticipant?.sendFile('./assets/maybemexico.jpg', {
     destinationIdentities: [recipient.identity],
     name: 'mex',
     topic: 'welcome',
@@ -61,9 +62,14 @@ const main = async () => {
 
   room.setByteStreamHandler(async (reader: ByteStreamReader, { identity }) => {
     console.log(`welcome image received from ${identity}: ${reader.info.name}`);
-    // for await (const { collected } of reader) {
-    //   console.log(collected);
-    // }
+
+    // create write stream and write received file to disk, make sure ./temp folder exists
+    const writer = fs.createWriteStream(`./temp/${reader.info.name}`, {});
+
+    for await (const chunk of reader) {
+      writer.write(chunk);
+    }
+    writer.close();
   }, 'welcome');
 
   room.on(RoomEvent.ParticipantConnected, async (participant) => {

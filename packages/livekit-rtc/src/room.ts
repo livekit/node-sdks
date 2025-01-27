@@ -3,9 +3,19 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
+import { ReadableStream } from 'node:stream/web';
+import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
+import type {
+  ByteStreamHandler,
+  ByteStreamInfo,
+  StreamController,
+  TextStreamHandler,
+  TextStreamInfo,
+} from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
@@ -16,6 +26,9 @@ import {
   type ConnectResponse,
   type ConnectionQuality,
   type DataPacketKind,
+  type DataStream_Chunk,
+  type DataStream_Header,
+  DataStream_Trailer,
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
@@ -33,6 +46,7 @@ import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
 import type { ChatMessage } from './types.js';
+import { bigIntToNumber } from './utils.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -65,6 +79,11 @@ export const defaultRoomOptions = new FfiRoomOptions({
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info?: RoomInfo;
   private ffiHandle?: FfiHandle;
+
+  private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+  private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+  private byteStreamHandlers = new Map<string, ByteStreamHandler>();
+  private textStreamHandlers = new Map<string, TextStreamHandler>();
 
   e2eeManager?: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
@@ -173,6 +192,28 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
+  }
+
+  setTextStreamHandler(callback: TextStreamHandler, topic: string = '') {
+    if (this.textStreamHandlers.has(topic)) {
+      throw new TypeError(`A text stream handler for topic "${topic}" has already been set.`);
+    }
+    this.textStreamHandlers.set(topic, callback);
+  }
+
+  removeTextStreamHandler(topic: string = '') {
+    this.textStreamHandlers.delete(topic);
+  }
+
+  setByteStreamHandler(callback: ByteStreamHandler, topic: string = '') {
+    if (this.byteStreamHandlers.has(topic)) {
+      throw new TypeError(`A byte stream handler for topic "${topic}" has already been set.`);
+    }
+    this.byteStreamHandlers.set(topic, callback);
+  }
+
+  removeByteStreamHandler(topic: string = '') {
+    this.byteStreamHandlers.delete(topic);
   }
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
@@ -373,6 +414,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     } else if (ev.case == 'roomSidChanged') {
       this.emit(RoomEvent.RoomSidChanged, ev.value.sid!);
+    } else if (ev.case === 'streamHeaderReceived' && ev.value.header) {
+      this.handleStreamHeader(ev.value.header, ev.value.participantIdentity!);
+    } else if (ev.case === 'streamChunkReceived' && ev.value.chunk) {
+      this.handleStreamChunk(ev.value.chunk);
+    } else if (ev.case === 'streamTrailerReceived' && ev.value.trailer) {
+      this.handleStreamTrailer(ev.value.trailer);
     }
   };
 
@@ -428,6 +475,100 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const participant = new RemoteParticipant(ownedInfo);
     this.remoteParticipants.set(ownedInfo.info!.identity!, participant);
     return participant;
+  }
+
+  private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {
+    if (streamHeader.contentHeader.case === 'byteHeader') {
+      const streamHandlerCallback = this.byteStreamHandlers.get(streamHeader.topic ?? '');
+
+      if (!streamHandlerCallback) {
+        log.debug('ignoring incoming byte stream due to no handler for topic', streamHeader.topic);
+        return;
+      }
+      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
+      const stream = new ReadableStream({
+        start: (controller) => {
+          streamController = controller;
+          this.byteStreamControllers.set(streamHeader.streamId!, {
+            header: streamHeader,
+            controller: streamController,
+            startTime: Date.now(),
+          });
+        },
+      });
+      const info: ByteStreamInfo = {
+        streamId: streamHeader.streamId!,
+        name: streamHeader.contentHeader.value.name ?? 'unknown',
+        mimeType: streamHeader.mimeType!,
+        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        topic: streamHeader.topic!,
+        timestamp: bigIntToNumber(streamHeader.timestamp!),
+        attributes: streamHeader.attributes,
+      };
+      streamHandlerCallback(
+        new ByteStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
+        { identity: participantIdentity },
+      );
+    } else if (streamHeader.contentHeader.case === 'textHeader') {
+      const streamHandlerCallback = this.textStreamHandlers.get(streamHeader.topic ?? '');
+
+      if (!streamHandlerCallback) {
+        log.debug('ignoring incoming text stream due to no handler for topic', streamHeader.topic);
+        return;
+      }
+      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
+      const stream = new ReadableStream<DataStream_Chunk>({
+        start: (controller) => {
+          streamController = controller;
+          this.textStreamControllers.set(streamHeader.streamId!, {
+            header: streamHeader,
+            controller: streamController,
+            startTime: Date.now(),
+          });
+        },
+      });
+      const info: TextStreamInfo = {
+        streamId: streamHeader.streamId!,
+        mimeType: streamHeader.mimeType!,
+        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
+        topic: streamHeader.topic!,
+        timestamp: Number(streamHeader.timestamp),
+        attributes: streamHeader.attributes,
+      };
+      streamHandlerCallback(
+        new TextStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
+        { identity: participantIdentity },
+      );
+    }
+  }
+
+  private handleStreamChunk(chunk: DataStream_Chunk) {
+    const fileBuffer = this.byteStreamControllers.get(chunk.streamId!);
+    if (fileBuffer) {
+      if (chunk.content!.length > 0) {
+        fileBuffer.controller.enqueue(chunk);
+      }
+    }
+    const textBuffer = this.textStreamControllers.get(chunk.streamId!);
+    if (textBuffer) {
+      if (chunk.content!.length > 0) {
+        textBuffer.controller.enqueue(chunk);
+      }
+    }
+  }
+
+  private handleStreamTrailer(trailer: DataStream_Trailer) {
+    const streamId = trailer.streamId!;
+    const fileBuffer = this.byteStreamControllers.get(streamId);
+    if (fileBuffer) {
+      fileBuffer.controller.close();
+      this.byteStreamControllers.delete(streamId);
+    }
+    const textBuffer = this.textStreamControllers.get(streamId);
+    if (textBuffer) {
+      textBuffer.controller.close();
+      this.byteStreamControllers.delete(streamId);
+    }
   }
 }
 

@@ -1,0 +1,23 @@
+{
+  "name": "example-data-streams",
+  "author": "LiveKit",
+  "private": "true",
+  "description": "Example of using data streams in LiveKit",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "eslint -f unix \"**/*.ts\"",
+    "start": "tsx index.ts"
+  },
+  "keywords": [],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@livekit/rtc-node": "workspace:*",
+    "dotenv": "^16.4.5",
+    "livekit-server-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "tsx": "^4.7.1"
+  }
+}

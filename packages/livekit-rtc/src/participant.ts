@@ -1,33 +1,59 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Mutex } from '@livekit/mutex';
+import type { PathLike } from 'node:fs';
+import { open, stat } from 'node:fs/promises';
+import {
+  type ByteStreamInfo,
+  type ByteStreamOptions,
+  ByteStreamWriter,
+  type TextStreamInfo,
+  TextStreamWriter,
+} from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
+import { log } from './log.js';
 import {
   DisconnectReason,
   type OwnedParticipant,
   type ParticipantInfo,
-  type ParticipantKind,
+  ParticipantKind,
 } from './proto/participant_pb.js';
-import type {
-  PublishDataCallback,
-  PublishDataResponse,
-  PublishSipDtmfCallback,
-  PublishSipDtmfResponse,
-  PublishTrackCallback,
-  PublishTrackResponse,
-  PublishTranscriptionCallback,
-  PublishTranscriptionResponse,
-  SendChatMessageCallback,
-  SendChatMessageResponse,
-  SetLocalAttributesCallback,
-  SetLocalAttributesResponse,
-  SetLocalMetadataCallback,
-  SetLocalMetadataResponse,
-  SetLocalNameCallback,
-  SetLocalNameResponse,
-  TrackPublishOptions,
-  UnpublishTrackCallback,
-  UnpublishTrackResponse,
+import {
+  DataStream_ByteHeader,
+  DataStream_Chunk,
+  DataStream_Header,
+  DataStream_OperationType,
+  DataStream_TextHeader,
+  DataStream_Trailer,
+  type PublishDataCallback,
+  type PublishDataResponse,
+  type PublishSipDtmfCallback,
+  type PublishSipDtmfResponse,
+  type PublishTrackCallback,
+  type PublishTrackResponse,
+  type PublishTranscriptionCallback,
+  type PublishTranscriptionResponse,
+  type SendChatMessageCallback,
+  type SendChatMessageResponse,
+  type SendStreamChunkCallback,
+  SendStreamChunkRequest,
+  type SendStreamChunkResponse,
+  type SendStreamHeaderCallback,
+  SendStreamHeaderRequest,
+  type SendStreamHeaderResponse,
+  type SendStreamTrailerCallback,
+  SendStreamTrailerRequest,
+  type SendStreamTrailerResponse,
+  type SetLocalAttributesCallback,
+  type SetLocalAttributesResponse,
+  type SetLocalMetadataCallback,
+  type SetLocalMetadataResponse,
+  type SetLocalNameCallback,
+  type SetLocalNameResponse,
+  type TrackPublishOptions,
+  type UnpublishTrackCallback,
+  type UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
 import {
@@ -62,6 +88,9 @@ import type { RemoteTrackPublication, TrackPublication } from './track_publicati
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
 import type { ChatMessage } from './types.js';
+import { numberToBigInt, splitUtf8 } from './utils.js';
+
+const STREAM_CHUNK_SIZE = 15_000;
 
 export abstract class Participant {
   /** @internal */
@@ -85,20 +114,20 @@ export abstract class Participant {
     return this.info.name;
   }
 
-  get identity(): string | undefined {
-    return this.info.identity;
+  get identity(): string {
+    return this.info.identity ?? '';
   }
 
-  get metadata(): string | undefined {
-    return this.info.metadata;
+  get metadata(): string {
+    return this.info.metadata ?? '';
   }
 
-  get attributes(): Record<string, string> | undefined {
-    return this.info.attributes;
+  get attributes(): Record<string, string> {
+    return this.info.attributes ?? {};
   }
 
-  get kind(): ParticipantKind | undefined {
-    return this.info.kind;
+  get kind(): ParticipantKind {
+    return this.info.kind ?? ParticipantKind.STANDARD;
   }
 
   get disconnectReason(): DisconnectReason | undefined {
@@ -217,6 +246,299 @@ export class LocalParticipant extends Participant {
     await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
       return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
     });
+  }
+
+  /**
+   * Returns a `StreamWriter` instance that allows to write individual chunks of text to a stream.
+   * Well suited for TTS and/or streaming LLM output. If you want to simply send a text then use sendText() instead
+   */
+  async streamText(options?: {
+    topic?: string;
+    attributes?: Record<string, string>;
+    destinationIdentities?: Array<string>;
+    streamId?: string;
+  }): Promise<TextStreamWriter> {
+    const senderIdentity = this.identity;
+    const streamId = options?.streamId ?? crypto.randomUUID();
+    const destinationIdentities = options?.destinationIdentities;
+
+    const info: TextStreamInfo = {
+      streamId: streamId,
+      mimeType: 'text/plain',
+      topic: options?.topic ?? '',
+      timestamp: Date.now(),
+    };
+
+    const headerReq = new SendStreamHeaderRequest({
+      senderIdentity,
+      destinationIdentities,
+      localParticipantHandle: this.ffi_handle.handle,
+      header: new DataStream_Header({
+        streamId,
+        mimeType: info.mimeType,
+        topic: info.topic,
+        timestamp: numberToBigInt(info.timestamp),
+        attributes: options?.attributes,
+        contentHeader: {
+          case: 'textHeader',
+          value: new DataStream_TextHeader({
+            operationType: DataStream_OperationType.CREATE,
+            version: 0,
+            replyToStreamId: '',
+            generated: false,
+          }),
+        },
+      }),
+    });
+
+    await this.sendStreamHeader(headerReq);
+
+    let chunkId = 0;
+    const localHandle = this.ffi_handle.handle;
+    const sendTrailer = this.sendStreamTrailer;
+    const sendChunk = this.sendStreamChunk;
+
+    const writableStream = new WritableStream<[string, number?]>({
+      // Implement the sink
+      write([textChunk, overrideChunkId]) {
+        const textInBytes = new TextEncoder().encode(textChunk);
+
+        if (textInBytes.byteLength > STREAM_CHUNK_SIZE) {
+          this.abort?.();
+          throw new Error('chunk size too large');
+        }
+
+        return new Promise(async (resolve) => {
+          const chunkRequest = new SendStreamChunkRequest({
+            senderIdentity,
+            localParticipantHandle: localHandle,
+            destinationIdentities,
+            chunk: new DataStream_Chunk({
+              content: textInBytes,
+              streamId,
+              chunkIndex: numberToBigInt(overrideChunkId ?? chunkId),
+            }),
+          });
+
+          await sendChunk(chunkRequest);
+
+          if (!overrideChunkId) {
+            chunkId += 1;
+            resolve();
+          }
+        });
+      },
+      async close() {
+        const trailerReq = new SendStreamTrailerRequest({
+          senderIdentity,
+          localParticipantHandle: localHandle,
+          destinationIdentities,
+          trailer: new DataStream_Trailer({
+            streamId,
+            reason: '',
+          }),
+        });
+        await sendTrailer(trailerReq);
+      },
+      abort(err) {
+        log.error('Sink error:', err);
+      },
+    });
+
+    const writer = new TextStreamWriter(writableStream, info);
+
+    return writer;
+  }
+
+  async sendText(
+    text: string,
+    options?: {
+      topic?: string;
+      attributes?: Record<string, string>;
+      destinationIdentities?: Array<string>;
+      streamId?: string;
+    },
+  ) {
+    const writer = await this.streamText(options);
+
+    for (const chunk in splitUtf8(text, STREAM_CHUNK_SIZE)) {
+      await writer.write(chunk);
+    }
+    await writer.close();
+    return writer.info;
+  }
+
+  async streamBytes(options?: {
+    name?: string;
+    topic?: string;
+    attributes?: Record<string, string>;
+    destinationIdentities?: Array<string>;
+    streamId?: string;
+    mimeType?: string;
+    totalSize?: number;
+  }) {
+    const senderIdentity = this.identity;
+    const streamId = options?.streamId ?? crypto.randomUUID();
+    const destinationIdentities = options?.destinationIdentities;
+
+    const info: ByteStreamInfo = {
+      streamId: streamId,
+      mimeType: options?.mimeType ?? 'application/octet-stream',
+      topic: options?.topic ?? '',
+      timestamp: Date.now(),
+      attributes: options?.attributes,
+      totalSize: options?.totalSize,
+      name: options?.name ?? 'unknown',
+    };
+
+    const headerReq = new SendStreamHeaderRequest({
+      senderIdentity,
+      destinationIdentities,
+      localParticipantHandle: this.ffi_handle.handle,
+      header: new DataStream_Header({
+        streamId,
+        mimeType: info.mimeType,
+        topic: info.topic,
+        timestamp: numberToBigInt(info.timestamp),
+        attributes: info.attributes,
+        totalLength: numberToBigInt(info.totalSize),
+        contentHeader: {
+          case: 'byteHeader',
+          value: new DataStream_ByteHeader({
+            name: info.name,
+          }),
+        },
+      }),
+    });
+
+    await this.sendStreamHeader(headerReq);
+
+    let chunkId = 0;
+    const localHandle = this.ffi_handle.handle;
+    const sendTrailer = this.sendStreamTrailer;
+    const sendChunk = this.sendStreamChunk;
+    const writeMutex = new Mutex();
+
+    const writableStream = new WritableStream<[Uint8Array, number?]>({
+      async write([chunk]) {
+        const unlock = await writeMutex.lock();
+
+        let byteOffset = 0;
+        try {
+          while (byteOffset < chunk.byteLength) {
+            const subChunk = chunk.slice(byteOffset, byteOffset + STREAM_CHUNK_SIZE);
+            const chunkRequest = new SendStreamChunkRequest({
+              senderIdentity,
+              localParticipantHandle: localHandle,
+              destinationIdentities,
+              chunk: new DataStream_Chunk({
+                content: subChunk,
+                streamId,
+                chunkIndex: numberToBigInt(chunkId),
+              }),
+            });
+
+            await sendChunk(chunkRequest);
+            chunkId += 1;
+            byteOffset += subChunk.byteLength;
+          }
+        } finally {
+          unlock();
+        }
+      },
+      async close() {
+        const trailerReq = new SendStreamTrailerRequest({
+          senderIdentity,
+          localParticipantHandle: localHandle,
+          destinationIdentities,
+          trailer: new DataStream_Trailer({
+            streamId,
+            reason: '',
+          }),
+        });
+        await sendTrailer(trailerReq);
+      },
+      abort(err) {
+        log.error('Sink error:', err);
+      },
+    });
+
+    const byteWriter = new ByteStreamWriter(writableStream, info);
+
+    return byteWriter;
+  }
+
+  /** Sends a file provided as PathLike to specified recipients */
+  async sendFile(path: PathLike, options?: ByteStreamOptions) {
+    const fileStats = await stat(path);
+    const file = await open(path);
+    try {
+      const stream: ReadableStream<Uint8Array> = file.readableWebStream({ type: 'bytes' });
+      const streamId = crypto.randomUUID();
+      const destinationIdentities = options?.destinationIdentities;
+
+      const writer = await this.streamBytes({
+        streamId: streamId,
+        name: options?.name,
+        totalSize: fileStats.size,
+        destinationIdentities,
+        topic: options?.topic,
+        mimeType: options?.mimeType,
+        attributes: options?.attributes,
+      });
+
+      for await (const chunk of stream) {
+        await writer.write(chunk);
+      }
+      await writer.close();
+    } finally {
+      await file.close();
+    }
+  }
+
+  private async sendStreamHeader(req: SendStreamHeaderRequest) {
+    const type = 'sendStreamHeader';
+    const res = FfiClient.instance.request<SendStreamHeaderResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  private async sendStreamChunk(req: SendStreamChunkRequest) {
+    const type = 'sendStreamChunk';
+    const res = FfiClient.instance.request<SendStreamChunkResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
+  }
+
+  private async sendStreamTrailer(req: SendStreamTrailerRequest) {
+    const type = 'sendStreamTrailer';
+    const res = FfiClient.instance.request<SendStreamTrailerResponse>({
+      message: { case: type, value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<SendStreamTrailerCallback>((ev) => {
+      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
+    });
+
+    if (cb.error) {
+      throw new Error(cb.error);
+    }
   }
 
   /**

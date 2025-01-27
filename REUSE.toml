@@ -9,7 +9,7 @@ SPDX-PackageDownloadLocation = "https://github.com/livekit/node-sdks"
 
 # trivial files
 [[annotations]]
-path = [".gitignore", ".gitmodules", "flake.lock", ".github/**", "packages/livekit-rtc/.gitignore", ".changeset/**", "**/CHANGELOG.md", "NOTICE"]
+path = [".gitignore", ".gitmodules", ".gitattributes", "flake.lock", ".github/**", "packages/livekit-rtc/.gitignore", ".changeset/**", "**/CHANGELOG.md", "NOTICE"]
 SPDX-FileCopyrightText = "2024 LiveKit, Inc."
 SPDX-License-Identifier = "Apache-2.0"
 

@@ -59,6 +59,15 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: livekit-version
+    attributes:
+      label: LiveKit server version
+      options:
+        - LiveKit cloud
+        - latest self hosted version
+    validations:
+      required: true
+  - type: dropdown
     id: severity
     attributes:
       label: Severity

@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.4
+
+### Patch Changes
+
+- Default stride in VideoFrame to 0 - [#403](https://github.com/livekit/node-sdks/pull/403) ([@lukasIO](https://github.com/lukasIO))
+
+- Add data stream support - [#361](https://github.com/livekit/node-sdks/pull/361) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.3
 
 ### Patch Changes

@@ -438,7 +438,7 @@ export class SipClient extends ServiceBase {
       maxCallDuration: opts.maxCallDuration
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
         : undefined,
-      enableKrisp: opts.enableKrisp,
+      krispEnabled: opts.enableKrisp,
     }).toJson();
 
     const data = await this.rpc.request(

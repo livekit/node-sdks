@@ -46,6 +46,8 @@ export class VideoFrame {
       case VideoBufferType.RGB24:
         info.stride = this.width * 3;
         break;
+      default:
+        info.stride = 0;
     }
 
     info.components.push(...getPlaneInfos(this.dataPtr, this.type, this.width, this.height));

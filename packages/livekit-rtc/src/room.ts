@@ -196,7 +196,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   registerTextStreamHandler(topic: string, callback: TextStreamHandler) {
     if (this.textStreamHandlers.has(topic)) {
-      throw new TypeError(`A text stream handler for topic "${topic}" has already been set.`);
+      throw new Error(`A text stream handler for topic "${topic}" has already been set.`);
     }
     this.textStreamHandlers.set(topic, callback);
   }
@@ -207,7 +207,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   registerByteStreamHandler(topic: string, callback: ByteStreamHandler) {
     if (this.byteStreamHandlers.has(topic)) {
-      throw new TypeError(`A byte stream handler for topic "${topic}" has already been set.`);
+      throw new Error(`A byte stream handler for topic "${topic}" has already been set.`);
     }
     this.byteStreamHandlers.set(topic, callback);
   }

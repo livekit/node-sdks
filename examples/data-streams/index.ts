@@ -36,7 +36,7 @@ const sendFile = async (room: Room, recipient: RemoteParticipant) => {
   await room.localParticipant?.sendFile('./assets/maybemexico.jpg', {
     destinationIdentities: [recipient.identity],
     name: 'mex.jpg',
-    topic: 'welcome',
+    topic: 'files',
     mimeType: 'image/jpg',
   });
   console.log('done sending file');
@@ -53,14 +53,14 @@ const main = async () => {
     room.on(RoomEvent.ParticipantDisconnected, resolve);
   });
 
-  room.setTextStreamHandler(async (reader: TextStreamReader, { identity }) => {
+  room.registerTextStreamHandler('chat', async (reader: TextStreamReader, { identity }) => {
     console.log(`chat message from ${identity}: ${await reader.readAll()}`);
     // for await (const { collected } of reader) {
     //   console.log(collected);
     // }
-  }, 'chat');
+  });
 
-  room.setByteStreamHandler(async (reader: ByteStreamReader, { identity }) => {
+  room.registerByteStreamHandler('files', async (reader: ByteStreamReader, { identity }) => {
     console.log(`welcome image received from ${identity}: ${reader.info.name}`);
 
     // create write stream and write received file to disk, make sure ./temp folder exists
@@ -70,7 +70,7 @@ const main = async () => {
       writer.write(chunk);
     }
     writer.close();
-  }, 'welcome');
+  });
 
   room.on(RoomEvent.ParticipantConnected, async (participant) => {
     await sendFile(room, participant);

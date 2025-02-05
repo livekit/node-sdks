@@ -429,6 +429,7 @@ export class SipClient extends ServiceBase {
       participantIdentity: opts.participantIdentity || 'sip-participant',
       participantName: opts.participantName,
       participantMetadata: opts.participantMetadata,
+      participantAttributes: opts.participantAttributes,
       dtmf: opts.dtmf,
       playDialtone: opts.playDialtone ?? opts.playRingtone,
       headers: opts.headers,

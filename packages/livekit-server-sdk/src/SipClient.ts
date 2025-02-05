@@ -124,6 +124,7 @@ export interface CreateSipParticipantOptions {
   ringingTimeout?: number; // Duration in seconds
   maxCallDuration?: number; // Duration in seconds
   enableKrisp?: boolean;
+  sipNumber?: string; // Optional SIP From number to use. If empty, trunk number is used.
 }
 
 export interface TransferSipParticipantOptions {
@@ -423,6 +424,7 @@ export class SipClient extends ServiceBase {
     const req = new CreateSIPParticipantRequest({
       sipTrunkId: sipTrunkId,
       sipCallTo: number,
+      sipNumber: opts.sipNumber,
       roomName: roomName,
       participantIdentity: opts.participantIdentity || 'sip-participant',
       participantName: opts.participantName,

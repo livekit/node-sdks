@@ -70,7 +70,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^2.0.0
-        version: 2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@16.8.1)
+        version: 2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@17.0.2)
 
   examples/agent-dispatch:
     dependencies:
@@ -193,7 +193,7 @@ importers:
         version: 14.2.7
       '@types/node':
         specifier: 18.7.18
-        version: 20.17.17
+        version: 18.7.18
       '@types/react':
         specifier: 18.0.20
         version: 18.0.20
@@ -292,8 +292,8 @@ importers:
         specifier: ^20.10.1
         version: 20.17.17
       happy-dom:
-        specifier: ^16.0.0
-        version: 16.8.1
+        specifier: ^17.0.0
+        version: 17.0.2
       prettier:
         specifier: ^3.0.0
         version: 3.5.0
@@ -311,7 +311,7 @@ importers:
         version: 5.4.14(@types/node@20.17.17)
       vitest:
         specifier: ^2.0.0
-        version: 2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@16.8.1)
+        version: 2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@17.0.2)
 
 packages:
 
@@ -1269,6 +1269,9 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
+
+  '@types/node@18.7.18':
+    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
 
   '@types/node@20.17.17':
     resolution: {integrity: sha512-/WndGO4kIfMicEQLTi/mDANUu/iVUhT7KboZPdEqqHQ4aTS+3qT3U5gIqWDFV+XouorjfgGqvKILJeHhuQgFYg==}
@@ -2243,8 +2246,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  happy-dom@16.8.1:
-    resolution: {integrity: sha512-n0QrmT9lD81rbpKsyhnlz3DgnMZlaOkJPpgi746doA+HvaMC79bdWkwjrNnGJRvDrWTI8iOcJiVTJ5CdT/AZRw==}
+  happy-dom@17.0.2:
+    resolution: {integrity: sha512-PWXllOadphR7angD3ndG5/Ax3yg1PFRvnN8Zu+xVtRsZjJE4RtJF1RBeWN9JFvF5EJmHOCiekdYVTxJr2NBibA==}
     engines: {node: '>=18.0.0'}
 
   has-bigints@1.0.2:
@@ -4463,6 +4466,8 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
+  '@types/node@18.7.18': {}
+
   '@types/node@20.17.17':
     dependencies:
       undici-types: 6.19.8
@@ -5787,7 +5792,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  happy-dom@16.8.1:
+  happy-dom@17.0.2:
     dependencies:
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
@@ -7127,7 +7132,7 @@ snapshots:
       '@types/node': 20.17.17
       fsevents: 2.3.3
 
-  vitest@2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@16.8.1):
+  vitest@2.1.8(@edge-runtime/vm@4.0.4)(@types/node@20.17.17)(happy-dom@17.0.2):
     dependencies:
       '@vitest/expect': 2.1.8
       '@vitest/mocker': 2.1.8(vite@5.4.14(@types/node@20.17.17))
@@ -7152,7 +7157,7 @@ snapshots:
     optionalDependencies:
       '@edge-runtime/vm': 4.0.4
       '@types/node': 20.17.17
-      happy-dom: 16.8.1
+      happy-dom: 17.0.2
     transitivePeerDependencies:
       - less
       - lightningcss

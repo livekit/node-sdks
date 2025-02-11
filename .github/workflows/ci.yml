@@ -103,7 +103,7 @@ jobs:
             platform: macos
             target: x86_64-apple-darwin
             macosx_deployment_target: '10.15'
-          - os: namespace-profile-macos-14-aarch64
+          - os: macos-15
             platform: macos
             target: aarch64-apple-darwin
             macosx_deployment_target: '11.0'

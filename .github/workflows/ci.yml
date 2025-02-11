@@ -99,11 +99,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14-large@20250127.727
+          - os: macos-15-large
             platform: macos
             target: x86_64-apple-darwin
             macosx_deployment_target: '10.15'
-          - os: macos-14@20250127.727
+          - os: namespace-profile-macos-14-aarch64
             platform: macos
             target: aarch64-apple-darwin
             macosx_deployment_target: '11.0'

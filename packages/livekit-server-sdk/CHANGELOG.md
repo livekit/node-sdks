@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.10.1
+
+### Patch Changes
+
+- rename enableKrisp -> krispEnabled for consistency - [#414](https://github.com/livekit/node-sdks/pull/414) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.10.0
 
 ### Minor Changes

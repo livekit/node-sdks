@@ -123,7 +123,7 @@ export interface CreateSipParticipantOptions {
   hidePhoneNumber?: boolean;
   ringingTimeout?: number; // Duration in seconds
   maxCallDuration?: number; // Duration in seconds
-  enableKrisp?: boolean;
+  krispEnabled?: boolean;
 }
 
 export interface TransferSipParticipantOptions {
@@ -438,7 +438,7 @@ export class SipClient extends ServiceBase {
       maxCallDuration: opts.maxCallDuration
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
         : undefined,
-      krispEnabled: opts.enableKrisp,
+      krispEnabled: opts.krispEnabled,
     }).toJson();
 
     const data = await this.rpc.request(

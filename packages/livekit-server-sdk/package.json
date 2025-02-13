@@ -1,6 +1,6 @@
 {
   "name": "livekit-server-sdk",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "require": "dist/index.cjs",

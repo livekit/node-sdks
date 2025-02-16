@@ -5,23 +5,23 @@ import type { WritableStream } from 'node:stream/web';
 import type { BaseStreamInfo, ByteStreamInfo, TextStreamInfo } from './types.js';
 
 class BaseStreamWriter<T, InfoType extends BaseStreamInfo> {
-  protected writableStream: WritableStream<[T, number?]>;
+  protected writableStream: WritableStream<T>;
 
-  protected defaultWriter: WritableStreamDefaultWriter<[T, number?]>;
+  protected defaultWriter: WritableStreamDefaultWriter<T>;
 
   protected onClose?: () => void;
 
   readonly info: InfoType;
 
-  constructor(writableStream: WritableStream<[T, number?]>, info: InfoType, onClose?: () => void) {
+  constructor(writableStream: WritableStream<T>, info: InfoType, onClose?: () => void) {
     this.writableStream = writableStream;
     this.defaultWriter = writableStream.getWriter();
     this.onClose = onClose;
     this.info = info;
   }
 
-  write(chunk: T, chunkIndex?: number): Promise<void> {
-    return this.defaultWriter.write([chunk, chunkIndex]);
+  write(chunk: T): Promise<void> {
+    return this.defaultWriter.write(chunk);
   }
 
   async close() {

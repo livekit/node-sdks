@@ -5,7 +5,7 @@ import type { ReadableStream } from 'node:stream/web';
 import { log } from '../log.js';
 import type { DataStream_Chunk } from '../proto/room_pb.js';
 import { bigIntToNumber } from '../utils.js';
-import type { BaseStreamInfo, ByteStreamInfo, TextStreamChunk, TextStreamInfo } from './types.js';
+import type { BaseStreamInfo, ByteStreamInfo, TextStreamInfo } from './types.js';
 
 abstract class BaseStreamReader<T extends BaseStreamInfo> {
   protected reader: ReadableStream<DataStream_Chunk>;
@@ -124,7 +124,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
     const decoder = new TextDecoder();
 
     return {
-      next: async (): Promise<IteratorResult<TextStreamChunk>> => {
+      next: async (): Promise<IteratorResult<string>> => {
         try {
           const { done, value } = await reader.read();
           if (done) {
@@ -133,14 +133,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
             this.handleChunkReceived(value);
             return {
               done: false,
-              value: {
-                index: bigIntToNumber(value.chunkIndex)!,
-                current: decoder.decode(value.content!),
-                collected: Array.from(this.receivedChunks.values())
-                  .sort((a, b) => bigIntToNumber(a.chunkIndex!) - bigIntToNumber(b.chunkIndex!))
-                  .map((chunk) => decoder.decode(chunk.content!))
-                  .join(''),
-              },
+              value: decoder.decode(value.content!),
             };
           }
         } catch (error) {
@@ -149,7 +142,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
         }
       },
 
-      return(): IteratorResult<TextStreamChunk> {
+      return(): IteratorResult<string> {
         reader.releaseLock();
         return { done: true, value: undefined };
       },
@@ -157,10 +150,10 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
   }
 
   async readAll(): Promise<string> {
-    let latestString: string = '';
-    for await (const { collected } of this) {
-      latestString = collected;
+    let finalString: string = '';
+    for await (const chunk of this) {
+      finalString += chunk;
     }
-    return latestString;
+    return finalString;
   }
 }

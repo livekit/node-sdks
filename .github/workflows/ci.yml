@@ -99,22 +99,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-large
+          - os: macos-latest-large
             platform: macos
             target: x86_64-apple-darwin
             macosx_deployment_target: '10.15'
-          - os: macos-15
+          - os: macos-latest
             platform: macos
             target: aarch64-apple-darwin
             macosx_deployment_target: '11.0'
-          - os: windows-2019
+          - os: windows-latest
             platform: windows
             target: x86_64-pc-windows-msvc
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             target: x86_64-unknown-linux-gnu
             build_image: quay.io/pypa/manylinux_2_28_x86_64
-          - os: namespace-profile-default-arm64
+          - os: ubuntu-24.04-arm
             platform: linux
             target: aarch64-unknown-linux-gnu
             build_image: quay.io/pypa/manylinux_2_28_aarch64

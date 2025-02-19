@@ -17,6 +17,9 @@ export function numberToBigInt<T extends number | undefined>(
 }
 
 export function splitUtf8(s: string, n: number): Uint8Array[] {
+  if (n < 4) {
+    throw new Error('n must be at least 4 due to utf8 encoding rules');
+  }
   // adapted from https://stackoverflow.com/a/6043797
   const result: Uint8Array[] = [];
   let encoded = new TextEncoder().encode(s);
@@ -32,6 +35,8 @@ export function splitUtf8(s: string, n: number): Uint8Array[] {
     result.push(encoded.slice(0, k));
     encoded = encoded.slice(k);
   }
-  result.push(encoded);
+  if (encoded.length > 0) {
+    result.push(encoded);
+  }
   return result;
 }

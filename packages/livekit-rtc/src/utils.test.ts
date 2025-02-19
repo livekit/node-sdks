@@ -10,7 +10,7 @@ describe('splitUtf8', () => {
     ]);
   });
 
-  it('splits a string with utf8 characters into chunks of the given size', () => {
+  it('splits a string with special characters into chunks of the given size', () => {
     expect(splitUtf8('héllo wörld', 5)).toEqual([
       new TextEncoder().encode('héll'),
       new TextEncoder().encode('o wö'),
@@ -20,9 +20,12 @@ describe('splitUtf8', () => {
 
   it('splits a string with multi-byte utf8 characters correctly', () => {
     expect(splitUtf8('こんにちは世界', 5)).toEqual([
-      new TextEncoder().encode('こん'),
-      new TextEncoder().encode('にち'),
-      new TextEncoder().encode('は世'),
+      new TextEncoder().encode('こ'),
+      new TextEncoder().encode('ん'),
+      new TextEncoder().encode('に'),
+      new TextEncoder().encode('ち'),
+      new TextEncoder().encode('は'),
+      new TextEncoder().encode('世'),
       new TextEncoder().encode('界'),
     ]);
   });
@@ -32,7 +35,7 @@ describe('splitUtf8', () => {
   });
 
   it('handles a string with mixed single and multi-byte utf8 characters', () => {
-    expect(splitUtf8('a😊b', 2)).toEqual([
+    expect(splitUtf8('a😊b', 4)).toEqual([
       new TextEncoder().encode('a'),
       new TextEncoder().encode('😊'),
       new TextEncoder().encode('b'),

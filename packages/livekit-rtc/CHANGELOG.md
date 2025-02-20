@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.5
+
+### Patch Changes
+
+- Add auto chunking for text streams - [#416](https://github.com/livekit/node-sdks/pull/416) ([@lukasIO](https://github.com/lukasIO))
+
+- Fix utf8 split operation - [#420](https://github.com/livekit/node-sdks/pull/420) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.4
 
 ### Patch Changes

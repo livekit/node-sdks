@@ -1,5 +1,7 @@
 # @livekit/rtc-node-win32-x64-msvc
 
+## 0.13.5
+
 ## 0.13.4
 
 ## 0.13.3

@@ -301,13 +301,13 @@ export class LocalParticipant extends Participant {
     const writableStream = new WritableStream<string>({
       // Implement the sink
       async write(text) {
-        for (const textChunk in splitUtf8(text, STREAM_CHUNK_SIZE)) {
+        for (const textByteChunk of splitUtf8(text, STREAM_CHUNK_SIZE)) {
           const chunkRequest = new SendStreamChunkRequest({
             senderIdentity,
             localParticipantHandle: localHandle,
             destinationIdentities,
             chunk: new DataStream_Chunk({
-              content: new TextEncoder().encode(textChunk),
+              content: textByteChunk,
               streamId,
               chunkIndex: numberToBigInt(nextChunkId),
             }),

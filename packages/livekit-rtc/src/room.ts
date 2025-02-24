@@ -23,8 +23,11 @@ import type { FfiEvent } from './proto/ffi_pb.js';
 import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
 import {
   type ConnectCallback,
+  ConnectRequest,
   type ConnectResponse,
   type ConnectionQuality,
+  ConnectionState,
+  ContinualGatheringPolicy,
   type DataPacketKind,
   type DataStream_Chunk,
   type DataStream_Header,
@@ -32,13 +35,8 @@ import {
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
-  type RoomInfo,
-} from './proto/room_pb.js';
-import {
-  ConnectRequest,
-  ConnectionState,
-  ContinualGatheringPolicy,
   IceTransportType,
+  type RoomInfo,
 } from './proto/room_pb.js';
 import { TrackKind } from './proto/track_pb.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
@@ -249,8 +247,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.ParticipantConnected, participant);
     } else if (ev.case == 'participantDisconnected') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
-      this.remoteParticipants.delete(participant!.identity!);
-      this.emit(RoomEvent.ParticipantDisconnected, participant!);
+      if (participant) {
+        this.remoteParticipants.delete(participant.identity);
+        participant.info.disconnectReason = ev.value.disconnectReason;
+        this.emit(RoomEvent.ParticipantDisconnected, participant);
+      }
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
       this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant!);

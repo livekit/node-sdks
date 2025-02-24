@@ -753,7 +753,7 @@ export class VideoBufferInfo extends Message<VideoBufferInfo> {
   /**
    * only for packed formats
    *
-   * @generated from field: required uint32 stride = 6;
+   * @generated from field: optional uint32 stride = 6;
    */
   stride?: number;
 
@@ -774,7 +774,7 @@ export class VideoBufferInfo extends Message<VideoBufferInfo> {
     { no: 2, name: "width", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
     { no: 3, name: "height", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
     { no: 4, name: "data_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
-    { no: 6, name: "stride", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 6, name: "stride", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
     { no: 7, name: "components", kind: "message", T: VideoBufferInfo_ComponentInfo, repeated: true },
   ]);
 

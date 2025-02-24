@@ -845,3 +845,138 @@ export class EnableRemoteTrackResponse extends Message<EnableRemoteTrackResponse
   }
 }
 
+/**
+ * @generated from message livekit.proto.SetTrackSubscriptionPermissionsRequest
+ */
+export class SetTrackSubscriptionPermissionsRequest extends Message<SetTrackSubscriptionPermissionsRequest> {
+  /**
+   * @generated from field: required uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle?: bigint;
+
+  /**
+   * @generated from field: required bool all_participants_allowed = 2;
+   */
+  allParticipantsAllowed?: boolean;
+
+  /**
+   * @generated from field: repeated livekit.proto.ParticipantTrackPermission permissions = 3;
+   */
+  permissions: ParticipantTrackPermission[] = [];
+
+  constructor(data?: PartialMessage<SetTrackSubscriptionPermissionsRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetTrackSubscriptionPermissionsRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "all_participants_allowed", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+    { no: 3, name: "permissions", kind: "message", T: ParticipantTrackPermission, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetTrackSubscriptionPermissionsRequest {
+    return new SetTrackSubscriptionPermissionsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetTrackSubscriptionPermissionsRequest {
+    return new SetTrackSubscriptionPermissionsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetTrackSubscriptionPermissionsRequest {
+    return new SetTrackSubscriptionPermissionsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetTrackSubscriptionPermissionsRequest | PlainMessage<SetTrackSubscriptionPermissionsRequest> | undefined, b: SetTrackSubscriptionPermissionsRequest | PlainMessage<SetTrackSubscriptionPermissionsRequest> | undefined): boolean {
+    return proto2.util.equals(SetTrackSubscriptionPermissionsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ParticipantTrackPermission
+ */
+export class ParticipantTrackPermission extends Message<ParticipantTrackPermission> {
+  /**
+   * The participant identity this permission applies to.
+   *
+   * @generated from field: required string participant_identity = 1;
+   */
+  participantIdentity?: string;
+
+  /**
+   * Grant permission to all all tracks. Takes precedence over allowedTrackSids.
+   *
+   * @generated from field: optional bool allow_all = 2;
+   */
+  allowAll?: boolean;
+
+  /**
+   * List of track sids to grant permission to.
+   *
+   * @generated from field: repeated string allowed_track_sids = 3;
+   */
+  allowedTrackSids: string[] = [];
+
+  constructor(data?: PartialMessage<ParticipantTrackPermission>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ParticipantTrackPermission";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "allow_all", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
+    { no: 3, name: "allowed_track_sids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantTrackPermission {
+    return new ParticipantTrackPermission().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ParticipantTrackPermission {
+    return new ParticipantTrackPermission().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ParticipantTrackPermission {
+    return new ParticipantTrackPermission().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ParticipantTrackPermission | PlainMessage<ParticipantTrackPermission> | undefined, b: ParticipantTrackPermission | PlainMessage<ParticipantTrackPermission> | undefined): boolean {
+    return proto2.util.equals(ParticipantTrackPermission, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SetTrackSubscriptionPermissionsResponse
+ */
+export class SetTrackSubscriptionPermissionsResponse extends Message<SetTrackSubscriptionPermissionsResponse> {
+  constructor(data?: PartialMessage<SetTrackSubscriptionPermissionsResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetTrackSubscriptionPermissionsResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetTrackSubscriptionPermissionsResponse {
+    return new SetTrackSubscriptionPermissionsResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetTrackSubscriptionPermissionsResponse {
+    return new SetTrackSubscriptionPermissionsResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetTrackSubscriptionPermissionsResponse {
+    return new SetTrackSubscriptionPermissionsResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetTrackSubscriptionPermissionsResponse | PlainMessage<SetTrackSubscriptionPermissionsResponse> | undefined, b: SetTrackSubscriptionPermissionsResponse | PlainMessage<SetTrackSubscriptionPermissionsResponse> | undefined): boolean {
+    return proto2.util.equals(SetTrackSubscriptionPermissionsResponse, a, b);
+  }
+}
+

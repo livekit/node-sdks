@@ -108,10 +108,18 @@ export interface CreateSipDispatchRuleOptions {
 }
 
 export interface CreateSipParticipantOptions {
+  // Optional SIP From number to use. If empty, trunk number is used.
+  fromNumber?: string;
+  // Optional identity of the SIP participant
   participantIdentity?: string;
+  // Optional name of the participant
   participantName?: string;
+  // Optional metadata to attach to the participant
   participantMetadata?: string;
+  // Optional attributes to attach to the participant
   participantAttributes?: { [key: string]: string };
+  // Optionally send following DTMF digits (extension codes) when making a call.
+  // Character 'w' can be used to add a 0.5 sec delay.
   dtmf?: string;
   /** @deprecated - use `playDialtone` instead */
   playRingtone?: boolean; // Deprecated, use playDialtone instead
@@ -423,10 +431,12 @@ export class SipClient extends ServiceBase {
     const req = new CreateSIPParticipantRequest({
       sipTrunkId: sipTrunkId,
       sipCallTo: number,
+      sipNumber: opts.fromNumber,
       roomName: roomName,
       participantIdentity: opts.participantIdentity || 'sip-participant',
       participantName: opts.participantName,
       participantMetadata: opts.participantMetadata,
+      participantAttributes: opts.participantAttributes,
       dtmf: opts.dtmf,
       playDialtone: opts.playDialtone ?? opts.playRingtone,
       headers: opts.headers,

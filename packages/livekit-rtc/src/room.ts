@@ -21,6 +21,7 @@ import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
+import type { DataStream_Trailer } from './proto/room_pb.js';
 import {
   type ConnectCallback,
   ConnectRequest,
@@ -31,7 +32,6 @@ import {
   type DataPacketKind,
   type DataStream_Chunk,
   type DataStream_Header,
-  DataStream_Trailer,
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
@@ -247,11 +247,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.ParticipantConnected, participant);
     } else if (ev.case == 'participantDisconnected') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
-      if (participant) {
-        this.remoteParticipants.delete(participant.identity);
-        participant.info.disconnectReason = ev.value.disconnectReason;
-        this.emit(RoomEvent.ParticipantDisconnected, participant);
-      }
+      this.remoteParticipants.delete(participant!.identity);
+      participant!.info.disconnectReason = ev.value.disconnectReason;
+      this.emit(RoomEvent.ParticipantDisconnected, participant!);
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
       this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant!);

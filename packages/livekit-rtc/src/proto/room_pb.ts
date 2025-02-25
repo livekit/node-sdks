@@ -2986,6 +2986,11 @@ export class ParticipantDisconnected extends Message<ParticipantDisconnected> {
    */
   participantIdentity?: string;
 
+  /**
+   * @generated from field: required livekit.proto.DisconnectReason disconnect_reason = 2;
+   */
+  disconnectReason?: DisconnectReason;
+
   constructor(data?: PartialMessage<ParticipantDisconnected>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2995,6 +3000,7 @@ export class ParticipantDisconnected extends Message<ParticipantDisconnected> {
   static readonly typeName = "livekit.proto.ParticipantDisconnected";
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
     { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "disconnect_reason", kind: "enum", T: proto2.getEnumType(DisconnectReason), req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantDisconnected {

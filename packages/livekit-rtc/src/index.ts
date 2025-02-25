@@ -2,48 +2,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export { Room, RoomEvent, ConnectError, type RoomOptions, type RtcConfiguration } from './room.js';
-export { Participant, RemoteParticipant, LocalParticipant } from './participant.js';
+export { AudioFrame, combineAudioFrames } from './audio_frame.js';
+export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
+export { AudioSource } from './audio_source.js';
+export { AudioStream } from './audio_stream.js';
+export * from './data_streams/index.js';
+export { E2EEManager, FrameCryptor, KeyProvider } from './e2ee.js';
+export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
+export { dispose } from './ffi_client.js';
+export { LocalParticipant, Participant, RemoteParticipant } from './participant.js';
+export { EncryptionState, EncryptionType } from './proto/e2ee_pb.js';
+export { DisconnectReason, ParticipantKind } from './proto/participant_pb.js';
 export {
-  Track,
-  type LocalTrack,
-  type RemoteTrack,
-  type VideoTrack,
+  ConnectionQuality,
+  ConnectionState,
+  ContinualGatheringPolicy,
+  DataPacketKind,
+  IceServer,
+  IceTransportType,
+  TrackPublishOptions,
+} from './proto/room_pb.js';
+export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
+export { VideoBufferType, VideoCodec, VideoRotation } from './proto/video_frame_pb.js';
+export { ConnectError, Room, RoomEvent, type RoomOptions, type RtcConfiguration } from './room.js';
+export { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
+export {
   LocalAudioTrack,
   LocalVideoTrack,
   RemoteAudioTrack,
   RemoteVideoTrack,
+  Track,
   type AudioTrack,
+  type LocalTrack,
+  type RemoteTrack,
+  type VideoTrack,
 } from './track.js';
-export { VideoFrame } from './video_frame.js';
-export { AudioFrame, combineAudioFrames } from './audio_frame.js';
-export { AudioStream } from './audio_stream.js';
-export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
-export { VideoStream, type VideoFrameEvent } from './video_stream.js';
-export { AudioSource } from './audio_source.js';
-export { VideoSource } from './video_source.js';
 export {
-  TrackPublication,
-  RemoteTrackPublication,
   LocalTrackPublication,
+  RemoteTrackPublication,
+  TrackPublication,
 } from './track_publication.js';
 export type { Transcription, TranscriptionSegment } from './transcription.js';
-export { E2EEManager, KeyProvider, FrameCryptor } from './e2ee.js';
-export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
-export * from './data_streams/index.js';
-export {
-  ConnectionQuality,
-  IceServer,
-  IceTransportType,
-  DataPacketKind,
-  ContinualGatheringPolicy,
-  TrackPublishOptions,
-  ConnectionState,
-} from './proto/room_pb.js';
-export { RpcError, type RpcInvocationData, type PerformRpcParams } from './rpc.js';
-export { EncryptionType, EncryptionState } from './proto/e2ee_pb.js';
-export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
-export { VideoBufferType, VideoRotation, VideoCodec } from './proto/video_frame_pb.js';
-export { ParticipantKind } from './proto/participant_pb.js';
-export { dispose } from './ffi_client.js';
 export type { ChatMessage } from './types.js';
+export { VideoFrame } from './video_frame.js';
+export { VideoSource } from './video_source.js';
+export { VideoStream, type VideoFrameEvent } from './video_stream.js';

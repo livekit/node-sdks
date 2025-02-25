@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.10.2
+
+### Patch Changes
+
+- fix: expose sipNumber in SipClient.CreateSIPParticipant - [#427](https://github.com/livekit/node-sdks/pull/427) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.10.1
 
 ### Patch Changes

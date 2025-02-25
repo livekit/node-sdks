@@ -1,5 +1,23 @@
 # @livekit/rtc-node
 
+## 0.13.5
+
+### Patch Changes
+
+- Add auto chunking for text streams - [#416](https://github.com/livekit/node-sdks/pull/416) ([@lukasIO](https://github.com/lukasIO))
+
+- Fix utf8 split operation - [#420](https://github.com/livekit/node-sdks/pull/420) ([@lukasIO](https://github.com/lukasIO))
+
+## 0.13.4
+
+### Patch Changes
+
+- Update FFI to 0.12.10 - [#409](https://github.com/livekit/node-sdks/pull/409) ([@bcherry](https://github.com/bcherry))
+
+- Default stride in VideoFrame to 0 - [#403](https://github.com/livekit/node-sdks/pull/403) ([@lukasIO](https://github.com/lukasIO))
+
+- Add data stream support - [#361](https://github.com/livekit/node-sdks/pull/361) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.3
 
 ### Patch Changes

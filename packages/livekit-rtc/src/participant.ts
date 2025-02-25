@@ -293,40 +293,29 @@ export class LocalParticipant extends Participant {
 
     await this.sendStreamHeader(headerReq);
 
-    let chunkId = 0;
+    let nextChunkId = 0;
     const localHandle = this.ffi_handle.handle;
     const sendTrailer = this.sendStreamTrailer;
     const sendChunk = this.sendStreamChunk;
 
-    const writableStream = new WritableStream<[string, number?]>({
+    const writableStream = new WritableStream<string>({
       // Implement the sink
-      write([textChunk, overrideChunkId]) {
-        const textInBytes = new TextEncoder().encode(textChunk);
-
-        if (textInBytes.byteLength > STREAM_CHUNK_SIZE) {
-          this.abort?.();
-          throw new Error('chunk size too large');
-        }
-
-        return new Promise(async (resolve) => {
+      async write(text) {
+        for (const textByteChunk of splitUtf8(text, STREAM_CHUNK_SIZE)) {
           const chunkRequest = new SendStreamChunkRequest({
             senderIdentity,
             localParticipantHandle: localHandle,
             destinationIdentities,
             chunk: new DataStream_Chunk({
-              content: textInBytes,
+              content: textByteChunk,
               streamId,
-              chunkIndex: numberToBigInt(overrideChunkId ?? chunkId),
+              chunkIndex: numberToBigInt(nextChunkId),
             }),
           });
 
           await sendChunk(chunkRequest);
-
-          if (!overrideChunkId) {
-            chunkId += 1;
-            resolve();
-          }
-        });
+          nextChunkId += 1;
+        }
       },
       async close() {
         const trailerReq = new SendStreamTrailerRequest({
@@ -360,10 +349,7 @@ export class LocalParticipant extends Participant {
     },
   ) {
     const writer = await this.streamText(options);
-
-    for (const chunk in splitUtf8(text, STREAM_CHUNK_SIZE)) {
-      await writer.write(chunk);
-    }
+    await writer.write(text);
     await writer.close();
     return writer.info;
   }
@@ -419,8 +405,8 @@ export class LocalParticipant extends Participant {
     const sendChunk = this.sendStreamChunk;
     const writeMutex = new Mutex();
 
-    const writableStream = new WritableStream<[Uint8Array, number?]>({
-      async write([chunk]) {
+    const writableStream = new WritableStream<Uint8Array>({
+      async write(chunk) {
         const unlock = await writeMutex.lock();
 
         let byteOffset = 0;

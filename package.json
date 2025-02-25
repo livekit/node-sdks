@@ -27,7 +27,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^15.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-config-turbo": "^2.0.0",
     "eslint-plugin-import": "^2.29.1",
@@ -39,7 +39,7 @@
     "prettier": "^3.2.5",
     "turbo": "^2.0.0",
     "typescript": "^5.4.5",
-    "vitest": "^2.0.0"
+    "vitest": "^3.0.0"
   },
-  "packageManager": "pnpm@9.2.0"
+  "packageManager": "pnpm@9.15.5"
 }

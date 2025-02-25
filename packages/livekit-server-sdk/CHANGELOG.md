@@ -1,5 +1,21 @@
 # livekit-server-sdk
 
+## 2.10.1
+
+### Patch Changes
+
+- rename enableKrisp -> krispEnabled for consistency - [#414](https://github.com/livekit/node-sdks/pull/414) ([@davidzhao](https://github.com/davidzhao))
+
+## 2.10.0
+
+### Minor Changes
+
+- Improve error insight for twirp related requests, changes the error signature to custom TwirpError - [#390](https://github.com/livekit/node-sdks/pull/390) ([@lukasIO](https://github.com/lukasIO))
+
+### Patch Changes
+
+- Update protocol and add SendDataRequest nonce - [#400](https://github.com/livekit/node-sdks/pull/400) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.9.7
 
 ### Patch Changes

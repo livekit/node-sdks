@@ -27,12 +27,6 @@ export type ByteStreamInfo = BaseStreamInfo & {
 
 export type TextStreamInfo = BaseStreamInfo;
 
-export type TextStreamChunk = {
-  index: number;
-  current: string;
-  collected: string;
-};
-
 export interface DataStreamOptions {
   topic?: string;
   destinationIdentities?: Array<string>;

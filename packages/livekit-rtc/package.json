@@ -3,7 +3,7 @@
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
   "author": "LiveKit",
-  "version": "0.13.3",
+  "version": "0.13.5",
   "main": "dist/index.js",
   "require": "dist/index.cjs",
   "types": "dist/index.d.ts",
@@ -49,8 +49,8 @@
     "@bufbuild/protobuf": "^1.10.0",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
-    "pino": "^8.19.0",
-    "pino-pretty": "^11.0.0"
+    "pino": "^9.0.0",
+    "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0",

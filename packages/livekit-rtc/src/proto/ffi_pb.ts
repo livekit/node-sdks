@@ -20,7 +20,7 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SendStreamChunkCallback, SendStreamChunkRequest, SendStreamChunkResponse, SendStreamHeaderCallback, SendStreamHeaderRequest, SendStreamHeaderResponse, SendStreamTrailerCallback, SendStreamTrailerRequest, SendStreamTrailerResponse, SetDataChannelBufferedAmountLowThresholdRequest, SetDataChannelBufferedAmountLowThresholdResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
-import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, TrackEvent } from "./track_pb.js";
+import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, SetTrackSubscriptionPermissionsRequest, SetTrackSubscriptionPermissionsResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
 import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
@@ -187,6 +187,12 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: GetStatsRequest;
     case: "getStats";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SetTrackSubscriptionPermissionsRequest set_track_subscription_permissions = 48;
+     */
+    value: SetTrackSubscriptionPermissionsRequest;
+    case: "setTrackSubscriptionPermissions";
   } | {
     /**
      * Video
@@ -395,6 +401,7 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteRequest, oneof: "message" },
     { no: 18, name: "enable_remote_track", kind: "message", T: EnableRemoteTrackRequest, oneof: "message" },
     { no: 19, name: "get_stats", kind: "message", T: GetStatsRequest, oneof: "message" },
+    { no: 48, name: "set_track_subscription_permissions", kind: "message", T: SetTrackSubscriptionPermissionsRequest, oneof: "message" },
     { no: 20, name: "new_video_stream", kind: "message", T: NewVideoStreamRequest, oneof: "message" },
     { no: 21, name: "new_video_source", kind: "message", T: NewVideoSourceRequest, oneof: "message" },
     { no: 22, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameRequest, oneof: "message" },
@@ -563,6 +570,12 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: GetStatsResponse;
     case: "getStats";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SetTrackSubscriptionPermissionsResponse set_track_subscription_permissions = 47;
+     */
+    value: SetTrackSubscriptionPermissionsResponse;
+    case: "setTrackSubscriptionPermissions";
   } | {
     /**
      * Video
@@ -765,6 +778,7 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 17, name: "local_track_mute", kind: "message", T: LocalTrackMuteResponse, oneof: "message" },
     { no: 18, name: "enable_remote_track", kind: "message", T: EnableRemoteTrackResponse, oneof: "message" },
     { no: 19, name: "get_stats", kind: "message", T: GetStatsResponse, oneof: "message" },
+    { no: 47, name: "set_track_subscription_permissions", kind: "message", T: SetTrackSubscriptionPermissionsResponse, oneof: "message" },
     { no: 20, name: "new_video_stream", kind: "message", T: NewVideoStreamResponse, oneof: "message" },
     { no: 21, name: "new_video_source", kind: "message", T: NewVideoSourceResponse, oneof: "message" },
     { no: 22, name: "capture_video_frame", kind: "message", T: CaptureVideoFrameResponse, oneof: "message" },

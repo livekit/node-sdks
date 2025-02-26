@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.6
+
+### Patch Changes
+
+- fix: pass through correct disconnect reason - [#428](https://github.com/livekit/node-sdks/pull/428) ([@davidzhao](https://github.com/davidzhao))
+
 ## 0.13.5
 
 ### Patch Changes

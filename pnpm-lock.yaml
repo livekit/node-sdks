@@ -228,9 +228,15 @@ importers:
       '@livekit/rtc-node-linux-arm64-gnu':
         specifier: workspace:*
         version: link:npm/linux-arm64-gnu
+      '@livekit/rtc-node-linux-arm64-musl':
+        specifier: workspace:*
+        version: link:npm/linux-arm64-musl
       '@livekit/rtc-node-linux-x64-gnu':
         specifier: workspace:*
         version: link:npm/linux-x64-gnu
+      '@livekit/rtc-node-linux-x64-musl':
+        specifier: workspace:*
+        version: link:npm/linux-x64-musl
       '@livekit/rtc-node-win32-x64-msvc':
         specifier: workspace:*
         version: link:npm/win32-x64-msvc
@@ -260,7 +266,11 @@ importers:
 
   packages/livekit-rtc/npm/linux-arm64-gnu: {}
 
+  packages/livekit-rtc/npm/linux-arm64-musl: {}
+
   packages/livekit-rtc/npm/linux-x64-gnu: {}
+
+  packages/livekit-rtc/npm/linux-x64-musl: {}
 
   packages/livekit-rtc/npm/win32-x64-msvc: {}
 

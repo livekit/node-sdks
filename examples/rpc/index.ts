@@ -61,7 +61,7 @@ async function main() {
 }
 
 const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
-  greetersRoom.localParticipant?.registerRpcMethod(
+  greetersRoom.registerRpcMethod(
     'arrival',
     async (data: RpcInvocationData) => {
       console.log(`[Greeter] Oh ${data.callerIdentity} arrived and said "${data.payload}"`);
@@ -70,7 +70,7 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
     },
   );
 
-  mathGeniusRoom.localParticipant?.registerRpcMethod(
+  mathGeniusRoom.registerRpcMethod(
     'square-root',
     async (data: RpcInvocationData) => {
       const jsonData = JSON.parse(data.payload);
@@ -88,7 +88,7 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
     },
   );
 
-  mathGeniusRoom.localParticipant?.registerRpcMethod(
+  mathGeniusRoom.registerRpcMethod(
     'divide',
     async (data: RpcInvocationData) => {
       const jsonData = JSON.parse(data.payload);

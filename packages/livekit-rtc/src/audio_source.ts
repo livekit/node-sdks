@@ -32,6 +32,8 @@ export class AudioSource {
   promise = this.newPromise();
   /** @internal */
   timeout?: ReturnType<typeof setTimeout> = undefined;
+  /** @internal */
+  closed = false;
 
   sampleRate: number;
   numChannels: number;
@@ -101,6 +103,9 @@ export class AudioSource {
   }
 
   async captureFrame(frame: AudioFrame) {
+    if (this.closed) {
+      throw new Error('AudioSource is closed');
+    }
     const now = Number(process.hrtime.bigint() / BigInt(1000000));
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
     const frameDurationMs = (frame.samplesPerChannel / frame.sampleRate) * 1000;
@@ -136,5 +141,6 @@ export class AudioSource {
 
   async close() {
     this.ffiHandle.dispose();
+    this.closed = true;
   }
 }

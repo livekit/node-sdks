@@ -104,7 +104,7 @@ export class AudioSource {
 
   async captureFrame(frame: AudioFrame) {
     if (this.closed) {
-      throw new Error("AudioSource is closed");
+      throw new Error('AudioSource is closed');
     }
     const now = Number(process.hrtime.bigint() / BigInt(1000000));
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;

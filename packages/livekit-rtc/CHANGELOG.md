@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.7
+
+### Patch Changes
+
+- error on closed source on captureFrame - [#435](https://github.com/livekit/node-sdks/pull/435) ([@nbsp](https://github.com/nbsp))
+
 ## 0.13.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.8
+
+### Patch Changes
+
+- fix(rtc): error on closed source for video as well - [#437](https://github.com/livekit/node-sdks/pull/437) ([@nbsp](https://github.com/nbsp))
+
 ## 0.13.7
 
 ### Patch Changes

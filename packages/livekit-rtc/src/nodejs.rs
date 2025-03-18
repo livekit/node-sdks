@@ -40,23 +40,29 @@ fn livekit_initialize(cb: JsFunction, capture_logs: bool, sdk_version: String) {
 }
 
 #[napi]
-fn livekit_ffi_request(data: Uint8Array) -> Uint8Array {
+fn livekit_ffi_request(data: Uint8Array) -> Result<Uint8Array> {
     let data = data.to_vec();
     let res = match proto::FfiRequest::decode(data.as_slice()) {
         Ok(res) => res,
         Err(err) => {
-            panic!("failed to decode request: {}", err);
+            return Err(Error::from_reason(format!(
+                "failed to decode request: {}",
+                err.to_string()
+            )));
         }
     };
 
     let res = match server::requests::handle_request(&FFI_SERVER, res) {
         Ok(res) => res,
         Err(err) => {
-            panic!("failed to handle request: {}", err);
+            return Err(Error::from_reason(format!(
+                "failed to handle request: {}",
+                err.to_string()
+            )));
         }
     }
     .encode_to_vec();
-    Uint8Array::new(res)
+    Ok(Uint8Array::new(res))
 }
 
 // FfiHandle must be used instead

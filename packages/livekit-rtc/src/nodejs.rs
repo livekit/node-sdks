@@ -52,12 +52,13 @@ fn livekit_ffi_request(data: Uint8Array) -> Result<Uint8Array> {
         }
     };
 
-    let res = match server::requests::handle_request(&FFI_SERVER, res) {
+    let res = match server::requests::handle_request(&FFI_SERVER, res.clone()) {
         Ok(res) => res,
         Err(err) => {
             return Err(Error::from_reason(format!(
-                "failed to handle request: {}",
-                err.to_string()
+                "failed to handle request: {} ({:?})",
+                err.to_string(),
+                res
             )));
         }
     }

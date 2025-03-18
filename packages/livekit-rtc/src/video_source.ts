@@ -20,6 +20,8 @@ export class VideoSource {
   info?: VideoSourceInfo;
   /** @internal */
   ffiHandle: FfiHandle;
+  /** @internal */
+  closed = false;
 
   width: number;
   height: number;
@@ -52,6 +54,9 @@ export class VideoSource {
     timestampUs = BigInt(0),
     rotation = VideoRotation.VIDEO_ROTATION_0,
   ) {
+    if (this.closed) {
+      throw new Error('VideoSource is closed');
+    }
     const req = new CaptureVideoFrameRequest({
       sourceHandle: this.ffiHandle.handle,
       buffer: frame.protoInfo(),
@@ -66,5 +71,6 @@ export class VideoSource {
 
   async close() {
     this.ffiHandle.dispose();
+    this.closed = true;
   }
 }

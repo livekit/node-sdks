@@ -76,7 +76,7 @@ importers:
     dependencies:
       '@livekit/protocol':
         specifier: ^1.30.0
-        version: 1.33.0
+        version: 1.35.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -271,7 +271,7 @@ importers:
         version: 1.10.0
       '@livekit/protocol':
         specifier: ^1.32.1
-        version: 1.33.0
+        version: 1.35.0
       camelcase-keys:
         specifier: ^9.0.0
         version: 9.1.3
@@ -953,8 +953,8 @@ packages:
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
 
-  '@livekit/protocol@1.33.0':
-    resolution: {integrity: sha512-361mBlFgI3nvn8oSQIL38gDUBGbOSwsEOqPgX0c1Jwz75/sD/TTvPeAM4zAz6OrV5Q4vI4Ruswecnyv5SG4oig==}
+  '@livekit/protocol@1.35.0':
+    resolution: {integrity: sha512-uVVfQQr9JlsE+WBKbMgMdsxuVCG2zYkcE52bOjRQiGQvdbj9dm90A7sy+G7Vrb0QPGaN30xlI7nvtKpcGqw9Nw==}
 
   '@livekit/typed-emitter@3.0.0':
     resolution: {integrity: sha512-9bl0k4MgBPZu3Qu3R3xy12rmbW17e3bE9yf4YY85gJIQ3ezLEj/uzpKHWBsLaDoL5Mozz8QCgggwIBudYQWeQg==}
@@ -4156,7 +4156,7 @@ snapshots:
 
   '@livekit/mutex@1.1.1': {}
 
-  '@livekit/protocol@1.33.0':
+  '@livekit/protocol@1.35.0':
     dependencies:
       '@bufbuild/protobuf': 1.10.0
 

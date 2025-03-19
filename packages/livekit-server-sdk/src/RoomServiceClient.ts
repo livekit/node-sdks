@@ -227,11 +227,11 @@ export class RoomServiceClient extends ServiceBase {
 
   /**
    * Forwards a participant's track to another room. This will create a
-   * participant to join the destination room that has same information 
+   * participant to join the destination room that has same information
    * with the source participant except the kind to be `Forwarded`. All
    * changes to the source participant will be reflected to the forwarded
-   * participant. When the source participant disconnects or the 
-   * `RemoveParticipant` method is called in the destination room, the 
+   * participant. When the source participant disconnects or the
+   * `RemoveParticipant` method is called in the destination room, the
    * forwarding will be stopped.
    */
   async forwardParticipant(room: string, identity: string, destinationRoom: string): Promise<void> {

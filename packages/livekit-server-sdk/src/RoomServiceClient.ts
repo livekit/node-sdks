@@ -5,6 +5,7 @@ import type { DataPacket_Kind, RoomEgress, TrackInfo } from '@livekit/protocol';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
+  ForwardParticipantRequest,
   ListParticipantsRequest,
   ListParticipantsResponse,
   ListRoomsRequest,
@@ -220,6 +221,24 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'RemoveParticipant',
       new RoomParticipantIdentity({ room, identity }).toJson(),
+      await this.authHeader({ roomAdmin: true, room }),
+    );
+  }
+
+  /**
+   * Forwards a participant's track to another room. This will create a
+   * participant to join the destination room that has same information 
+   * with the source participant except the kind to be `Forwarded`. All
+   * changes to the source participant will be reflected to the forwarded
+   * participant. When the source participant disconnects or the 
+   * `RemoveParticipant` method is called in the destination room, the 
+   * forwarding will be stopped.
+   */
+  async forwardParticipant(room: string, identity: string, destinationRoom: string): Promise<void> {
+    await this.rpc.request(
+      svc,
+      'ForwardParticipant',
+      new ForwardParticipantRequest({ room, identity, destinationRoom }).toJson(),
       await this.authHeader({ roomAdmin: true, room }),
     );
   }

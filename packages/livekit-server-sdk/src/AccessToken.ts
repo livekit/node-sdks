@@ -201,9 +201,15 @@ export class TokenVerifier {
     this.apiSecret = apiSecret;
   }
 
-  async verify(token: string, clockTolerance: string | number = defaultClockToleranceSeconds): Promise<ClaimGrants> {
+  async verify(
+    token: string,
+    clockTolerance: string | number = defaultClockToleranceSeconds,
+  ): Promise<ClaimGrants> {
     const secret = new TextEncoder().encode(this.apiSecret);
-    const { payload } = await jose.jwtVerify(token, secret, { issuer: this.apiKey, clockTolerance });
+    const { payload } = await jose.jwtVerify(token, secret, {
+      issuer: this.apiKey,
+      clockTolerance,
+    });
     if (!payload) {
       throw Error('invalid token');
     }

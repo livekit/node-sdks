@@ -9,6 +9,8 @@ import { claimsToJwtPayload } from './grants.js';
 // 6 hours
 const defaultTTL = `6h`;
 
+const defaultClockToleranceSeconds = 10;
+
 export interface AccessTokenOptions {
   /**
    * amount of time before expiration
@@ -199,9 +201,9 @@ export class TokenVerifier {
     this.apiSecret = apiSecret;
   }
 
-  async verify(token: string): Promise<ClaimGrants> {
+  async verify(token: string, clockTolerance: string | number = defaultClockToleranceSeconds): Promise<ClaimGrants> {
     const secret = new TextEncoder().encode(this.apiSecret);
-    const { payload } = await jose.jwtVerify(token, secret, { issuer: this.apiKey });
+    const { payload } = await jose.jwtVerify(token, secret, { issuer: this.apiKey, clockTolerance });
     if (!payload) {
       throw Error('invalid token');
     }

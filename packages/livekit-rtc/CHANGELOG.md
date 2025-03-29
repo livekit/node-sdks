@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.9
+
+### Patch Changes
+
+- Allow sender identity to be passed in streamText method - [#447](https://github.com/livekit/node-sdks/pull/447) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.8
 
 ### Patch Changes

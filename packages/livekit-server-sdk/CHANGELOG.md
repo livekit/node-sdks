@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.11.0
+
+### Minor Changes
+
+- Add ForwardParticipant to room service - [#440](https://github.com/livekit/node-sdks/pull/440) ([@cnderrauber](https://github.com/cnderrauber))
+
 ## 2.10.2
 
 ### Patch Changes

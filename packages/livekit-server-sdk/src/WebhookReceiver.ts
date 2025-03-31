@@ -53,19 +53,21 @@ export class WebhookReceiver {
    * @param body - string of the posted body
    * @param authHeader - `Authorization` header from the request
    * @param skipAuth - true to skip auth validation
-   * @returns
+   * @param clockTolerance - How much tolerance to allow for checks against the auth header to be skewed from the claims
+   * @returns The processed webhook event
    */
   async receive(
     body: string,
     authHeader?: string,
     skipAuth: boolean = false,
+    clockTolerance?: string | number,
   ): Promise<WebhookEvent> {
     // verify token
     if (!skipAuth) {
       if (!authHeader) {
         throw new Error('authorization header is empty');
       }
-      const claims = await this.verifier.verify(authHeader);
+      const claims = await this.verifier.verify(authHeader, clockTolerance);
       // confirm sha
       const hash = await digest(body);
       const hashDecoded = btoa(

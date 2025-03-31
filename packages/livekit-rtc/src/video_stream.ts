@@ -78,6 +78,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
               rotation: value.rotation!,
             },
           });
+          this.queueResolve = null;
         } else {
           this.eventQueue.push({
             frame: value.frame,

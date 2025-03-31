@@ -64,6 +64,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
         const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
         if (this.queueResolve) {
           this.queueResolve({ done: false, value: frame });
+          this.queueResolve = null;
         } else {
           this.eventQueue.push(frame);
         }

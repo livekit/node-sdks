@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.10
+
+### Patch Changes
+
+- Fix memory leak with FFI Handle on VideoFrame creation - [#454](https://github.com/livekit/node-sdks/pull/454) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.9
 
 ### Patch Changes

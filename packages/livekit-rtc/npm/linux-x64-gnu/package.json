@@ -1,7 +1,7 @@
 {
   "name": "@livekit/rtc-node-linux-x64-gnu",
   "author": "LiveKit",
-  "version": "0.13.9",
+  "version": "0.13.10",
   "repository": {
     "type": "git",
     "url": "https://github.com/livekit/node-sdks.git",

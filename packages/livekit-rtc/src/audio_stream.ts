@@ -9,6 +9,11 @@ import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_fram
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
+export interface NoiseCancellationOptions {
+  moduleId: string;
+  options: Record<string, any>;
+}
+
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   info: AudioStreamInfo;
@@ -24,17 +29,39 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   track: Track;
   sampleRate: number;
   numChannels: number;
+  ncOptions?: NoiseCancellationOptions;
 
-  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1) {
+  constructor(track: Track);
+  constructor(track: Track, sampleRate: number);
+  constructor(track: Track, sampleRate: number, numChannels: number);
+  constructor(track: Track, noiseCancellationOptions: NoiseCancellationOptions);
+
+  constructor(
+    track: Track,
+    sampleRateOrNcOptions?: number | NoiseCancellationOptions,
+    numChannels?: number,
+    ncOptions?: NoiseCancellationOptions
+  ) {
     this.track = track;
-    this.sampleRate = sampleRate;
-    this.numChannels = numChannels;
+    if (sampleRateOrNcOptions !== undefined && typeof sampleRateOrNcOptions !== 'number') {
+      this.sampleRate = 48000;
+      this.numChannels = 1;
+      this.ncOptions = sampleRateOrNcOptions as NoiseCancellationOptions;
+    } else {
+      this.sampleRate = sampleRateOrNcOptions as number ?? 48000;
+      this.numChannels = numChannels ?? 1;
+      this.ncOptions = ncOptions;
+    }
 
     const req = new NewAudioStreamRequest({
       type: AudioStreamType.AUDIO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
-      sampleRate: sampleRate,
-      numChannels: numChannels,
+      sampleRate: this.sampleRate,
+      numChannels: this.numChannels,
+      ...(this.ncOptions ? {
+        audioFilterModuleId: this.ncOptions.moduleId,
+        audioFilterOptions: JSON.stringify(this.ncOptions.options)
+      } : {}),
     });
 
     const res = FfiClient.instance.request<NewAudioStreamResponse>({

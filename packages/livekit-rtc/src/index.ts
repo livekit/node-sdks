@@ -6,6 +6,7 @@ export { AudioFrame, combineAudioFrames } from './audio_frame.js';
 export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
 export { AudioSource } from './audio_source.js';
 export { AudioStream } from './audio_stream.js';
+export type { NoiseCancellationOptions } from './audio_stream.js';
 export { AudioFilter } from './audio_filter.js';
 export * from './data_streams/index.js';
 export { E2EEManager, FrameCryptor, KeyProvider } from './e2ee.js';

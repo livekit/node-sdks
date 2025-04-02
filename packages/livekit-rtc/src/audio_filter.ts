@@ -1,12 +1,11 @@
-import { FfiClient } from "./ffi_client.js";
-import { LoadAudioFilterPluginRequest, LoadAudioFilterPluginResponse } from "./proto/audio_frame_pb.js";
+import { FfiClient } from './ffi_client.js';
+import {
+  LoadAudioFilterPluginRequest,
+  LoadAudioFilterPluginResponse,
+} from './proto/audio_frame_pb.js';
 
 export class AudioFilter {
-  constructor(
-    moduleId: string,
-    path: string,
-    dependencies: string[] = [],
-  ) {
+  constructor(moduleId: string, path: string, dependencies: string[] = []) {
     const req = new LoadAudioFilterPluginRequest({
       moduleId,
       pluginPath: path,

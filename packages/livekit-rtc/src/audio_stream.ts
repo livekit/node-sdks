@@ -40,7 +40,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     track: Track,
     sampleRateOrNcOptions?: number | NoiseCancellationOptions,
     numChannels?: number,
-    ncOptions?: NoiseCancellationOptions
+    ncOptions?: NoiseCancellationOptions,
   ) {
     this.track = track;
     if (sampleRateOrNcOptions !== undefined && typeof sampleRateOrNcOptions !== 'number') {
@@ -48,7 +48,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       this.numChannels = 1;
       this.ncOptions = sampleRateOrNcOptions as NoiseCancellationOptions;
     } else {
-      this.sampleRate = sampleRateOrNcOptions as number ?? 48000;
+      this.sampleRate = (sampleRateOrNcOptions as number) ?? 48000;
       this.numChannels = numChannels ?? 1;
       this.ncOptions = ncOptions;
     }
@@ -58,10 +58,12 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       trackHandle: track.ffi_handle.handle,
       sampleRate: this.sampleRate,
       numChannels: this.numChannels,
-      ...(this.ncOptions ? {
-        audioFilterModuleId: this.ncOptions.moduleId,
-        audioFilterOptions: JSON.stringify(this.ncOptions.options)
-      } : {}),
+      ...(this.ncOptions
+        ? {
+            audioFilterModuleId: this.ncOptions.moduleId,
+            audioFilterOptions: JSON.stringify(this.ncOptions.options),
+          }
+        : {}),
     });
 
     const res = FfiClient.instance.request<NewAudioStreamResponse>({

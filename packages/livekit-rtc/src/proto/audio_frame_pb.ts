@@ -199,6 +199,18 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
    */
   numChannels?: number;
 
+  /**
+   * Unique identifier passed in LoadAudioFilterPluginRequest
+   *
+   * @generated from field: optional string audio_filter_module_id = 5;
+   */
+  audioFilterModuleId?: string;
+
+  /**
+   * @generated from field: optional string audio_filter_options = 6;
+   */
+  audioFilterOptions?: string;
+
   constructor(data?: PartialMessage<NewAudioStreamRequest>) {
     super();
     proto2.util.initPartial(data, this);
@@ -211,6 +223,8 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
     { no: 2, name: "type", kind: "enum", T: proto2.getEnumType(AudioStreamType), req: true },
     { no: 3, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
     { no: 4, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
+    { no: 5, name: "audio_filter_module_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 6, name: "audio_filter_options", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewAudioStreamRequest {
@@ -296,6 +310,16 @@ export class AudioStreamFromParticipantRequest extends Message<AudioStreamFromPa
    */
   numChannels?: number;
 
+  /**
+   * @generated from field: optional string audio_filter_module_id = 7;
+   */
+  audioFilterModuleId?: string;
+
+  /**
+   * @generated from field: optional string audio_filter_options = 8;
+   */
+  audioFilterOptions?: string;
+
   constructor(data?: PartialMessage<AudioStreamFromParticipantRequest>) {
     super();
     proto2.util.initPartial(data, this);
@@ -309,6 +333,8 @@ export class AudioStreamFromParticipantRequest extends Message<AudioStreamFromPa
     { no: 3, name: "track_source", kind: "enum", T: proto2.getEnumType(TrackSource), opt: true },
     { no: 5, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
     { no: 6, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
+    { no: 7, name: "audio_filter_module_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 8, name: "audio_filter_options", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AudioStreamFromParticipantRequest {
@@ -820,6 +846,302 @@ export class RemixAndResampleResponse extends Message<RemixAndResampleResponse> 
 
   static equals(a: RemixAndResampleResponse | PlainMessage<RemixAndResampleResponse> | undefined, b: RemixAndResampleResponse | PlainMessage<RemixAndResampleResponse> | undefined): boolean {
     return proto2.util.equals(RemixAndResampleResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.NewApmRequest
+ */
+export class NewApmRequest extends Message<NewApmRequest> {
+  /**
+   * @generated from field: required bool echo_canceller_enabled = 1;
+   */
+  echoCancellerEnabled?: boolean;
+
+  /**
+   * @generated from field: required bool gain_controller_enabled = 2;
+   */
+  gainControllerEnabled?: boolean;
+
+  /**
+   * @generated from field: required bool high_pass_filter_enabled = 3;
+   */
+  highPassFilterEnabled?: boolean;
+
+  /**
+   * @generated from field: required bool noise_suppression_enabled = 4;
+   */
+  noiseSuppressionEnabled?: boolean;
+
+  constructor(data?: PartialMessage<NewApmRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.NewApmRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "echo_canceller_enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+    { no: 2, name: "gain_controller_enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+    { no: 3, name: "high_pass_filter_enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+    { no: 4, name: "noise_suppression_enabled", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewApmRequest {
+    return new NewApmRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): NewApmRequest {
+    return new NewApmRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): NewApmRequest {
+    return new NewApmRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: NewApmRequest | PlainMessage<NewApmRequest> | undefined, b: NewApmRequest | PlainMessage<NewApmRequest> | undefined): boolean {
+    return proto2.util.equals(NewApmRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.NewApmResponse
+ */
+export class NewApmResponse extends Message<NewApmResponse> {
+  /**
+   * @generated from field: required livekit.proto.OwnedApm apm = 1;
+   */
+  apm?: OwnedApm;
+
+  constructor(data?: PartialMessage<NewApmResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.NewApmResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "apm", kind: "message", T: OwnedApm, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewApmResponse {
+    return new NewApmResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): NewApmResponse {
+    return new NewApmResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): NewApmResponse {
+    return new NewApmResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: NewApmResponse | PlainMessage<NewApmResponse> | undefined, b: NewApmResponse | PlainMessage<NewApmResponse> | undefined): boolean {
+    return proto2.util.equals(NewApmResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ApmProcessStreamRequest
+ */
+export class ApmProcessStreamRequest extends Message<ApmProcessStreamRequest> {
+  /**
+   * @generated from field: required uint64 apm_handle = 1;
+   */
+  apmHandle?: bigint;
+
+  /**
+   * *mut i16
+   *
+   * @generated from field: required uint64 data_ptr = 2;
+   */
+  dataPtr?: bigint;
+
+  /**
+   * in bytes
+   *
+   * @generated from field: required uint32 size = 3;
+   */
+  size?: number;
+
+  /**
+   * @generated from field: required uint32 sample_rate = 4;
+   */
+  sampleRate?: number;
+
+  /**
+   * @generated from field: required uint32 num_channels = 5;
+   */
+  numChannels?: number;
+
+  constructor(data?: PartialMessage<ApmProcessStreamRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ApmProcessStreamRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "apm_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "data_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 3, name: "size", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 4, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 5, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ApmProcessStreamRequest {
+    return new ApmProcessStreamRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ApmProcessStreamRequest {
+    return new ApmProcessStreamRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ApmProcessStreamRequest {
+    return new ApmProcessStreamRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ApmProcessStreamRequest | PlainMessage<ApmProcessStreamRequest> | undefined, b: ApmProcessStreamRequest | PlainMessage<ApmProcessStreamRequest> | undefined): boolean {
+    return proto2.util.equals(ApmProcessStreamRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ApmProcessStreamResponse
+ */
+export class ApmProcessStreamResponse extends Message<ApmProcessStreamResponse> {
+  /**
+   * @generated from field: optional string error = 1;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<ApmProcessStreamResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ApmProcessStreamResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ApmProcessStreamResponse {
+    return new ApmProcessStreamResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ApmProcessStreamResponse {
+    return new ApmProcessStreamResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ApmProcessStreamResponse {
+    return new ApmProcessStreamResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ApmProcessStreamResponse | PlainMessage<ApmProcessStreamResponse> | undefined, b: ApmProcessStreamResponse | PlainMessage<ApmProcessStreamResponse> | undefined): boolean {
+    return proto2.util.equals(ApmProcessStreamResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ApmProcessReverseStreamRequest
+ */
+export class ApmProcessReverseStreamRequest extends Message<ApmProcessReverseStreamRequest> {
+  /**
+   * @generated from field: required uint64 apm_handle = 1;
+   */
+  apmHandle?: bigint;
+
+  /**
+   * *mut i16
+   *
+   * @generated from field: required uint64 data_ptr = 2;
+   */
+  dataPtr?: bigint;
+
+  /**
+   * in bytes
+   *
+   * @generated from field: required uint32 size = 3;
+   */
+  size?: number;
+
+  /**
+   * @generated from field: required uint32 sample_rate = 4;
+   */
+  sampleRate?: number;
+
+  /**
+   * @generated from field: required uint32 num_channels = 5;
+   */
+  numChannels?: number;
+
+  constructor(data?: PartialMessage<ApmProcessReverseStreamRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ApmProcessReverseStreamRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "apm_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "data_ptr", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 3, name: "size", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 4, name: "sample_rate", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 5, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ApmProcessReverseStreamRequest {
+    return new ApmProcessReverseStreamRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ApmProcessReverseStreamRequest {
+    return new ApmProcessReverseStreamRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ApmProcessReverseStreamRequest {
+    return new ApmProcessReverseStreamRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ApmProcessReverseStreamRequest | PlainMessage<ApmProcessReverseStreamRequest> | undefined, b: ApmProcessReverseStreamRequest | PlainMessage<ApmProcessReverseStreamRequest> | undefined): boolean {
+    return proto2.util.equals(ApmProcessReverseStreamRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ApmProcessReverseStreamResponse
+ */
+export class ApmProcessReverseStreamResponse extends Message<ApmProcessReverseStreamResponse> {
+  /**
+   * @generated from field: optional string error = 1;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<ApmProcessReverseStreamResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ApmProcessReverseStreamResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ApmProcessReverseStreamResponse {
+    return new ApmProcessReverseStreamResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ApmProcessReverseStreamResponse {
+    return new ApmProcessReverseStreamResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ApmProcessReverseStreamResponse {
+    return new ApmProcessReverseStreamResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ApmProcessReverseStreamResponse | PlainMessage<ApmProcessReverseStreamResponse> | undefined, b: ApmProcessReverseStreamResponse | PlainMessage<ApmProcessReverseStreamResponse> | undefined): boolean {
+    return proto2.util.equals(ApmProcessReverseStreamResponse, a, b);
   }
 }
 
@@ -1650,6 +1972,43 @@ export class OwnedAudioResampler extends Message<OwnedAudioResampler> {
 }
 
 /**
+ * @generated from message livekit.proto.OwnedApm
+ */
+export class OwnedApm extends Message<OwnedApm> {
+  /**
+   * @generated from field: required livekit.proto.FfiOwnedHandle handle = 1;
+   */
+  handle?: FfiOwnedHandle;
+
+  constructor(data?: PartialMessage<OwnedApm>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.OwnedApm";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "handle", kind: "message", T: FfiOwnedHandle, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): OwnedApm {
+    return new OwnedApm().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): OwnedApm {
+    return new OwnedApm().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): OwnedApm {
+    return new OwnedApm().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: OwnedApm | PlainMessage<OwnedApm> | undefined, b: OwnedApm | PlainMessage<OwnedApm> | undefined): boolean {
+    return proto2.util.equals(OwnedApm, a, b);
+  }
+}
+
+/**
  * @generated from message livekit.proto.SoxResamplerInfo
  */
 export class SoxResamplerInfo extends Message<SoxResamplerInfo> {
@@ -1720,6 +2079,100 @@ export class OwnedSoxResampler extends Message<OwnedSoxResampler> {
 
   static equals(a: OwnedSoxResampler | PlainMessage<OwnedSoxResampler> | undefined, b: OwnedSoxResampler | PlainMessage<OwnedSoxResampler> | undefined): boolean {
     return proto2.util.equals(OwnedSoxResampler, a, b);
+  }
+}
+
+/**
+ * Audio Filter Plugin
+ *
+ * @generated from message livekit.proto.LoadAudioFilterPluginRequest
+ */
+export class LoadAudioFilterPluginRequest extends Message<LoadAudioFilterPluginRequest> {
+  /**
+   * path for ffi audio filter plugin
+   *
+   * @generated from field: required string plugin_path = 1;
+   */
+  pluginPath?: string;
+
+  /**
+   * Optional: paths for dependency dylibs
+   *
+   * @generated from field: repeated string dependencies = 2;
+   */
+  dependencies: string[] = [];
+
+  /**
+   * Unique identifier of the plugin
+   *
+   * @generated from field: required string module_id = 3;
+   */
+  moduleId?: string;
+
+  constructor(data?: PartialMessage<LoadAudioFilterPluginRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.LoadAudioFilterPluginRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "plugin_path", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "dependencies", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 3, name: "module_id", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LoadAudioFilterPluginRequest {
+    return new LoadAudioFilterPluginRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LoadAudioFilterPluginRequest {
+    return new LoadAudioFilterPluginRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LoadAudioFilterPluginRequest {
+    return new LoadAudioFilterPluginRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LoadAudioFilterPluginRequest | PlainMessage<LoadAudioFilterPluginRequest> | undefined, b: LoadAudioFilterPluginRequest | PlainMessage<LoadAudioFilterPluginRequest> | undefined): boolean {
+    return proto2.util.equals(LoadAudioFilterPluginRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.LoadAudioFilterPluginResponse
+ */
+export class LoadAudioFilterPluginResponse extends Message<LoadAudioFilterPluginResponse> {
+  /**
+   * @generated from field: optional string error = 1;
+   */
+  error?: string;
+
+  constructor(data?: PartialMessage<LoadAudioFilterPluginResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.LoadAudioFilterPluginResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LoadAudioFilterPluginResponse {
+    return new LoadAudioFilterPluginResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LoadAudioFilterPluginResponse {
+    return new LoadAudioFilterPluginResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LoadAudioFilterPluginResponse {
+    return new LoadAudioFilterPluginResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LoadAudioFilterPluginResponse | PlainMessage<LoadAudioFilterPluginResponse> | undefined, b: LoadAudioFilterPluginResponse | PlainMessage<LoadAudioFilterPluginResponse> | undefined): boolean {
+    return proto2.util.equals(LoadAudioFilterPluginResponse, a, b);
   }
 }
 

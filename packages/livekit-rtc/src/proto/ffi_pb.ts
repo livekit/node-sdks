@@ -22,7 +22,7 @@ import { Message, proto2 } from "@bufbuild/protobuf";
 import { ConnectCallback, ConnectRequest, ConnectResponse, DisconnectCallback, DisconnectRequest, DisconnectResponse, EditChatMessageRequest, GetSessionStatsCallback, GetSessionStatsRequest, GetSessionStatsResponse, PublishDataCallback, PublishDataRequest, PublishDataResponse, PublishSipDtmfCallback, PublishSipDtmfRequest, PublishSipDtmfResponse, PublishTrackCallback, PublishTrackRequest, PublishTrackResponse, PublishTranscriptionCallback, PublishTranscriptionRequest, PublishTranscriptionResponse, RoomEvent, SendChatMessageCallback, SendChatMessageRequest, SendChatMessageResponse, SendStreamChunkCallback, SendStreamChunkRequest, SendStreamChunkResponse, SendStreamHeaderCallback, SendStreamHeaderRequest, SendStreamHeaderResponse, SendStreamTrailerCallback, SendStreamTrailerRequest, SendStreamTrailerResponse, SetDataChannelBufferedAmountLowThresholdRequest, SetDataChannelBufferedAmountLowThresholdResponse, SetLocalAttributesCallback, SetLocalAttributesRequest, SetLocalAttributesResponse, SetLocalMetadataCallback, SetLocalMetadataRequest, SetLocalMetadataResponse, SetLocalNameCallback, SetLocalNameRequest, SetLocalNameResponse, SetSubscribedRequest, SetSubscribedResponse, UnpublishTrackCallback, UnpublishTrackRequest, UnpublishTrackResponse } from "./room_pb.js";
 import { CreateAudioTrackRequest, CreateAudioTrackResponse, CreateVideoTrackRequest, CreateVideoTrackResponse, EnableRemoteTrackRequest, EnableRemoteTrackResponse, GetStatsCallback, GetStatsRequest, GetStatsResponse, LocalTrackMuteRequest, LocalTrackMuteResponse, SetTrackSubscriptionPermissionsRequest, SetTrackSubscriptionPermissionsResponse, TrackEvent } from "./track_pb.js";
 import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequest, NewVideoSourceResponse, NewVideoStreamRequest, NewVideoStreamResponse, VideoConvertRequest, VideoConvertResponse, VideoStreamEvent, VideoStreamFromParticipantRequest, VideoStreamFromParticipantResponse } from "./video_frame_pb.js";
-import { AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
+import { ApmProcessReverseStreamRequest, ApmProcessReverseStreamResponse, ApmProcessStreamRequest, ApmProcessStreamResponse, AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, LoadAudioFilterPluginRequest, LoadAudioFilterPluginResponse, NewApmRequest, NewApmResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
 import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
@@ -373,6 +373,32 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: SetDataChannelBufferedAmountLowThresholdRequest;
     case: "setDataChannelBufferedAmountLowThreshold";
+  } | {
+    /**
+     * Audio Filter Plugin
+     *
+     * @generated from field: livekit.proto.LoadAudioFilterPluginRequest load_audio_filter_plugin = 49;
+     */
+    value: LoadAudioFilterPluginRequest;
+    case: "loadAudioFilterPlugin";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewApmRequest new_apm = 50;
+     */
+    value: NewApmRequest;
+    case: "newApm";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ApmProcessStreamRequest apm_process_stream = 51;
+     */
+    value: ApmProcessStreamRequest;
+    case: "apmProcessStream";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ApmProcessReverseStreamRequest apm_process_reverse_stream = 52;
+     */
+    value: ApmProcessReverseStreamRequest;
+    case: "apmProcessReverseStream";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -430,6 +456,10 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 45, name: "send_stream_chunk", kind: "message", T: SendStreamChunkRequest, oneof: "message" },
     { no: 46, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerRequest, oneof: "message" },
     { no: 47, name: "set_data_channel_buffered_amount_low_threshold", kind: "message", T: SetDataChannelBufferedAmountLowThresholdRequest, oneof: "message" },
+    { no: 49, name: "load_audio_filter_plugin", kind: "message", T: LoadAudioFilterPluginRequest, oneof: "message" },
+    { no: 50, name: "new_apm", kind: "message", T: NewApmRequest, oneof: "message" },
+    { no: 51, name: "apm_process_stream", kind: "message", T: ApmProcessStreamRequest, oneof: "message" },
+    { no: 52, name: "apm_process_reverse_stream", kind: "message", T: ApmProcessReverseStreamRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -750,6 +780,32 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: SetDataChannelBufferedAmountLowThresholdResponse;
     case: "setDataChannelBufferedAmountLowThreshold";
+  } | {
+    /**
+     * Audio Filter Plugin
+     *
+     * @generated from field: livekit.proto.LoadAudioFilterPluginResponse load_audio_filter_plugin = 48;
+     */
+    value: LoadAudioFilterPluginResponse;
+    case: "loadAudioFilterPlugin";
+  } | {
+    /**
+     * @generated from field: livekit.proto.NewApmResponse new_apm = 49;
+     */
+    value: NewApmResponse;
+    case: "newApm";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ApmProcessStreamResponse apm_process_stream = 50;
+     */
+    value: ApmProcessStreamResponse;
+    case: "apmProcessStream";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ApmProcessReverseStreamResponse apm_process_reverse_stream = 51;
+     */
+    value: ApmProcessReverseStreamResponse;
+    case: "apmProcessReverseStream";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -806,6 +862,10 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 44, name: "send_stream_chunk", kind: "message", T: SendStreamChunkResponse, oneof: "message" },
     { no: 45, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerResponse, oneof: "message" },
     { no: 46, name: "set_data_channel_buffered_amount_low_threshold", kind: "message", T: SetDataChannelBufferedAmountLowThresholdResponse, oneof: "message" },
+    { no: 48, name: "load_audio_filter_plugin", kind: "message", T: LoadAudioFilterPluginResponse, oneof: "message" },
+    { no: 49, name: "new_apm", kind: "message", T: NewApmResponse, oneof: "message" },
+    { no: 50, name: "apm_process_stream", kind: "message", T: ApmProcessStreamResponse, oneof: "message" },
+    { no: 51, name: "apm_process_reverse_stream", kind: "message", T: ApmProcessReverseStreamResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

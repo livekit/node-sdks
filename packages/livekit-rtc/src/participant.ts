@@ -89,6 +89,7 @@ import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
 import type { ChatMessage } from './types.js';
 import { numberToBigInt, splitUtf8 } from './utils.js';
+import type { Room } from './room.js';
 
 const STREAM_CHUNK_SIZE = 15_000;
 
@@ -155,9 +156,14 @@ export type DataPublishOptions = {
 };
 
 export class LocalParticipant extends Participant {
-  private rpcHandlers: Map<string, (data: RpcInvocationData) => Promise<string>> = new Map();
+  private room?: Room;
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
+
+  constructor(owned_info: OwnedParticipant, room: Room) {
+    super(owned_info);
+    this.room = room;
+  }
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
     const req = new PublishDataRequest({
@@ -740,6 +746,8 @@ export class LocalParticipant extends Participant {
   }
 
   /**
+   * @deprecated Use `room.registerRpcMethod` instead
+   *
    * Establishes the participant as a receiver for calls of the specified RPC method.
    * Will overwrite any existing callback for the same method.
    *
@@ -768,82 +776,18 @@ export class LocalParticipant extends Participant {
    * Other errors thrown in your handler will not be transmitted as-is, and will instead arrive to the caller as `1500` ("Application Error").
    */
   registerRpcMethod(method: string, handler: (data: RpcInvocationData) => Promise<string>) {
-    this.rpcHandlers.set(method, handler);
-
-    const req = new RegisterRpcMethodRequest({
-      localParticipantHandle: this.ffi_handle.handle,
-      method,
-    });
-
-    FfiClient.instance.request<RegisterRpcMethodResponse>({
-      message: { case: 'registerRpcMethod', value: req },
-    });
+    this.room?.registerRpcMethod(method, handler);
   }
 
   /**
+   * @deprecated Use `room.unregisterRpcMethod` instead
+   *
    * Unregisters a previously registered RPC method.
    *
    * @param method - The name of the RPC method to unregister
    */
   unregisterRpcMethod(method: string) {
-    this.rpcHandlers.delete(method);
-
-    const req = new UnregisterRpcMethodRequest({
-      localParticipantHandle: this.ffi_handle.handle,
-      method,
-    });
-
-    FfiClient.instance.request<UnregisterRpcMethodResponse>({
-      message: { case: 'unregisterRpcMethod', value: req },
-    });
-  }
-
-  /** @internal */
-  async handleRpcMethodInvocation(
-    invocationId: bigint,
-    method: string,
-    requestId: string,
-    callerIdentity: string,
-    payload: string,
-    responseTimeout: number,
-  ) {
-    let responseError: RpcError | null = null;
-    let responsePayload: string | null = null;
-
-    const handler = this.rpcHandlers.get(method);
-
-    if (!handler) {
-      responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
-    } else {
-      try {
-        responsePayload = await handler({ requestId, callerIdentity, payload, responseTimeout });
-      } catch (error) {
-        if (error instanceof RpcError) {
-          responseError = error;
-        } else {
-          console.warn(
-            `Uncaught error returned by RPC handler for ${method}. Returning APPLICATION_ERROR instead.`,
-            error,
-          );
-          responseError = RpcError.builtIn('APPLICATION_ERROR');
-        }
-      }
-    }
-
-    const req = new RpcMethodInvocationResponseRequest({
-      localParticipantHandle: this.ffi_handle.handle,
-      invocationId,
-      error: responseError ? responseError.toProto() : undefined,
-      payload: responsePayload ?? undefined,
-    });
-
-    const res = FfiClient.instance.request<RpcMethodInvocationResponseResponse>({
-      message: { case: 'rpcMethodInvocationResponse', value: req },
-    });
-
-    if (res.error) {
-      console.warn(`error sending rpc method invocation response: ${res.error}`);
-    }
+    this.room?.unregisterRpcMethod(method);
   }
 }
 

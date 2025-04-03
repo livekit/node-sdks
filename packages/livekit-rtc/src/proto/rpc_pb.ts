@@ -137,9 +137,9 @@ export class PerformRpcRequest extends Message<PerformRpcRequest> {
  */
 export class RegisterRpcMethodRequest extends Message<RegisterRpcMethodRequest> {
   /**
-   * @generated from field: required uint64 local_participant_handle = 1;
+   * @generated from field: required uint64 room_handle = 1;
    */
-  localParticipantHandle?: bigint;
+  roomHandle?: bigint;
 
   /**
    * @generated from field: required string method = 2;
@@ -154,7 +154,7 @@ export class RegisterRpcMethodRequest extends Message<RegisterRpcMethodRequest> 
   static readonly runtime: typeof proto2 = proto2;
   static readonly typeName = "livekit.proto.RegisterRpcMethodRequest";
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
-    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 1, name: "room_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
   ]);
 
@@ -180,9 +180,9 @@ export class RegisterRpcMethodRequest extends Message<RegisterRpcMethodRequest> 
  */
 export class UnregisterRpcMethodRequest extends Message<UnregisterRpcMethodRequest> {
   /**
-   * @generated from field: required uint64 local_participant_handle = 1;
+   * @generated from field: required uint64 room_handle = 1;
    */
-  localParticipantHandle?: bigint;
+  roomHandle?: bigint;
 
   /**
    * @generated from field: required string method = 2;
@@ -197,7 +197,7 @@ export class UnregisterRpcMethodRequest extends Message<UnregisterRpcMethodReque
   static readonly runtime: typeof proto2 = proto2;
   static readonly typeName = "livekit.proto.UnregisterRpcMethodRequest";
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
-    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 1, name: "room_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 2, name: "method", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
   ]);
 

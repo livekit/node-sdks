@@ -11,8 +11,8 @@ import type {
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
-import { VideoFrame } from './video_frame.js';
 import { RingQueue } from './utils.js';
+import { VideoFrame } from './video_frame.js';
 
 export type VideoFrameEvent = {
   frame: VideoFrame;
@@ -69,11 +69,14 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
         const rotation = streamEvent.value.rotation;
         const timestampUs = streamEvent.value.timestampUs;
         const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
-        this.eventQueue.push({ done: false, value: { 
-          rotation: rotation!, 
-          timestampUs: timestampUs!, 
-          frame 
-        }});
+        this.eventQueue.push({
+          done: false,
+          value: {
+            rotation: rotation!,
+            timestampUs: timestampUs!,
+            frame,
+          },
+        });
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);

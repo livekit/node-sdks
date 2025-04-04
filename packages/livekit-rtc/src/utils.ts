@@ -42,9 +42,9 @@ export function splitUtf8(s: string, n: number): Uint8Array[] {
 }
 
 /**
- * A ring queue that stores a fixed number of items. If capacity is 
+ * A ring queue that stores a fixed number of items. If capacity is
  * set to 0, the buffer will grow indefinitely.
- * 
+ *
  * WARNING: THIS IS NOT THREAD SAFE.
  */
 export class RingQueue<T> {
@@ -59,10 +59,10 @@ export class RingQueue<T> {
   }
 
   /**
-   * Push an item into the buffer. If the buffer is full, the oldest item will 
+   * Push an item into the buffer. If the buffer is full, the oldest item will
    * be removed.
    */
-  push(item: T){
+  push(item: T) {
     if (this.resolve) {
       this.resolve(item);
       this.resolve = null;
@@ -72,7 +72,6 @@ export class RingQueue<T> {
       }
       this.buffer.push(item);
     }
-
   }
 
   /**

@@ -44,6 +44,8 @@ export function splitUtf8(s: string, n: number): Uint8Array[] {
 /**
  * A ring queue that stores a fixed number of items. If capacity is 
  * set to 0, the buffer will grow indefinitely.
+ * 
+ * WARNING: THIS IS NOT THREAD SAFE.
  */
 export class RingQueue<T> {
   private buffer: T[] = [];

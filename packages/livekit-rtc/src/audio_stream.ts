@@ -8,6 +8,7 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
+import { RingQueue } from './utils.js';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
@@ -15,9 +16,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  eventQueue: (AudioFrame | null)[] = [];
-  /** @internal */
-  queueResolve: ((value: IteratorResult<AudioFrame>) => void) | null = null;
+  eventQueue: RingQueue<IteratorResult<AudioFrame>>;
   /** @internal */
   mutex = new Mutex();
 
@@ -25,7 +24,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   sampleRate: number;
   numChannels: number;
 
-  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1) {
+  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1, capacity: number = 0) {
     this.track = track;
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
@@ -46,6 +45,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
 
     this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
+    this.eventQueue = new RingQueue<IteratorResult<AudioFrame>>(capacity);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
@@ -62,12 +62,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     switch (streamEvent.case) {
       case 'frameReceived':
         const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
-        if (this.queueResolve) {
-          this.queueResolve({ done: false, value: frame });
-          this.queueResolve = null;
-        } else {
-          this.eventQueue.push(frame);
-        }
+        this.eventQueue.push({ done: false, value: frame });
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
@@ -77,24 +72,13 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
 
   async next(): Promise<IteratorResult<AudioFrame>> {
     const unlock = await this.mutex.lock();
-    if (this.eventQueue.length > 0) {
-      unlock();
-      const value = this.eventQueue.shift();
-      if (value) {
-        return { done: false, value };
-      } else {
-        return { done: true, value: undefined };
-      }
-    }
-    const promise = new Promise<IteratorResult<AudioFrame>>(
-      (resolve) => (this.queueResolve = resolve),
-    );
+    const result = this.eventQueue.get();
     unlock();
-    return promise;
+    return result;
   }
 
   close() {
-    this.eventQueue.push(null);
+    this.eventQueue.push({ done: true, value: undefined });
     this.ffiHandle.dispose();
   }
 

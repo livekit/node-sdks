@@ -59,7 +59,7 @@ export class RingQueue<T> {
   }
 
   /**
-   * Push an item into the buffer. If the buffer is full, the oldest newest will
+   * Push an item into the buffer. If the buffer is full, the newest will
    * be removed.
    */
   push(item: T) {

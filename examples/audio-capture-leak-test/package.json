@@ -1,0 +1,19 @@
+{
+  "name": "audio-capture-leak-test",
+  "version": "1.0.0",
+  "description": "Test for AudioSourceCapture thread leak",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "dependencies": {
+    "@livekit/rtc-node": "^0.13.10",
+    "livekit-server-sdk": "^1.2.6",
+    "ps-list": "^8.1.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}

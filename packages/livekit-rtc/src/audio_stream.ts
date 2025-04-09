@@ -10,14 +10,14 @@ import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.j
 import type { Track } from './track.js';
 
 export interface AudioStreamOptions {
-  noiseCancellation?: NoiseCancellationOptions,
-  sampleRate?: number,
-  numChannels?: number,
+  noiseCancellation?: NoiseCancellationOptions;
+  sampleRate?: number;
+  numChannels?: number;
 }
 
 export interface NoiseCancellationOptions {
-  moduleId: string,
-  options: Record<string, any>,
+  moduleId: string;
+  options: Record<string, any>;
 }
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {

@@ -9,9 +9,15 @@ import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_fram
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
+export interface AudioStreamOptions {
+  noiseCancellation?: NoiseCancellationOptions,
+  sampleRate?: number,
+  numChannels?: number,
+}
+
 export interface NoiseCancellationOptions {
-  moduleId: string;
-  options: Record<string, any>;
+  moduleId: string,
+  options: Record<string, any>,
 }
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
@@ -34,23 +40,21 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   constructor(track: Track);
   constructor(track: Track, sampleRate: number);
   constructor(track: Track, sampleRate: number, numChannels: number);
-  constructor(track: Track, noiseCancellationOptions: NoiseCancellationOptions);
+  constructor(track: Track, options: AudioStreamOptions);
 
   constructor(
     track: Track,
-    sampleRateOrNcOptions?: number | NoiseCancellationOptions,
+    sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
-    ncOptions?: NoiseCancellationOptions,
   ) {
     this.track = track;
-    if (sampleRateOrNcOptions !== undefined && typeof sampleRateOrNcOptions !== 'number') {
-      this.sampleRate = 48000;
-      this.numChannels = 1;
-      this.ncOptions = sampleRateOrNcOptions as NoiseCancellationOptions;
+    if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
+      this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
+      this.numChannels = sampleRateOrOptions.numChannels ?? 1;
+      this.ncOptions = sampleRateOrOptions.noiseCancellation;
     } else {
-      this.sampleRate = (sampleRateOrNcOptions as number) ?? 48000;
+      this.sampleRate = (sampleRateOrOptions as number) ?? 48000;
       this.numChannels = numChannels ?? 1;
-      this.ncOptions = ncOptions;
     }
 
     const req = new NewAudioStreamRequest({

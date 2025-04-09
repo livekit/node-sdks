@@ -92,7 +92,7 @@ export interface VideoGrant {
   canSubscribeMetrics?: boolean;
 
   /** destination room which this participant can forward to */
-  forwardDestRoom?: string;
+  destinationRoom?: string;
 }
 
 export interface SIPGrant {

@@ -239,7 +239,7 @@ export class RoomServiceClient extends ServiceBase {
       svc,
       'ForwardParticipant',
       new ForwardParticipantRequest({ room, identity, destinationRoom }).toJson(),
-      await this.authHeader({ roomAdmin: true, room }),
+      await this.authHeader({ roomAdmin: true, room, forwardDestRoom: destinationRoom }),
     );
   }
 

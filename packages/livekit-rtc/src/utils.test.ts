@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from 'vitest';
-import { RingQueue, splitUtf8 } from './utils.js';
+import { splitUtf8 } from './utils.js';
 
 describe('splitUtf8', () => {
   it('splits a string into chunks of the given size', () => {
@@ -47,33 +47,5 @@ describe('splitUtf8', () => {
 
   it('handles an empty string', () => {
     expect(splitUtf8('', 5)).toEqual([]);
-  });
-});
-
-describe('RingQueue', () => {
-  it('should push and get items', async () => {
-    const queue = new RingQueue<number>(3);
-    queue.push(1);
-    queue.push(2);
-    expect(await queue.get()).toBe(1);
-    expect(await queue.get()).toBe(2);
-  });
-
-  it('should push and get items with a capacity', async () => {
-    const queue = new RingQueue<number>(3);
-    queue.push(1);
-    queue.push(2);
-    queue.push(3);
-    queue.push(4);
-    expect(await queue.get()).toBe(1);
-    expect(await queue.get()).toBe(2);
-    expect(await queue.get()).toBe(3);
-  });
-
-  it('should push and get items with a capacity of 0', async () => {
-    const queue = new RingQueue<number>(0);
-    queue.push(1);
-    queue.push(2);
-    queue.push(3);
   });
 });

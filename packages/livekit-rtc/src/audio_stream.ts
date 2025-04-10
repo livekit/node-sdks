@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
+import { ReadableStream, TransformStream } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -15,9 +16,9 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  eventQueue: (AudioFrame | null)[] = [];
+  private reader: ReadableStreamDefaultReader<AudioFrame>;
   /** @internal */
-  queueResolve: ((value: IteratorResult<AudioFrame>) => void) | null = null;
+  private onEvent: ((ev: FfiEvent) => void) | null = null;
   /** @internal */
   mutex = new Mutex();
 
@@ -25,7 +26,12 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   sampleRate: number;
   numChannels: number;
 
-  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1) {
+  constructor(
+    track: Track,
+    sampleRate: number = 48000,
+    numChannels: number = 1,
+    capacity: number = 0,
+  ) {
     this.track = track;
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
@@ -47,54 +53,81 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
-    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
-  }
+    const infinite_capacity = capacity <= 0;
 
-  private onEvent = (ev: FfiEvent) => {
-    if (
-      ev.message.case != 'audioStreamEvent' ||
-      ev.message.value.streamHandle != this.ffiHandle.handle
-    ) {
-      return;
-    }
-
-    const streamEvent = ev.message.value.message;
-    switch (streamEvent.case) {
-      case 'frameReceived':
-        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
-        if (this.queueResolve) {
-          this.queueResolve({ done: false, value: frame });
-          this.queueResolve = null;
-        } else {
-          this.eventQueue.push(frame);
+    const source = new ReadableStream<FfiEvent>({
+      start: (controller) => {
+        this.onEvent = (ev: FfiEvent) => {
+          if (
+            ev.message.case === 'audioStreamEvent' &&
+            ev.message.value.streamHandle === this.ffiHandle.handle
+          ) {
+            if (infinite_capacity || (controller.desiredSize && controller.desiredSize > 0)) {
+              controller.enqueue(ev);
+            } else {
+              console.warn('Audio stream buffer is full, dropping frame');
+            }
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+      },
+      cancel: () => {
+        if (this.onEvent) {
+          FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+          this.onEvent = null;
         }
-        break;
-      case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        break;
-    }
-  };
+      },
+    });
+
+    const transformStream = new TransformStream<FfiEvent, AudioFrame>(
+      {
+        transform: (event: FfiEvent, controller: TransformStreamDefaultController<AudioFrame>) => {
+          if (
+            event.message.case !== 'audioStreamEvent' ||
+            event.message.value.streamHandle !== this.ffiHandle.handle
+          ) {
+            return;
+          }
+
+          const streamEvent = event.message.value.message;
+          switch (streamEvent.case) {
+            case 'frameReceived':
+              const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
+              controller.enqueue(frame);
+              break;
+            case 'eos':
+              controller.terminate();
+              if (this.onEvent) {
+                FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+                this.onEvent = null;
+              }
+              break;
+          }
+        },
+      },
+      {
+        highWaterMark: capacity > 0 ? capacity : undefined,
+      },
+    );
+
+    this.reader = source.pipeThrough(transformStream).getReader();
+  }
 
   async next(): Promise<IteratorResult<AudioFrame>> {
     const unlock = await this.mutex.lock();
-    if (this.eventQueue.length > 0) {
+    try {
+      const result = await this.reader.read();
+      return {
+        done: result.done,
+        value: result.done ? (undefined as any) : result.value,
+      };
+    } finally {
       unlock();
-      const value = this.eventQueue.shift();
-      if (value) {
-        return { done: false, value };
-      } else {
-        return { done: true, value: undefined };
-      }
     }
-    const promise = new Promise<IteratorResult<AudioFrame>>(
-      (resolve) => (this.queueResolve = resolve),
-    );
-    unlock();
-    return promise;
   }
 
   close() {
-    this.eventQueue.push(null);
+    this.reader.cancel();
     this.ffiHandle.dispose();
   }
 

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
+import { ReadableStream, TransformStream, TransformStreamDefaultController } from 'node:stream/web';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type {
@@ -25,15 +26,15 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  eventQueue: (VideoFrameEvent | null)[] = [];
+  private reader: ReadableStreamDefaultReader<VideoFrameEvent>;
   /** @internal */
-  queueResolve: ((value: IteratorResult<VideoFrameEvent>) => void) | null = null;
+  private onEvent: ((ev: FfiEvent) => void) | null = null;
   /** @internal */
   mutex = new Mutex();
 
   track: Track;
 
-  constructor(track: Track) {
+  constructor(track: Track, capacity: number = 0) {
     this.track = track;
 
     const req = new NewVideoStreamRequest({
@@ -51,68 +52,90 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
     this.info = res.stream?.info;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
-    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
-  }
+    const infinite_capacity = capacity <= 0;
 
-  private onEvent = (ev: FfiEvent) => {
-    if (
-      ev.message.case != 'videoStreamEvent' ||
-      ev.message.value.streamHandle != this.ffiHandle.handle
-    ) {
-      return;
-    }
-
-    const streamEvent = ev.message.value.message;
-    switch (streamEvent.case) {
-      case 'frameReceived':
-        const rotation = streamEvent.value.rotation;
-        const timestampUs = streamEvent.value.timestampUs;
-        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
-        const value = { rotation, timestampUs, frame };
-        if (this.queueResolve) {
-          this.queueResolve({
-            done: false,
-            value: {
-              frame: value.frame,
-              timestampUs: value.timestampUs!,
-              rotation: value.rotation!,
-            },
-          });
-          this.queueResolve = null;
-        } else {
-          this.eventQueue.push({
-            frame: value.frame,
-            timestampUs: value.timestampUs!,
-            rotation: value.rotation!,
-          });
+    const source = new ReadableStream<FfiEvent>({
+      start: (controller) => {
+        this.onEvent = (ev: FfiEvent) => {
+          if (
+            ev.message.case === 'videoStreamEvent' &&
+            ev.message.value.streamHandle === this.ffiHandle.handle
+          ) {
+            if (infinite_capacity || (controller.desiredSize && controller.desiredSize > 0)) {
+              controller.enqueue(ev);
+            } else {
+              console.warn('Video stream buffer is full, dropping frame');
+            }
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+      },
+      cancel: () => {
+        if (this.onEvent) {
+          FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+          this.onEvent = null;
         }
-        break;
-      case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        break;
-    }
-  };
+      },
+    });
+
+    const transformStream = new TransformStream<FfiEvent, VideoFrameEvent>(
+      {
+        transform: (
+          event: FfiEvent,
+          controller: TransformStreamDefaultController<VideoFrameEvent>,
+        ) => {
+          if (
+            event.message.case !== 'videoStreamEvent' ||
+            event.message.value.streamHandle !== this.ffiHandle.handle
+          ) {
+            return;
+          }
+
+          const streamEvent = event.message.value.message;
+          switch (streamEvent.case) {
+            case 'frameReceived':
+              const rotation = streamEvent.value.rotation;
+              const timestampUs = streamEvent.value.timestampUs;
+              const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
+              controller.enqueue({
+                rotation: rotation!,
+                timestampUs: timestampUs!,
+                frame,
+              });
+              break;
+            case 'eos':
+              controller.terminate();
+              if (this.onEvent) {
+                FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+                this.onEvent = null;
+              }
+              break;
+          }
+        },
+      },
+      {
+        highWaterMark: capacity > 0 ? capacity : undefined,
+      },
+    );
+
+    this.reader = source.pipeThrough(transformStream).getReader();
+  }
 
   async next(): Promise<IteratorResult<VideoFrameEvent>> {
     const unlock = await this.mutex.lock();
-    if (this.eventQueue.length > 0) {
+    try {
+      const result = await this.reader.read();
+      return {
+        done: result.done,
+        value: result.done ? (undefined as any) : result.value,
+      };
+    } finally {
       unlock();
-      const value = this.eventQueue.shift();
-      if (value) {
-        return { done: false, value };
-      } else {
-        return { done: true, value: undefined };
-      }
     }
-    const promise = new Promise<IteratorResult<VideoFrameEvent>>(
-      (resolve) => (this.queueResolve = resolve),
-    );
-    unlock();
-    return promise;
   }
 
   close() {
-    this.eventQueue.push(null);
+    this.reader.cancel();
     this.ffiHandle.dispose();
   }
 

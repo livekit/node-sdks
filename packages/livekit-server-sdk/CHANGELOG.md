@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.12.0
+
+### Minor Changes
+
+- Add destinationRoom to VideoGrant - [#460](https://github.com/livekit/node-sdks/pull/460) ([@cnderrauber](https://github.com/cnderrauber))
+
 ## 2.11.0
 
 ### Minor Changes

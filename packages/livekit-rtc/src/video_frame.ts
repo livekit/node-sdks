@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FfiClient, FfiRequest } from './ffi_client.js';
+import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 import type { OwnedVideoBuffer, VideoConvertResponse } from './proto/video_frame_pb.js';
 import {
   VideoBufferInfo,
@@ -58,7 +58,7 @@ export class VideoFrame {
   /** @internal */
   static fromOwnedInfo(owned: OwnedVideoBuffer): VideoFrame {
     const info = owned.info!;
-    return new VideoFrame(
+    const frame = new VideoFrame(
       FfiClient.instance.copyBuffer(
         info.dataPtr!,
         getPlaneLength(info.type!, info.width!, info.height!),
@@ -67,6 +67,9 @@ export class VideoFrame {
       info.height!,
       info.type!,
     );
+    // Dispose of the handle to prevent memory leaks
+    new FfiHandle(owned.handle!.id!).dispose();
+    return frame;
   }
 
   getPlane(planeNth: number): Uint8Array | void {

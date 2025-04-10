@@ -8,7 +8,7 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
-import { RingQueue } from './utils.js';
+import { ReadableStream, TransformStream } from 'node:stream/web';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
@@ -16,9 +16,11 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  eventQueue: RingQueue<IteratorResult<AudioFrame>>;
-  /** @internal */
   mutex = new Mutex();
+  /** @internal */
+  private reader: ReadableStreamDefaultReader<AudioFrame>;
+  /** @internal */
+  private onEvent: ((ev: FfiEvent) => void) | null = null;
 
   track: Track;
   sampleRate: number;
@@ -45,40 +47,76 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
 
     this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
-    this.eventQueue = new RingQueue<IteratorResult<AudioFrame>>(capacity);
 
-    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    // Create a readable stream from FfiClient events
+    const source = new ReadableStream<FfiEvent>({
+      start: (controller) => {
+        this.onEvent = (ev: FfiEvent) => {
+          if (
+            ev.message.case === 'audioStreamEvent' &&
+            ev.message.value.streamHandle === this.ffiHandle.handle
+          ) {
+            controller.enqueue(ev);
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+      },
+      cancel: () => {
+        if (this.onEvent) {
+          FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+          this.onEvent = null;
+        }
+      }
+    });
+
+    const transformStream = new TransformStream<FfiEvent, AudioFrame>(
+      {
+        transform: (event: FfiEvent, controller: TransformStreamDefaultController<AudioFrame>) => {
+          if (
+            event.message.case !== 'audioStreamEvent' ||
+            event.message.value.streamHandle !== this.ffiHandle.handle
+          ) {
+            return;
+          }
+
+          const streamEvent = event.message.value.message;
+          switch (streamEvent.case) {
+            case 'frameReceived':
+              const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
+              controller.enqueue(frame);
+              break;
+            case 'eos':
+              controller.terminate();
+              if (this.onEvent) {
+                FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+                this.onEvent = null;
+              }
+              break;
+          }
+        }
+      }, {
+        highWaterMark: capacity > 0 ? capacity : undefined
+      }
+    );
+    
+    this.reader = source.pipeThrough(transformStream).getReader();
   }
-
-  private onEvent = (ev: FfiEvent) => {
-    if (
-      ev.message.case != 'audioStreamEvent' ||
-      ev.message.value.streamHandle != this.ffiHandle.handle
-    ) {
-      return;
-    }
-
-    const streamEvent = ev.message.value.message;
-    switch (streamEvent.case) {
-      case 'frameReceived':
-        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
-        this.eventQueue.push({ done: false, value: frame });
-        break;
-      case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        break;
-    }
-  };
 
   async next(): Promise<IteratorResult<AudioFrame>> {
     const unlock = await this.mutex.lock();
-    const result = this.eventQueue.get();
-    unlock();
-    return result;
+    try {
+      const result = await this.reader.read();
+      return {
+        done: result.done,
+        value: result.done ? undefined as any : result.value
+      };
+    } finally {
+      unlock();
+    }
   }
 
   close() {
-    this.eventQueue.push({ done: true, value: undefined });
+    this.reader.cancel();
     this.ffiHandle.dispose();
   }
 

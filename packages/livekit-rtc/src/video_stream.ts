@@ -116,7 +116,6 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       },
     );
 
-    // Connect the streams and get the reader directly
     this.reader = source.pipeThrough(transformStream).getReader();
   }
 

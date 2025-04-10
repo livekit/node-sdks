@@ -11,7 +11,7 @@ import type {
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
-import { RingQueue } from './utils.js';
+import { ReadableStream, TransformStream, TransformStreamDefaultController } from 'node:stream/web';
 import { VideoFrame } from './video_frame.js';
 
 export type VideoFrameEvent = {
@@ -26,9 +26,11 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  eventQueue: RingQueue<IteratorResult<VideoFrameEvent>>;
-  /** @internal */
   mutex = new Mutex();
+  /** @internal */
+  private reader: ReadableStreamDefaultReader<VideoFrameEvent>;
+  /** @internal */
+  private onEvent: ((ev: FfiEvent) => void) | null = null;
 
   track: Track;
 
@@ -50,49 +52,83 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
     this.info = res.stream?.info;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
-    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    const source = new ReadableStream<FfiEvent>({
+      start: (controller) => {
+        this.onEvent = (ev: FfiEvent) => {
+          if (
+            ev.message.case === 'videoStreamEvent' &&
+            ev.message.value.streamHandle === this.ffiHandle.handle
+          ) {
+            if (controller.desiredSize && controller.desiredSize > 0) {
+              controller.enqueue(ev);
+            } else{
+              console.warn('Dropping video frame due to low buffer size');
+            }
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+      },
+      cancel: () => {
+        if (this.onEvent) {
+          FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+          this.onEvent = null;
+        }
+      }
+    });
 
-    this.eventQueue = new RingQueue<IteratorResult<VideoFrameEvent>>(capacity);
+    const transformStream = new TransformStream<FfiEvent, VideoFrameEvent>({
+      transform: (event: FfiEvent, controller: TransformStreamDefaultController<VideoFrameEvent>) => {
+        if (
+          event.message.case !== 'videoStreamEvent' ||
+          event.message.value.streamHandle !== this.ffiHandle.handle
+        ) {
+          return;
+        }
+
+        const streamEvent = event.message.value.message;
+        switch (streamEvent.case) {
+          case 'frameReceived':
+            const rotation = streamEvent.value.rotation;
+            const timestampUs = streamEvent.value.timestampUs;
+            const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
+            controller.enqueue({
+              rotation: rotation!,
+              timestampUs: timestampUs!,
+              frame,
+            });
+            break;
+          case 'eos':
+            controller.terminate();
+            if (this.onEvent) {
+              FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+              this.onEvent = null;
+            }
+            break;
+        }
+      }
+    }, {
+      highWaterMark: capacity > 0 ? capacity : undefined
+    });
+
+    // Connect the streams and get the reader directly
+    this.reader = source.pipeThrough(transformStream).getReader();
   }
-
-  private onEvent = (ev: FfiEvent) => {
-    if (
-      ev.message.case != 'videoStreamEvent' ||
-      ev.message.value.streamHandle != this.ffiHandle.handle
-    ) {
-      return;
-    }
-
-    const streamEvent = ev.message.value.message;
-    switch (streamEvent.case) {
-      case 'frameReceived':
-        const rotation = streamEvent.value.rotation;
-        const timestampUs = streamEvent.value.timestampUs;
-        const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
-        this.eventQueue.push({
-          done: false,
-          value: {
-            rotation: rotation!,
-            timestampUs: timestampUs!,
-            frame,
-          },
-        });
-        break;
-      case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        break;
-    }
-  };
 
   async next(): Promise<IteratorResult<VideoFrameEvent>> {
     const unlock = await this.mutex.lock();
-    const result = this.eventQueue.get();
-    unlock();
-    return result;
+    try {
+      const result = await this.reader.read();
+      return {
+        done: result.done,
+        value: result.done ? undefined as any : result.value
+      };
+    } finally {
+      unlock();
+    }
   }
 
   close() {
-    this.eventQueue.push({ done: true, value: undefined });
+    this.reader.cancel();
     this.ffiHandle.dispose();
   }
 

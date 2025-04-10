@@ -48,7 +48,6 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
-    // Create a readable stream from FfiClient events
     const source = new ReadableStream<FfiEvent>({
       start: (controller) => {
         this.onEvent = (ev: FfiEvent) => {
@@ -56,7 +55,11 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
             ev.message.case === 'audioStreamEvent' &&
             ev.message.value.streamHandle === this.ffiHandle.handle
           ) {
-            controller.enqueue(ev);
+            if (controller.desiredSize && controller.desiredSize > 0) {
+              controller.enqueue(ev);
+            } else{
+              console.warn('Dropping audio frame due to low buffer size');
+            }
           }
         };
         FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);

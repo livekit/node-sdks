@@ -16,11 +16,11 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  mutex = new Mutex();
-  /** @internal */
   private reader: ReadableStreamDefaultReader<AudioFrame>;
   /** @internal */
   private onEvent: ((ev: FfiEvent) => void) | null = null;
+  /** @internal */
+  mutex = new Mutex();
 
   track: Track;
   sampleRate: number;

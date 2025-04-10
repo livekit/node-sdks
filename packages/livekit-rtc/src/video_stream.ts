@@ -26,11 +26,11 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
   /** @internal */
   ffiHandle: FfiHandle;
   /** @internal */
-  mutex = new Mutex();
-  /** @internal */
   private reader: ReadableStreamDefaultReader<VideoFrameEvent>;
   /** @internal */
   private onEvent: ((ev: FfiEvent) => void) | null = null;
+  /** @internal */
+  mutex = new Mutex();
 
   track: Track;
 

@@ -53,6 +53,8 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
+    const infinite_capacity = capacity <= 0;
+
     const source = new ReadableStream<FfiEvent>({
       start: (controller) => {
         this.onEvent = (ev: FfiEvent) => {
@@ -60,7 +62,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
             ev.message.case === 'audioStreamEvent' &&
             ev.message.value.streamHandle === this.ffiHandle.handle
           ) {
-            if (controller.desiredSize && controller.desiredSize > 0) {
+            if (infinite_capacity || (controller.desiredSize && controller.desiredSize > 0)) {
               controller.enqueue(ev);
             } else {
               console.warn('Audio stream buffer is full, dropping frame');

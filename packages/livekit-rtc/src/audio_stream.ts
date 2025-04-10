@@ -58,7 +58,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
             if (controller.desiredSize && controller.desiredSize > 0) {
               controller.enqueue(ev);
             } else{
-              console.warn('Dropping audio frame due to low buffer size');
+              console.warn('Audio stream buffer is full, dropping frame');
             }
           }
         };

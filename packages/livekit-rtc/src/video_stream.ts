@@ -62,7 +62,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
             if (controller.desiredSize && controller.desiredSize > 0) {
               controller.enqueue(ev);
             } else{
-              console.warn('Dropping video frame due to low buffer size');
+              console.warn('Video stream buffer is full, dropping frame');
             }
           }
         };

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
+import { ReadableStream, TransformStream, TransformStreamDefaultController } from 'node:stream/web';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type {
@@ -11,7 +12,6 @@ import type {
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
-import { ReadableStream, TransformStream, TransformStreamDefaultController } from 'node:stream/web';
 import { VideoFrame } from './video_frame.js';
 
 export type VideoFrameEvent = {
@@ -61,7 +61,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
           ) {
             if (controller.desiredSize && controller.desiredSize > 0) {
               controller.enqueue(ev);
-            } else{
+            } else {
               console.warn('Video stream buffer is full, dropping frame');
             }
           }
@@ -73,42 +73,48 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
           FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
           this.onEvent = null;
         }
-      }
+      },
     });
 
-    const transformStream = new TransformStream<FfiEvent, VideoFrameEvent>({
-      transform: (event: FfiEvent, controller: TransformStreamDefaultController<VideoFrameEvent>) => {
-        if (
-          event.message.case !== 'videoStreamEvent' ||
-          event.message.value.streamHandle !== this.ffiHandle.handle
-        ) {
-          return;
-        }
+    const transformStream = new TransformStream<FfiEvent, VideoFrameEvent>(
+      {
+        transform: (
+          event: FfiEvent,
+          controller: TransformStreamDefaultController<VideoFrameEvent>,
+        ) => {
+          if (
+            event.message.case !== 'videoStreamEvent' ||
+            event.message.value.streamHandle !== this.ffiHandle.handle
+          ) {
+            return;
+          }
 
-        const streamEvent = event.message.value.message;
-        switch (streamEvent.case) {
-          case 'frameReceived':
-            const rotation = streamEvent.value.rotation;
-            const timestampUs = streamEvent.value.timestampUs;
-            const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
-            controller.enqueue({
-              rotation: rotation!,
-              timestampUs: timestampUs!,
-              frame,
-            });
-            break;
-          case 'eos':
-            controller.terminate();
-            if (this.onEvent) {
-              FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-              this.onEvent = null;
-            }
-            break;
-        }
-      }
-    }, {
-      highWaterMark: capacity > 0 ? capacity : undefined
-    });
+          const streamEvent = event.message.value.message;
+          switch (streamEvent.case) {
+            case 'frameReceived':
+              const rotation = streamEvent.value.rotation;
+              const timestampUs = streamEvent.value.timestampUs;
+              const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
+              controller.enqueue({
+                rotation: rotation!,
+                timestampUs: timestampUs!,
+                frame,
+              });
+              break;
+            case 'eos':
+              controller.terminate();
+              if (this.onEvent) {
+                FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+                this.onEvent = null;
+              }
+              break;
+          }
+        },
+      },
+      {
+        highWaterMark: capacity > 0 ? capacity : undefined,
+      },
+    );
 
     // Connect the streams and get the reader directly
     this.reader = source.pipeThrough(transformStream).getReader();
@@ -120,7 +126,7 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       const result = await this.reader.read();
       return {
         done: result.done,
-        value: result.done ? undefined as any : result.value
+        value: result.done ? (undefined as any) : result.value,
       };
     } finally {
       unlock();

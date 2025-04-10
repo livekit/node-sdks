@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
+import { ReadableStream, TransformStream } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
-import { ReadableStream, TransformStream } from 'node:stream/web';
 
 export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   /** @internal */
@@ -26,7 +26,12 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
   sampleRate: number;
   numChannels: number;
 
-  constructor(track: Track, sampleRate: number = 48000, numChannels: number = 1, capacity: number = 0) {
+  constructor(
+    track: Track,
+    sampleRate: number = 48000,
+    numChannels: number = 1,
+    capacity: number = 0,
+  ) {
     this.track = track;
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
@@ -57,7 +62,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
           ) {
             if (controller.desiredSize && controller.desiredSize > 0) {
               controller.enqueue(ev);
-            } else{
+            } else {
               console.warn('Audio stream buffer is full, dropping frame');
             }
           }
@@ -69,7 +74,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
           FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
           this.onEvent = null;
         }
-      }
+      },
     });
 
     const transformStream = new TransformStream<FfiEvent, AudioFrame>(
@@ -96,12 +101,13 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
               }
               break;
           }
-        }
-      }, {
-        highWaterMark: capacity > 0 ? capacity : undefined
-      }
+        },
+      },
+      {
+        highWaterMark: capacity > 0 ? capacity : undefined,
+      },
     );
-    
+
     this.reader = source.pipeThrough(transformStream).getReader();
   }
 
@@ -111,7 +117,7 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       const result = await this.reader.read();
       return {
         done: result.done,
-        value: result.done ? undefined as any : result.value
+        value: result.done ? (undefined as any) : result.value,
       };
     } finally {
       unlock();

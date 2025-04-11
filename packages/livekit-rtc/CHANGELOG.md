@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.11
+
+### Patch Changes
+
+- Add AudioFilter plugin support - [#457](https://github.com/livekit/node-sdks/pull/457) ([@typester](https://github.com/typester))
+
 ## 0.13.10
 
 ### Patch Changes

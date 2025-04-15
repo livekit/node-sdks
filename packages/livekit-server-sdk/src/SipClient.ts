@@ -150,7 +150,7 @@ export interface CreateSipParticipantOptions {
   timeout?: number;
 }
 
-export interface ListSIPDispatchRuleOptions {
+export interface ListSipDispatchRuleOptions {
   /** Pagination options. */
   page?: Pagination;
   /** Rule IDs to list. If this option is set, the response will contains rules in the same order. If any of the rules is missing, a nil item in that position will be sent in the response. */
@@ -168,7 +168,15 @@ export interface ListSipTrunkOptions {
   numbers?: string[];
 }
 
-export interface SIPTrunkUpdateOptions {
+export interface SipDispatchRuleUpdateOptions {
+  trunkIds?: ListUpdate;
+  rule?: SIPDispatchRule;
+  name?: string;
+  metadata?: string;
+  attributes?: { [key: string]: string };
+}
+
+export interface SipTrunkUpdateOptions {
   numbers?: ListUpdate;
   allowedAddresses?: ListUpdate;
   allowedNumbers?: ListUpdate;
@@ -486,6 +494,36 @@ export class SipClient extends ServiceBase {
   }
 
   /**
+   * Updates specific fields of an existing SIP dispatch rule.
+   * Only provided fields will be updated.
+   *
+   * @param sipDispatchRuleId - ID of the SIP dispatch rule to update
+   * @param fields - Fields of the dispatch rule to update
+   * @returns Updated SIP dispatch rule
+   */
+  async updateSipDispatchRuleFields(
+    sipDispatchRuleId: string,
+    fields: SipDispatchRuleUpdateOptions = {},
+  ): Promise<SIPDispatchRuleInfo> {
+    const req = new UpdateSIPDispatchRuleRequest({
+      sipDispatchRuleId: sipDispatchRuleId,
+      action: {
+        case: 'update',
+        value: fields,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPDispatchRule',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
    * Updates an existing SIP inbound trunk by replacing it entirely.
    *
    * @param sipTrunkId - ID of the SIP inbound trunk to update
@@ -524,7 +562,7 @@ export class SipClient extends ServiceBase {
    */
   async updateSipInboundTrunkFields(
     sipTrunkId: string,
-    fields: SIPTrunkUpdateOptions,
+    fields: SipTrunkUpdateOptions,
   ): Promise<SIPInboundTrunkInfo> {
     const req = new UpdateSIPInboundTrunkRequest({
       sipTrunkId,
@@ -583,7 +621,7 @@ export class SipClient extends ServiceBase {
    */
   async updateSipOutboundTrunkFields(
     sipTrunkId: string,
-    fields: SIPTrunkUpdateOptions,
+    fields: SipTrunkUpdateOptions,
   ): Promise<SIPOutboundTrunkInfo> {
     const req = new UpdateSIPOutboundTrunkRequest({
       sipTrunkId,
@@ -610,7 +648,7 @@ export class SipClient extends ServiceBase {
    * @returns Response containing list of SIP dispatch rules
    */
   async listSipDispatchRule(
-    list: ListSIPDispatchRuleOptions = {},
+    list: ListSipDispatchRuleOptions = {},
   ): Promise<Array<SIPDispatchRuleInfo>> {
     const req = new ListSIPDispatchRuleRequest(list).toJson();
     const data = await this.rpc.request(

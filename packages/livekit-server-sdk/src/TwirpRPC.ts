@@ -9,19 +9,32 @@ const defaultPrefix = '/twirp';
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  request(service: string, method: string, data: JsonValue, headers?: any): Promise<string>;
+  request(
+    service: string,
+    method: string,
+    data: JsonValue,
+    headers: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    timeout?: number,
+  ): Promise<string>;
 }
 
 export class TwirpError extends Error {
   status: number;
   code?: string;
+  metadata?: Record<string, string>;
 
-  constructor(name: string, message: string, status: number, code?: string) {
+  constructor(
+    name: string,
+    message: string,
+    status: number,
+    code?: string,
+    metadata?: Record<string, string>,
+  ) {
     super(message);
     this.name = name;
     this.status = status;
     this.code = code;
+    this.metadata = metadata;
   }
 }
 
@@ -44,24 +57,36 @@ export class TwirpRpc {
     this.prefix = prefix || defaultPrefix;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async request(service: string, method: string, data: any, headers?: any): Promise<any> {
+  async request(
+    service: string,
+    method: string,
+    data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    headers: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    timeout = 60,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
     const url = new URL(path, this.host);
-
-    const response = await fetch(url, {
+    const init: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         ...headers,
       },
       body: JSON.stringify(data),
-    });
+    };
+
+    if (timeout) {
+      init.signal = AbortSignal.timeout(timeout * 1000);
+    }
+
+    const response = await fetch(url, init);
 
     if (!response.ok) {
       const isJson = response.headers.get('content-type') === 'application/json';
       let errorMessage = 'Unknown internal error';
       let errorCode: string | undefined = undefined;
+      let metadata: Record<string, string> | undefined = undefined;
       try {
         if (isJson) {
           const parsedError = (await response.json()) as Record<string, unknown>;
@@ -71,6 +96,9 @@ export class TwirpRpc {
           if ('code' in parsedError) {
             errorCode = <string>parsedError.code;
           }
+          if ('meta' in parsedError) {
+            metadata = <Record<string, string>>parsedError.meta;
+          }
         } else {
           errorMessage = await response.text();
         }
@@ -79,7 +107,7 @@ export class TwirpRpc {
         console.debug(`Error when trying to parse error message, using defaults`, e);
       }
 
-      throw new TwirpError(response.statusText, errorMessage, response.status, errorCode);
+      throw new TwirpError(response.statusText, errorMessage, response.status, errorCode, metadata);
     }
     const parsedResp = (await response.json()) as Record<string, unknown>;
 

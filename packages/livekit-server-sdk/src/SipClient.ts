@@ -2,7 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Duration } from '@bufbuild/protobuf';
-import type { RoomConfiguration, SIPHeaderOptions } from '@livekit/protocol';
+import type {
+  ListUpdate,
+  Pagination,
+  RoomConfiguration,
+  SIPHeaderOptions,
+} from '@livekit/protocol';
 import {
   CreateSIPDispatchRuleRequest,
   CreateSIPInboundTrunkRequest,
@@ -29,6 +34,9 @@ import {
   SIPTransport,
   SIPTrunkInfo,
   TransferSIPParticipantRequest,
+  UpdateSIPDispatchRuleRequest,
+  UpdateSIPInboundTrunkRequest,
+  UpdateSIPOutboundTrunkRequest,
 } from '@livekit/protocol';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
@@ -108,30 +116,74 @@ export interface CreateSipDispatchRuleOptions {
 }
 
 export interface CreateSipParticipantOptions {
-  // Optional SIP From number to use. If empty, trunk number is used.
+  /** Optional SIP From number to use. If empty, trunk number is used. */
   fromNumber?: string;
-  // Optional identity of the SIP participant
+  /** Optional identity of the SIP participant */
   participantIdentity?: string;
-  // Optional name of the participant
+  /** Optional name of the participant */
   participantName?: string;
-  // Optional metadata to attach to the participant
+  /** Optional metadata to attach to the participant */
   participantMetadata?: string;
-  // Optional attributes to attach to the participant
+  /** Optional attributes to attach to the participant */
   participantAttributes?: { [key: string]: string };
-  // Optionally send following DTMF digits (extension codes) when making a call.
-  // Character 'w' can be used to add a 0.5 sec delay.
+  /** Optionally send following DTMF digits (extension codes) when making a call.
+   * Character 'w' can be used to add a 0.5 sec delay. */
   dtmf?: string;
-  /** @deprecated - use `playDialtone` instead */
-  playRingtone?: boolean; // Deprecated, use playDialtone instead
+  /** @deprecated use `playDialtone` instead */
+  playRingtone?: boolean;
+  /** If `true`, the SIP Participant plays a dial tone to the room until the phone is picked up. */
   playDialtone?: boolean;
-  // These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint.
+  /** These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint. */
   headers?: { [key: string]: string };
-  // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
+  /** Map SIP response headers from INVITE to sip.h.* participant attributes automatically. */
   includeHeaders?: SIPHeaderOptions;
   hidePhoneNumber?: boolean;
-  ringingTimeout?: number; // Duration in seconds
-  maxCallDuration?: number; // Duration in seconds
+  /** Maximum time for the call to ring in seconds. */
+  ringingTimeout?: number;
+  /** Maximum call duration in seconds. */
+  maxCallDuration?: number;
+  /** If `true`, Krisp noise cancellation will be enabled for the caller. */
   krispEnabled?: boolean;
+  /** If `true`, this will wait until the call is answered before returning. */
+  waitUntilAnswered?: boolean;
+  /** Optional request timeout in seconds. */
+  timeout?: number;
+}
+
+export interface ListSipDispatchRuleOptions {
+  /** Pagination options. */
+  page?: Pagination;
+  /** Rule IDs to list. If this option is set, the response will contains rules in the same order. If any of the rules is missing, a nil item in that position will be sent in the response. */
+  dispatchRuleIds?: string[];
+  /** Only list rules that contain one of the Trunk IDs, including wildcard rules. */
+  trunkIds?: string[];
+}
+
+export interface ListSipTrunkOptions {
+  /** Pagination options. */
+  page?: Pagination;
+  /** Trunk IDs to list. If this option is set, the response will contains trunks in the same order. If any of the trunks is missing, a nil item in that position will be sent in the response. */
+  trunkIds?: string[];
+  /** Only list trunks that contain one of the numbers, including wildcard trunks. */
+  numbers?: string[];
+}
+
+export interface SipDispatchRuleUpdateOptions {
+  trunkIds?: ListUpdate;
+  rule?: SIPDispatchRule;
+  name?: string;
+  metadata?: string;
+  attributes?: { [key: string]: string };
+}
+
+export interface SipTrunkUpdateOptions {
+  numbers?: ListUpdate;
+  allowedAddresses?: ListUpdate;
+  allowedNumbers?: ListUpdate;
+  authUsername?: string;
+  authPassword?: string;
+  name?: string;
+  metadata?: string;
 }
 
 export interface TransferSipParticipantOptions {
@@ -206,9 +258,12 @@ export class SipClient extends ServiceBase {
   }
 
   /**
+   * Create a new SIP inbound trunk.
+   *
    * @param name - human-readable name of the trunk
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
+   * @returns Created SIP inbound trunk
    */
   async createSipInboundTrunk(
     name: string,
@@ -244,10 +299,13 @@ export class SipClient extends ServiceBase {
   }
 
   /**
+   * Create a new SIP outbound trunk.
+   *
    * @param name - human-readable name of the trunk
    * @param address - hostname and port of the SIP server to dial
    * @param numbers - phone numbers of the trunk
    * @param opts - CreateSipTrunkOptions
+   * @returns Created SIP outbound trunk
    */
   async createSipOutboundTrunk(
     name: string,
@@ -299,30 +357,45 @@ export class SipClient extends ServiceBase {
     return ListSIPTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
-  async listSipInboundTrunk(): Promise<Array<SIPInboundTrunkInfo>> {
-    const req: Partial<ListSIPInboundTrunkRequest> = {};
+  /**
+   * List SIP inbound trunks with optional filtering.
+   *
+   * @param list - Request with optional filtering parameters
+   * @returns Response containing list of SIP inbound trunks
+   */
+  async listSipInboundTrunk(list: ListSipTrunkOptions = {}): Promise<Array<SIPInboundTrunkInfo>> {
+    const req = new ListSIPInboundTrunkRequest(list).toJson();
     const data = await this.rpc.request(
       svc,
       'ListSIPInboundTrunk',
-      new ListSIPInboundTrunkRequest(req).toJson(),
+      req,
       await this.authHeader({}, { admin: true }),
     );
     return ListSIPInboundTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
-  async listSipOutboundTrunk(): Promise<Array<SIPOutboundTrunkInfo>> {
-    const req: Partial<ListSIPOutboundTrunkRequest> = {};
+  /**
+   * List SIP outbound trunks with optional filtering.
+   *
+   * @param list - Request with optional filtering parameters
+   * @returns Response containing list of SIP outbound trunks
+   */
+  async listSipOutboundTrunk(list: ListSipTrunkOptions = {}): Promise<Array<SIPOutboundTrunkInfo>> {
+    const req = new ListSIPOutboundTrunkRequest(list).toJson();
     const data = await this.rpc.request(
       svc,
       'ListSIPOutboundTrunk',
-      new ListSIPOutboundTrunkRequest(req).toJson(),
+      req,
       await this.authHeader({}, { admin: true }),
     );
     return ListSIPOutboundTrunkResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
   /**
-   * @param sipTrunkId - sip trunk to delete
+   * Delete a SIP trunk.
+   *
+   * @param sipTrunkId - ID of the SIP trunk to delete
+   * @returns Deleted trunk information
    */
   async deleteSipTrunk(sipTrunkId: string): Promise<SIPTrunkInfo> {
     const data = await this.rpc.request(
@@ -335,8 +408,11 @@ export class SipClient extends ServiceBase {
   }
 
   /**
-   * @param rule - sip dispatch rule
+   * Create a new SIP dispatch rule.
+   *
+   * @param rule - SIP dispatch rule to create
    * @param opts - CreateSipDispatchRuleOptions
+   * @returns Created SIP dispatch rule
    */
   async createSipDispatchRule(
     rule: SipDispatchRuleDirect | SipDispatchRuleIndividual,
@@ -388,19 +464,207 @@ export class SipClient extends ServiceBase {
     return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
-  async listSipDispatchRule(): Promise<Array<SIPDispatchRuleInfo>> {
-    const req: Partial<ListSIPDispatchRuleRequest> = {};
+  /**
+   * Updates an existing SIP dispatch rule by replacing it entirely.
+   *
+   * @param sipDispatchRuleId - ID of the SIP dispatch rule to update
+   * @param rule - new SIP dispatch rule
+   * @returns Updated SIP dispatch rule
+   */
+  async updateSipDispatchRule(
+    sipDispatchRuleId: string,
+    rule: SIPDispatchRuleInfo,
+  ): Promise<SIPDispatchRuleInfo> {
+    const req = new UpdateSIPDispatchRuleRequest({
+      sipDispatchRuleId: sipDispatchRuleId,
+      action: {
+        case: 'replace',
+        value: rule,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPDispatchRule',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Updates specific fields of an existing SIP dispatch rule.
+   * Only provided fields will be updated.
+   *
+   * @param sipDispatchRuleId - ID of the SIP dispatch rule to update
+   * @param fields - Fields of the dispatch rule to update
+   * @returns Updated SIP dispatch rule
+   */
+  async updateSipDispatchRuleFields(
+    sipDispatchRuleId: string,
+    fields: SipDispatchRuleUpdateOptions = {},
+  ): Promise<SIPDispatchRuleInfo> {
+    const req = new UpdateSIPDispatchRuleRequest({
+      sipDispatchRuleId: sipDispatchRuleId,
+      action: {
+        case: 'update',
+        value: fields,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPDispatchRule',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPDispatchRuleInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Updates an existing SIP inbound trunk by replacing it entirely.
+   *
+   * @param sipTrunkId - ID of the SIP inbound trunk to update
+   * @param trunk - SIP inbound trunk to update with
+   * @returns Updated SIP inbound trunk
+   */
+  async updateSipInboundTrunk(
+    sipTrunkId: string,
+    trunk: SIPInboundTrunkInfo,
+  ): Promise<SIPInboundTrunkInfo> {
+    const req = new UpdateSIPInboundTrunkRequest({
+      sipTrunkId,
+      action: {
+        case: 'replace',
+        value: trunk,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPInboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPInboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Updates specific fields of an existing SIP inbound trunk.
+   * Only provided fields will be updated.
+   *
+   * @param sipTrunkId - ID of the SIP inbound trunk to update
+   * @param fields - Fields of the inbound trunk to update
+   * @returns Updated SIP inbound trunk
+   */
+  async updateSipInboundTrunkFields(
+    sipTrunkId: string,
+    fields: SipTrunkUpdateOptions,
+  ): Promise<SIPInboundTrunkInfo> {
+    const req = new UpdateSIPInboundTrunkRequest({
+      sipTrunkId,
+      action: {
+        case: 'update',
+        value: fields,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPInboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPInboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Updates an existing SIP outbound trunk by replacing it entirely.
+   *
+   * @param sipTrunkId - ID of the SIP outbound trunk to update
+   * @param trunk - SIP outbound trunk to update with
+   * @returns Updated SIP outbound trunk
+   */
+  async updateSipOutboundTrunk(
+    sipTrunkId: string,
+    trunk: SIPOutboundTrunkInfo,
+  ): Promise<SIPOutboundTrunkInfo> {
+    const req = new UpdateSIPOutboundTrunkRequest({
+      sipTrunkId,
+      action: {
+        case: 'replace',
+        value: trunk,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPOutboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPOutboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Updates specific fields of an existing SIP outbound trunk.
+   * Only provided fields will be updated.
+   *
+   * @param sipTrunkId - ID of the SIP outbound trunk to update
+   * @param fields - Fields of the outbound trunk to update
+   * @returns Updated SIP outbound trunk
+   */
+  async updateSipOutboundTrunkFields(
+    sipTrunkId: string,
+    fields: SipTrunkUpdateOptions,
+  ): Promise<SIPOutboundTrunkInfo> {
+    const req = new UpdateSIPOutboundTrunkRequest({
+      sipTrunkId,
+      action: {
+        case: 'update',
+        value: fields,
+      },
+    }).toJson();
+
+    const data = await this.rpc.request(
+      svc,
+      'UpdateSIPOutboundTrunk',
+      req,
+      await this.authHeader({}, { admin: true }),
+    );
+
+    return SIPOutboundTrunkInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * List SIP dispatch rules with optional filtering.
+   *
+   * @param list - Request with optional filtering parameters
+   * @returns Response containing list of SIP dispatch rules
+   */
+  async listSipDispatchRule(
+    list: ListSipDispatchRuleOptions = {},
+  ): Promise<Array<SIPDispatchRuleInfo>> {
+    const req = new ListSIPDispatchRuleRequest(list).toJson();
     const data = await this.rpc.request(
       svc,
       'ListSIPDispatchRule',
-      new ListSIPDispatchRuleRequest(req).toJson(),
+      req,
       await this.authHeader({}, { admin: true }),
     );
     return ListSIPDispatchRuleResponse.fromJson(data, { ignoreUnknownFields: true }).items ?? [];
   }
 
   /**
-   * @param sipDispatchRuleId - sip trunk to delete
+   * Delete a SIP dispatch rule.
+   *
+   * @param sipDispatchRuleId - ID of the SIP dispatch rule to delete
+   * @returns Deleted rule information
    */
   async deleteSipDispatchRule(sipDispatchRuleId: string): Promise<SIPDispatchRuleInfo> {
     const data = await this.rpc.request(
@@ -413,10 +677,13 @@ export class SipClient extends ServiceBase {
   }
 
   /**
+   * Create a new SIP participant.
+   *
    * @param sipTrunkId - sip trunk to use for the call
    * @param number - number to dial
    * @param roomName - room to attach the call to
    * @param opts - CreateSipParticipantOptions
+   * @returns Created SIP participant
    */
   async createSipParticipant(
     sipTrunkId: string,
@@ -449,6 +716,7 @@ export class SipClient extends ServiceBase {
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
         : undefined,
       krispEnabled: opts.krispEnabled,
+      waitUntilAnswered: opts.waitUntilAnswered,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -456,14 +724,18 @@ export class SipClient extends ServiceBase {
       'CreateSIPParticipant',
       req,
       await this.authHeader({}, { call: true }),
+      opts.timeout,
     );
     return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }
 
   /**
+   * Transfer a SIP participant to a different room.
+   *
    * @param roomName - room the SIP participant to transfer is connectd to
    * @param participantIdentity - identity of the SIP participant to transfer
    * @param transferTo - SIP URL to transfer the participant to
+   * @param opts - TransferSipParticipantOptions
    */
   async transferSipParticipant(
     roomName: string,

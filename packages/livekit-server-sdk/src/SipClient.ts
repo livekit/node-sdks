@@ -108,30 +108,38 @@ export interface CreateSipDispatchRuleOptions {
 }
 
 export interface CreateSipParticipantOptions {
-  // Optional SIP From number to use. If empty, trunk number is used.
+  /** Optional SIP From number to use. If empty, trunk number is used. */
   fromNumber?: string;
-  // Optional identity of the SIP participant
+  /** Optional identity of the SIP participant */
   participantIdentity?: string;
-  // Optional name of the participant
+  /** Optional name of the participant */
   participantName?: string;
-  // Optional metadata to attach to the participant
+  /** Optional metadata to attach to the participant */
   participantMetadata?: string;
-  // Optional attributes to attach to the participant
+  /** Optional attributes to attach to the participant */
   participantAttributes?: { [key: string]: string };
-  // Optionally send following DTMF digits (extension codes) when making a call.
-  // Character 'w' can be used to add a 0.5 sec delay.
+  /** Optionally send following DTMF digits (extension codes) when making a call.
+   * Character 'w' can be used to add a 0.5 sec delay. */
   dtmf?: string;
-  /** @deprecated - use `playDialtone` instead */
-  playRingtone?: boolean; // Deprecated, use playDialtone instead
+  /** @deprecated use `playDialtone` instead */
+  playRingtone?: boolean;
+  /** If `true`, the SIP Participant plays a dial tone to the room until the phone is picked up. */
   playDialtone?: boolean;
-  // These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint.
+  /** These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint. */
   headers?: { [key: string]: string };
-  // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
+  /** Map SIP response headers from INVITE to sip.h.* participant attributes automatically. */
   includeHeaders?: SIPHeaderOptions;
   hidePhoneNumber?: boolean;
-  ringingTimeout?: number; // Duration in seconds
-  maxCallDuration?: number; // Duration in seconds
+  /** Maximum time for the call to ring in seconds. */
+  ringingTimeout?: number;
+  /** Maximum call duration in seconds. */
+  maxCallDuration?: number;
+  /** If `true`, Krisp noise cancellation will be enabled for the caller. */
   krispEnabled?: boolean;
+  /** If `true`, this will wait until the call is answered before returning. */
+  waitUntilAnswered?: boolean;
+  /** Optional request timeout in seconds. */
+  timeout?: number;
 }
 
 export interface TransferSipParticipantOptions {
@@ -449,6 +457,7 @@ export class SipClient extends ServiceBase {
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
         : undefined,
       krispEnabled: opts.krispEnabled,
+      waitUntilAnswered: opts.waitUntilAnswered,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -456,6 +465,7 @@ export class SipClient extends ServiceBase {
       'CreateSIPParticipant',
       req,
       await this.authHeader({}, { call: true }),
+      opts.timeout,
     );
     return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
   }

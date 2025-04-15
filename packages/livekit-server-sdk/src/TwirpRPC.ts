@@ -9,8 +9,13 @@ const defaultPrefix = '/twirp';
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  request(service: string, method: string, data: JsonValue, headers: any, timeout?: number): Promise<string>;
+  request(
+    service: string,
+    method: string,
+    data: JsonValue,
+    headers: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    timeout?: number,
+  ): Promise<string>;
 }
 
 export class TwirpError extends Error {
@@ -18,7 +23,13 @@ export class TwirpError extends Error {
   code?: string;
   metadata?: Record<string, string>;
 
-  constructor(name: string, message: string, status: number, code?: string, metadata?: Record<string, string>) {
+  constructor(
+    name: string,
+    message: string,
+    status: number,
+    code?: string,
+    metadata?: Record<string, string>,
+  ) {
     super(message);
     this.name = name;
     this.status = status;
@@ -46,8 +57,14 @@ export class TwirpRpc {
     this.prefix = prefix || defaultPrefix;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async request(service: string, method: string, data: any, headers: any, timeout = 60): Promise<any> {
+  async request(
+    service: string,
+    method: string,
+    data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    headers: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    timeout = 60,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
     const url = new URL(path, this.host);
     const init: RequestInit = {

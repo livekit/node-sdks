@@ -22,14 +22,11 @@ export type VideoFrameEvent = {
 
 class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
   private controller?: ReadableStreamDefaultController<VideoFrameEvent>;
-  private track: Track;
   private ffiHandle: FfiHandle;
-  private info?: VideoStreamInfo;
   private closed = false;
 
 
   constructor(track: Track) {
-    this.track = track;
     const req = new NewVideoStreamRequest({
       type: VideoStreamType.VIDEO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
@@ -43,7 +40,6 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
     });
 
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
-    this.info = res.stream!.info;
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 

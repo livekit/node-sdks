@@ -11,7 +11,7 @@ import type {
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
 import { VideoFrame } from './video_frame.js';
-import { ReadableStream } from 'node:stream/web';
+import { ReadableStream, type UnderlyingSource } from 'node:stream/web';
 
 export type VideoFrameEvent = {
   frame: VideoFrame;
@@ -19,24 +19,17 @@ export type VideoFrameEvent = {
   rotation: VideoRotation;
 };
 
-export class VideoStream extends ReadableStream<VideoFrameEvent> {
-  /** @internal */
-  info?: VideoStreamInfo;
-  /** @internal */
-  ffiHandle: FfiHandle;
-  /** @internal */
-  controller?: ReadableStreamDefaultController<VideoFrameEvent>;
 
-  track: Track;
+class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
+  private controller?: ReadableStreamDefaultController<VideoFrameEvent>;
+  private track: Track;
+  private ffiHandle: FfiHandle;
+  private info?: VideoStreamInfo;
+  private closed = false;
+
 
   constructor(track: Track) {
-    super({
-      start: (controller) => {
-        this.controller = controller;
-      },
-    });
     this.track = track;
-
     const req = new NewVideoStreamRequest({
       type: VideoStreamType.VIDEO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
@@ -49,9 +42,8 @@ export class VideoStream extends ReadableStream<VideoFrameEvent> {
       },
     });
 
-    this.info = res.stream?.info;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
-
+    this.info = res.stream!.info;
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 
@@ -80,25 +72,34 @@ export class VideoStream extends ReadableStream<VideoFrameEvent> {
           rotation: value.rotation!,
         };
 
-        this.controller.enqueue(videoFrameEvent);
+        if (!this.closed) {
+          this.controller.enqueue(videoFrameEvent);
+        }
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        this.controller.close();
+        if (!this.closed) {
+          this.closed = true;
+          this.controller.close();
+        }
         break;
     }
   };
 
-  close() {
-    if (!this.controller) {
-      throw new Error('Stream controller not initialized');
-    }
-      try {
-        this.controller.close();
-      } catch (e) {
-        // Controller might already be closed
-        throw e;
-      }
+  start(controller: ReadableStreamDefaultController<VideoFrameEvent>) {
+    this.controller = controller;
+  }
+
+  cancel(reason?: any) {
+    this.closed = true;
+    FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
+    console.log('cancelled');
+  }
+}
+
+export class VideoStream extends ReadableStream<VideoFrameEvent> {
+  constructor(track: Track) {
+    super(new VideoStreamSource(track));
   }
 }

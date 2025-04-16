@@ -90,7 +90,6 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
     this.closed = true;
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
-    console.log('cancelled');
   }
 }
 

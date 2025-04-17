@@ -22,8 +22,7 @@ export type VideoFrameEvent = {
 
 class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
   private controller?: ReadableStreamDefaultController<VideoFrameEvent>;
-  private ffiHandle: FfiHandle;
-  private closed = false;
+  private ffiHandle: FfiHandle; 
 
 
   constructor(track: Track) {
@@ -67,17 +66,11 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
           timestampUs: value.timestampUs!,
           rotation: value.rotation!,
         };
-
-        if (!this.closed) {
-          this.controller.enqueue(videoFrameEvent);
-        }
+        this.controller.enqueue(videoFrameEvent);
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        if (!this.closed) {
-          this.closed = true;
-          this.controller.close();
-        }
+        this.controller.close();
         break;
     }
   };
@@ -87,7 +80,6 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
   }
 
   cancel(reason?: any) {
-    this.closed = true;
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
   }

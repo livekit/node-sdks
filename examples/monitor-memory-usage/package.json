@@ -1,0 +1,23 @@
+{
+  "name": "example-monitor-memory-usage",
+  "author": "LiveKit",
+  "private": "true",
+  "description": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --incremental",
+    "lint": "eslint -f unix \"**/*.ts\""
+  },
+  "keywords": [],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@livekit/rtc-node": "workspace:*",
+    "dotenv": "^16.4.5",
+    "livekit-server-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "tsx": "^4.7.1"
+  }
+}

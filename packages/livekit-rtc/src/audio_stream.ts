@@ -95,7 +95,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.controller = controller;
   }
 
-  cancel(_reason?: any) {
+  cancel() {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
   }

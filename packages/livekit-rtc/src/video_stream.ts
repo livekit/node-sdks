@@ -6,7 +6,6 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type {
   NewVideoStreamResponse,
   VideoRotation,
-  VideoStreamInfo,
 } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
@@ -79,7 +78,7 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
     this.controller = controller;
   }
 
-  cancel(reason?: any) {
+  cancel(_reason?: any) {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
   }

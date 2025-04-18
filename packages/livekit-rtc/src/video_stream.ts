@@ -1,14 +1,10 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Mutex } from '@livekit/mutex';
+import { ReadableStream, type UnderlyingSource } from 'node:stream/web';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
-import type {
-  NewVideoStreamResponse,
-  VideoRotation,
-  VideoStreamInfo,
-} from './proto/video_frame_pb.js';
+import type { NewVideoStreamResponse, VideoRotation } from './proto/video_frame_pb.js';
 import { NewVideoStreamRequest, VideoStreamType } from './proto/video_frame_pb.js';
 import type { Track } from './track.js';
 import { VideoFrame } from './video_frame.js';
@@ -19,23 +15,11 @@ export type VideoFrameEvent = {
   rotation: VideoRotation;
 };
 
-export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
-  /** @internal */
-  info?: VideoStreamInfo;
-  /** @internal */
-  ffiHandle: FfiHandle;
-  /** @internal */
-  eventQueue: (VideoFrameEvent | null)[] = [];
-  /** @internal */
-  queueResolve: ((value: IteratorResult<VideoFrameEvent>) => void) | null = null;
-  /** @internal */
-  mutex = new Mutex();
-
-  track: Track;
+class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
+  private controller?: ReadableStreamDefaultController<VideoFrameEvent>;
+  private ffiHandle: FfiHandle;
 
   constructor(track: Track) {
-    this.track = track;
-
     const req = new NewVideoStreamRequest({
       type: VideoStreamType.VIDEO_STREAM_NATIVE,
       trackHandle: track.ffi_handle.handle,
@@ -48,13 +32,15 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
       },
     });
 
-    this.info = res.stream?.info;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
-
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 
   private onEvent = (ev: FfiEvent) => {
+    if (!this.controller) {
+      throw new Error('Stream controller not initialized');
+    }
+
     if (
       ev.message.case != 'videoStreamEvent' ||
       ev.message.value.streamHandle != this.ffiHandle.handle
@@ -69,54 +55,32 @@ export class VideoStream implements AsyncIterableIterator<VideoFrameEvent> {
         const timestampUs = streamEvent.value.timestampUs;
         const frame = VideoFrame.fromOwnedInfo(streamEvent.value.buffer!);
         const value = { rotation, timestampUs, frame };
-        if (this.queueResolve) {
-          this.queueResolve({
-            done: false,
-            value: {
-              frame: value.frame,
-              timestampUs: value.timestampUs!,
-              rotation: value.rotation!,
-            },
-          });
-          this.queueResolve = null;
-        } else {
-          this.eventQueue.push({
-            frame: value.frame,
-            timestampUs: value.timestampUs!,
-            rotation: value.rotation!,
-          });
-        }
+        const videoFrameEvent = {
+          frame: value.frame,
+          timestampUs: value.timestampUs!,
+          rotation: value.rotation!,
+        };
+        this.controller.enqueue(videoFrameEvent);
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+        this.controller.close();
         break;
     }
   };
 
-  async next(): Promise<IteratorResult<VideoFrameEvent>> {
-    const unlock = await this.mutex.lock();
-    if (this.eventQueue.length > 0) {
-      unlock();
-      const value = this.eventQueue.shift();
-      if (value) {
-        return { done: false, value };
-      } else {
-        return { done: true, value: undefined };
-      }
-    }
-    const promise = new Promise<IteratorResult<VideoFrameEvent>>(
-      (resolve) => (this.queueResolve = resolve),
-    );
-    unlock();
-    return promise;
+  start(controller: ReadableStreamDefaultController<VideoFrameEvent>) {
+    this.controller = controller;
   }
 
-  close() {
-    this.eventQueue.push(null);
+  cancel() {
+    FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
   }
+}
 
-  [Symbol.asyncIterator](): VideoStream {
-    return this;
+export class VideoStream extends ReadableStream<VideoFrameEvent> {
+  constructor(track: Track) {
+    super(new VideoStreamSource(track));
   }
 }

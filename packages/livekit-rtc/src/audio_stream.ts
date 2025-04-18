@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Mutex } from '@livekit/mutex';
+import { ReadableStream, type UnderlyingSource } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
-import type { AudioStreamInfo, NewAudioStreamResponse } from './proto/audio_frame_pb.js';
+import type { NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
@@ -20,34 +20,18 @@ export interface NoiseCancellationOptions {
   options: Record<string, any>;
 }
 
-export class AudioStream implements AsyncIterableIterator<AudioFrame> {
-  /** @internal */
-  info: AudioStreamInfo;
-  /** @internal */
-  ffiHandle: FfiHandle;
-  /** @internal */
-  eventQueue: (AudioFrame | null)[] = [];
-  /** @internal */
-  queueResolve: ((value: IteratorResult<AudioFrame>) => void) | null = null;
-  /** @internal */
-  mutex = new Mutex();
-
-  track: Track;
-  sampleRate: number;
-  numChannels: number;
-  ncOptions?: NoiseCancellationOptions;
-
-  constructor(track: Track);
-  constructor(track: Track, sampleRate: number);
-  constructor(track: Track, sampleRate: number, numChannels: number);
-  constructor(track: Track, options: AudioStreamOptions);
+class AudioStreamSource implements UnderlyingSource<AudioFrame> {
+  private controller?: ReadableStreamDefaultController<AudioFrame>;
+  private ffiHandle: FfiHandle;
+  private sampleRate: number;
+  private numChannels: number;
+  private ncOptions?: NoiseCancellationOptions;
 
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
   ) {
-    this.track = track;
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
@@ -77,13 +61,16 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
       },
     });
 
-    this.info = res.stream!.info!;
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
   }
 
   private onEvent = (ev: FfiEvent) => {
+    if (!this.controller) {
+      throw new Error('Stream controller not initialized');
+    }
+
     if (
       ev.message.case != 'audioStreamEvent' ||
       ev.message.value.streamHandle != this.ffiHandle.handle
@@ -95,43 +82,36 @@ export class AudioStream implements AsyncIterableIterator<AudioFrame> {
     switch (streamEvent.case) {
       case 'frameReceived':
         const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
-        if (this.queueResolve) {
-          this.queueResolve({ done: false, value: frame });
-          this.queueResolve = null;
-        } else {
-          this.eventQueue.push(frame);
-        }
+        this.controller.enqueue(frame);
         break;
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+        this.controller.close();
         break;
     }
   };
 
-  async next(): Promise<IteratorResult<AudioFrame>> {
-    const unlock = await this.mutex.lock();
-    if (this.eventQueue.length > 0) {
-      unlock();
-      const value = this.eventQueue.shift();
-      if (value) {
-        return { done: false, value };
-      } else {
-        return { done: true, value: undefined };
-      }
-    }
-    const promise = new Promise<IteratorResult<AudioFrame>>(
-      (resolve) => (this.queueResolve = resolve),
-    );
-    unlock();
-    return promise;
+  start(controller: ReadableStreamDefaultController<AudioFrame>) {
+    this.controller = controller;
   }
 
-  close() {
-    this.eventQueue.push(null);
+  cancel() {
+    FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
   }
+}
 
-  [Symbol.asyncIterator](): AudioStream {
-    return this;
+export class AudioStream extends ReadableStream<AudioFrame> {
+  
+  constructor(track: Track);
+  constructor(track: Track, sampleRate: number);
+  constructor(track: Track, sampleRate: number, numChannels: number);
+  constructor(track: Track, options: AudioStreamOptions);
+  constructor(
+    track: Track,
+    sampleRateOrOptions?: number | AudioStreamOptions,
+    numChannels?: number,
+  ) {
+    super(new AudioStreamSource(track, sampleRateOrOptions, numChannels));
   }
 }

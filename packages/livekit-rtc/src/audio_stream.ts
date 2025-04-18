@@ -102,6 +102,11 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
 }
 
 export class AudioStream extends ReadableStream<AudioFrame> {
+  
+  constructor(track: Track);
+  constructor(track: Track, sampleRate: number);
+  constructor(track: Track, sampleRate: number, numChannels: number);
+  constructor(track: Track, options: AudioStreamOptions);
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,

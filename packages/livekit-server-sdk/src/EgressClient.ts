@@ -11,6 +11,7 @@ import type {
   StreamOutput,
 } from '@livekit/protocol';
 import {
+  AudioMixing,
   EgressInfo,
   ListEgressRequest,
   ListEgressResponse,
@@ -50,6 +51,10 @@ export interface RoomCompositeOptions {
    * custom template url. optional
    */
   customBaseUrl?: string;
+  /**
+   * audio mixing options. optional
+   */
+  audioMixing?: AudioMixing;
 }
 
 export interface WebOptions {
@@ -151,6 +156,7 @@ export class EgressClient extends ServiceBase {
     audioOnly?: boolean,
     videoOnly?: boolean,
     customBaseUrl?: string,
+    audioMixing?: AudioMixing,
   ): Promise<EgressInfo>;
   async startRoomCompositeEgress(
     roomName: string,
@@ -160,6 +166,7 @@ export class EgressClient extends ServiceBase {
     audioOnly?: boolean,
     videoOnly?: boolean,
     customBaseUrl?: string,
+    audioMixing?: AudioMixing,
   ): Promise<EgressInfo> {
     let layout: string | undefined;
     if (optsOrLayout !== undefined) {
@@ -172,6 +179,7 @@ export class EgressClient extends ServiceBase {
         audioOnly = opts.audioOnly;
         videoOnly = opts.videoOnly;
         customBaseUrl = opts.customBaseUrl;
+        audioMixing = opts.audioMixing;
       }
     }
 
@@ -179,6 +187,7 @@ export class EgressClient extends ServiceBase {
     audioOnly ??= false;
     videoOnly ??= false;
     customBaseUrl ??= '';
+    audioMixing ??= AudioMixing.DEFAULT_MIXING;
 
     const {
       output: legacyOutput,
@@ -193,6 +202,7 @@ export class EgressClient extends ServiceBase {
       roomName,
       layout,
       audioOnly,
+      audioMixing,
       videoOnly,
       customBaseUrl,
       output: legacyOutput,

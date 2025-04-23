@@ -107,11 +107,11 @@ export class AudioSource {
     if (this.closed) {
       throw new Error('AudioSource is closed');
     }
-    
+
     if (frame.samplesPerChannel === 0) {
       return;
     }
-    
+
     const now = Number(process.hrtime.bigint() / BigInt(1000000));
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
     const frameDurationMs = (frame.samplesPerChannel / frame.sampleRate) * 1000;

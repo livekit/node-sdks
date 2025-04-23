@@ -2,11 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FfiClient } from './ffi_client.js';
-import type {
-  LoadAudioFilterPluginResponse} from './proto/audio_frame_pb.js';
-import {
-  LoadAudioFilterPluginRequest
-} from './proto/audio_frame_pb.js';
+import type { LoadAudioFilterPluginResponse } from './proto/audio_frame_pb.js';
+import { LoadAudioFilterPluginRequest } from './proto/audio_frame_pb.js';
 
 export class AudioFilter {
   constructor(moduleId: string, path: string, dependencies: string[] = []) {

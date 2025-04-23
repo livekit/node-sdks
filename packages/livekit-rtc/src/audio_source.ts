@@ -99,6 +99,7 @@ export class AudioSource {
       this.lastCapture = 0;
       this.currentQueueSize = 0;
       this.promise = this.newPromise();
+      this.timeout = undefined;
     });
   }
 
@@ -122,8 +123,6 @@ export class AudioSource {
       clearTimeout(this.timeout);
     }
 
-    // remove 50ms to account for processing time
-    // (e.g. using wait_for_playout for very small chunks)
     this.timeout = setTimeout(this.release, this.currentQueueSize);
 
     const req = new CaptureAudioFrameRequest({

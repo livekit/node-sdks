@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.12
+
+### Patch Changes
+
+- Use node stream for AudioStream and VideoStream (#458) - [#471](https://github.com/livekit/node-sdks/pull/471) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
+- bugfix: no more negative timeouts being set on AudioSource - [#467](https://github.com/livekit/node-sdks/pull/467) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.11
 
 ### Patch Changes

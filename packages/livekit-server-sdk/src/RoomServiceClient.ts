@@ -259,7 +259,7 @@ export class RoomServiceClient extends ServiceBase {
     await this.rpc.request(
       svc,
       'MoveParticipant',
-      new MoveParticipantRequest({ room, identity, destinationRoom, }).toJson(),
+      new MoveParticipantRequest({ room, identity, destinationRoom }).toJson(),
       await this.authHeader({ roomAdmin: true, room, destinationRoom }),
     );
   }

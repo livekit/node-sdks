@@ -148,6 +148,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'connect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    log.debug('Connect callback received');
+
     switch (cb.message.case) {
       case 'result':
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);

@@ -19,9 +19,7 @@ SPDX-License-Identifier: Apache-2.0
 </h1>
 
 <!--BEGIN_DESCRIPTION-->
-
 Use this SDK to add realtime video, audio and data features to your Node app. By connecting to <a href="https://livekit.io/">LiveKit</a> Cloud or a self-hosted server, you can quickly build applications such as multi-modal AI, live streaming, or video calls with just a few lines of code.
-
 <!--END_DESCRIPTION-->
 
 ## Monorepo Navigation
@@ -73,9 +71,7 @@ git submodule update --init --recursive
 Then run `pnpm build` to make sure everything is up to date.
 
 <!--BEGIN_REPO_NAV-->
-
 <br/><table>
-
 <thead><tr><th colspan="2">LiveKit Ecosystem</th></tr></thead>
 <tbody>
 <tr><td>LiveKit SDKs</td><td><a href="https://github.com/livekit/client-sdk-js">Browser</a> · <a href="https://github.com/livekit/client-sdk-swift">iOS/macOS/visionOS</a> · <a href="https://github.com/livekit/client-sdk-android">Android</a> · <a href="https://github.com/livekit/client-sdk-flutter">Flutter</a> · <a href="https://github.com/livekit/client-sdk-react-native">React Native</a> · <a href="https://github.com/livekit/rust-sdks">Rust</a> · <b>Node.js</b> · <a href="https://github.com/livekit/python-sdks">Python</a> · <a href="https://github.com/livekit/client-sdk-unity">Unity</a> · <a href="https://github.com/livekit/client-sdk-unity-web">Unity (WebGL)</a></td></tr><tr></tr>

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.13
+
+### Patch Changes
+
+- add log on room connecting - [#474](https://github.com/livekit/node-sdks/pull/474) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.12
 
 ### Patch Changes

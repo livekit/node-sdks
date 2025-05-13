@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.13.0
+
+### Minor Changes
+
+- Support moving participant to another room - [#473](https://github.com/livekit/node-sdks/pull/473) ([@cnderrauber](https://github.com/cnderrauber))
+
 ## 2.12.0
 
 ### Minor Changes

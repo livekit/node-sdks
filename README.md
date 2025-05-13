@@ -60,6 +60,16 @@ This will build all the packages in `/packages` and the examples in `/examples` 
 
 After that you can use a more granular command to only rebuild the packages you are working on.
 
+### Setup Submodules
+
+Run the following command to install the submodules.
+
+```shell
+git submodule update --init --recursive
+```
+
+Then run `pnpm build` to make sure everything is up to date.
+
 <!--BEGIN_REPO_NAV-->
 <br/><table>
 <thead><tr><th colspan="2">LiveKit Ecosystem</th></tr></thead>

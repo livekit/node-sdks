@@ -10,6 +10,7 @@ import {
   ListParticipantsResponse,
   ListRoomsRequest,
   ListRoomsResponse,
+  MoveParticipantRequest,
   MuteRoomTrackRequest,
   MuteRoomTrackResponse,
   ParticipantInfo,
@@ -233,12 +234,32 @@ export class RoomServiceClient extends ServiceBase {
    * participant. When the source participant disconnects or the
    * `RemoveParticipant` method is called in the destination room, the
    * forwarding will be stopped.
+   * @param room -
+   * @param identity -
+   * @param destinationRoom - the room to forward the participant to
    */
   async forwardParticipant(room: string, identity: string, destinationRoom: string): Promise<void> {
     await this.rpc.request(
       svc,
       'ForwardParticipant',
       new ForwardParticipantRequest({ room, identity, destinationRoom }).toJson(),
+      await this.authHeader({ roomAdmin: true, room, destinationRoom }),
+    );
+  }
+
+  /**
+   * Move a connected participant to a different room. Requires `roomAdmin` and `destinationRoom`.
+   * The participant will be removed from the current room and added to the destination room.
+   * From the other observers' perspective, the participant would've disconnected from the previous room and joined the new one.
+   * @param room -
+   * @param identity -
+   * @param destinationRoom - the room to move the participant to
+   */
+  async moveParticipant(room: string, identity: string, destinationRoom: string): Promise<void> {
+    await this.rpc.request(
+      svc,
+      'MoveParticipant',
+      new MoveParticipantRequest({ room, identity, destinationRoom }).toJson(),
       await this.authHeader({ roomAdmin: true, room, destinationRoom }),
     );
   }

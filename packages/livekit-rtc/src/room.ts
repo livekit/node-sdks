@@ -131,6 +131,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const options = { ...defaultRoomOptions, ...opts };
     const e2eeOptions = { ...defaultE2EEOptions, ...options.e2ee };
 
+    FfiClient.instance.on(FfiClientEvent.FfiEvent, (event) => {
+      if (event.message.case === 'logs') {
+        const logs = event.message.value.records;
+        for (const log of logs) {
+          console.log(`[RUST] ${log.level}: ${log.message}`);
+        }
+      }
+    });
     const req = new ConnectRequest({
       url: url,
       token: token,

@@ -18,7 +18,7 @@ Use this SDK to add realtime video, audio and data features to your Node app. By
 
 ### Warning
 
-Avoid running this with hot reloads (ex. [bun's hot reload](https://bun.sh/guides/http/hot)). This is known to cause issues.
+Avoid running this with hot reloads (ex. [bun's hot reload](https://bun.sh/guides/http/hot)). This is known to cause issues with WebRTC connectivity.
 
 ## Using realtime SDK
 

@@ -16,6 +16,9 @@ Use this SDK to add realtime video, audio and data features to your Node app. By
 >
 > We welcome and appreciate any feedback or contributions. You can create issues here or chat live with us in the #dev channel within the [LiveKit Community Slack](https://livekit.io/join-slack).
 
+### Warning
+
+Avoid running this with hot reloads (ex. [bun's hot reload](https://bun.sh/guides/http/hot)). This is known to cause issues with WebRTC connectivity.
 
 ## Using realtime SDK
 

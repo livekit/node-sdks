@@ -22,6 +22,10 @@ SPDX-License-Identifier: Apache-2.0
 Use this SDK to add realtime video, audio and data features to your Node app. By connecting to <a href="https://livekit.io/">LiveKit</a> Cloud or a self-hosted server, you can quickly build applications such as multi-modal AI, live streaming, or video calls with just a few lines of code.
 <!--END_DESCRIPTION-->
 
+### Warning
+
+Avoid running this with hot reloads (ex. [bun's hot reload](https://bun.sh/guides/http/hot)). This is known to cause issues with WebRTC connectivity.
+
 ## Monorepo Navigation
 
 - **Packages**:

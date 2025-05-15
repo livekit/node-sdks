@@ -26,6 +26,7 @@ export enum FfiClientEvent {
 }
 
 declare global {
+  // eslint-disable-next-line no-var
   var _ffiClientInstance: FfiClient | undefined;
 }
 

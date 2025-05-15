@@ -25,17 +25,13 @@ export enum FfiClientEvent {
   FfiEvent = 'ffi_event',
 }
 
-declare global {
-  var _ffiClientInstance: FfiClient | undefined;
-}
-
 export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClientCallbacks>) {
   /** @internal */
   static get instance(): FfiClient {
-    if (!globalThis._ffiClientInstance) {
-      globalThis._ffiClientInstance = new FfiClient();
+    if (!(globalThis as any)._ffiClientInstance) {
+      (globalThis as any)._ffiClientInstance = new FfiClient();
     }
-    return globalThis._ffiClientInstance;
+    return (globalThis as any)._ffiClientInstance;
   }
 
   constructor() {

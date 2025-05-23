@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.14
+
+### Patch Changes
+
+- update rust-sdk to rust-sdks/livekit-ffi@0.12.25 - [#481](https://github.com/livekit/node-sdks/pull/481) ([@typester](https://github.com/typester))
+
+- fix issue with bun hot reload - [#479](https://github.com/livekit/node-sdks/pull/479) ([@theomonnom](https://github.com/theomonnom))
+
 ## 0.13.13
 
 ### Patch Changes

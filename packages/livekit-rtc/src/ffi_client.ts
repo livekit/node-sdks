@@ -25,13 +25,18 @@ export enum FfiClientEvent {
   FfiEvent = 'ffi_event',
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var _ffiClientInstance: FfiClient | undefined;
+}
+
 export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClientCallbacks>) {
   /** @internal */
   static get instance(): FfiClient {
-    if (!(globalThis as any)._ffiClientInstance) {
-      (globalThis as any)._ffiClientInstance = new FfiClient();
+    if (!globalThis._ffiClientInstance) {
+      globalThis._ffiClientInstance = new FfiClient();
     }
-    return (globalThis as any)._ffiClientInstance;
+    return globalThis._ffiClientInstance;
   }
 
   constructor() {

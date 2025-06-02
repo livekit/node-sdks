@@ -64,6 +64,7 @@ while (written < dataSize) {
 }
 await source.waitForPlayout();
 // release resources allocated for audio publishing
+await track.close();
 await source.close();
 
 await room.disconnect();

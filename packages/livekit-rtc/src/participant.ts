@@ -20,21 +20,29 @@ import {
   ParticipantKind,
 } from './proto/participant_pb.js';
 import {
+  ChatMessage as ChatMessageModel,
   DataStream_ByteHeader,
   DataStream_Chunk,
   DataStream_Header,
   DataStream_OperationType,
   DataStream_TextHeader,
   DataStream_Trailer,
+  EditChatMessageRequest,
+  TranscriptionSegment as ProtoTranscriptionSegment,
   type PublishDataCallback,
+  PublishDataRequest,
   type PublishDataResponse,
   type PublishSipDtmfCallback,
+  PublishSipDtmfRequest,
   type PublishSipDtmfResponse,
   type PublishTrackCallback,
+  PublishTrackRequest,
   type PublishTrackResponse,
   type PublishTranscriptionCallback,
+  PublishTranscriptionRequest,
   type PublishTranscriptionResponse,
   type SendChatMessageCallback,
+  SendChatMessageRequest,
   type SendChatMessageResponse,
   type SendStreamChunkCallback,
   SendStreamChunkRequest,
@@ -46,28 +54,18 @@ import {
   SendStreamTrailerRequest,
   type SendStreamTrailerResponse,
   type SetLocalAttributesCallback,
+  SetLocalAttributesRequest,
   type SetLocalAttributesResponse,
   type SetLocalMetadataCallback,
+  SetLocalMetadataRequest,
   type SetLocalMetadataResponse,
   type SetLocalNameCallback,
+  SetLocalNameRequest,
   type SetLocalNameResponse,
   type TrackPublishOptions,
   type UnpublishTrackCallback,
-  type UnpublishTrackResponse,
-} from './proto/room_pb.js';
-import { ChatMessage as ChatMessageModel } from './proto/room_pb.js';
-import {
-  EditChatMessageRequest,
-  TranscriptionSegment as ProtoTranscriptionSegment,
-  PublishDataRequest,
-  PublishSipDtmfRequest,
-  PublishTrackRequest,
-  PublishTranscriptionRequest,
-  SendChatMessageRequest,
-  SetLocalAttributesRequest,
-  SetLocalMetadataRequest,
-  SetLocalNameRequest,
   UnpublishTrackRequest,
+  type UnpublishTrackResponse,
 } from './proto/room_pb.js';
 import type {
   PerformRpcCallback,
@@ -460,7 +458,7 @@ export class LocalParticipant extends Participant {
     const fileStats = await stat(path);
     const file = await open(path);
     try {
-      const stream: ReadableStream<Uint8Array> = file.readableWebStream({ type: 'bytes' });
+      const stream: ReadableStream<Uint8Array> = file.readableWebStream();
       const streamId = crypto.randomUUID();
       const destinationIdentities = options?.destinationIdentities;
 

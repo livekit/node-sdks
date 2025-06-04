@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.15
+
+### Patch Changes
+
+- Bump '@types/node' pkg version and remove all explicit `ReadableStream` imports - [#487](https://github.com/livekit/node-sdks/pull/487) ([@toubatbrian](https://github.com/toubatbrian))
+
 ## 0.13.14
 
 ### Patch Changes

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { ReadableStream } from 'node:stream/web';
 import { log } from '../log.js';
 import type { DataStream_Chunk } from '../proto/room_pb.js';
 import { bigIntToNumber } from '../utils.js';

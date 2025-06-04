@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReadableStream, type UnderlyingSource } from 'node:stream/web';
+import type { UnderlyingSource } from 'node:stream/web';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { NewVideoStreamResponse, VideoRotation } from './proto/video_frame_pb.js';

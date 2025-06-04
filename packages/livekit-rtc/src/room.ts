@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
-import { ReadableStream } from 'node:stream/web';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
 import type {
   ByteStreamHandler,

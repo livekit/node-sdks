@@ -81,6 +81,7 @@ export interface CreateSipInboundTrunkOptions {
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
   transport: SIPTransport;
+  destinationCountry?: string;
   /** @deprecated - use `authUsername` instead */
   auth_username?: string;
   authUsername?: string;
@@ -331,6 +332,7 @@ export class SipClient extends ServiceBase {
         headers: opts.headers,
         headersToAttributes: opts.headersToAttributes,
         includeHeaders: opts.includeHeaders,
+        destinationCountry: opts.destinationCountry,
       }),
     }).toJson();
 

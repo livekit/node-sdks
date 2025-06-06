@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^1.7.2",
-    "@livekit/protocol": "^1.38.0",
+    "@livekit/protocol": "^1.39.0",
     "camelcase-keys": "^9.0.0",
     "jose": "^5.1.2"
   },

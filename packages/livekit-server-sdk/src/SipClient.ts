@@ -177,12 +177,23 @@ export interface SipDispatchRuleUpdateOptions {
   attributes?: { [key: string]: string };
 }
 
-export interface SipTrunkUpdateOptions {
+export interface SipInboundTrunkUpdateOptions {
   numbers?: ListUpdate;
   allowedAddresses?: ListUpdate;
   allowedNumbers?: ListUpdate;
   authUsername?: string;
   authPassword?: string;
+  name?: string;
+  metadata?: string;
+}
+
+export interface SipOutboundTrunkUpdateOptions {
+  numbers?: ListUpdate;
+  allowedAddresses?: ListUpdate;
+  allowedNumbers?: ListUpdate;
+  authUsername?: string;
+  authPassword?: string;
+  destinationCountry?: string;
   name?: string;
   metadata?: string;
 }
@@ -564,7 +575,7 @@ export class SipClient extends ServiceBase {
    */
   async updateSipInboundTrunkFields(
     sipTrunkId: string,
-    fields: SipTrunkUpdateOptions,
+    fields: SipInboundTrunkUpdateOptions,
   ): Promise<SIPInboundTrunkInfo> {
     const req = new UpdateSIPInboundTrunkRequest({
       sipTrunkId,
@@ -623,7 +634,7 @@ export class SipClient extends ServiceBase {
    */
   async updateSipOutboundTrunkFields(
     sipTrunkId: string,
-    fields: SipTrunkUpdateOptions,
+    fields: SipOutboundTrunkUpdateOptions,
   ): Promise<SIPOutboundTrunkInfo> {
     const req = new UpdateSIPOutboundTrunkRequest({
       sipTrunkId,

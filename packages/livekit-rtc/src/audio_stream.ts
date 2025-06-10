@@ -50,9 +50,9 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       frameSizeMs: frameSizeMs,
       ...(this.ncOptions
         ? {
-          audioFilterModuleId: this.ncOptions.moduleId,
-          audioFilterOptions: JSON.stringify(this.ncOptions.options),
-        }
+            audioFilterModuleId: this.ncOptions.moduleId,
+            audioFilterOptions: JSON.stringify(this.ncOptions.options),
+          }
         : {}),
     });
 

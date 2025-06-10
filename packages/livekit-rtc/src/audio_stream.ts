@@ -31,6 +31,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
+    frameSizeMs?: number,
   ) {
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
@@ -46,11 +47,12 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       trackHandle: track.ffi_handle.handle,
       sampleRate: this.sampleRate,
       numChannels: this.numChannels,
+      frameSizeMs: frameSizeMs,
       ...(this.ncOptions
         ? {
-            audioFilterModuleId: this.ncOptions.moduleId,
-            audioFilterOptions: JSON.stringify(this.ncOptions.options),
-          }
+          audioFilterModuleId: this.ncOptions.moduleId,
+          audioFilterOptions: JSON.stringify(this.ncOptions.options),
+        }
         : {}),
     });
 

@@ -13,6 +13,7 @@ export interface AudioStreamOptions {
   noiseCancellation?: NoiseCancellationOptions;
   sampleRate?: number;
   numChannels?: number;
+  frameSizeMs?: number;
 }
 
 export interface NoiseCancellationOptions {
@@ -26,17 +27,18 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private sampleRate: number;
   private numChannels: number;
   private ncOptions?: NoiseCancellationOptions;
+  private frameSizeMs?: number;
 
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
-    frameSizeMs?: number,
   ) {
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
       this.ncOptions = sampleRateOrOptions.noiseCancellation;
+      this.frameSizeMs = sampleRateOrOptions.frameSizeMs;
     } else {
       this.sampleRate = (sampleRateOrOptions as number) ?? 48000;
       this.numChannels = numChannels ?? 1;
@@ -47,7 +49,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       trackHandle: track.ffi_handle.handle,
       sampleRate: this.sampleRate,
       numChannels: this.numChannels,
-      frameSizeMs: frameSizeMs,
+      frameSizeMs: this.frameSizeMs,
       ...(this.ncOptions
         ? {
             audioFilterModuleId: this.ncOptions.moduleId,

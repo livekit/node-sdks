@@ -114,6 +114,58 @@ proto2.util.setEnumType(StreamState, "livekit.proto.StreamState", [
 ]);
 
 /**
+ * @generated from enum livekit.proto.AudioTrackFeature
+ */
+export enum AudioTrackFeature {
+  /**
+   * @generated from enum value: TF_STEREO = 0;
+   */
+  TF_STEREO = 0,
+
+  /**
+   * @generated from enum value: TF_NO_DTX = 1;
+   */
+  TF_NO_DTX = 1,
+
+  /**
+   * @generated from enum value: TF_AUTO_GAIN_CONTROL = 2;
+   */
+  TF_AUTO_GAIN_CONTROL = 2,
+
+  /**
+   * @generated from enum value: TF_ECHO_CANCELLATION = 3;
+   */
+  TF_ECHO_CANCELLATION = 3,
+
+  /**
+   * @generated from enum value: TF_NOISE_SUPPRESSION = 4;
+   */
+  TF_NOISE_SUPPRESSION = 4,
+
+  /**
+   * @generated from enum value: TF_ENHANCED_NOISE_CANCELLATION = 5;
+   */
+  TF_ENHANCED_NOISE_CANCELLATION = 5,
+
+  /**
+   * client will buffer audio once available and send it to the server via bytes stream once connected
+   *
+   * @generated from enum value: TF_PRECONNECT_BUFFER = 6;
+   */
+  TF_PRECONNECT_BUFFER = 6,
+}
+// Retrieve enum metadata with: proto2.getEnumType(AudioTrackFeature)
+proto2.util.setEnumType(AudioTrackFeature, "livekit.proto.AudioTrackFeature", [
+  { no: 0, name: "TF_STEREO" },
+  { no: 1, name: "TF_NO_DTX" },
+  { no: 2, name: "TF_AUTO_GAIN_CONTROL" },
+  { no: 3, name: "TF_ECHO_CANCELLATION" },
+  { no: 4, name: "TF_NOISE_SUPPRESSION" },
+  { no: 5, name: "TF_ENHANCED_NOISE_CANCELLATION" },
+  { no: 6, name: "TF_PRECONNECT_BUFFER" },
+]);
+
+/**
  * Create a new VideoTrack from a VideoSource
  *
  * @generated from message livekit.proto.CreateVideoTrackRequest
@@ -490,6 +542,11 @@ export class TrackPublicationInfo extends Message<TrackPublicationInfo> {
    */
   encryptionType?: EncryptionType;
 
+  /**
+   * @generated from field: repeated livekit.proto.AudioTrackFeature audio_features = 12;
+   */
+  audioFeatures: AudioTrackFeature[] = [];
+
   constructor(data?: PartialMessage<TrackPublicationInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -509,6 +566,7 @@ export class TrackPublicationInfo extends Message<TrackPublicationInfo> {
     { no: 9, name: "muted", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
     { no: 10, name: "remote", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
     { no: 11, name: "encryption_type", kind: "enum", T: proto2.getEnumType(EncryptionType), req: true },
+    { no: 12, name: "audio_features", kind: "enum", T: proto2.getEnumType(AudioTrackFeature), repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TrackPublicationInfo {

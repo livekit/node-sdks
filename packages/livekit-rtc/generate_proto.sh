@@ -28,4 +28,5 @@ PATH=$PATH:$(pwd)/node_modules/.bin \
     $FFI_PROTOCOL/e2ee.proto \
     $FFI_PROTOCOL/stats.proto \
     $FFI_PROTOCOL/rpc.proto \
-    $FFI_PROTOCOL/track_publication.proto
+    $FFI_PROTOCOL/track_publication.proto \
+    $FFI_PROTOCOL/data_stream.proto

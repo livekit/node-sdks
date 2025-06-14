@@ -25,6 +25,7 @@ import { RtcStats } from "./stats_pb.js";
 import { VideoCodec } from "./video_frame_pb.js";
 import { E2eeOptions, EncryptionState } from "./e2ee_pb.js";
 import { FfiOwnedHandle } from "./handle_pb.js";
+import { OwnedByteStreamReader, OwnedTextStreamReader } from "./data_stream_pb.js";
 
 /**
  * @generated from enum livekit.proto.IceTransportType
@@ -2752,6 +2753,8 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "chatMessage";
   } | {
     /**
+     * Data stream (low level)
+     *
      * @generated from field: livekit.proto.DataStreamHeaderReceived stream_header_received = 30;
      */
     value: DataStreamHeaderReceived;
@@ -2774,6 +2777,20 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: DataChannelBufferedAmountLowThresholdChanged;
     case: "dataChannelLowThresholdChanged";
+  } | {
+    /**
+     * Data stream (high level)
+     *
+     * @generated from field: livekit.proto.ByteStreamOpened byte_stream_opened = 34;
+     */
+    value: ByteStreamOpened;
+    case: "byteStreamOpened";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamOpened text_stream_opened = 35;
+     */
+    value: TextStreamOpened;
+    case: "textStreamOpened";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2817,6 +2834,8 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 31, name: "stream_chunk_received", kind: "message", T: DataStreamChunkReceived, oneof: "message" },
     { no: 32, name: "stream_trailer_received", kind: "message", T: DataStreamTrailerReceived, oneof: "message" },
     { no: 33, name: "data_channel_low_threshold_changed", kind: "message", T: DataChannelBufferedAmountLowThresholdChanged, oneof: "message" },
+    { no: 34, name: "byte_stream_opened", kind: "message", T: ByteStreamOpened, oneof: "message" },
+    { no: 35, name: "text_stream_opened", kind: "message", T: TextStreamOpened, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -5338,6 +5357,92 @@ export class DataChannelBufferedAmountLowThresholdChanged extends Message<DataCh
 
   static equals(a: DataChannelBufferedAmountLowThresholdChanged | PlainMessage<DataChannelBufferedAmountLowThresholdChanged> | undefined, b: DataChannelBufferedAmountLowThresholdChanged | PlainMessage<DataChannelBufferedAmountLowThresholdChanged> | undefined): boolean {
     return proto2.util.equals(DataChannelBufferedAmountLowThresholdChanged, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ByteStreamOpened
+ */
+export class ByteStreamOpened extends Message<ByteStreamOpened> {
+  /**
+   * @generated from field: required livekit.proto.OwnedByteStreamReader reader = 1;
+   */
+  reader?: OwnedByteStreamReader;
+
+  /**
+   * @generated from field: required string participant_identity = 2;
+   */
+  participantIdentity?: string;
+
+  constructor(data?: PartialMessage<ByteStreamOpened>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ByteStreamOpened";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "reader", kind: "message", T: OwnedByteStreamReader, req: true },
+    { no: 2, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ByteStreamOpened {
+    return new ByteStreamOpened().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ByteStreamOpened {
+    return new ByteStreamOpened().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ByteStreamOpened {
+    return new ByteStreamOpened().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ByteStreamOpened | PlainMessage<ByteStreamOpened> | undefined, b: ByteStreamOpened | PlainMessage<ByteStreamOpened> | undefined): boolean {
+    return proto2.util.equals(ByteStreamOpened, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.TextStreamOpened
+ */
+export class TextStreamOpened extends Message<TextStreamOpened> {
+  /**
+   * @generated from field: required livekit.proto.OwnedTextStreamReader reader = 1;
+   */
+  reader?: OwnedTextStreamReader;
+
+  /**
+   * @generated from field: required string participant_identity = 2;
+   */
+  participantIdentity?: string;
+
+  constructor(data?: PartialMessage<TextStreamOpened>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.TextStreamOpened";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "reader", kind: "message", T: OwnedTextStreamReader, req: true },
+    { no: 2, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TextStreamOpened {
+    return new TextStreamOpened().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TextStreamOpened {
+    return new TextStreamOpened().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TextStreamOpened {
+    return new TextStreamOpened().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TextStreamOpened | PlainMessage<TextStreamOpened> | undefined, b: TextStreamOpened | PlainMessage<TextStreamOpened> | undefined): boolean {
+    return proto2.util.equals(TextStreamOpened, a, b);
   }
 }
 

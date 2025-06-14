@@ -158,6 +158,11 @@ export enum DisconnectReason {
    * @generated from enum value: SIP_TRUNK_FAILURE = 13;
    */
   SIP_TRUNK_FAILURE = 13,
+
+  /**
+   * @generated from enum value: CONNECTION_TIMEOUT = 14;
+   */
+  CONNECTION_TIMEOUT = 14,
 }
 // Retrieve enum metadata with: proto2.getEnumType(DisconnectReason)
 proto2.util.setEnumType(DisconnectReason, "livekit.proto.DisconnectReason", [
@@ -175,6 +180,7 @@ proto2.util.setEnumType(DisconnectReason, "livekit.proto.DisconnectReason", [
   { no: 11, name: "USER_UNAVAILABLE" },
   { no: 12, name: "USER_REJECTED" },
   { no: 13, name: "SIP_TRUNK_FAILURE" },
+  { no: 14, name: "CONNECTION_TIMEOUT" },
 ]);
 
 /**

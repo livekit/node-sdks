@@ -26,6 +26,7 @@ import { ApmProcessReverseStreamRequest, ApmProcessReverseStreamResponse, ApmPro
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
 import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
+import { ByteStreamOpenCallback, ByteStreamOpenRequest, ByteStreamOpenResponse, ByteStreamReaderEvent, ByteStreamReaderReadAllCallback, ByteStreamReaderReadAllRequest, ByteStreamReaderReadAllResponse, ByteStreamReaderReadIncrementalRequest, ByteStreamReaderReadIncrementalResponse, ByteStreamReaderWriteToFileCallback, ByteStreamReaderWriteToFileRequest, ByteStreamReaderWriteToFileResponse, ByteStreamWriterCloseCallback, ByteStreamWriterCloseRequest, ByteStreamWriterCloseResponse, ByteStreamWriterWriteCallback, ByteStreamWriterWriteRequest, ByteStreamWriterWriteResponse, StreamSendFileCallback, StreamSendFileRequest, StreamSendFileResponse, StreamSendTextCallback, StreamSendTextRequest, StreamSendTextResponse, TextStreamOpenCallback, TextStreamOpenRequest, TextStreamOpenResponse, TextStreamReaderEvent, TextStreamReaderReadAllCallback, TextStreamReaderReadAllRequest, TextStreamReaderReadAllResponse, TextStreamReaderReadIncrementalRequest, TextStreamReaderReadIncrementalResponse, TextStreamWriterCloseCallback, TextStreamWriterCloseRequest, TextStreamWriterCloseResponse, TextStreamWriterWriteCallback, TextStreamWriterWriteRequest, TextStreamWriterWriteResponse } from "./data_stream_pb.js";
 
 /**
  * @generated from enum livekit.proto.LogLevel
@@ -347,7 +348,7 @@ export class FfiRequest extends Message<FfiRequest> {
     case: "updateRemoteTrackPublicationDimension";
   } | {
     /**
-     * Data Streams
+     * Data Streams (low level)
      *
      * @generated from field: livekit.proto.SendStreamHeaderRequest send_stream_header = 44;
      */
@@ -405,6 +406,86 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: ApmSetStreamDelayRequest;
     case: "apmSetStreamDelay";
+  } | {
+    /**
+     * Data Streams (high level)
+     *
+     * @generated from field: livekit.proto.ByteStreamReaderReadIncrementalRequest byte_read_incremental = 54;
+     */
+    value: ByteStreamReaderReadIncrementalRequest;
+    case: "byteReadIncremental";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderReadAllRequest byte_read_all = 55;
+     */
+    value: ByteStreamReaderReadAllRequest;
+    case: "byteReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderWriteToFileRequest byte_write_to_file = 56;
+     */
+    value: ByteStreamReaderWriteToFileRequest;
+    case: "byteWriteToFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderReadIncrementalRequest text_read_incremental = 57;
+     */
+    value: TextStreamReaderReadIncrementalRequest;
+    case: "textReadIncremental";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderReadAllRequest text_read_all = 58;
+     */
+    value: TextStreamReaderReadAllRequest;
+    case: "textReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendFileRequest send_file = 59;
+     */
+    value: StreamSendFileRequest;
+    case: "sendFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendTextRequest send_text = 60;
+     */
+    value: StreamSendTextRequest;
+    case: "sendText";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamOpenRequest byte_stream_open = 61;
+     */
+    value: ByteStreamOpenRequest;
+    case: "byteStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterWriteRequest byte_stream_write = 62;
+     */
+    value: ByteStreamWriterWriteRequest;
+    case: "byteStreamWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterCloseRequest byte_stream_close = 63;
+     */
+    value: ByteStreamWriterCloseRequest;
+    case: "byteStreamClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamOpenRequest text_stream_open = 64;
+     */
+    value: TextStreamOpenRequest;
+    case: "textStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterWriteRequest text_stream_write = 65;
+     */
+    value: TextStreamWriterWriteRequest;
+    case: "textStreamWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterCloseRequest text_stream_close = 66;
+     */
+    value: TextStreamWriterCloseRequest;
+    case: "textStreamClose";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -467,6 +548,19 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 51, name: "apm_process_stream", kind: "message", T: ApmProcessStreamRequest, oneof: "message" },
     { no: 52, name: "apm_process_reverse_stream", kind: "message", T: ApmProcessReverseStreamRequest, oneof: "message" },
     { no: 53, name: "apm_set_stream_delay", kind: "message", T: ApmSetStreamDelayRequest, oneof: "message" },
+    { no: 54, name: "byte_read_incremental", kind: "message", T: ByteStreamReaderReadIncrementalRequest, oneof: "message" },
+    { no: 55, name: "byte_read_all", kind: "message", T: ByteStreamReaderReadAllRequest, oneof: "message" },
+    { no: 56, name: "byte_write_to_file", kind: "message", T: ByteStreamReaderWriteToFileRequest, oneof: "message" },
+    { no: 57, name: "text_read_incremental", kind: "message", T: TextStreamReaderReadIncrementalRequest, oneof: "message" },
+    { no: 58, name: "text_read_all", kind: "message", T: TextStreamReaderReadAllRequest, oneof: "message" },
+    { no: 59, name: "send_file", kind: "message", T: StreamSendFileRequest, oneof: "message" },
+    { no: 60, name: "send_text", kind: "message", T: StreamSendTextRequest, oneof: "message" },
+    { no: 61, name: "byte_stream_open", kind: "message", T: ByteStreamOpenRequest, oneof: "message" },
+    { no: 62, name: "byte_stream_write", kind: "message", T: ByteStreamWriterWriteRequest, oneof: "message" },
+    { no: 63, name: "byte_stream_close", kind: "message", T: ByteStreamWriterCloseRequest, oneof: "message" },
+    { no: 64, name: "text_stream_open", kind: "message", T: TextStreamOpenRequest, oneof: "message" },
+    { no: 65, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteRequest, oneof: "message" },
+    { no: 66, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -819,6 +913,86 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: ApmSetStreamDelayResponse;
     case: "apmSetStreamDelay";
+  } | {
+    /**
+     * Data Streams (high level)
+     *
+     * @generated from field: livekit.proto.ByteStreamReaderReadIncrementalResponse byte_read_incremental = 53;
+     */
+    value: ByteStreamReaderReadIncrementalResponse;
+    case: "byteReadIncremental";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderReadAllResponse byte_read_all = 54;
+     */
+    value: ByteStreamReaderReadAllResponse;
+    case: "byteReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderWriteToFileResponse byte_write_to_file = 55;
+     */
+    value: ByteStreamReaderWriteToFileResponse;
+    case: "byteWriteToFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderReadIncrementalResponse text_read_incremental = 56;
+     */
+    value: TextStreamReaderReadIncrementalResponse;
+    case: "textReadIncremental";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderReadAllResponse text_read_all = 57;
+     */
+    value: TextStreamReaderReadAllResponse;
+    case: "textReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendFileResponse send_file = 58;
+     */
+    value: StreamSendFileResponse;
+    case: "sendFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendTextResponse send_text = 59;
+     */
+    value: StreamSendTextResponse;
+    case: "sendText";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamOpenResponse byte_stream_open = 60;
+     */
+    value: ByteStreamOpenResponse;
+    case: "byteStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterWriteResponse byte_stream_write = 61;
+     */
+    value: ByteStreamWriterWriteResponse;
+    case: "byteStreamWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterCloseResponse byte_stream_close = 62;
+     */
+    value: ByteStreamWriterCloseResponse;
+    case: "byteStreamClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamOpenResponse text_stream_open = 63;
+     */
+    value: TextStreamOpenResponse;
+    case: "textStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterWriteResponse text_stream_write = 64;
+     */
+    value: TextStreamWriterWriteResponse;
+    case: "textStreamWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterCloseResponse text_stream_close = 65;
+     */
+    value: TextStreamWriterCloseResponse;
+    case: "textStreamClose";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -880,6 +1054,19 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 50, name: "apm_process_stream", kind: "message", T: ApmProcessStreamResponse, oneof: "message" },
     { no: 51, name: "apm_process_reverse_stream", kind: "message", T: ApmProcessReverseStreamResponse, oneof: "message" },
     { no: 52, name: "apm_set_stream_delay", kind: "message", T: ApmSetStreamDelayResponse, oneof: "message" },
+    { no: 53, name: "byte_read_incremental", kind: "message", T: ByteStreamReaderReadIncrementalResponse, oneof: "message" },
+    { no: 54, name: "byte_read_all", kind: "message", T: ByteStreamReaderReadAllResponse, oneof: "message" },
+    { no: 55, name: "byte_write_to_file", kind: "message", T: ByteStreamReaderWriteToFileResponse, oneof: "message" },
+    { no: 56, name: "text_read_incremental", kind: "message", T: TextStreamReaderReadIncrementalResponse, oneof: "message" },
+    { no: 57, name: "text_read_all", kind: "message", T: TextStreamReaderReadAllResponse, oneof: "message" },
+    { no: 58, name: "send_file", kind: "message", T: StreamSendFileResponse, oneof: "message" },
+    { no: 59, name: "send_text", kind: "message", T: StreamSendTextResponse, oneof: "message" },
+    { no: 60, name: "byte_stream_open", kind: "message", T: ByteStreamOpenResponse, oneof: "message" },
+    { no: 61, name: "byte_stream_write", kind: "message", T: ByteStreamWriterWriteResponse, oneof: "message" },
+    { no: 62, name: "byte_stream_close", kind: "message", T: ByteStreamWriterCloseResponse, oneof: "message" },
+    { no: 63, name: "text_stream_open", kind: "message", T: TextStreamOpenResponse, oneof: "message" },
+    { no: 64, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteResponse, oneof: "message" },
+    { no: 65, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -1050,6 +1237,8 @@ export class FfiEvent extends Message<FfiEvent> {
     case: "rpcMethodInvocation";
   } | {
     /**
+     * Data Streams (low level)
+     *
      * @generated from field: livekit.proto.SendStreamHeaderCallback send_stream_header = 25;
      */
     value: SendStreamHeaderCallback;
@@ -1066,6 +1255,86 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: SendStreamTrailerCallback;
     case: "sendStreamTrailer";
+  } | {
+    /**
+     * Data Streams (high level)
+     *
+     * @generated from field: livekit.proto.ByteStreamReaderEvent byte_stream_reader_event = 28;
+     */
+    value: ByteStreamReaderEvent;
+    case: "byteStreamReaderEvent";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderReadAllCallback byte_stream_reader_read_all = 29;
+     */
+    value: ByteStreamReaderReadAllCallback;
+    case: "byteStreamReaderReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamReaderWriteToFileCallback byte_stream_reader_write_to_file = 30;
+     */
+    value: ByteStreamReaderWriteToFileCallback;
+    case: "byteStreamReaderWriteToFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamOpenCallback byte_stream_open = 31;
+     */
+    value: ByteStreamOpenCallback;
+    case: "byteStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterWriteCallback byte_stream_writer_write = 32;
+     */
+    value: ByteStreamWriterWriteCallback;
+    case: "byteStreamWriterWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ByteStreamWriterCloseCallback byte_stream_writer_close = 33;
+     */
+    value: ByteStreamWriterCloseCallback;
+    case: "byteStreamWriterClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendFileCallback send_file = 34;
+     */
+    value: StreamSendFileCallback;
+    case: "sendFile";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderEvent text_stream_reader_event = 35;
+     */
+    value: TextStreamReaderEvent;
+    case: "textStreamReaderEvent";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamReaderReadAllCallback text_stream_reader_read_all = 36;
+     */
+    value: TextStreamReaderReadAllCallback;
+    case: "textStreamReaderReadAll";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamOpenCallback text_stream_open = 37;
+     */
+    value: TextStreamOpenCallback;
+    case: "textStreamOpen";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterWriteCallback text_stream_writer_write = 38;
+     */
+    value: TextStreamWriterWriteCallback;
+    case: "textStreamWriterWrite";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TextStreamWriterCloseCallback text_stream_writer_close = 39;
+     */
+    value: TextStreamWriterCloseCallback;
+    case: "textStreamWriterClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendTextCallback send_text = 40;
+     */
+    value: StreamSendTextCallback;
+    case: "sendText";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -1102,6 +1371,19 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 25, name: "send_stream_header", kind: "message", T: SendStreamHeaderCallback, oneof: "message" },
     { no: 26, name: "send_stream_chunk", kind: "message", T: SendStreamChunkCallback, oneof: "message" },
     { no: 27, name: "send_stream_trailer", kind: "message", T: SendStreamTrailerCallback, oneof: "message" },
+    { no: 28, name: "byte_stream_reader_event", kind: "message", T: ByteStreamReaderEvent, oneof: "message" },
+    { no: 29, name: "byte_stream_reader_read_all", kind: "message", T: ByteStreamReaderReadAllCallback, oneof: "message" },
+    { no: 30, name: "byte_stream_reader_write_to_file", kind: "message", T: ByteStreamReaderWriteToFileCallback, oneof: "message" },
+    { no: 31, name: "byte_stream_open", kind: "message", T: ByteStreamOpenCallback, oneof: "message" },
+    { no: 32, name: "byte_stream_writer_write", kind: "message", T: ByteStreamWriterWriteCallback, oneof: "message" },
+    { no: 33, name: "byte_stream_writer_close", kind: "message", T: ByteStreamWriterCloseCallback, oneof: "message" },
+    { no: 34, name: "send_file", kind: "message", T: StreamSendFileCallback, oneof: "message" },
+    { no: 35, name: "text_stream_reader_event", kind: "message", T: TextStreamReaderEvent, oneof: "message" },
+    { no: 36, name: "text_stream_reader_read_all", kind: "message", T: TextStreamReaderReadAllCallback, oneof: "message" },
+    { no: 37, name: "text_stream_open", kind: "message", T: TextStreamOpenCallback, oneof: "message" },
+    { no: 38, name: "text_stream_writer_write", kind: "message", T: TextStreamWriterWriteCallback, oneof: "message" },
+    { no: 39, name: "text_stream_writer_close", kind: "message", T: TextStreamWriterCloseCallback, oneof: "message" },
+    { no: 40, name: "send_text", kind: "message", T: StreamSendTextCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

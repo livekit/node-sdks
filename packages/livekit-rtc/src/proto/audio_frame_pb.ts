@@ -211,6 +211,11 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
    */
   audioFilterOptions?: string;
 
+  /**
+   * @generated from field: optional uint32 frame_size_ms = 7;
+   */
+  frameSizeMs?: number;
+
   constructor(data?: PartialMessage<NewAudioStreamRequest>) {
     super();
     proto2.util.initPartial(data, this);
@@ -225,6 +230,7 @@ export class NewAudioStreamRequest extends Message<NewAudioStreamRequest> {
     { no: 4, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
     { no: 5, name: "audio_filter_module_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 6, name: "audio_filter_options", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 7, name: "frame_size_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NewAudioStreamRequest {
@@ -320,6 +326,11 @@ export class AudioStreamFromParticipantRequest extends Message<AudioStreamFromPa
    */
   audioFilterOptions?: string;
 
+  /**
+   * @generated from field: optional uint32 frame_size_ms = 9;
+   */
+  frameSizeMs?: number;
+
   constructor(data?: PartialMessage<AudioStreamFromParticipantRequest>) {
     super();
     proto2.util.initPartial(data, this);
@@ -335,6 +346,7 @@ export class AudioStreamFromParticipantRequest extends Message<AudioStreamFromPa
     { no: 6, name: "num_channels", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
     { no: 7, name: "audio_filter_module_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 8, name: "audio_filter_options", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 9, name: "frame_size_ms", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AudioStreamFromParticipantRequest {

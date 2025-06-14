@@ -5,58 +5,24 @@ import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
 import { AudioFrameBufferInfo } from './proto/audio_frame_pb.js';
 
-/**
- * A class that represents a frame of audio data with specific properties such as sample rate,
- * number of channels, and samples per channel.
- */
 export class AudioFrame {
   data: Int16Array;
   sampleRate: number;
   channels: number;
   samplesPerChannel: number;
-  duration: number;
 
   // note: if converting from Uint8Array to Int16Array, *do not* use buffer.slice!
   // it is marked unstable by Node and can cause undefined behaviour, such as massive chunks of
   // noise being added to the end.
   // it is recommended to use buffer.subarray instead.
   // XXX(nbsp): add this when writing proper docs
-
-  /**
-   * Initialize an AudioFrame instance.
-   *
-   * @param data - The raw audio data as Int16Array, which must be at least
-   *               `channels * samplesPerChannel` elements long.
-   * @param sampleRate - The sample rate of the audio in Hz.
-   * @param channels - The number of audio channels (e.g., 1 for mono, 2 for stereo).
-   * @param samplesPerChannel - The number of samples per channel.
-   *
-   * @throws Error - If the length of `data` is smaller than the required size.
-   */
   constructor(data: Int16Array, sampleRate: number, channels: number, samplesPerChannel: number) {
-    if (data.length < channels * samplesPerChannel) {
-      throw new Error(
-        `data length ${data.length} is smaller than required ${channels * samplesPerChannel}`,
-      );
-    }
-
     this.data = data;
     this.sampleRate = sampleRate;
     this.channels = channels;
     this.samplesPerChannel = samplesPerChannel;
-    this.duration = samplesPerChannel / sampleRate;
   }
 
-  /**
-   * Create a new empty AudioFrame instance with specified sample rate, number of channels,
-   * and samples per channel.
-   *
-   * @param sampleRate - The sample rate of the audio in Hz.
-   * @param channels - The number of audio channels (e.g., 1 for mono, 2 for stereo).
-   * @param samplesPerChannel - The number of samples per channel.
-   *
-   * @returns A new AudioFrame instance with uninitialized (zeroed) data.
-   */
   static create(sampleRate: number, channels: number, samplesPerChannel: number): AudioFrame {
     const data = new Int16Array(channels * samplesPerChannel);
     return new AudioFrame(data, sampleRate, channels, samplesPerChannel);

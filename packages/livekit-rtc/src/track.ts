@@ -45,6 +45,10 @@ export abstract class Track {
   get muted(): boolean | undefined {
     return this.info?.muted;
   }
+
+  async close() {
+    this.ffi_handle.dispose();
+  }
 }
 
 export class LocalAudioTrack extends Track {

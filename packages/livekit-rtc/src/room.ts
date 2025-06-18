@@ -104,6 +104,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return this.ffiHandle != undefined && this.connectionState != ConnectionState.CONN_DISCONNECTED;
   }
 
+  /**
+   * Gets the room's server ID. This ID is assigned by the LiveKit server
+   * and is unique for each room session.
+   * SID is assigned asynchronously after connection.
+   * @returns Promise that resolves to the room's server ID, or empty string if not connected
+   */
   async getSid(): Promise<string> {
     if (!this.isConnected) {
       return '';
@@ -126,6 +132,44 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     });
   }
 
+  get numParticipants(): number {
+    return this.info?.numParticipants ?? 0;
+  }
+
+  get numPublishers(): number {
+    return this.info?.numPublishers ?? 0;
+  }
+
+  get creationTime(): Date {
+    return new Date(Number(this.info?.creationTime ?? 0));
+  }
+
+  get isRecording(): boolean {
+    return this.info?.activeRecording ?? false;
+  }
+
+  /**
+   * The time in seconds after which a room will be closed after the last
+   * participant has disconnected.
+   */
+  get departureTimeout(): number {
+    return this.info?.departureTimeout ?? 0;
+  }
+
+  /**
+   * The time in seconds after which an empty room will be automatically closed.
+   */
+  get emptyTimeout(): number {
+    return this.info?.emptyTimeout ?? 0;
+  }
+
+  /**
+   * Connects to a LiveKit room using the provided URL and access token.
+   * @param url The WebSocket URL of the LiveKit server
+   * @param token A valid LiveKit access token for authentication
+   * @param opts Optional room configuration options
+   * @throws ConnectError if connection fails
+   */
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
     const e2eeOptions = { ...defaultE2EEOptions, ...options.e2ee };
@@ -175,6 +219,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
   }
 
+  /**
+   * Disconnects from the room and cleans up all resources.
+   * This will stop all tracks and close the connection.
+   */
   async disconnect() {
     if (!this.isConnected) {
       return;
@@ -193,6 +241,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     this.removeAllListeners();
   }
 
+  /**
+   * Registers a handler for incoming text data streams on a specific topic.
+   * Text streams are used for receiving structured text data from other participants.
+   * @param topic The topic to listen for text streams on
+   * @param callback Function to handle incoming text stream data
+   * @throws Error if a handler for this topic is already registered
+   */
   registerTextStreamHandler(topic: string, callback: TextStreamHandler) {
     if (this.textStreamHandlers.has(topic)) {
       throw new Error(`A text stream handler for topic "${topic}" has already been set.`);
@@ -204,6 +259,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     this.textStreamHandlers.delete(topic);
   }
 
+  /**
+   * Registers a handler for incoming byte data streams on a specific topic.
+   * Byte streams are used for receiving binary data like files from other participants.
+   * @param topic The topic to listen for byte streams on
+   * @param callback Function to handle incoming byte stream data
+   * @throws Error if a handler for this topic is already registered
+   */
   registerByteStreamHandler(topic: string, callback: ByteStreamHandler) {
     if (this.byteStreamHandlers.has(topic)) {
       throw new Error(`A byte stream handler for topic "${topic}" has already been set.`);
@@ -420,6 +482,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.handleStreamChunk(ev.value.chunk);
     } else if (ev.case === 'streamTrailerReceived' && ev.value.trailer) {
       this.handleStreamTrailer(ev.value.trailer);
+    } else if (ev.case === 'roomUpdated') {
+      this.info = ev.value;
+      this.emit(RoomEvent.RoomUpdated);
+    } else if (ev.case === 'moved') {
+      this.info = ev.value;
+      this.emit(RoomEvent.Moved);
+    } else if (ev.case === 'participantsUpdated') {
+      for (const info of ev.value.participants) {
+        const participant = this.retrieveParticipantByIdentity(info.identity!);
+        if (participant) {
+          participant.info = info;
+        }
+      }
     }
   };
 
@@ -631,6 +706,8 @@ export type RoomCallbacks = {
   reconnecting: () => void;
   reconnected: () => void;
   roomSidChanged: (sid: string) => void;
+  roomUpdated: () => void;
+  moved: () => void;
 };
 
 export enum RoomEvent {
@@ -662,4 +739,6 @@ export enum RoomEvent {
   Disconnected = 'disconnected',
   Reconnecting = 'reconnecting',
   Reconnected = 'reconnected',
+  RoomUpdated = 'roomUpdated',
+  Moved = 'moved',
 }

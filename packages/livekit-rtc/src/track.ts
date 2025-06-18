@@ -52,8 +52,11 @@ export abstract class Track {
 }
 
 export class LocalAudioTrack extends Track {
-  constructor(owned: OwnedTrack) {
+  private source?: AudioSource;
+
+  constructor(owned: OwnedTrack, source?: AudioSource) {
     super(owned);
+    this.source = source;
   }
 
   static createAudioTrack(name: string, source: AudioSource): LocalAudioTrack {
@@ -66,13 +69,23 @@ export class LocalAudioTrack extends Track {
       message: { case: 'createAudioTrack', value: req },
     });
 
-    return new LocalAudioTrack(res.track!);
+    return new LocalAudioTrack(res.track!, source);
+  }
+
+  async close(closeSource = true) {
+    await super.close();
+    if (closeSource) {
+      await this.source?.close();
+    }
   }
 }
 
 export class LocalVideoTrack extends Track {
-  constructor(owned: OwnedTrack) {
+  private source?: VideoSource;
+
+  constructor(owned: OwnedTrack, source?: VideoSource) {
     super(owned);
+    this.source = source;
   }
 
   static createVideoTrack(name: string, source: VideoSource): LocalVideoTrack {
@@ -85,7 +98,14 @@ export class LocalVideoTrack extends Track {
       message: { case: 'createVideoTrack', value: req },
     });
 
-    return new LocalVideoTrack(res.track!);
+    return new LocalVideoTrack(res.track!, source);
+  }
+
+  async close(closeSource = true) {
+    await super.close();
+    if (closeSource) {
+      await this.source?.close();
+    }
   }
 }
 

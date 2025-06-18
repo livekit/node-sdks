@@ -19,7 +19,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
-import { DisconnectReason, OwnedParticipant } from "./participant_pb.js";
+import { DisconnectReason, OwnedParticipant, ParticipantInfo } from "./participant_pb.js";
 import { OwnedTrack, OwnedTrackPublication, TrackSource } from "./track_pb.js";
 import { RtcStats } from "./stats_pb.js";
 import { VideoCodec } from "./video_frame_pb.js";
@@ -2791,6 +2791,30 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: TextStreamOpened;
     case: "textStreamOpened";
+  } | {
+    /**
+     * Room info updated
+     *
+     * @generated from field: livekit.proto.RoomInfo room_updated = 36;
+     */
+    value: RoomInfo;
+    case: "roomUpdated";
+  } | {
+    /**
+     * Participant moved to new room
+     *
+     * @generated from field: livekit.proto.RoomInfo moved = 37;
+     */
+    value: RoomInfo;
+    case: "moved";
+  } | {
+    /**
+     * carry over all participant info updates, including sid
+     *
+     * @generated from field: livekit.proto.ParticipantsUpdated participants_updated = 38;
+     */
+    value: ParticipantsUpdated;
+    case: "participantsUpdated";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2836,6 +2860,9 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 33, name: "data_channel_low_threshold_changed", kind: "message", T: DataChannelBufferedAmountLowThresholdChanged, oneof: "message" },
     { no: 34, name: "byte_stream_opened", kind: "message", T: ByteStreamOpened, oneof: "message" },
     { no: 35, name: "text_stream_opened", kind: "message", T: TextStreamOpened, oneof: "message" },
+    { no: 36, name: "room_updated", kind: "message", T: RoomInfo, oneof: "message" },
+    { no: 37, name: "moved", kind: "message", T: RoomInfo, oneof: "message" },
+    { no: 38, name: "participants_updated", kind: "message", T: ParticipantsUpdated, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -2884,6 +2911,41 @@ export class RoomInfo extends Message<RoomInfo> {
    */
   reliableDcBufferedAmountLowThreshold?: bigint;
 
+  /**
+   * @generated from field: required uint32 empty_timeout = 6;
+   */
+  emptyTimeout?: number;
+
+  /**
+   * @generated from field: required uint32 departure_timeout = 7;
+   */
+  departureTimeout?: number;
+
+  /**
+   * @generated from field: required uint32 max_participants = 8;
+   */
+  maxParticipants?: number;
+
+  /**
+   * @generated from field: required int64 creation_time = 9;
+   */
+  creationTime?: bigint;
+
+  /**
+   * @generated from field: required uint32 num_participants = 10;
+   */
+  numParticipants?: number;
+
+  /**
+   * @generated from field: required uint32 num_publishers = 11;
+   */
+  numPublishers?: number;
+
+  /**
+   * @generated from field: required bool active_recording = 12;
+   */
+  activeRecording?: boolean;
+
   constructor(data?: PartialMessage<RoomInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2897,6 +2959,13 @@ export class RoomInfo extends Message<RoomInfo> {
     { no: 3, name: "metadata", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
     { no: 4, name: "lossy_dc_buffered_amount_low_threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
     { no: 5, name: "reliable_dc_buffered_amount_low_threshold", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 6, name: "empty_timeout", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 7, name: "departure_timeout", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 8, name: "max_participants", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 9, name: "creation_time", kind: "scalar", T: 3 /* ScalarType.INT64 */, req: true },
+    { no: 10, name: "num_participants", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 11, name: "num_publishers", kind: "scalar", T: 13 /* ScalarType.UINT32 */, req: true },
+    { no: 12, name: "active_recording", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomInfo {
@@ -2956,6 +3025,43 @@ export class OwnedRoom extends Message<OwnedRoom> {
 
   static equals(a: OwnedRoom | PlainMessage<OwnedRoom> | undefined, b: OwnedRoom | PlainMessage<OwnedRoom> | undefined): boolean {
     return proto2.util.equals(OwnedRoom, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ParticipantsUpdated
+ */
+export class ParticipantsUpdated extends Message<ParticipantsUpdated> {
+  /**
+   * @generated from field: repeated livekit.proto.ParticipantInfo participants = 1;
+   */
+  participants: ParticipantInfo[] = [];
+
+  constructor(data?: PartialMessage<ParticipantsUpdated>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ParticipantsUpdated";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "participants", kind: "message", T: ParticipantInfo, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantsUpdated {
+    return new ParticipantsUpdated().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ParticipantsUpdated {
+    return new ParticipantsUpdated().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ParticipantsUpdated {
+    return new ParticipantsUpdated().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ParticipantsUpdated | PlainMessage<ParticipantsUpdated> | undefined, b: ParticipantsUpdated | PlainMessage<ParticipantsUpdated> | undefined): boolean {
+    return proto2.util.equals(ParticipantsUpdated, a, b);
   }
 }
 

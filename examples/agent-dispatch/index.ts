@@ -35,6 +35,9 @@ async function createTokenWithAgentDispatch(): Promise<string> {
   const at = new AccessToken();
   at.identity = 'my-participant';
   at.addGrant({ roomJoin: true, room: roomName });
+  at.attributes = {
+    mykey: 'myvalue',
+  };
   at.roomConfig = new RoomConfiguration({
     agents: [
       new RoomAgentDispatch({

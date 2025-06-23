@@ -147,7 +147,7 @@ export interface CreateSipParticipantOptions {
   krispEnabled?: boolean;
   /** If `true`, this will wait until the call is answered before returning. */
   waitUntilAnswered?: boolean;
-  /** Optional request timeout in seconds. */
+  /** Optional request timeout in seconds. default 60 seconds if waitUntilAnswered is true, otherwise 10 seconds */
   timeout?: number;
 }
 
@@ -706,6 +706,10 @@ export class SipClient extends ServiceBase {
   ): Promise<SIPParticipantInfo> {
     if (opts === undefined) {
       opts = {};
+    }
+
+    if (opts.timeout === undefined) {
+      opts.timeout = opts.waitUntilAnswered ? 60 : 10;
     }
 
     const req = new CreateSIPParticipantRequest({

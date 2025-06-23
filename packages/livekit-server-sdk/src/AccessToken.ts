@@ -30,12 +30,12 @@ export interface AccessTokenOptions {
   identity?: string;
 
   /**
-   * custom metadata to be passed to participants
+   * custom participant metadata
    */
   metadata?: string;
 
   /**
-   * custom attributes to be passed to participants
+   * custom participant attributes
    */
   attributes?: Record<string, string>;
 }

@@ -1,7 +1,7 @@
 {
   "name": "example-rpc",
   "author": "LiveKit",
-  "private": "true",
+  "private": true,
   "description": "Example of using RPC in LiveKit",
   "type": "module",
   "main": "index.ts",

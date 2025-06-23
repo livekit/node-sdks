@@ -1,5 +1,4 @@
 ---
-"agent-dispatch": patch
 "livekit-server-sdk": patch
 ---
 

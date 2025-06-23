@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.13.1
+
+### Patch Changes
+
+- Add support for destination_country in outbound trunk - [#489](https://github.com/livekit/node-sdks/pull/489) ([@biglittlebigben](https://github.com/biglittlebigben))
+
 ## 2.13.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.16
+
+### Patch Changes
+
+- Handle room updates, move participant - [#496](https://github.com/livekit/node-sdks/pull/496) ([@davidzhao](https://github.com/davidzhao))
+
+- Fix memory leak of AudioSource - [#486](https://github.com/livekit/node-sdks/pull/486) ([@typester](https://github.com/typester))
+
 ## 0.13.15
 
 ### Patch Changes

@@ -1,5 +1,7 @@
 # @livekit/rtc-node-linux-x64-gnu
 
+## 0.13.16
+
 ## 0.13.15
 
 ## 0.13.14

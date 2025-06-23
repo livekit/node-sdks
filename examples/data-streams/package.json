@@ -1,7 +1,7 @@
 {
   "name": "example-data-streams",
   "author": "LiveKit",
-  "private": "true",
+  "private": true,
   "description": "Example of using data streams in LiveKit",
   "type": "module",
   "main": "index.ts",

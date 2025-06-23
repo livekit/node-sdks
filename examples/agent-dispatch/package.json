@@ -2,7 +2,7 @@
   "name": "agent-dispatch",
   "version": "0.0.17",
   "description": "An example demonstrating dispatching agents with an API call",
-  "private": "true",
+  "private": true,
   "author": "LiveKit",
   "license": "Apache-2.0",
   "type": "module",

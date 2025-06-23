@@ -1,7 +1,7 @@
 {
   "name": "example-publish-wav",
   "author": "LiveKit",
-  "private": "true",
+  "private": true,
   "description": "",
   "type": "module",
   "main": "index.ts",

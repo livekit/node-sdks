@@ -77,6 +77,9 @@ var buffer = new Int16Array(sample.buffer);
 
 await room.localParticipant.publishTrack(track, options);
 await source.captureFrame(new AudioFrame(buffer, 16000, 1, buffer.byteLength / 2));
+
+// cleanup resources
+await track.close();
 ```
 
 ### RPC

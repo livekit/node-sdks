@@ -85,6 +85,18 @@ export class AudioResampler {
     }
   }
 
+  get inputRate(): number {
+    return this.#inputRate;
+  }
+
+  get outputRate(): number {
+    return this.#outputRate;
+  }
+
+  get channels(): number {
+    return this.#channels;
+  }
+
   /**
    * Push audio data into the resampler and retrieve any available resampled data.
    *

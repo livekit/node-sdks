@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.17
+
+### Patch Changes
+
+- add public getters to resamplers - [#505](https://github.com/livekit/node-sdks/pull/505) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.16
 
 ### Patch Changes

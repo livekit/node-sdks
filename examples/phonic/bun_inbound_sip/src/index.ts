@@ -40,7 +40,7 @@ app.post('/v1/conversations/inbound_call', async (c) => {
   const authHeader = c.req.header('Authorization');
   const event = await livekitReceiver.receive(bodyString, authHeader);
 
-  console.log(`Received event: ${JSON.stringify(event)}`);
+  console.log(`Received event: ${event.event}`);
   if (event.event !== 'room_started' || !event.room?.name.startsWith('call')) {
     // Not the event that we're interested. Just return success is true.
     console.log(`Not the event that we're interested. Just return success is true. \n\n`);

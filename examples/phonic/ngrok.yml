@@ -1,0 +1,8 @@
+version: '3'
+tunnels:
+  python-inbound-sip:
+    addr: 3000
+    proto: http
+  bun-inbound-sip:
+    addr: 3510
+    proto: http

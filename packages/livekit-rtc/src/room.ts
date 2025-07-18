@@ -13,7 +13,7 @@ import type {
 } from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
-import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
@@ -243,7 +243,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       },
     });
 
-    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
+    if (this.ffiQueue) {
+      FfiClient.instance.queue.unsubscribe(this.ffiQueue);
+    }
+
     this.removeAllListeners();
   }
 

@@ -55,6 +55,11 @@ app.post('/v1/conversations/inbound_call', async (c) => {
     return c.json(roomResult.error, 500);
   }
 
+  const room = roomResult.data;
+  room.disconnect();
+
+  console.log(`Disconnected from room ${roomName} \n\n`);
+
   return c.text('Received event ', 200);
 });
 

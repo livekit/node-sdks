@@ -546,10 +546,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant.info = info;
         }
       }
-    } else if (ev.case === 'eos') {
-      // End of stream - this will cause the listen task to terminate
-      // The stream will be closed and the for-await loop will exit
-      return;
     }
   };
 

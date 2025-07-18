@@ -69,6 +69,11 @@ export class FfiQueue<T> {
     return stream;
   }
 
+  /**
+   * @throws "TypeError: Invalid state: ReadableStream is locked"
+   * if the stream is locked, make sure the stream is not being read from
+   * before calling this method.
+   */
   unsubscribe(stream: ReadableStream<T>): void {
     stream.cancel();
   }

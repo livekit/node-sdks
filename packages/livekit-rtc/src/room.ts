@@ -255,7 +255,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       },
     });
 
-    // Wait for the listen task to complete before unsubscribing
+    // Wait for the listen task to complete before unsubscribing.
+    // This makes sure the we release the lock on the ffi queue's ReadableStream
+    // before calling cancel() on the ffi queue.
     if (this.listenTaskPromise) {
       try {
         await this.listenTaskPromise;

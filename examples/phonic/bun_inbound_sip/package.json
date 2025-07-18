@@ -4,9 +4,9 @@
     "dev": "bun run src/index.ts"
   },
   "dependencies": {
-    "@livekit/rtc-node": "^0.13.17",
+    "@livekit/rtc-node": "/Users/shubhrakantiganguly/development/node-sdks/packages/livekit-rtc",
     "hono": "^4.8.5",
-    "livekit-server-sdk": "^2.13.1"
+    "livekit-server-sdk": "/Users/shubhrakantiganguly/development/node-sdks/packages/livekit-server-sdk"
   },
   "devDependencies": {
     "@types/bun": "latest"

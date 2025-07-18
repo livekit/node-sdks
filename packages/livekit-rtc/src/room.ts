@@ -76,6 +76,7 @@ export const defaultRoomOptions = new FfiRoomOptions({
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info?: RoomInfo;
   private ffiHandle?: FfiHandle;
+  private ffiQueue?: ReadableStream<FfiEvent>;
 
   private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
   private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
@@ -180,6 +181,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       options,
     });
 
+    // subscribe before connecting so we don't miss any events
+    this.ffiQueue = FfiClient.instance.queue.subscribe();
+
     const res = FfiClient.instance.request<ConnectResponse>({
       message: {
         case: 'connect',
@@ -211,12 +215,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           }
         }
 
-        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);
         break;
       case 'error':
       default:
+        FfiClient.instance.queue.unsubscribe(this.ffiQueue);
         throw new ConnectError(cb.message.value || '');
     }
+
+    this.listenTask();
   }
 
   /**
@@ -241,6 +247,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     this.removeAllListeners();
   }
 
+  private async listenTask() {
+    if (!this.ffiQueue) {
+      throw new Error('ffiQueue is not set');
+    }
+    for await (const event of this.ffiQueue) {
+      this.onFfiEvent(event);
+    }
+  }
   /**
    * Registers a handler for incoming text data streams on a specific topic.
    * Text streams are used for receiving structured text data from other participants.
@@ -304,6 +318,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
 
     const ev = ffiEvent.message.value.message;
+    log.debug(`onFfiEvent: ${ev.case}`);
     if (ev.case == 'participantConnected') {
       const participant = this.createRemoteParticipant(ev.value.info!);
       this.remoteParticipants.set(participant.identity!, participant);

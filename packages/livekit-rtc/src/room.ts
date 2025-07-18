@@ -13,7 +13,7 @@ import type {
 } from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
-import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
@@ -76,6 +76,8 @@ export const defaultRoomOptions = new FfiRoomOptions({
 export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>) {
   private info?: RoomInfo;
   private ffiHandle?: FfiHandle;
+  private ffiQueue?: ReadableStream<FfiEvent>;
+  private listenTaskPromise?: Promise<void>;
 
   private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
   private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
@@ -88,8 +90,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   remoteParticipants: Map<string, RemoteParticipant> = new Map();
   localParticipant?: LocalParticipant;
 
+  private static cleanupRegistry = new FinalizationRegistry((cleanup: () => void) => {
+    cleanup();
+  });
   constructor() {
     super();
+    // Register a finalizer to disconnect the room when it's garbage collected
+    Room.cleanupRegistry.register(this, () => {
+      // Note: This is a synchronous cleanup, so we can't await disconnect()
+      // but the disconnect() method is designed to handle this case
+      this.disconnect().catch((error) => {
+        log.error(error, `Error during cleanup of Room:${this.name}`);
+      });
+    });
   }
 
   get name(): string | undefined {
@@ -180,6 +193,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       options,
     });
 
+    // subscribe before connecting so we don't miss any events
+    this.ffiQueue = FfiClient.instance.queue.subscribe();
+
     const res = FfiClient.instance.request<ConnectResponse>({
       message: {
         case: 'connect',
@@ -211,12 +227,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           }
         }
 
-        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);
         break;
       case 'error':
       default:
+        FfiClient.instance.queue.unsubscribe(this.ffiQueue);
         throw new ConnectError(cb.message.value || '');
     }
+
+    this.listenTaskPromise = this.listenTask();
   }
 
   /**
@@ -237,10 +255,43 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       },
     });
 
-    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
+    // Wait for the listen task to complete before unsubscribing
+    if (this.listenTaskPromise) {
+      try {
+        await this.listenTaskPromise;
+      } catch (error) {
+        log.error(error, 'Error waiting for listen task to complete on disconnect.');
+      }
+    }
+
+    if (this.ffiQueue) {
+      FfiClient.instance.queue.unsubscribe(this.ffiQueue);
+    }
+
     this.removeAllListeners();
   }
 
+  private async listenTask() {
+    if (!this.ffiQueue) {
+      throw new Error('ffiQueue is not set');
+    }
+    try {
+      for await (const event of this.ffiQueue) {
+        if (
+          event.message.case == 'roomEvent' &&
+          event.message.value?.roomHandle != this.ffiHandle!.handle &&
+          event.message.value?.message.case == 'eos'
+        ) {
+          break;
+        }
+        this.onFfiEvent(event);
+      }
+    } catch (error) {
+      log.debug(error, 'Listen task ended');
+    } finally {
+      this.listenTaskPromise = undefined;
+    }
+  }
   /**
    * Registers a handler for incoming text data streams on a specific topic.
    * Text streams are used for receiving structured text data from other participants.
@@ -495,6 +546,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant.info = info;
         }
       }
+    } else if (ev.case === 'eos') {
+      // End of stream - this will cause the listen task to terminate
+      // The stream will be closed and the for-await loop will exit
+      return;
     }
   };
 

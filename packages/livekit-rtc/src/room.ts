@@ -90,19 +90,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   remoteParticipants: Map<string, RemoteParticipant> = new Map();
   localParticipant?: LocalParticipant;
 
-  private static cleanupRegistry = new FinalizationRegistry((cleanup: () => void) => {
-    cleanup();
-  });
   constructor() {
     super();
-    // Register a finalizer to disconnect the room when it's garbage collected
-    Room.cleanupRegistry.register(this, () => {
-      // Note: This is a synchronous cleanup, so we can't await disconnect()
-      // but the disconnect() method is designed to handle this case
-      this.disconnect().catch((error) => {
-        log.error(error, `Error during cleanup of Room:${this.name}`);
-      });
-    });
   }
 
   get name(): string | undefined {

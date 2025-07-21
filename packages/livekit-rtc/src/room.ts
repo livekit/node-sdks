@@ -214,11 +214,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             rp.trackPublications.set(publication.sid!, publication);
           }
         }
-        // process preConnectEvents
-        for (const ev of this.preConnectEvents) {
-          this.onFfiEvent(ev);
-        }
-        this.preConnectEvents = [];
         break;
       case 'error':
       default:
@@ -286,13 +281,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
     if (!this.localParticipant || !this.ffiHandle || !this.info) {
-      this.logger.debug(
-        { ffiEvent: ffiEvent.message.case },
-        'received ffi event before connectCallback, storing in preConnectEvents',
-      );
+      this.logger.debug({ ffiEvent: ffiEvent.message.case }, 'received ffi event before connect');
       this.preConnectEvents.push(ffiEvent);
       return;
     }
+
+    // process preConnectEvents if we recieved the connectCallback after the events were queued
+    for (const ev of this.preConnectEvents) {
+      this.onFfiEvent(ev);
+    }
+    this.preConnectEvents = [];
 
     if (ffiEvent.message.case == 'rpcMethodInvocation') {
       if (

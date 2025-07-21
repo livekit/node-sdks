@@ -286,12 +286,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return;
     }
 
-    // process preConnectEvents if we recieved the connectCallback after the events were queued
+    // process preConnectEvents if we received the connectCallback after the events were queued
     for (const ev of this.preConnectEvents) {
-      this.onFfiEvent(ev);
+      this.processFfiEvent(ev);
     }
     this.preConnectEvents = [];
 
+    this.processFfiEvent(ffiEvent);
+  };
+
+  private processFfiEvent = (ffiEvent: FfiEvent) => {
     if (ffiEvent.message.case == 'rpcMethodInvocation') {
       if (
         ffiEvent.message.value.localParticipantHandle == this.localParticipant.ffi_handle.handle

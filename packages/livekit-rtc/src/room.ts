@@ -281,7 +281,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
     if (!this.localParticipant || !this.ffiHandle || !this.info) {
-      this.logger.debug({ ffiEvent: ffiEvent.message.case }, 'received ffi event before connect');
       this.preConnectEvents.push(ffiEvent);
       return;
     }
@@ -296,6 +295,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   };
 
   private processFfiEvent = (ffiEvent: FfiEvent) => {
+    if (!this.localParticipant || !this.ffiHandle || !this.info) {
+      throw new Error('processFfiEvent called before connect');
+    }
+
     if (ffiEvent.message.case == 'rpcMethodInvocation') {
       if (
         ffiEvent.message.value.localParticipantHandle == this.localParticipant.ffi_handle.handle

@@ -82,6 +82,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   private byteStreamHandlers = new Map<string, ByteStreamHandler>();
   private textStreamHandlers = new Map<string, TextStreamHandler>();
 
+  private preConnectEvents: FfiEvent[] = [];
+
   e2eeManager?: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
@@ -180,6 +182,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       options,
     });
 
+    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);
+
     const res = FfiClient.instance.request<ConnectResponse>({
       message: {
         case: 'connect',
@@ -210,8 +214,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             rp.trackPublications.set(publication.sid!, publication);
           }
         }
-
-        FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);
         break;
       case 'error':
       default:
@@ -279,7 +281,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
     if (!this.localParticipant || !this.ffiHandle || !this.info) {
-      throw TypeError('cannot handle ffi events before connectCallback');
+      this.preConnectEvents.push(ffiEvent);
+      return;
+    }
+
+    // process preConnectEvents if we received the connectCallback after the events were queued
+    for (const ev of this.preConnectEvents) {
+      this.processFfiEvent(ev);
+    }
+    this.preConnectEvents = [];
+
+    this.processFfiEvent(ffiEvent);
+  };
+
+  private processFfiEvent = (ffiEvent: FfiEvent) => {
+    if (!this.localParticipant || !this.ffiHandle || !this.info) {
+      throw new Error('processFfiEvent called before connect');
     }
 
     if (ffiEvent.message.case == 'rpcMethodInvocation') {

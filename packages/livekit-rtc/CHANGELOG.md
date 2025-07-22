@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.18
+
+### Patch Changes
+
+- Bugfix: Queue FFI events from rust and always process them in order - [#508](https://github.com/livekit/node-sdks/pull/508) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.17
 
 ### Patch Changes

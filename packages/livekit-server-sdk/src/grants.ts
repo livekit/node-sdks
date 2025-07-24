@@ -103,11 +103,17 @@ export interface SIPGrant {
   call?: boolean;
 }
 
+export interface InferenceGrant {
+  /** perform inference */
+  perform?: boolean;
+}
+
 /** @internal */
 export interface ClaimGrants extends JWTPayload {
   name?: string;
   video?: VideoGrant;
   sip?: SIPGrant;
+  inference?: InferenceGrant;
   kind?: string;
   metadata?: string;
   attributes?: Record<string, string>;

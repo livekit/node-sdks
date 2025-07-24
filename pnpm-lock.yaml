@@ -76,7 +76,7 @@ importers:
     dependencies:
       '@livekit/protocol':
         specifier: ^1.39.0
-        version: 1.39.0
+        version: 1.39.3
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -271,7 +271,7 @@ importers:
         version: 1.10.0
       '@livekit/protocol':
         specifier: ^1.39.0
-        version: 1.39.0
+        version: 1.39.3
       camelcase-keys:
         specifier: ^9.0.0
         version: 9.1.3
@@ -354,6 +354,9 @@ packages:
 
   '@bufbuild/protobuf@1.10.0':
     resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
+
+  '@bufbuild/protobuf@1.10.1':
+    resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
 
   '@bufbuild/protoc-gen-es@1.10.0':
     resolution: {integrity: sha512-zBYBsVT/ul4uZb6F+kD7/k4sWNHVVbEPfJwKi0FDr+9VJo8MKIofI6pkr5ksBLr4fi/74r+e/75Xi/0clL5dXg==}
@@ -1161,8 +1164,8 @@ packages:
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
 
-  '@livekit/protocol@1.39.0':
-    resolution: {integrity: sha512-Zar6711kJk1MjI+63DJoyCxv8deNphIIan7tK9C5f+Zy3v2Pvjs6Yz7cFoOeDK/rY7b7deA2wfYxUi2S5XLp7w==}
+  '@livekit/protocol@1.39.3':
+    resolution: {integrity: sha512-hfOnbwPCeZBEvMRdRhU2sr46mjGXavQcrb3BFRfG+Gm0Z7WUSeFdy5WLstXJzEepz17Iwp/lkGwJ4ZgOOYfPuA==}
 
   '@livekit/typed-emitter@3.0.0':
     resolution: {integrity: sha512-9bl0k4MgBPZu3Qu3R3xy12rmbW17e3bE9yf4YY85gJIQ3ezLEj/uzpKHWBsLaDoL5Mozz8QCgggwIBudYQWeQg==}
@@ -4272,6 +4275,8 @@ snapshots:
 
   '@bufbuild/protobuf@1.10.0': {}
 
+  '@bufbuild/protobuf@1.10.1': {}
+
   '@bufbuild/protoc-gen-es@1.10.0(@bufbuild/protobuf@1.10.0)':
     dependencies:
       '@bufbuild/protoplugin': 1.10.0
@@ -4979,9 +4984,9 @@ snapshots:
 
   '@livekit/mutex@1.1.1': {}
 
-  '@livekit/protocol@1.39.0':
+  '@livekit/protocol@1.39.3':
     dependencies:
-      '@bufbuild/protobuf': 1.10.0
+      '@bufbuild/protobuf': 1.10.1
 
   '@livekit/typed-emitter@3.0.0': {}
 

@@ -27,7 +27,7 @@ export interface AccessTokenOptions {
   /**
    * identity of the user, required for room join tokens
    */
-  identity?: string;
+  identity: string;
 
   /**
    * custom participant metadata

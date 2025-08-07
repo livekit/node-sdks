@@ -176,8 +176,8 @@ export class EgressClient extends ServiceBase {
     customBaseUrl?: string,
     audioMixing?: AudioMixing,
   ): Promise<EgressInfo> {
-    let webhooks: WebhookConfig[] | undefined;
     let layout: string | undefined;
+    let webhooks: WebhookConfig[] | undefined;
     if (optsOrLayout !== undefined) {
       if (typeof optsOrLayout === 'string') {
         layout = optsOrLayout;

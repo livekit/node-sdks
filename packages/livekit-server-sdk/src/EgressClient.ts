@@ -9,6 +9,7 @@ import type {
   ImageOutput,
   SegmentedFileOutput,
   StreamOutput,
+  WebhookConfig,
 } from '@livekit/protocol';
 import {
   AudioMixing,
@@ -30,7 +31,14 @@ import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 const svc = 'Egress';
 
-export interface RoomCompositeOptions {
+export interface BaseOptions {
+  /**
+   * webhooks to call for this request, optional.
+   */
+  webhooks?: WebhookConfig[];
+}
+
+export interface RoomCompositeOptions extends BaseOptions {
   /**
    * egress layout. optional
    */
@@ -57,7 +65,7 @@ export interface RoomCompositeOptions {
   audioMixing?: AudioMixing;
 }
 
-export interface WebOptions {
+export interface WebOptions extends BaseOptions {
   /**
    * encoding options or preset. optional
    */
@@ -76,7 +84,7 @@ export interface WebOptions {
   awaitStartSignal?: boolean;
 }
 
-export interface ParticipantEgressOptions {
+export interface ParticipantEgressOptions extends BaseOptions {
   /**
    * true to capture source screenshare and screenshare_audio
    * false to capture camera and microphone
@@ -88,7 +96,7 @@ export interface ParticipantEgressOptions {
   encodingOptions?: EncodingOptionsPreset | EncodingOptions;
 }
 
-export interface TrackCompositeOptions {
+export interface TrackCompositeOptions extends BaseOptions {
   /**
    * audio track ID
    */
@@ -168,6 +176,7 @@ export class EgressClient extends ServiceBase {
     customBaseUrl?: string,
     audioMixing?: AudioMixing,
   ): Promise<EgressInfo> {
+    let webhooks: WebhookConfig[] | undefined;
     let layout: string | undefined;
     if (optsOrLayout !== undefined) {
       if (typeof optsOrLayout === 'string') {
@@ -180,6 +189,7 @@ export class EgressClient extends ServiceBase {
         videoOnly = opts.videoOnly;
         customBaseUrl = opts.customBaseUrl;
         audioMixing = opts.audioMixing;
+        webhooks = opts.webhooks;
       }
     }
 
@@ -211,6 +221,7 @@ export class EgressClient extends ServiceBase {
       streamOutputs,
       segmentOutputs,
       imageOutputs,
+      webhooks,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -235,6 +246,7 @@ export class EgressClient extends ServiceBase {
     const audioOnly = opts?.audioOnly || false;
     const videoOnly = opts?.videoOnly || false;
     const awaitStartSignal = opts?.awaitStartSignal || false;
+    const webhooks = opts?.webhooks || [];
     const {
       output: legacyOutput,
       options,
@@ -255,6 +267,7 @@ export class EgressClient extends ServiceBase {
       streamOutputs,
       segmentOutputs,
       imageOutputs,
+      webhooks,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -279,6 +292,7 @@ export class EgressClient extends ServiceBase {
     output: EncodedOutputs,
     opts?: ParticipantEgressOptions,
   ): Promise<EgressInfo> {
+    const webhooks = opts?.webhooks || [];
     const { options, fileOutputs, streamOutputs, segmentOutputs, imageOutputs } =
       this.getOutputParams(output, opts?.encodingOptions);
     const req = new ParticipantEgressRequest({
@@ -290,6 +304,7 @@ export class EgressClient extends ServiceBase {
       streamOutputs,
       segmentOutputs,
       imageOutputs,
+      webhooks,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -329,6 +344,7 @@ export class EgressClient extends ServiceBase {
     options?: EncodingOptionsPreset | EncodingOptions,
   ): Promise<EgressInfo> {
     let audioTrackId: string | undefined;
+    let webhooks: WebhookConfig[] | undefined;
     if (optsOrAudioTrackId !== undefined) {
       if (typeof optsOrAudioTrackId === 'string') {
         audioTrackId = optsOrAudioTrackId;
@@ -337,6 +353,7 @@ export class EgressClient extends ServiceBase {
         audioTrackId = opts.audioTrackId;
         videoTrackId = opts.videoTrackId;
         options = opts.encodingOptions;
+        webhooks = opts.webhooks;
       }
     }
 
@@ -361,6 +378,7 @@ export class EgressClient extends ServiceBase {
       streamOutputs,
       segmentOutputs,
       imageOutputs,
+      webhooks,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -516,6 +534,7 @@ export class EgressClient extends ServiceBase {
     roomName: string,
     output: DirectFileOutput | string,
     trackId: string,
+    webhooks?: WebhookConfig[],
   ): Promise<EgressInfo> {
     let legacyOutput:
       | {
@@ -544,6 +563,7 @@ export class EgressClient extends ServiceBase {
       roomName,
       trackId,
       output: legacyOutput,
+      webhooks,
     }).toJson();
 
     const data = await this.rpc.request(

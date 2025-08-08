@@ -51,6 +51,7 @@ export {
   TrackType,
   WebEgressRequest,
   VideoCodec,
+  WebhookConfig,
 } from '@livekit/protocol';
 export * from './AccessToken.js';
 export * from './AgentDispatchClient.js';

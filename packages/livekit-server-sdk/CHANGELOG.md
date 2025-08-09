@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.13.2
+
+### Patch Changes
+
+- feat(webhooks): Add webhooks to `EgressClient` - [#517](https://github.com/livekit/node-sdks/pull/517) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.13.1
 
 ### Patch Changes

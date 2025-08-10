@@ -1,6 +1,6 @@
 {
   "name": "agent-dispatch",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "An example demonstrating dispatching agents with an API call",
   "private": true,
   "author": "LiveKit",

@@ -55,8 +55,8 @@
     "happy-dom": "^17.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.3.5",
-    "typedoc": "^0.27.0",
-    "typescript": "5.7.x",
+    "typedoc": "^0.28.0",
+    "typescript": "5.9.x",
     "vite": "^5.2.9",
     "vitest": "^3.0.0"
   },

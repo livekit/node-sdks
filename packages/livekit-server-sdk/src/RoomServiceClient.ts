@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataPacket_Kind, RoomEgress, TrackInfo } from '@livekit/protocol';
+import type { DataPacket_Kind, RoomAgentDispatch, RoomEgress, TrackInfo } from '@livekit/protocol';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -84,6 +84,11 @@ export interface CreateOptions {
    * does not work with Cloud
    */
   nodeId?: string;
+
+  /**
+   * Define agents that should be dispatched to this room
+   */
+  agents?: RoomAgentDispatch[];
 }
 
 export type SendDataOptions = {

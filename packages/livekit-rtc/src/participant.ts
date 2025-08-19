@@ -353,15 +353,7 @@ export class LocalParticipant extends Participant {
     return writer.info;
   }
 
-  async streamBytes(options?: {
-    name?: string;
-    topic?: string;
-    attributes?: Record<string, string>;
-    destinationIdentities?: Array<string>;
-    streamId?: string;
-    mimeType?: string;
-    totalSize?: number;
-  }) {
+  async streamBytes(options?: ByteStreamOptions & { streamId?: string; totalSize?: number }) {
     const senderIdentity = this.identity;
     const streamId = options?.streamId ?? crypto.randomUUID();
     const destinationIdentities = options?.destinationIdentities;
@@ -478,6 +470,101 @@ export class LocalParticipant extends Participant {
       await writer.close();
     } finally {
       await file.close();
+    }
+  }
+
+  /** Sends raw bytes or byte-like data to specified recipients */
+  async sendBytes(
+    data:
+      | Uint8Array
+      | ArrayBuffer
+      | Blob
+      | ReadableStream<Uint8Array>
+      | NodeJS.ReadableStream,
+    options?: ByteStreamOptions,
+  ) {
+    const streamId = crypto.randomUUID();
+    const destinationIdentities = options?.destinationIdentities;
+
+    // Determine total size if available and infer mime when possible
+    let totalSize: number | undefined;
+    let inferredMime: string | undefined;
+
+    if (data instanceof Uint8Array) {
+      totalSize = data.byteLength;
+    } else if (data instanceof ArrayBuffer) {
+      totalSize = data.byteLength;
+    } else if (typeof Blob !== 'undefined' && data instanceof Blob) {
+      totalSize = data.size;
+      inferredMime = (data as Blob).type || undefined;
+    }
+
+    const writer = await this.streamBytes({
+      streamId,
+      name: options?.name ?? 'unknown',
+      totalSize,
+      destinationIdentities,
+      topic: options?.topic,
+      mimeType: options?.mimeType ?? inferredMime,
+      attributes: options?.attributes,
+    });
+
+    let bytesSent = 0;
+    const maybeReportProgress = (increment: number) => {
+      bytesSent += increment;
+      if (options?.onProgress && totalSize !== undefined && totalSize > 0) {
+        const progress = Math.min(1, bytesSent / totalSize);
+        options.onProgress(progress);
+      }
+    };
+
+    // Helper to write from a Web ReadableStream
+    const writeFromWebStream = async (rs: ReadableStream<Uint8Array>) => {
+      const reader = rs.getReader();
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (value) {
+            await writer.write(value);
+            maybeReportProgress(value.byteLength);
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    };
+
+    if (data instanceof Uint8Array) {
+      await writer.write(data);
+      maybeReportProgress(data.byteLength);
+    } else if (data instanceof ArrayBuffer) {
+      const bytes = new Uint8Array(data);
+      await writer.write(bytes);
+      maybeReportProgress(bytes.byteLength);
+    } else if (typeof Blob !== 'undefined' && data instanceof Blob) {
+      await writeFromWebStream(data.stream() as ReadableStream<Uint8Array>);
+    } else if (
+      typeof data === 'object' &&
+      data !== null &&
+      'getReader' in data &&
+      typeof (data as ReadableStream<Uint8Array>).getReader === 'function'
+    ) {
+      // Treat as Web ReadableStream
+      await writeFromWebStream(data as ReadableStream<Uint8Array>);
+    } else if (typeof data === 'object' && data !== null && Symbol.asyncIterator in data) {
+      // Treat as AsyncIterable (e.g., Node.js Readable of Uint8Array/Buffer)
+      for await (const chunk of data as AsyncIterable<Uint8Array>) {
+        await writer.write(chunk);
+        maybeReportProgress(chunk.byteLength);
+      }
+    } else {
+      throw new Error('Unsupported data type for sendBytes');
+    }
+
+    await writer.close();
+    if (options?.onProgress && totalSize !== undefined) {
+      options.onProgress(1);
     }
   }
 

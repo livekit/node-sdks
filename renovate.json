@@ -13,6 +13,11 @@
       "matchPackagePrefixes": ["@livekit", "livekit-"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "Update LiveKit dependencies (non-major)"
+    },
+    {
+      "matchPackagePrefixes": ["typescript"],
+      "matchUpdateTypes": ["major", "minor"],
+      "groupName": "Update Typescript dependencies (breaking)"
     }
   ]
 }

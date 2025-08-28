@@ -574,7 +574,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const streamHandlerCallback = this.byteStreamHandlers.get(streamHeader.topic ?? '');
 
       if (!streamHandlerCallback) {
-        log.debug('ignoring incoming byte stream due to no handler for topic', streamHeader.topic);
+        log.debug(
+          'ignoring incoming byte stream due to no handler for topic: %s',
+          streamHeader.topic ?? 'undefined',
+        );
         return;
       }
       let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
@@ -605,7 +608,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const streamHandlerCallback = this.textStreamHandlers.get(streamHeader.topic ?? '');
 
       if (!streamHandlerCallback) {
-        log.debug('ignoring incoming text stream due to no handler for topic', streamHeader.topic);
+        log.debug(
+          'ignoring incoming text stream due to no handler for topic: %s',
+          streamHeader.topic ?? 'undefined',
+        );
         return;
       }
       let streamController: ReadableStreamDefaultController<DataStream_Chunk>;

@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.13.3
+
+### Patch Changes
+
+- Add webhook event participant_connection_aborted - [#528](https://github.com/livekit/node-sdks/pull/528) ([@boks1971](https://github.com/boks1971))
+
 ## 2.13.2
 
 ### Patch Changes

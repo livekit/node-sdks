@@ -49,16 +49,17 @@
     "@bufbuild/protobuf": "^1.10.1",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
-    "pino": "^9.0.0",
-    "pino-pretty": "^13.0.0"
+    "pino": "^9.9.0",
+    "pino-pretty": "^13.1.1"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^1.10.1",
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^22.13.10",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
-    "typescript": "5.8.2",
-    "@bufbuild/protoc-gen-es": "^1.10.1"
+    "typedoc": "catalog:",
+    "typescript": "catalog:"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",
@@ -74,6 +75,7 @@
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build:ts": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\" && cp -r src/napi dist/ && cp -r src/napi/* dist/",
     "build": "pnpm build:ts && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
+    "build:docs": "typedoc",
     "artifacts": "pnpm build:ts && napi artifacts",
     "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",

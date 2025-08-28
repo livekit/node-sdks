@@ -2,3 +2,7 @@ packages:
   - 'examples/*'
   - 'packages/*'
   - 'packages/livekit-rtc/npm/*'
+
+catalog:
+  "typedoc": ^0.28.11
+  "typescript": 5.8.2

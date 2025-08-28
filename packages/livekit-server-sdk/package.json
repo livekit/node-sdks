@@ -56,7 +56,7 @@
     "prettier": "^3.0.0",
     "tsup": "^8.3.5",
     "typedoc": "^0.28.0",
-    "typescript": "5.9.x",
+    "typescript": "5.8.2",
     "vite": "^5.2.9",
     "vitest": "^3.0.0"
   },

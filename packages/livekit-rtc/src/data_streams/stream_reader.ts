@@ -58,8 +58,8 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
             this.handleChunkReceived(value);
             return { done: false, value: value.content! };
           }
-        } catch (error) {
-          log.error('error processing stream update', error);
+        } catch (error: any) {
+          log.error('error processing stream update: %s', error);
           return { done: true, value: undefined };
         }
       },
@@ -135,8 +135,8 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
               value: decoder.decode(value.content!),
             };
           }
-        } catch (error) {
-          log.error('error processing stream update', error);
+        } catch (error: any) {
+          log.error('error processing stream update: %s', error);
           return { done: true, value: undefined };
         }
       },

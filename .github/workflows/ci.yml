@@ -35,8 +35,12 @@ jobs:
           filters: |
             livekit-rtc:
               - 'packages/livekit-rtc/**'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/ci.yml'
             server-sdk:
               - 'packages/livekit-server-sdk/**'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/ci.yml'
       - name: Store change outputs
         id: changes
         run: |

@@ -46,19 +46,19 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.10.1",
-    "@livekit/mutex": "^1.0.0",
-    "@livekit/typed-emitter": "^3.0.0",
+    "@bufbuild/protobuf": "catalog:",
+    "@livekit/mutex": "catalog:",
+    "@livekit/typed-emitter": "catalog:",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0",
-    "@types/node": "^22.13.10",
-    "prettier": "^3.0.3",
-    "tsup": "^8.3.5",
-    "typescript": "5.8.2",
-    "@bufbuild/protoc-gen-es": "^1.10.1"
+    "@types/node": "catalog:",
+    "prettier": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "@bufbuild/protoc-gen-es": "catalog:"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",

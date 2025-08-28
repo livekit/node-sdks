@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: 2025 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Publish Docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: "Packages to build and deploy docs for (space-separated, empty for all)"
+        required: false
+        default: "livekit-rtc livekit-server-sdk"
+        type: string
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build:
+    name: Build docs and publish to S3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Parse packages input
+        id: packages
+        run: |
+          if [ -z "${{ github.event.inputs.packages }}" ]; then
+            echo "packages=livekit-rtc livekit-server-sdk" >> $GITHUB_OUTPUT
+          else
+            echo "packages=${{ github.event.inputs.packages }}" >> $GITHUB_OUTPUT
+          fi
+          echo "Parsed packages: ${{ steps.packages.outputs.packages }}"
+
+      - name: Build docs for livekit-rtc
+        if: contains(steps.packages.outputs.packages, 'livekit-rtc')
+        run: |
+          cd packages/livekit-rtc
+          pnpm build:docs
+
+      - name: Build docs for livekit-server-sdk
+        if: contains(steps.packages.outputs.packages, 'livekit-server-sdk')
+        run: |
+          cd packages/livekit-server-sdk
+          pnpm build:docs
+
+      - name: Upload livekit-rtc docs to S3
+        if: contains(steps.packages.outputs.packages, 'livekit-rtc')
+        run: |
+          aws s3 cp packages/livekit-rtc/docs/ s3://livekit-docs/client-sdk-node --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: "us-east-1"
+
+      - name: Upload livekit-server-sdk docs to S3
+        if: contains(steps.packages.outputs.packages, 'livekit-server-sdk')
+        run: |
+          aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: "us-east-1"

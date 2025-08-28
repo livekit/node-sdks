@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Publish Docs
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

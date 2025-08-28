@@ -36,10 +36,10 @@
     "eslint-plugin-promise": "^7.0.0",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-tsdoc": "^0.4.0",
-    "prettier": "^3.2.5",
+    "prettier": "catalog:",
     "turbo": "^2.0.0",
-    "typescript": "5.8.2",
-    "vitest": "^3.0.0"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "packageManager": "pnpm@9.15.7"
 }

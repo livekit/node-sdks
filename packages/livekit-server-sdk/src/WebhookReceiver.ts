@@ -29,6 +29,7 @@ export type WebhookEventNames =
   | 'room_finished'
   | 'participant_joined'
   | 'participant_left'
+  | 'participant_connection_aborted'
   | 'track_published'
   | 'track_unpublished'
   | 'egress_started'

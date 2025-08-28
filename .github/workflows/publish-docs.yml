@@ -54,7 +54,7 @@ jobs:
       - name: Upload livekit-rtc docs to S3
         if: ${{ github.event.inputs.livekit-rtc }}
         run: |
-          aws s3 cp packages/livekit-rtc/docs/ s3://livekit-docs/client-sdk-node --recursive
+          aws s3 cp packages/livekit-rtc/docs/ s3://livekit-docs/rtc-node --recursive
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}

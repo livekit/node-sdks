@@ -9,11 +9,16 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      packages:
-        description: "Packages to build and deploy docs for (space-separated, empty for all)"
+      livekit-rtc:
+        description: "Build and deploy docs for livekit-rtc"
         required: false
-        default: "livekit-rtc livekit-server-sdk"
-        type: string
+        default: true
+        type: boolean
+      livekit-server-sdk:
+        description: "Build and deploy docs for livekit-server-sdk"
+        required: false
+        default: true
+        type: boolean
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -34,30 +39,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Parse packages input
-        id: packages
-        run: |
-          if [ -z "${{ github.event.inputs.packages }}" ]; then
-            echo "packages=livekit-rtc livekit-server-sdk" >> $GITHUB_OUTPUT
-          else
-            echo "packages=${{ github.event.inputs.packages }}" >> $GITHUB_OUTPUT
-          fi
-          echo "Parsed packages: ${{ steps.packages.outputs.packages }}"
-
       - name: Build docs for livekit-rtc
-        if: contains(steps.packages.outputs.packages, 'livekit-rtc')
+        if: ${{ github.event.inputs.livekit-rtc }}
         run: |
           cd packages/livekit-rtc
           pnpm build:docs
 
       - name: Build docs for livekit-server-sdk
-        if: contains(steps.packages.outputs.packages, 'livekit-server-sdk')
+        if: ${{ github.event.inputs.livekit-server-sdk }}
         run: |
           cd packages/livekit-server-sdk
           pnpm build:docs
 
       - name: Upload livekit-rtc docs to S3
-        if: contains(steps.packages.outputs.packages, 'livekit-rtc')
+        if: ${{ github.event.inputs.livekit-rtc }}
         run: |
           aws s3 cp packages/livekit-rtc/docs/ s3://livekit-docs/client-sdk-node --recursive
         env:
@@ -66,7 +61,7 @@ jobs:
           AWS_DEFAULT_REGION: "us-east-1"
 
       - name: Upload livekit-server-sdk docs to S3
-        if: contains(steps.packages.outputs.packages, 'livekit-server-sdk')
+        if: ${{ github.event.inputs.livekit-server-sdk }}
         run: |
           aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
         env:

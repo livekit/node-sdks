@@ -204,8 +204,8 @@ importers:
   packages/livekit-rtc:
     dependencies:
       '@bufbuild/protobuf':
-        specifier: ^1.10.0
-        version: 1.10.0
+        specifier: ^1.10.1
+        version: 1.10.1
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.1.1
@@ -237,7 +237,7 @@ importers:
     devDependencies:
       '@bufbuild/protoc-gen-es':
         specifier: ^1.10.1
-        version: 1.10.1(@bufbuild/protobuf@1.10.0)
+        version: 1.10.1(@bufbuild/protobuf@1.10.1)
       '@napi-rs/cli':
         specifier: ^2.18.0
         version: 2.18.4
@@ -267,8 +267,8 @@ importers:
   packages/livekit-server-sdk:
     dependencies:
       '@bufbuild/protobuf':
-        specifier: ^1.7.2
-        version: 1.10.0
+        specifier: ^1.10.1
+        version: 1.10.1
       '@livekit/protocol':
         specifier: ^1.39.0
         version: 1.40.0
@@ -351,9 +351,6 @@ packages:
   '@babel/types@7.26.8':
     resolution: {integrity: sha512-eUuWapzEGWFEpHFxgEaBG8e3n6S8L3MSu0oda755rOfabWPnh0Our1AozNFVUxGFIhbKgd1ksprsoDGMinTOTA==}
     engines: {node: '>=6.9.0'}
-
-  '@bufbuild/protobuf@1.10.0':
-    resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
 
   '@bufbuild/protobuf@1.10.1':
     resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
@@ -3848,15 +3845,13 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@bufbuild/protobuf@1.10.0': {}
-
   '@bufbuild/protobuf@1.10.1': {}
 
-  '@bufbuild/protoc-gen-es@1.10.1(@bufbuild/protobuf@1.10.0)':
+  '@bufbuild/protoc-gen-es@1.10.1(@bufbuild/protobuf@1.10.1)':
     dependencies:
       '@bufbuild/protoplugin': 1.10.1
     optionalDependencies:
-      '@bufbuild/protobuf': 1.10.0
+      '@bufbuild/protobuf': 1.10.1
     transitivePeerDependencies:
       - supports-color
 

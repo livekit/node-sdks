@@ -31,7 +31,7 @@
   "scripts": {
     "build": "tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
     "build:watch": "tsc --watch",
-    "build-docs": "typedoc",
+    "build:docs": "typedoc",
     "changeset": "changeset",
     "ci:publish": "pnpm build && changeset publish",
     "lint": "eslint src",
@@ -55,8 +55,9 @@
     "happy-dom": "^17.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.3.5",
+    "typedoc": "catalog:",
     "typedoc": "^0.28.0",
-    "typescript": "5.8.2",
+    "typescript": "catalog:",
     "vite": "^5.2.9",
     "vitest": "^3.0.0"
   },

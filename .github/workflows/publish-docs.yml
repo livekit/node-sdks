@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: 2025 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Publish Docs
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      livekit-rtc:
+        description: "Build and deploy docs for livekit-rtc"
+        required: false
+        default: true
+        type: boolean
+      livekit-server-sdk:
+        description: "Build and deploy docs for livekit-server-sdk"
+        required: false
+        default: true
+        type: boolean
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build:
+    name: Build docs and publish to S3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build docs for livekit-rtc
+        if: ${{ github.event.inputs.livekit-rtc }}
+        run: |
+          cd packages/livekit-rtc
+          pnpm build:docs
+
+      - name: Build docs for livekit-server-sdk
+        if: ${{ github.event.inputs.livekit-server-sdk }}
+        run: |
+          cd packages/livekit-server-sdk
+          pnpm build:docs
+
+      - name: Upload livekit-rtc docs to S3
+        if: ${{ github.event.inputs.livekit-rtc }}
+        run: |
+          aws s3 cp packages/livekit-rtc/docs/ s3://livekit-docs/rtc-node --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: "us-east-1"
+
+      - name: Upload livekit-server-sdk docs to S3
+        if: ${{ github.event.inputs.livekit-server-sdk }}
+        run: |
+          aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: "us-east-1"

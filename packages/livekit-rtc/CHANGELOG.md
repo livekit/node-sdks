@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.13.19
+
+### Patch Changes
+
+- add agent dispatch config to room create options - [#540](https://github.com/livekit/node-sdks/pull/540) ([@paulwe](https://github.com/paulwe))
+
+- Fix negative queue size on captureFrame - [#539](https://github.com/livekit/node-sdks/pull/539) ([@matej-dataqueue](https://github.com/matej-dataqueue))
+
+- add an environment varaible to log all room events - [#536](https://github.com/livekit/node-sdks/pull/536) ([@Shubhrakanti](https://github.com/Shubhrakanti))
+
 ## 0.13.18
 
 ### Patch Changes

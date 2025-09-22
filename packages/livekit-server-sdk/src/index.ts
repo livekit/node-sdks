@@ -34,6 +34,7 @@ export {
   ParticipantInfo_State,
   ParticipantPermission,
   Room,
+  RoomAgentDispatch,
   RoomCompositeEgressRequest,
   RoomEgress,
   S3Upload,

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataPacket_Kind, RoomEgress, TrackInfo } from '@livekit/protocol';
+import type { DataPacket_Kind, RoomAgentDispatch, RoomEgress, TrackInfo } from '@livekit/protocol';
 import {
   CreateRoomRequest,
   DeleteRoomRequest,
@@ -78,6 +78,11 @@ export interface CreateOptions {
    * for rooms with frequent subscription changes
    */
   syncStreams?: boolean;
+
+  /**
+   * agents that should be dispatched to this room
+   */
+  agents?: RoomAgentDispatch[];
 
   /**
    * override the node room is allocated to, for debugging

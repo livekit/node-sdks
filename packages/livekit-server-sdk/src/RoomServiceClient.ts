@@ -16,6 +16,7 @@ import {
   ParticipantInfo,
   ParticipantPermission,
   Room,
+  RoomAgentDispatch,
   RoomParticipantIdentity,
   SendDataRequest,
   UpdateParticipantRequest,
@@ -78,6 +79,11 @@ export interface CreateOptions {
    * for rooms with frequent subscription changes
    */
   syncStreams?: boolean;
+
+  /**
+   * agents that should be dispatched to this room
+   */
+  agents?: RoomAgentDispatch[];
 
   /**
    * override the node room is allocated to, for debugging

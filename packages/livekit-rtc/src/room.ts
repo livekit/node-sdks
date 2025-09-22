@@ -321,6 +321,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
 
     const ev = ffiEvent.message.value.message;
+    if (process.env.LIVEKIT_DEBUG_LOG_ROOM_EVENTS) {
+      console.log('Room event:', ev);
+    }
     if (ev.case == 'participantConnected') {
       const participant = this.createRemoteParticipant(ev.value.info!);
       this.remoteParticipants.set(participant.identity!, participant);

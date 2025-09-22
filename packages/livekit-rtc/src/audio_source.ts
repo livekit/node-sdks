@@ -115,7 +115,7 @@ export class AudioSource {
     const now = Number(process.hrtime.bigint() / BigInt(1000000));
     const elapsed = this.lastCapture === 0 ? 0 : now - this.lastCapture;
     const frameDurationMs = (frame.samplesPerChannel / frame.sampleRate) * 1000;
-    this.currentQueueSize += frameDurationMs - elapsed;
+    this.currentQueueSize = frameDurationMs + Math.max(this.currentQueueSize - elapsed, 0);
 
     this.lastCapture = now;
 

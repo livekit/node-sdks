@@ -84,6 +84,7 @@ export class AudioSource {
       },
     });
 
+    this.currentQueueSize = 0;
     this.release();
   }
 

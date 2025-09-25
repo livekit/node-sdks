@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@livekit/protocol':
+        specifier: ^1.42.0
+        version: 1.42.0
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1
@@ -74,9 +78,6 @@ importers:
 
   examples/agent-dispatch:
     dependencies:
-      '@livekit/protocol':
-        specifier: ^1.39.0
-        version: 1.40.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -991,9 +992,6 @@ packages:
 
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
-
-  '@livekit/protocol@1.40.0':
-    resolution: {integrity: sha512-1q0TNqlSTDW9ZuQCYTLDusyO+StvAXPmECQgyuszThDjzhTwQOkA6Rv7B1wPcvpTcwieIG0vuAO4cw4+kg+xWA==}
 
   '@livekit/protocol@1.42.0':
     resolution: {integrity: sha512-42sYSCay2PZrn5yHHt+O3RQpTElcTrA7bqg7iYbflUApeerA5tUCJDr8Z4abHsYHVKjqVUbkBq/TPmT3X6aYOQ==}
@@ -4415,10 +4413,6 @@ snapshots:
       - encoding
 
   '@livekit/mutex@1.1.1': {}
-
-  '@livekit/protocol@1.40.0':
-    dependencies:
-      '@bufbuild/protobuf': 1.10.1
 
   '@livekit/protocol@1.42.0':
     dependencies:

@@ -55,6 +55,10 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
           if (done) {
             return { done: true, value: undefined as any };
           } else {
+            if (value.encryptionType !== this._info.encryptionType) {
+              log.error('Encryption type mismatch: %s', value.encryptionType);
+              return { done: true, value: undefined };
+            }
             this.handleChunkReceived(value);
             return { done: false, value: value.content! };
           }
@@ -129,6 +133,10 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
           if (done) {
             return { done: true, value: undefined };
           } else {
+            if (value.encryptionType !== this._info.encryptionType) {
+              log.error('Encryption type mismatch: %s', value.encryptionType);
+              return { done: true, value: undefined };
+            }
             this.handleChunkReceived(value);
             return {
               done: false,

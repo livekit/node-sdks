@@ -17,7 +17,7 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
-import { EncryptionState } from './proto/e2ee_pb.js';
+import { EncryptionState, EncryptionType } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
 import type { DataStream_Trailer } from './proto/room_pb.js';
@@ -60,7 +60,11 @@ export const defaultRtcConfiguration: RtcConfiguration = {
 export interface RoomOptions {
   autoSubscribe: boolean;
   dynacast: boolean;
+  /**
+   * @deprecated Use `encryption` instead. See x for details
+   */
   e2ee?: E2EEOptions;
+  encryption?: E2EEOptions;
   rtcConfig?: RtcConfiguration;
 }
 
@@ -68,6 +72,7 @@ export const defaultRoomOptions = new FfiRoomOptions({
   autoSubscribe: true,
   dynacast: false,
   e2ee: undefined,
+  encryption: undefined,
   rtcConfig: undefined,
   adaptiveStream: false,
   joinRetries: 1,
@@ -174,7 +179,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
    */
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
-    const e2eeOptions = { ...defaultE2EEOptions, ...options.e2ee };
+    const e2eeEnabled = options.encryption || options.e2ee;
+    const e2eeOptions = options.encryption
+      ? { ...defaultE2EEOptions, ...options.encryption }
+      : { ...defaultE2EEOptions, ...options.e2ee };
 
     const req = new ConnectRequest({
       url: url,
@@ -200,7 +208,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     switch (cb.message.case) {
       case 'result':
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
-        this.e2eeManager = options.e2ee && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
+        this.e2eeManager = e2eeEnabled && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
 
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;
@@ -469,6 +477,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             participant,
             ev.value.kind,
             dataPacket.value.topic,
+            ev.value.encryptionType,
           );
           break;
         case 'sipDtmf':
@@ -722,6 +731,7 @@ export type RoomCallbacks = {
     participant?: RemoteParticipant,
     kind?: DataPacketKind,
     topic?: string,
+    encryptionType?: EncryptionType,
   ) => void;
   chatMessage: (message: ChatMessage, participant?: Participant) => void;
   dtmfReceived: (code: number, digit: string, participant: RemoteParticipant) => void;

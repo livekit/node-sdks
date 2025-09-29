@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@livekit/protocol':
-        specifier: ^1.42.0
-        version: 1.42.0
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1

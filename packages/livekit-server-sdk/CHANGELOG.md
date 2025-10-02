@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.14.0
+
+### Minor Changes
+
+- Added displayName field to CreateSipParticipantOptions - [#544](https://github.com/livekit/node-sdks/pull/544) ([@alexlivekit](https://github.com/alexlivekit))
+
 ## 2.13.3
 
 ### Patch Changes

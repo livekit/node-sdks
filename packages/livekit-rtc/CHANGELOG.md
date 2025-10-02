@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.20
+
+### Patch Changes
+
+- Fix clearQueue not setting queue size to 0 - [#542](https://github.com/livekit/node-sdks/pull/542) ([@matej-dataqueue](https://github.com/matej-dataqueue))
+
 ## 0.13.19
 
 ### Patch Changes

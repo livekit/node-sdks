@@ -347,10 +347,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant!.info.disconnectReason = ev.value.disconnectReason;
         this.emit(RoomEvent.ParticipantDisconnected, participant!);
       } else if (ev.case == 'localTrackPublished') {
-        setImmediate(() => {
-          const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
-          this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant!);
-        });
+        const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
+        this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant!);
       } else if (ev.case == 'localTrackUnpublished') {
         const publication = this.localParticipant!.trackPublications.get(ev.value.publicationSid!);
         this.localParticipant!.trackPublications.delete(ev.value.publicationSid!);

@@ -155,13 +155,13 @@ export type DataPublishOptions = {
 export class LocalParticipant extends Participant {
   private rpcHandlers: Map<string, (data: RpcInvocationData) => Promise<string>> = new Map();
 
-  private ffiEventLock: Mutex;
+  private roomEventLock: Mutex;
 
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
-  constructor(info: OwnedParticipant, ffiEventLock: Mutex) {
+  constructor(info: OwnedParticipant, roomEventLock: Mutex) {
     super(info);
-    this.ffiEventLock = ffiEventLock;
+    this.roomEventLock = roomEventLock;
   }
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
@@ -662,7 +662,7 @@ export class LocalParticipant extends Participant {
       options: options,
     });
 
-    const unlock = await this.ffiEventLock.lock();
+    const unlock = await this.roomEventLock.lock();
 
     const res = FfiClient.instance.request<PublishTrackResponse>({
       message: { case: 'publishTrack', value: req },
@@ -690,7 +690,7 @@ export class LocalParticipant extends Participant {
   }
 
   async unpublishTrack(trackSid: string, stopOnUnpublish?: boolean) {
-    const unlock = await this.ffiEventLock.lock();
+    const unlock = await this.roomEventLock.lock();
     try {
       const req = new UnpublishTrackRequest({
         localParticipantHandle: this.ffi_handle.handle,

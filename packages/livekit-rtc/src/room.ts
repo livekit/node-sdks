@@ -78,10 +78,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   private info?: RoomInfo;
   private ffiHandle?: FfiHandle;
   /**
-   * python uses a queue to process events, as node is using an event emitter we need to ensure events are processed sequentially
-   * and allow for the local participant to acquire the lock while doing state updates related to FFI events
+   * used to ensure events are processed sequentially and allow for
+   * the local participant to acquire the lock while doing state updates related to FFI events
+   * before processing the next events
    */
-  private ffiEventLock = new Mutex();
+  private roomEventLock = new Mutex();
 
   private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
   private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
@@ -212,7 +213,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.connectionState = ConnectionState.CONN_CONNECTED;
         this.localParticipant = new LocalParticipant(
           cb.message.value.localParticipant!,
-          this.ffiEventLock,
+          this.roomEventLock,
         );
 
         for (const pt of cb.message.value.participants) {
@@ -308,7 +309,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       throw new Error('processFfiEvent called before connect');
     }
 
-    const unlock = await this.ffiEventLock.lock();
+    const unlock = await this.roomEventLock.lock();
 
     try {
       if (ffiEvent.message.case == 'rpcMethodInvocation') {

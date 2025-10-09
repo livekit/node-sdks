@@ -477,7 +477,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             participant,
             ev.value.kind,
             dataPacket.value.topic,
-            ev.value.encryptionType,
           );
           break;
         case 'sipDtmf':
@@ -524,6 +523,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant.info = info;
         }
       }
+    } else if (ev.case === 'participantEncryptionStatusChanged') {
+      const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+      this.emit(RoomEvent.ParticipantEncryptionStatusChanged, !!ev.value.isEncrypted, participant);
     }
   };
 
@@ -725,6 +727,7 @@ export type RoomCallbacks = {
     changedAttributes: Record<string, string>,
     participant: Participant,
   ) => void;
+  participantEncryptionStatusChanged: (isEncrypted: boolean, participant: Participant) => void;
   connectionQualityChanged: (quality: ConnectionQuality, participant: Participant) => void;
   dataReceived: (
     payload: Uint8Array,
@@ -765,6 +768,7 @@ export enum RoomEvent {
   ParticipantMetadataChanged = 'participantMetadataChanged',
   ParticipantNameChanged = 'participantNameChanged',
   ParticipantAttributesChanged = 'participantAttributesChanged',
+  ParticipantEncryptionStatusChanged = 'participantEncryptionStatusChanged',
   ConnectionQualityChanged = 'connectionQualityChanged',
   DataReceived = 'dataReceived',
   ChatMessage = 'chatMessage',

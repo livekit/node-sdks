@@ -26,7 +26,7 @@ import { ApmProcessReverseStreamRequest, ApmProcessReverseStreamResponse, ApmPro
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
 import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
-import { ByteStreamOpenCallback, ByteStreamOpenRequest, ByteStreamOpenResponse, ByteStreamReaderEvent, ByteStreamReaderReadAllCallback, ByteStreamReaderReadAllRequest, ByteStreamReaderReadAllResponse, ByteStreamReaderReadIncrementalRequest, ByteStreamReaderReadIncrementalResponse, ByteStreamReaderWriteToFileCallback, ByteStreamReaderWriteToFileRequest, ByteStreamReaderWriteToFileResponse, ByteStreamWriterCloseCallback, ByteStreamWriterCloseRequest, ByteStreamWriterCloseResponse, ByteStreamWriterWriteCallback, ByteStreamWriterWriteRequest, ByteStreamWriterWriteResponse, StreamSendFileCallback, StreamSendFileRequest, StreamSendFileResponse, StreamSendTextCallback, StreamSendTextRequest, StreamSendTextResponse, TextStreamOpenCallback, TextStreamOpenRequest, TextStreamOpenResponse, TextStreamReaderEvent, TextStreamReaderReadAllCallback, TextStreamReaderReadAllRequest, TextStreamReaderReadAllResponse, TextStreamReaderReadIncrementalRequest, TextStreamReaderReadIncrementalResponse, TextStreamWriterCloseCallback, TextStreamWriterCloseRequest, TextStreamWriterCloseResponse, TextStreamWriterWriteCallback, TextStreamWriterWriteRequest, TextStreamWriterWriteResponse } from "./data_stream_pb.js";
+import { ByteStreamOpenCallback, ByteStreamOpenRequest, ByteStreamOpenResponse, ByteStreamReaderEvent, ByteStreamReaderReadAllCallback, ByteStreamReaderReadAllRequest, ByteStreamReaderReadAllResponse, ByteStreamReaderReadIncrementalRequest, ByteStreamReaderReadIncrementalResponse, ByteStreamReaderWriteToFileCallback, ByteStreamReaderWriteToFileRequest, ByteStreamReaderWriteToFileResponse, ByteStreamWriterCloseCallback, ByteStreamWriterCloseRequest, ByteStreamWriterCloseResponse, ByteStreamWriterWriteCallback, ByteStreamWriterWriteRequest, ByteStreamWriterWriteResponse, StreamSendBytesCallback, StreamSendBytesRequest, StreamSendBytesResponse, StreamSendFileCallback, StreamSendFileRequest, StreamSendFileResponse, StreamSendTextCallback, StreamSendTextRequest, StreamSendTextResponse, TextStreamOpenCallback, TextStreamOpenRequest, TextStreamOpenResponse, TextStreamReaderEvent, TextStreamReaderReadAllCallback, TextStreamReaderReadAllRequest, TextStreamReaderReadAllResponse, TextStreamReaderReadIncrementalRequest, TextStreamReaderReadIncrementalResponse, TextStreamWriterCloseCallback, TextStreamWriterCloseRequest, TextStreamWriterCloseResponse, TextStreamWriterWriteCallback, TextStreamWriterWriteRequest, TextStreamWriterWriteResponse } from "./data_stream_pb.js";
 
 /**
  * @generated from enum livekit.proto.LogLevel
@@ -486,6 +486,12 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: TextStreamWriterCloseRequest;
     case: "textStreamClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendBytesRequest send_bytes = 67;
+     */
+    value: StreamSendBytesRequest;
+    case: "sendBytes";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -561,6 +567,7 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 64, name: "text_stream_open", kind: "message", T: TextStreamOpenRequest, oneof: "message" },
     { no: 65, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteRequest, oneof: "message" },
     { no: 66, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseRequest, oneof: "message" },
+    { no: 67, name: "send_bytes", kind: "message", T: StreamSendBytesRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -993,6 +1000,12 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: TextStreamWriterCloseResponse;
     case: "textStreamClose";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendBytesResponse send_bytes = 66;
+     */
+    value: StreamSendBytesResponse;
+    case: "sendBytes";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -1067,6 +1080,7 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 63, name: "text_stream_open", kind: "message", T: TextStreamOpenResponse, oneof: "message" },
     { no: 64, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteResponse, oneof: "message" },
     { no: 65, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseResponse, oneof: "message" },
+    { no: 66, name: "send_bytes", kind: "message", T: StreamSendBytesResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {
@@ -1335,6 +1349,12 @@ export class FfiEvent extends Message<FfiEvent> {
      */
     value: StreamSendTextCallback;
     case: "sendText";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamSendBytesCallback send_bytes = 41;
+     */
+    value: StreamSendBytesCallback;
+    case: "sendBytes";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiEvent>) {
@@ -1384,6 +1404,7 @@ export class FfiEvent extends Message<FfiEvent> {
     { no: 38, name: "text_stream_writer_write", kind: "message", T: TextStreamWriterWriteCallback, oneof: "message" },
     { no: 39, name: "text_stream_writer_close", kind: "message", T: TextStreamWriterCloseCallback, oneof: "message" },
     { no: 40, name: "send_text", kind: "message", T: StreamSendTextCallback, oneof: "message" },
+    { no: 41, name: "send_bytes", kind: "message", T: StreamSendBytesCallback, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiEvent {

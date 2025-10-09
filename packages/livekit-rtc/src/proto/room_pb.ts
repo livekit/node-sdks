@@ -2210,6 +2210,11 @@ export class TrackPublishOptions extends Message<TrackPublishOptions> {
    */
   stream?: string;
 
+  /**
+   * @generated from field: optional bool preconnect_buffer = 9;
+   */
+  preconnectBuffer?: boolean;
+
   constructor(data?: PartialMessage<TrackPublishOptions>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2226,6 +2231,7 @@ export class TrackPublishOptions extends Message<TrackPublishOptions> {
     { no: 6, name: "simulcast", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
     { no: 7, name: "source", kind: "enum", T: proto2.getEnumType(TrackSource), opt: true },
     { no: 8, name: "stream", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 9, name: "preconnect_buffer", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TrackPublishOptions {
@@ -2365,7 +2371,8 @@ export class RoomOptions extends Message<RoomOptions> {
   dynacast?: boolean;
 
   /**
-   * @generated from field: optional livekit.proto.E2eeOptions e2ee = 4;
+   * @generated from field: optional livekit.proto.E2eeOptions e2ee = 4 [deprecated = true];
+   * @deprecated
    */
   e2ee?: E2eeOptions;
 
@@ -2381,6 +2388,11 @@ export class RoomOptions extends Message<RoomOptions> {
    */
   joinRetries?: number;
 
+  /**
+   * @generated from field: optional livekit.proto.E2eeOptions encryption = 7;
+   */
+  encryption?: E2eeOptions;
+
   constructor(data?: PartialMessage<RoomOptions>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2395,6 +2407,7 @@ export class RoomOptions extends Message<RoomOptions> {
     { no: 4, name: "e2ee", kind: "message", T: E2eeOptions, opt: true },
     { no: 5, name: "rtc_config", kind: "message", T: RtcConfig, opt: true },
     { no: 6, name: "join_retries", kind: "scalar", T: 13 /* ScalarType.UINT32 */, opt: true },
+    { no: 7, name: "encryption", kind: "message", T: E2eeOptions, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomOptions {
@@ -2689,6 +2702,12 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "participantAttributesChanged";
   } | {
     /**
+     * @generated from field: livekit.proto.ParticipantEncryptionStatusChanged participant_encryption_status_changed = 39;
+     */
+    value: ParticipantEncryptionStatusChanged;
+    case: "participantEncryptionStatusChanged";
+  } | {
+    /**
      * @generated from field: livekit.proto.ConnectionQualityChanged connection_quality_changed = 20;
      */
     value: ConnectionQualityChanged;
@@ -2844,6 +2863,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 17, name: "participant_metadata_changed", kind: "message", T: ParticipantMetadataChanged, oneof: "message" },
     { no: 18, name: "participant_name_changed", kind: "message", T: ParticipantNameChanged, oneof: "message" },
     { no: 19, name: "participant_attributes_changed", kind: "message", T: ParticipantAttributesChanged, oneof: "message" },
+    { no: 39, name: "participant_encryption_status_changed", kind: "message", T: ParticipantEncryptionStatusChanged, oneof: "message" },
     { no: 20, name: "connection_quality_changed", kind: "message", T: ConnectionQualityChanged, oneof: "message" },
     { no: 21, name: "connection_state_changed", kind: "message", T: ConnectionStateChanged, oneof: "message" },
     { no: 22, name: "disconnected", kind: "message", T: Disconnected, oneof: "message" },
@@ -3816,6 +3836,49 @@ export class ParticipantAttributesChanged extends Message<ParticipantAttributesC
 
   static equals(a: ParticipantAttributesChanged | PlainMessage<ParticipantAttributesChanged> | undefined, b: ParticipantAttributesChanged | PlainMessage<ParticipantAttributesChanged> | undefined): boolean {
     return proto2.util.equals(ParticipantAttributesChanged, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.ParticipantEncryptionStatusChanged
+ */
+export class ParticipantEncryptionStatusChanged extends Message<ParticipantEncryptionStatusChanged> {
+  /**
+   * @generated from field: required string participant_identity = 1;
+   */
+  participantIdentity?: string;
+
+  /**
+   * @generated from field: required bool is_encrypted = 2;
+   */
+  isEncrypted?: boolean;
+
+  constructor(data?: PartialMessage<ParticipantEncryptionStatusChanged>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.ParticipantEncryptionStatusChanged";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "participant_identity", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 2, name: "is_encrypted", kind: "scalar", T: 8 /* ScalarType.BOOL */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantEncryptionStatusChanged {
+    return new ParticipantEncryptionStatusChanged().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ParticipantEncryptionStatusChanged {
+    return new ParticipantEncryptionStatusChanged().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ParticipantEncryptionStatusChanged {
+    return new ParticipantEncryptionStatusChanged().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ParticipantEncryptionStatusChanged | PlainMessage<ParticipantEncryptionStatusChanged> | undefined, b: ParticipantEncryptionStatusChanged | PlainMessage<ParticipantEncryptionStatusChanged> | undefined): boolean {
+    return proto2.util.equals(ParticipantEncryptionStatusChanged, a, b);
   }
 }
 

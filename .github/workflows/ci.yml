@@ -143,6 +143,12 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.target }}
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: '25.1'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Cache cargo
         uses: actions/cache@v4
         with:

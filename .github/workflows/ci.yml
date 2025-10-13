@@ -166,16 +166,23 @@ jobs:
       - name: Build (Linux)
         if: ${{ matrix.platform == 'linux' }}
         run: |
-          docker run --rm -v $PWD:/workspace -v /usr/bin/protoc:/usr/bin/protoc:ro -w /workspace ${{ matrix.build_image }} bash -c "\
-            uname -a; \
-            export PATH=/root/.cargo/bin:\$PATH; \
-            export RUST_BACKTRACE=full; \
-            yum install openssl-devel libX11-devel mesa-libGL-devel libXext-devel clang-devel -y; \
-            curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
-            curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
-            yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
-            npm install --global pnpm && pnpm install; \
-            cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
+          PROTOC_PATH=$(which protoc)
+          docker run --rm \
+            -v $PWD:/workspace \
+            -v $PROTOC_PATH:/tmp/protoc:ro \
+            -w /workspace \
+            ${{ matrix.build_image }} \
+            bash -c "\
+              uname -a; \
+              cp /tmp/protoc /usr/local/bin/protoc && chmod +x /usr/local/bin/protoc; \
+              export PATH=/root/.cargo/bin:\$PATH; \
+              export RUST_BACKTRACE=full; \
+              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel clang-devel; \
+              curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
+              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
+              npm install --global pnpm && pnpm install; \
+              cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}

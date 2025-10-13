@@ -166,7 +166,7 @@ jobs:
       - name: Build (Linux)
         if: ${{ matrix.platform == 'linux' }}
         run: |
-          docker run --rm -v $PWD:/workspace -w /workspace ${{ matrix.build_image }} bash -c "\
+          docker run --rm -v $PWD:/workspace -v /usr/bin/protoc:/usr/bin/protoc:ro -w /workspace ${{ matrix.build_image }} bash -c "\
             uname -a; \
             export PATH=/root/.cargo/bin:\$PATH; \
             export RUST_BACKTRACE=full; \

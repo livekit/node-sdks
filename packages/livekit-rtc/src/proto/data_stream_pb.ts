@@ -20,6 +20,7 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
 import { FfiOwnedHandle } from "./handle_pb.js";
+import { EncryptionType } from "./e2ee_pb.js";
 
 /**
  * A reader for an incoming stream.
@@ -1071,6 +1072,152 @@ export class StreamSendFileCallback extends Message<StreamSendFileCallback> {
 
   static equals(a: StreamSendFileCallback | PlainMessage<StreamSendFileCallback> | undefined, b: StreamSendFileCallback | PlainMessage<StreamSendFileCallback> | undefined): boolean {
     return proto2.util.equals(StreamSendFileCallback, a, b);
+  }
+}
+
+/**
+ * Sends bytes over a data stream.
+ *
+ * @generated from message livekit.proto.StreamSendBytesRequest
+ */
+export class StreamSendBytesRequest extends Message<StreamSendBytesRequest> {
+  /**
+   * @generated from field: required uint64 local_participant_handle = 1;
+   */
+  localParticipantHandle?: bigint;
+
+  /**
+   * @generated from field: required livekit.proto.StreamByteOptions options = 2;
+   */
+  options?: StreamByteOptions;
+
+  /**
+   * Bytes to send.
+   *
+   * @generated from field: required bytes bytes = 3;
+   */
+  bytes?: Uint8Array;
+
+  constructor(data?: PartialMessage<StreamSendBytesRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.StreamSendBytesRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "local_participant_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "options", kind: "message", T: StreamByteOptions, req: true },
+    { no: 3, name: "bytes", kind: "scalar", T: 12 /* ScalarType.BYTES */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StreamSendBytesRequest {
+    return new StreamSendBytesRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StreamSendBytesRequest {
+    return new StreamSendBytesRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StreamSendBytesRequest {
+    return new StreamSendBytesRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: StreamSendBytesRequest | PlainMessage<StreamSendBytesRequest> | undefined, b: StreamSendBytesRequest | PlainMessage<StreamSendBytesRequest> | undefined): boolean {
+    return proto2.util.equals(StreamSendBytesRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.StreamSendBytesResponse
+ */
+export class StreamSendBytesResponse extends Message<StreamSendBytesResponse> {
+  /**
+   * @generated from field: required uint64 async_id = 1;
+   */
+  asyncId?: bigint;
+
+  constructor(data?: PartialMessage<StreamSendBytesResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.StreamSendBytesResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StreamSendBytesResponse {
+    return new StreamSendBytesResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StreamSendBytesResponse {
+    return new StreamSendBytesResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StreamSendBytesResponse {
+    return new StreamSendBytesResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: StreamSendBytesResponse | PlainMessage<StreamSendBytesResponse> | undefined, b: StreamSendBytesResponse | PlainMessage<StreamSendBytesResponse> | undefined): boolean {
+    return proto2.util.equals(StreamSendBytesResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.StreamSendBytesCallback
+ */
+export class StreamSendBytesCallback extends Message<StreamSendBytesCallback> {
+  /**
+   * @generated from field: required uint64 async_id = 1;
+   */
+  asyncId?: bigint;
+
+  /**
+   * @generated from oneof livekit.proto.StreamSendBytesCallback.result
+   */
+  result: {
+    /**
+     * @generated from field: livekit.proto.ByteStreamInfo info = 2;
+     */
+    value: ByteStreamInfo;
+    case: "info";
+  } | {
+    /**
+     * @generated from field: livekit.proto.StreamError error = 3;
+     */
+    value: StreamError;
+    case: "error";
+  } | { case: undefined; value?: undefined } = { case: undefined };
+
+  constructor(data?: PartialMessage<StreamSendBytesCallback>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.StreamSendBytesCallback";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "async_id", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "info", kind: "message", T: ByteStreamInfo, oneof: "result" },
+    { no: 3, name: "error", kind: "message", T: StreamError, oneof: "result" },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StreamSendBytesCallback {
+    return new StreamSendBytesCallback().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StreamSendBytesCallback {
+    return new StreamSendBytesCallback().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StreamSendBytesCallback {
+    return new StreamSendBytesCallback().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: StreamSendBytesCallback | PlainMessage<StreamSendBytesCallback> | undefined, b: StreamSendBytesCallback | PlainMessage<StreamSendBytesCallback> | undefined): boolean {
+    return proto2.util.equals(StreamSendBytesCallback, a, b);
   }
 }
 
@@ -2163,6 +2310,11 @@ export class TextStreamInfo extends Message<TextStreamInfo> {
    */
   generated?: boolean;
 
+  /**
+   * @generated from field: required livekit.proto.EncryptionType encryption_type = 12;
+   */
+  encryptionType?: EncryptionType;
+
   constructor(data?: PartialMessage<TextStreamInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2182,6 +2334,7 @@ export class TextStreamInfo extends Message<TextStreamInfo> {
     { no: 9, name: "reply_to_stream_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 10, name: "attached_stream_ids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
     { no: 11, name: "generated", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
+    { no: 12, name: "encryption_type", kind: "enum", T: proto2.getEnumType(EncryptionType), req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TextStreamInfo {
@@ -2280,6 +2433,11 @@ export class ByteStreamInfo extends Message<ByteStreamInfo> {
    */
   name?: string;
 
+  /**
+   * @generated from field: required livekit.proto.EncryptionType encryption_type = 8;
+   */
+  encryptionType?: EncryptionType;
+
   constructor(data?: PartialMessage<ByteStreamInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -2295,6 +2453,7 @@ export class ByteStreamInfo extends Message<ByteStreamInfo> {
     { no: 5, name: "total_length", kind: "scalar", T: 4 /* ScalarType.UINT64 */, opt: true },
     { no: 6, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
     { no: 7, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+    { no: 8, name: "encryption_type", kind: "enum", T: proto2.getEnumType(EncryptionType), req: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ByteStreamInfo {

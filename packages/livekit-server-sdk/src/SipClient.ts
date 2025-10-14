@@ -123,6 +123,8 @@ export interface CreateSipParticipantOptions {
   participantIdentity?: string;
   /** Optional name of the participant */
   participantName?: string;
+  /** Optional display name for the SIP participant */
+  displayName?: string;
   /** Optional metadata to attach to the participant */
   participantMetadata?: string;
   /** Optional attributes to attach to the participant */
@@ -719,6 +721,7 @@ export class SipClient extends ServiceBase {
       roomName: roomName,
       participantIdentity: opts.participantIdentity || 'sip-participant',
       participantName: opts.participantName,
+      displayName: opts.displayName,
       participantMetadata: opts.participantMetadata,
       participantAttributes: opts.participantAttributes,
       dtmf: opts.dtmf,

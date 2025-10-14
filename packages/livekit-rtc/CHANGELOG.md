@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.21
+
+### Patch Changes
+
+- Bump ffi to v0.12.36 - [#551](https://github.com/livekit/node-sdks/pull/551) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.20
 
 ### Patch Changes

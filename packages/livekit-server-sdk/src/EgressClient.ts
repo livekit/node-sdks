@@ -127,6 +127,10 @@ export interface ListEgressOptions {
   active?: boolean;
 }
 
+type ClientOptions = {
+  timeoutSeconds?: number;
+};
+
 /**
  * Client to access Egress APIs
  */
@@ -137,10 +141,15 @@ export class EgressClient extends ServiceBase {
    * @param host - hostname including protocol. i.e. 'https://<project>.livekit.cloud'
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param options - client options
+   * @param options.timeoutSeconds - optional timeout, in seconds, for all server requests
    */
-  constructor(host: string, apiKey?: string, secret?: string) {
+  constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);
-    this.rpc = new TwirpRpc(host, livekitPackage);
+    const rpcOptions = options?.timeoutSeconds
+      ? { timeoutSeconds: options.timeoutSeconds }
+      : undefined;
+    this.rpc = new TwirpRpc(host, livekitPackage, rpcOptions);
   }
 
   /**

@@ -108,7 +108,7 @@ export type UpdateParticipantOptions = {
 };
 
 type ClientOptions = {
-  timeoutSeconds?: number;
+  requestTimeout?: number;
 };
 
 const svc = 'RoomService';
@@ -125,12 +125,12 @@ export class RoomServiceClient extends ServiceBase {
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    * @param options - client options
-   * @param options.timeoutSeconds - optional timeout, in seconds, for all server requests
+   * @param options.requestTimeout - optional timeout, in seconds, for all server requests
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);
-    const rpcOptions = options?.timeoutSeconds
-      ? { timeoutSeconds: options.timeoutSeconds }
+    const rpcOptions = options?.requestTimeout
+      ? { requestTimeout: options.requestTimeout }
       : undefined;
     this.rpc = new TwirpRpc(host, livekitPackage, rpcOptions);
   }

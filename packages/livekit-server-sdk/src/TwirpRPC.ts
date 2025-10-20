@@ -9,7 +9,7 @@ type Options = {
   /** Prefix for the RPC requests */
   prefix?: string;
   /** Timeout for fetch requests, in seconds. Must resolve to a positive integer millisecond value. */
-  timeoutSeconds?: number;
+  requestTimeout?: number;
 };
 
 const defaultPrefix = '/twirp';
@@ -64,7 +64,7 @@ export class TwirpRpc {
     }
     this.host = host;
     this.pkg = pkg;
-    this.requestTimeout = options?.timeoutSeconds ?? defaultTimeoutSeconds;
+    this.requestTimeout = options?.requestTimeout ?? defaultTimeoutSeconds;
     this.prefix = options?.prefix || defaultPrefix;
   }
 

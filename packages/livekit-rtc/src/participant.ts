@@ -155,7 +155,14 @@ export type DataPublishOptions = {
 export class LocalParticipant extends Participant {
   private rpcHandlers: Map<string, (data: RpcInvocationData) => Promise<string>> = new Map();
 
+  private roomEventLock: Mutex;
+
   trackPublications: Map<string, LocalTrackPublication> = new Map();
+
+  constructor(info: OwnedParticipant, roomEventLock: Mutex) {
+    super(info);
+    this.roomEventLock = roomEventLock;
+  }
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
     const req = new PublishDataRequest({
@@ -655,51 +662,62 @@ export class LocalParticipant extends Participant {
       options: options,
     });
 
+    const unlock = await this.roomEventLock.lock();
+
     const res = FfiClient.instance.request<PublishTrackResponse>({
       message: { case: 'publishTrack', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
-      return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
-    });
+    try {
+      const cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
+        return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
+      });
 
-    switch (cb.message.case) {
-      case 'publication':
-        const track_publication = new LocalTrackPublication(cb.message.value!);
-        track_publication.track = track;
-        this.trackPublications.set(track_publication.sid!, track_publication);
+      switch (cb.message.case) {
+        case 'publication':
+          const track_publication = new LocalTrackPublication(cb.message.value!);
+          track_publication.track = track;
+          this.trackPublications.set(track_publication.sid!, track_publication);
 
-        return track_publication;
-      case 'error':
-      default:
-        throw new Error(cb.message.value);
+          return track_publication;
+        case 'error':
+        default:
+          throw new Error(cb.message.value);
+      }
+    } finally {
+      unlock();
     }
   }
 
   async unpublishTrack(trackSid: string, stopOnUnpublish?: boolean) {
-    const req = new UnpublishTrackRequest({
-      localParticipantHandle: this.ffi_handle.handle,
-      trackSid: trackSid,
-      stopOnUnpublish: stopOnUnpublish ?? true,
-    });
+    const unlock = await this.roomEventLock.lock();
+    try {
+      const req = new UnpublishTrackRequest({
+        localParticipantHandle: this.ffi_handle.handle,
+        trackSid: trackSid,
+        stopOnUnpublish: stopOnUnpublish ?? true,
+      });
 
-    const res = FfiClient.instance.request<UnpublishTrackResponse>({
-      message: { case: 'unpublishTrack', value: req },
-    });
+      const res = FfiClient.instance.request<UnpublishTrackResponse>({
+        message: { case: 'unpublishTrack', value: req },
+      });
 
-    const cb = await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
-      return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
-    });
+      const cb = await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
+        return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
+      });
 
-    if (cb.error) {
-      throw new Error(cb.error);
+      if (cb.error) {
+        throw new Error(cb.error);
+      }
+
+      const pub = this.trackPublications.get(trackSid);
+      if (pub) {
+        pub.track = undefined;
+      }
+      this.trackPublications.delete(trackSid);
+    } finally {
+      unlock();
     }
-
-    const pub = this.trackPublications.get(trackSid);
-    if (pub) {
-      pub.track = undefined;
-    }
-    this.trackPublications.delete(trackSid);
   }
 
   /**

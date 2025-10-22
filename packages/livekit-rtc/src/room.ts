@@ -240,13 +240,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return;
     }
 
-    FfiClient.instance.request<DisconnectResponse>({
+    const res = FfiClient.instance.request<DisconnectResponse>({
       message: {
         case: 'disconnect',
         value: {
           roomHandle: this.ffiHandle?.handle,
         },
       },
+    });
+
+    await FfiClient.instance.waitFor<DisconnectResponse>((ev: FfiEvent) => {
+      return ev.message.case == 'connect' && ev.message.value.asyncId == res.asyncId;
     });
 
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);

@@ -21,7 +21,7 @@ import { LocalParticipant, RemoteParticipant } from './participant.js';
 import { EncryptionState } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
-import type { DataStream_Trailer } from './proto/room_pb.js';
+import type { DataStream_Trailer, DisconnectCallback } from './proto/room_pb.js';
 import {
   type ConnectCallback,
   ConnectRequest,
@@ -249,7 +249,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       },
     });
 
-    await FfiClient.instance.waitFor<DisconnectResponse>((ev: FfiEvent) => {
+    await FfiClient.instance.waitFor<DisconnectCallback>((ev: FfiEvent) => {
       return ev.message.case == 'connect' && ev.message.value.asyncId == res.asyncId;
     });
 

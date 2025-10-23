@@ -89,6 +89,11 @@ export interface CreateOptions {
    * does not work with Cloud
    */
   nodeId?: string;
+
+  /**
+   * Define agents that should be dispatched to this room
+   */
+  agents?: RoomAgentDispatch[];
 }
 
 export type SendDataOptions = {

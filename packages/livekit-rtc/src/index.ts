@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+export { AudioFilter } from './audio_filter.js';
 export { AudioFrame, combineAudioFrames } from './audio_frame.js';
+export { AudioMixer, type AudioMixerOptions } from './audio_mixer.js';
 export { AudioResampler, AudioResamplerQuality } from './audio_resampler.js';
 export { AudioSource } from './audio_source.js';
 export { AudioStream } from './audio_stream.js';
 export type { NoiseCancellationOptions } from './audio_stream.js';
-export { AudioFilter } from './audio_filter.js';
 export * from './data_streams/index.js';
 export { E2EEManager, FrameCryptor, KeyProvider } from './e2ee.js';
 export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
@@ -22,7 +23,7 @@ export {
   DataPacketKind,
   IceServer,
   IceTransportType,
-  TrackPublishOptions,
+  TrackPublishOptions
 } from './proto/room_pb.js';
 export { StreamState, TrackKind, TrackSource } from './proto/track_pb.js';
 export { VideoBufferType, VideoCodec, VideoRotation } from './proto/video_frame_pb.js';
@@ -37,12 +38,12 @@ export {
   type AudioTrack,
   type LocalTrack,
   type RemoteTrack,
-  type VideoTrack,
+  type VideoTrack
 } from './track.js';
 export {
   LocalTrackPublication,
   RemoteTrackPublication,
-  TrackPublication,
+  TrackPublication
 } from './track_publication.js';
 export type { Transcription, TranscriptionSegment } from './transcription.js';
 export type { ChatMessage } from './types.js';

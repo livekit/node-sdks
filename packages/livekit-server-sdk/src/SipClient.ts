@@ -699,7 +699,7 @@ export class SipClient extends ServiceBase {
    * @param number - number to dial
    * @param roomName - room to attach the call to
    * @param opts - CreateSipParticipantOptions
-   * @param outbound_trunk - Optional outbound trunk configuration for sip participant.
+   * @param outboundTrunkConfig - Optional outbound trunk configuration for sip participant.
    * @returns Created SIP participant
    */
   async createSipParticipant(
@@ -707,7 +707,7 @@ export class SipClient extends ServiceBase {
     number: string,
     roomName: string,
     opts?: CreateSipParticipantOptions,
-    outbound_trunk?: SIPOutboundConfig,
+    outboundTrunkConfig?: SIPOutboundConfig,
   ): Promise<SIPParticipantInfo> {
     if (opts === undefined) {
       opts = {};
@@ -719,7 +719,7 @@ export class SipClient extends ServiceBase {
 
     const req = new CreateSIPParticipantRequest({
       sipTrunkId: sipTrunkId,
-      trunk: outbound_trunk,
+      trunk: outboundTrunkConfig,
       sipCallTo: number,
       sipNumber: opts.fromNumber,
       roomName: roomName,

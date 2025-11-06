@@ -22,7 +22,7 @@ import {
   UpdateRoomMetadataRequest,
   UpdateSubscriptionsRequest,
 } from '@livekit/protocol';
-import type { ClientOptions } from "./ClientOptions.js";
+import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';

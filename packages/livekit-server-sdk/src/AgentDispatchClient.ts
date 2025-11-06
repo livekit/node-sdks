@@ -8,6 +8,7 @@ import {
   ListAgentDispatchRequest,
   ListAgentDispatchResponse,
 } from '@livekit/protocol';
+import type { ClientOptions } from "./ClientOptions.js";
 import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
@@ -16,10 +17,6 @@ interface CreateDispatchOptions {
   // note: this is different from room and participant metadata
   metadata?: string;
 }
-
-type ClientOptions = {
-  requestTimeout?: number;
-};
 
 const svc = 'AgentDispatchService';
 
@@ -34,7 +31,6 @@ export class AgentDispatchClient extends ServiceBase {
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    * @param options - client options
-   * @param options.requestTimeout - optional timeout, in seconds, for all server requests
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);

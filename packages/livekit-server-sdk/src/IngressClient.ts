@@ -10,6 +10,7 @@ import {
   ListIngressResponse,
   UpdateIngressRequest,
 } from '@livekit/protocol';
+import type { ClientOptions } from "./ClientOptions.js";
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
@@ -114,10 +115,6 @@ export interface ListIngressOptions {
   ingressId?: string;
 }
 
-type ClientOptions = {
-  requestTimeout?: number;
-};
-
 /**
  * Client to access Ingress APIs
  */
@@ -129,7 +126,6 @@ export class IngressClient extends ServiceBase {
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
    * @param options - client options
-   * @param options.requestTimeout - optional timeout, in seconds, for all server requests
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);

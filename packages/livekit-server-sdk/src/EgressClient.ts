@@ -25,6 +25,7 @@ import {
   UpdateStreamRequest,
   WebEgressRequest,
 } from '@livekit/protocol';
+import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
@@ -137,10 +138,14 @@ export class EgressClient extends ServiceBase {
    * @param host - hostname including protocol. i.e. 'https://<project>.livekit.cloud'
    * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
    * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param options - client options
    */
-  constructor(host: string, apiKey?: string, secret?: string) {
+  constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);
-    this.rpc = new TwirpRpc(host, livekitPackage);
+    const rpcOptions = options?.requestTimeout
+      ? { requestTimeout: options.requestTimeout }
+      : undefined;
+    this.rpc = new TwirpRpc(host, livekitPackage, rpcOptions);
   }
 
   /**

@@ -5,7 +5,15 @@ import type { JsonValue } from '@bufbuild/protobuf';
 
 // twirp RPC adapter for client implementation
 
+type Options = {
+  /** Prefix for the RPC requests */
+  prefix?: string;
+  /** Timeout for fetch requests, in seconds. Must be within the valid range for abort signal timeouts. */
+  requestTimeout?: number;
+};
+
 const defaultPrefix = '/twirp';
+const defaultTimeoutSeconds = 60;
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
@@ -48,13 +56,16 @@ export class TwirpRpc {
 
   prefix: string;
 
-  constructor(host: string, pkg: string, prefix?: string) {
+  requestTimeout: number;
+
+  constructor(host: string, pkg: string, options?: Options) {
     if (host.startsWith('ws')) {
       host = host.replace('ws', 'http');
     }
     this.host = host;
     this.pkg = pkg;
-    this.prefix = prefix || defaultPrefix;
+    this.requestTimeout = options?.requestTimeout ?? defaultTimeoutSeconds;
+    this.prefix = options?.prefix || defaultPrefix;
   }
 
   async request(
@@ -62,7 +73,7 @@ export class TwirpRpc {
     method: string,
     data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     headers: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    timeout = 60,
+    timeout = this.requestTimeout,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;

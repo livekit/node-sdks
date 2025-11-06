@@ -8,7 +8,7 @@ import type { JsonValue } from '@bufbuild/protobuf';
 type Options = {
   /** Prefix for the RPC requests */
   prefix?: string;
-  /** Timeout for fetch requests, in seconds. Must resolve to a positive integer millisecond value. */
+  /** Timeout for fetch requests, in seconds. Must be within the valid range for abort signal timeouts. */
   requestTimeout?: number;
 };
 

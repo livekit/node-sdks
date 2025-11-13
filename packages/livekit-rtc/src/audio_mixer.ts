@@ -3,6 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AudioFrame } from './audio_frame.js';
 
+/**
+ * AsyncQueue is a bounded queue with async support for both producers and consumers.
+ *
+ * This queue simplifies the AudioMixer implementation by handling backpressure and
+ * synchronization automatically:
+ * - Producers can await put() until the queue has space (when queue is full)
+ * - Consumers can await waitForItem() until data is available (when queue is empty)
+ *
+ * This eliminates the need for manual coordination logic, polling loops, and
+ * complex state management throughout the rest of the codebase.
+ */
 class AsyncQueue<T> {
   private items: T[] = [];
   private waitingProducers: (() => void)[] = [];
@@ -171,7 +182,6 @@ export class AudioMixer {
       throw new Error('Cannot add stream after mixer has been closed');
     }
 
-    console.log(`AudioMixer: Adding stream (total streams: ${this.streams.size + 1})`);
     this.streams.add(stream);
     if (!this.buffers.has(stream)) {
       this.buffers.set(stream, new Int16Array(0));
@@ -191,7 +201,6 @@ export class AudioMixer {
    * @param stream - The audio stream to remove.
    */
   removeStream(stream: AudioStream): void {
-    console.log(`AudioMixer: Removing stream (total streams: ${this.streams.size - 1})`);
     this.streams.delete(stream);
     this.buffers.delete(stream);
     this.streamIterators.delete(stream);
@@ -247,52 +256,34 @@ export class AudioMixer {
       const frame = this.queue.get();
 
       if (frame !== undefined) {
-        console.log(`AudioMixer: Returning frame from queue (${this.queue.length} remaining)`);
         return frame;
       }
 
       // Check if mixer is closed or ending
       if (this.queue.closed || (this.ending && this.streams.size === 0)) {
-        console.log('AudioMixer: getNextFrame returning null (closed or ending)');
         return null;
       }
 
       // Queue is empty but mixer is still running - wait for an item to be added
-      console.log('AudioMixer: Queue empty, waiting for frames...');
       await this.queue.waitForItem();
-      console.log('AudioMixer: Woken up, checking queue again...');
     }
   }
 
   private async mixer(): Promise<void> {
-    console.log('AudioMixer: mixer() task started');
-    let iterationCount = 0;
-
+    // Main mixing loop that continuously processes streams and produces output frames
     while (true) {
-      iterationCount++;
-      if (iterationCount % 100 === 0) {
-        console.log(
-          `AudioMixer: mixer iteration ${iterationCount}, streams: ${this.streams.size}, queue: ${this.queue.length}`,
-        );
-      }
-
-      // If we're in ending mode and there are no more streams, exit.
+      // If we're in ending mode and there are no more streams, exit
       if (this.ending && this.streams.size === 0) {
-        console.log('AudioMixer: MIXER ENDING (no more streams)');
         break;
       }
 
       if (this.streams.size === 0) {
-        console.log('AudioMixer: No streams available, waiting...');
         // Wait for a stream to be added (signal queue will have an item)
         await this.streamSignal.waitForItem();
         // Consume the signal
         this.streamSignal.get();
-        console.log('AudioMixer: Woken up, checking streams again...');
         continue;
       }
-
-      console.log(`AudioMixer: Processing ${this.streams.size} streams...`);
 
       // Process all streams in parallel
       const streamArray = Array.from(this.streams);
@@ -323,8 +314,8 @@ export class AudioMixer {
           anyData = true;
         }
 
+        // Mark exhausted streams with no remaining buffer for removal
         if (contrib.exhausted && contrib.buffer.length === 0) {
-          console.log('AudioMixer: Stream exhausted, will be removed');
           removals.push(contrib.stream);
         }
       }
@@ -335,34 +326,29 @@ export class AudioMixer {
       }
 
       if (!anyData) {
-        console.log('AudioMixer: No data from any stream, sleeping...');
+        // No data available from any stream, wait briefly before trying again
         await this.sleep(1);
         continue;
       }
-
-      console.log(`AudioMixer: Mixing ${contributions.length} contributions`);
 
       // Mix the audio data
       const mixed = this.mixAudio(contributions);
       const frame = new AudioFrame(mixed, this.sampleRate, this.numChannels, this.chunkSize);
 
       if (this.closed) {
-        console.log('AudioMixer: Mixer closed, exiting');
         break;
       }
 
       try {
-        // Add to queue
+        // Add mixed frame to output queue
         await this.queue.put(frame);
-        console.log(`AudioMixer: Frame added to queue (queue size: ${this.queue.length})`);
       } catch {
-        console.log('AudioMixer: Queue closed while trying to add frame, exiting');
+        // Queue closed while trying to add frame
         break;
       }
     }
 
     // Close the queue to signal end of stream
-    console.log('AudioMixer: Closing queue');
     this.queue.close();
   }
 
@@ -372,24 +358,16 @@ export class AudioMixer {
     let exhausted = false;
     let receivedDataInThisCall = false;
 
-    console.log(
-      `AudioMixer: getContribution - initial buffer length: ${buf.length}, needed: ${this.chunkSize * this.numChannels}`,
-    );
-
     // Get or create iterator for this stream
     let iterator = this.streamIterators.get(stream);
     if (!iterator) {
-      console.log('AudioMixer: Creating new iterator for stream');
       iterator = stream[Symbol.asyncIterator]();
       this.streamIterators.set(stream, iterator);
     }
 
     // Accumulate data until we have at least chunkSize samples
-    let iterCount = 0;
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
-      iterCount++;
       try {
-        console.log(`AudioMixer: Calling iterator.next() (iteration ${iterCount})...`);
         const result = await Promise.race([iterator.next(), this.timeout(this.streamTimeoutMs)]);
 
         if (result === 'timeout') {
@@ -398,14 +376,12 @@ export class AudioMixer {
         }
 
         if (result.done) {
-          console.log('AudioMixer: Stream iterator done (exhausted)');
           exhausted = true;
           break;
         }
 
         const frame = result.value;
         const newData = frame.data;
-        console.log(`AudioMixer: Received frame with ${newData.length} samples`);
 
         // Mark that we received data in this call
         receivedDataInThisCall = true;
@@ -419,7 +395,6 @@ export class AudioMixer {
           combined.set(newData, buf.length);
           buf = combined;
         }
-        console.log(`AudioMixer: Buffer now has ${buf.length} samples`);
       } catch (error) {
         console.error(`AudioMixer: Error reading from stream:`, error);
         exhausted = true;
@@ -432,20 +407,15 @@ export class AudioMixer {
     const samplesNeeded = this.chunkSize * this.numChannels;
 
     if (buf.length >= samplesNeeded) {
+      // Extract the needed samples and keep the remainder in the buffer
       contrib = buf.subarray(0, samplesNeeded);
       buf = buf.subarray(samplesNeeded);
-      console.log(
-        `AudioMixer: Extracted ${samplesNeeded} samples, ${buf.length} remaining in buffer`,
-      );
     } else {
       // Pad with zeros if we don't have enough data
       const padded = new Int16Array(samplesNeeded);
       padded.set(buf);
       contrib = padded;
       buf = new Int16Array(0);
-      console.log(
-        `AudioMixer: Padded contribution (had ${buf.length} samples, needed ${samplesNeeded})`,
-      );
     }
 
     // hadData means: we had data at start OR we received data during this call OR we have data remaining

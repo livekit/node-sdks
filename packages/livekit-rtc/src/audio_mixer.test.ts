@@ -1,7 +1,6 @@
-// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+// SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { describe, expect, it } from 'vitest';
 import { AudioFrame } from './audio_frame.js';
 import { AudioMixer } from './audio_mixer.js';
@@ -121,20 +120,8 @@ describe('AudioMixer', () => {
     });
 
     // Create streams with values that will overflow
-    const stream1 = createMockAudioStream(
-      2,
-      sampleRate,
-      numChannels,
-      samplesPerChannel,
-      20000,
-    );
-    const stream2 = createMockAudioStream(
-      2,
-      sampleRate,
-      numChannels,
-      samplesPerChannel,
-      20000,
-    );
+    const stream1 = createMockAudioStream(2, sampleRate, numChannels, samplesPerChannel, 20000);
+    const stream2 = createMockAudioStream(2, sampleRate, numChannels, samplesPerChannel, 20000);
 
     mixer.addStream(stream1);
     mixer.addStream(stream2);

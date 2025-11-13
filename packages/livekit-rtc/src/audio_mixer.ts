@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { AudioFrame } from './audio_frame.js';
 
 class AsyncQueue<T> {
@@ -13,10 +12,10 @@ class AsyncQueue<T> {
   constructor(private capacity: number = Infinity) {}
 
   async put(item: T) {
-    if (this.closed) throw new Error("Queue closed");
+    if (this.closed) throw new Error('Queue closed');
 
     while (this.items.length >= this.capacity) {
-      await new Promise<void>(resolve => this.waitingProducers.push(resolve));
+      await new Promise<void>((resolve) => this.waitingProducers.push(resolve));
     }
 
     this.items.push(item);
@@ -45,7 +44,7 @@ class AsyncQueue<T> {
     if (this.items.length > 0 || this.closed) {
       return;
     }
-    await new Promise<void>(resolve => this.waitingConsumers.push(resolve));
+    await new Promise<void>((resolve) => this.waitingConsumers.push(resolve));
   }
 
   close() {
@@ -272,7 +271,9 @@ export class AudioMixer {
     while (true) {
       iterationCount++;
       if (iterationCount % 100 === 0) {
-        console.log(`AudioMixer: mixer iteration ${iterationCount}, streams: ${this.streams.size}, queue: ${this.queue.length}`);
+        console.log(
+          `AudioMixer: mixer iteration ${iterationCount}, streams: ${this.streams.size}, queue: ${this.queue.length}`,
+        );
       }
 
       // If we're in ending mode and there are no more streams, exit.
@@ -371,7 +372,9 @@ export class AudioMixer {
     let exhausted = false;
     let receivedDataInThisCall = false;
 
-    console.log(`AudioMixer: getContribution - initial buffer length: ${buf.length}, needed: ${this.chunkSize * this.numChannels}`);
+    console.log(
+      `AudioMixer: getContribution - initial buffer length: ${buf.length}, needed: ${this.chunkSize * this.numChannels}`,
+    );
 
     // Get or create iterator for this stream
     let iterator = this.streamIterators.get(stream);
@@ -431,14 +434,18 @@ export class AudioMixer {
     if (buf.length >= samplesNeeded) {
       contrib = buf.subarray(0, samplesNeeded);
       buf = buf.subarray(samplesNeeded);
-      console.log(`AudioMixer: Extracted ${samplesNeeded} samples, ${buf.length} remaining in buffer`);
+      console.log(
+        `AudioMixer: Extracted ${samplesNeeded} samples, ${buf.length} remaining in buffer`,
+      );
     } else {
       // Pad with zeros if we don't have enough data
       const padded = new Int16Array(samplesNeeded);
       padded.set(buf);
       contrib = padded;
       buf = new Int16Array(0);
-      console.log(`AudioMixer: Padded contribution (had ${buf.length} samples, needed ${samplesNeeded})`);
+      console.log(
+        `AudioMixer: Padded contribution (had ${buf.length} samples, needed ${samplesNeeded})`,
+      );
     }
 
     // hadData means: we had data at start OR we received data during this call OR we have data remaining

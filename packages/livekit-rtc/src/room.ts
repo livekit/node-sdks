@@ -355,24 +355,40 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.emit(RoomEvent.ParticipantConnected, participant);
       } else if (ev.case == 'participantDisconnected') {
         const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
-        this.remoteParticipants.delete(participant!.identity);
-        participant!.info.disconnectReason = ev.value.disconnectReason;
-        this.emit(RoomEvent.ParticipantDisconnected, participant!);
+        if (participant) {
+          this.remoteParticipants.delete(participant.identity);
+          participant.info.disconnectReason = ev.value.disconnectReason;
+          this.emit(RoomEvent.ParticipantDisconnected, participant);
+        } else {
+          console.log(`RoomEvent.ParticipantDisconnected: Could not find participant`);
+        }
       } else if (ev.case == 'localTrackPublished') {
-        const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
-        this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant!);
+        const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
+        this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant);
       } else if (ev.case == 'localTrackUnpublished') {
-        const publication = this.localParticipant!.trackPublications.get(ev.value.publicationSid!);
-        this.localParticipant!.trackPublications.delete(ev.value.publicationSid!);
+        const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid!);
+        this.localParticipant.trackPublications.delete(ev.value.publicationSid!);
         this.emit(RoomEvent.LocalTrackUnpublished, publication!, this.localParticipant!);
       } else if (ev.case == 'localTrackSubscribed') {
-        const publication = this.localParticipant!.trackPublications.get(ev.value.trackSid!);
-        publication!.resolveFirstSubscription();
-        this.emit(RoomEvent.LocalTrackSubscribed, publication!.track!);
+        const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
+        if (publication) {
+          publication.resolveFirstSubscription();
+          this.emit(RoomEvent.LocalTrackSubscribed, publication!.track!);
+        } else {
+          console.warn(
+            `RoomEvent.LocalTrackSubscribed: Publication not found: ${ev.value.trackSid}`,
+          );
+        }
       } else if (ev.case == 'trackPublished') {
         const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
         const publication = new RemoteTrackPublication(ev.value.publication!);
-        participant!.trackPublications.set(publication.sid!, publication);
+        if (participant) {
+          participant.trackPublications.set(publication.sid!, publication);
+        } else {
+          console.warn(
+            `RoomEvent.TrackPublished: Could not find participant: ${ev.value.participantIdentity}`,
+          );
+        }
         this.emit(RoomEvent.TrackPublished, publication, participant!);
       } else if (ev.case == 'trackUnpublished') {
         const participant = this.requireRemoteParticipant(ev.value.participantIdentity!);
@@ -380,97 +396,139 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant.trackPublications.delete(ev.value.publicationSid!);
         if (publication) {
           this.emit(RoomEvent.TrackUnpublished, publication, participant);
+        } else {
+          console.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
         }
       } else if (ev.case == 'trackSubscribed') {
         const ownedTrack = ev.value.track!;
         const trackInfo = ownedTrack.info!;
-        const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-          ev.value.participantIdentity!,
-          trackInfo.sid!,
-        );
-        publication.subscribed = true;
-        if (trackInfo.kind == TrackKind.KIND_VIDEO) {
-          publication.track = new RemoteVideoTrack(ownedTrack);
-        } else if (trackInfo.kind == TrackKind.KIND_AUDIO) {
-          publication.track = new RemoteAudioTrack(ownedTrack);
-        }
+        try {
+          const { participant, publication } = this.requirePublicationOfRemoteParticipant(
+            ev.value.participantIdentity!,
+            trackInfo.sid!,
+          );
+          publication.subscribed = true;
+          if (trackInfo.kind == TrackKind.KIND_VIDEO) {
+            publication.track = new RemoteVideoTrack(ownedTrack);
+          } else if (trackInfo.kind == TrackKind.KIND_AUDIO) {
+            publication.track = new RemoteAudioTrack(ownedTrack);
+          }
 
-        this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
+          this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.TrackSubscribed: ${e.message}`);
+        }
       } else if (ev.case == 'trackUnsubscribed') {
-        const { participant, publication } = this.requirePublicationOfRemoteParticipant(
-          ev.value.participantIdentity!,
-          ev.value.trackSid!,
-        );
-        const track = publication.track!;
-        publication.track = undefined;
-        publication.subscribed = false;
-        this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
+        try {
+          const { participant, publication } = this.requirePublicationOfRemoteParticipant(
+            ev.value.participantIdentity!,
+            ev.value.trackSid!,
+          );
+          const track = publication.track!;
+          publication.track = undefined;
+          publication.subscribed = false;
+          this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.TrackUnsubscribed: ${e.message}`);
+        }
       } else if (ev.case == 'trackSubscriptionFailed') {
-        const participant = this.requireRemoteParticipant(ev.value.participantIdentity!);
-        this.emit(
-          RoomEvent.TrackSubscriptionFailed,
-          ev.value.trackSid!,
-          participant,
-          ev.value.error,
-        );
+        try {
+          const participant = this.requireRemoteParticipant(ev.value.participantIdentity!);
+          this.emit(
+            RoomEvent.TrackSubscriptionFailed,
+            ev.value.trackSid!,
+            participant,
+            ev.value.error,
+          );
+        } catch (e: any) {
+          console.warn(`RoomEvent.TrackSubscriptionFailed: ${e.message}`);
+        }
       } else if (ev.case == 'trackMuted') {
-        const { participant, publication } = this.requirePublicationOfParticipant(
-          ev.value.participantIdentity!,
-          ev.value.trackSid!,
-        );
-        publication.info!.muted = true;
-        if (publication.track) {
-          publication.track.info!.muted = true;
+        try {
+          const { participant, publication } = this.requirePublicationOfParticipant(
+            ev.value.participantIdentity!,
+            ev.value.trackSid!,
+          );
+          publication.info!.muted = true;
+          if (publication.track) {
+            publication.track.info!.muted = true;
+          }
+          this.emit(RoomEvent.TrackMuted, publication, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.TrackMuted: ${e.message}`);
         }
-        this.emit(RoomEvent.TrackMuted, publication, participant);
       } else if (ev.case == 'trackUnmuted') {
-        const { participant, publication } = this.requirePublicationOfParticipant(
-          ev.value.participantIdentity!,
-          ev.value.trackSid!,
-        );
-        publication.info!.muted = false;
-        if (publication.track) {
-          publication.track.info!.muted = false;
+        try {
+          const { participant, publication } = this.requirePublicationOfParticipant(
+            ev.value.participantIdentity!,
+            ev.value.trackSid!,
+          );
+          publication.info!.muted = false;
+          if (publication.track) {
+            publication.track.info!.muted = false;
+          }
+          this.emit(RoomEvent.TrackUnmuted, publication, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.TrackUnmuted: ${e.message}`);
         }
-        this.emit(RoomEvent.TrackUnmuted, publication, participant);
       } else if (ev.case == 'activeSpeakersChanged') {
-        const activeSpeakers = ev.value.participantIdentities.map((identity) =>
-          this.requireParticipantByIdentity(identity),
-        );
-        this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
+        try {
+          const activeSpeakers = ev.value.participantIdentities.map((identity) =>
+            this.requireParticipantByIdentity(identity),
+          );
+          this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
+        } catch (e: any) {
+          console.warn(`RoomEvent.ActiveSpeakersChanged: ${e.message}`);
+        }
       } else if (ev.case == 'roomMetadataChanged') {
-        this.info!.metadata = ev.value.metadata;
-        this.emit(RoomEvent.RoomMetadataChanged, this.info!.metadata!);
+        this.info.metadata = ev.value.metadata ?? '';
+        this.emit(RoomEvent.RoomMetadataChanged, this.info.metadata);
       } else if (ev.case == 'participantMetadataChanged') {
-        const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
-        participant.info.metadata = ev.value.metadata;
-        this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
+        try {
+          const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+          participant.info.metadata = ev.value.metadata;
+          this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.ParticipantMetadataChanged: ${e.message}`);
+        }
       } else if (ev.case == 'participantNameChanged') {
-        const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
-        participant.info.name = ev.value.name;
-        this.emit(RoomEvent.ParticipantNameChanged, participant.name!, participant);
+        try {
+          const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+          participant.info.name = ev.value.name;
+          this.emit(RoomEvent.ParticipantNameChanged, participant.name!, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.ParticipantNameChanged: ${e.message}`);
+        }
       } else if (ev.case == 'participantAttributesChanged') {
-        const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
-        participant.info.attributes = ev.value.attributes.reduce(
-          (acc, value) => {
-            acc[value.key!] = value.value!;
-            return acc;
-          },
-          {} as Record<string, string>,
-        );
-        if (Object.keys(ev.value.changedAttributes).length > 0) {
-          const changedAttributes = ev.value.changedAttributes.reduce(
+        try {
+          const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+          participant.info.attributes = ev.value.attributes.reduce(
             (acc, value) => {
               acc[value.key!] = value.value!;
               return acc;
             },
             {} as Record<string, string>,
           );
-          this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
+          if (Object.keys(ev.value.changedAttributes).length > 0) {
+            const changedAttributes = ev.value.changedAttributes.reduce(
+              (acc, value) => {
+                acc[value.key!] = value.value!;
+                return acc;
+              },
+              {} as Record<string, string>,
+            );
+            this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
+          }
+        } catch (e: any) {
+          console.warn(`RoomEvent.ParticipantAttributesChanged: ${e.message}`);
         }
       } else if (ev.case == 'connectionQualityChanged') {
-        const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
-        this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality!, participant);
+        try {
+          const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+          this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality!, participant);
+        } catch (e: any) {
+          console.warn(`RoomEvent.ConnectionQualityChanged: ${e.message}`);
+        }
       } else if (ev.case == 'chatMessage') {
         const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity!);
         const { id, message: messageText, timestamp, editTimestamp, generated } = ev.value.message!;
@@ -546,12 +604,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           }
         }
       } else if (ev.case === 'participantEncryptionStatusChanged') {
-        const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
-        this.emit(
-          RoomEvent.ParticipantEncryptionStatusChanged,
-          !!ev.value.isEncrypted,
-          participant,
-        );
+        try {
+          const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
+          this.emit(
+            RoomEvent.ParticipantEncryptionStatusChanged,
+            !!ev.value.isEncrypted,
+            participant,
+          );
+        } catch (e: any) {
+          console.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${e.message}`);
+        }
       }
     } finally {
       unlock();

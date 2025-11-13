@@ -3,7 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { RoomConfiguration } from '@livekit/protocol';
 import * as jose from 'jose';
-import type { ClaimGrants, InferenceGrant, SIPGrant, VideoGrant } from './grants.js';
+import type {
+  ClaimGrants,
+  InferenceGrant,
+  ObservabilityGrant,
+  SIPGrant,
+  VideoGrant,
+} from './grants.js';
 import { claimsToJwtPayload } from './grants.js';
 
 // 6 hours
@@ -116,6 +122,14 @@ export class AccessToken {
    */
   addSIPGrant(grant: SIPGrant) {
     this.grants.sip = { ...(this.grants.sip ?? {}), ...grant };
+  }
+
+  /**
+   * Adds an observability grant to this token.
+   * @param grant -
+   */
+  addObservabilityGrant(grant: ObservabilityGrant) {
+    this.grants.observability = { ...(this.grants.observability ?? {}), ...grant };
   }
 
   get name(): string | undefined {

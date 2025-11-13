@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.14.1
+
+### Patch Changes
+
+- Add observability grant - [#565](https://github.com/livekit/node-sdks/pull/565) ([@toubatbrian](https://github.com/toubatbrian))
+
+- Add outbound trunk configuration for sip participant. - [#563](https://github.com/livekit/node-sdks/pull/563) ([@cloudwebrtc](https://github.com/cloudwebrtc))
+
+- Add optional timeouts to clients in server APIs - [#560](https://github.com/livekit/node-sdks/pull/560) ([@bryfox](https://github.com/bryfox))
+
 ## 2.14.0
 
 ### Minor Changes

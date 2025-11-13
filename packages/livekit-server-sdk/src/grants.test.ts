@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TrackSource } from '@livekit/protocol';
 import { describe, expect, it } from 'vitest';
-import type { ClaimGrants, VideoGrant } from './grants.js';
+import type { ClaimGrants, ObservabilityGrant, VideoGrant } from './grants.js';
 import { claimsToJwtPayload } from './grants.js';
 
 describe('ClaimGrants are parsed correctly', () => {
@@ -27,5 +27,17 @@ describe('ClaimGrants are parsed correctly', () => {
       'screen_share',
       'screen_share_audio',
     ]);
+  });
+
+  it('parses ObservabilityGrant correctly', () => {
+    const grant: ObservabilityGrant = {
+      write: true,
+    };
+
+    const claim: ClaimGrants = { observability: grant };
+
+    const jwtPayload = claimsToJwtPayload(claim);
+    expect(jwtPayload.observability).toBeTypeOf('object');
+    expect((jwtPayload.observability as ObservabilityGrant)?.write).toBe(true);
   });
 });

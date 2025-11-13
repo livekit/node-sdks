@@ -108,12 +108,18 @@ export interface InferenceGrant {
   perform?: boolean;
 }
 
+export interface ObservabilityGrant {
+  /** write grants to publish observability data */
+  write?: boolean;
+}
+
 /** @internal */
 export interface ClaimGrants extends JWTPayload {
   name?: string;
   video?: VideoGrant;
   sip?: SIPGrant;
   inference?: InferenceGrant;
+  observability?: ObservabilityGrant;
   kind?: string;
   metadata?: string;
   attributes?: Record<string, string>;

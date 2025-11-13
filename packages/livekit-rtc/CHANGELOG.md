@@ -1,5 +1,19 @@
 # @livekit/rtc-node
 
+## 0.13.21
+
+### Patch Changes
+
+- Ensure FFI events are processed sequentially - [#547](https://github.com/livekit/node-sdks/pull/547) ([@lukasIO](https://github.com/lukasIO))
+
+- Don't throw on failure to process events - [#569](https://github.com/livekit/node-sdks/pull/569) ([@lukasIO](https://github.com/lukasIO))
+
+- Wait for disconnect response on disconnect - [#562](https://github.com/livekit/node-sdks/pull/562) ([@lukasIO](https://github.com/lukasIO))
+
+- Bump ffi to v0.12.36 - [#551](https://github.com/livekit/node-sdks/pull/551) ([@lukasIO](https://github.com/lukasIO))
+
+- Add support for data channel encryption - [#549](https://github.com/livekit/node-sdks/pull/549) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.20
 
 ### Patch Changes

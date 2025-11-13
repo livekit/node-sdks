@@ -203,6 +203,9 @@ importers:
       '@bufbuild/protobuf':
         specifier: ^1.10.1
         version: 1.10.1
+      '@datastructures-js/deque':
+        specifier: ^1.0.8
+        version: 1.0.8
       '@livekit/mutex':
         specifier: ^1.0.0
         version: 1.1.1
@@ -425,6 +428,9 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@datastructures-js/deque@1.0.8':
+    resolution: {integrity: sha512-PSBhJ2/SmeRPRHuBv7i/fHWIdSC3JTyq56qb+Rq0wjOagi0/fdV5/B/3Md5zFZus/W6OkSPMaxMKKMNMrSmubg==}
 
   '@edge-runtime/primitives@6.0.0':
     resolution: {integrity: sha512-FqoxaBT+prPBHBwE1WXS1ocnu/VLTQyZ6NMUBAdbP7N2hsFTTxMC/jMu2D/8GAlMQfxeuppcPuCUk/HO3fpIvA==}
@@ -4042,6 +4048,8 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.1.1
       prettier: 2.8.8
+
+  '@datastructures-js/deque@1.0.8': {}
 
   '@edge-runtime/primitives@6.0.0': {}
 

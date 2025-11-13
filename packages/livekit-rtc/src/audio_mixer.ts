@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Deque } from '@datastructures-js/deque';
 import { AudioFrame } from './audio_frame.js';
 
 /**
@@ -16,8 +17,8 @@ import { AudioFrame } from './audio_frame.js';
  */
 class AsyncQueue<T> {
   private items: T[] = [];
-  private waitingProducers: (() => void)[] = [];
-  private waitingConsumers: (() => void)[] = [];
+  private waitingProducers = new Deque<() => void>();
+  private waitingConsumers = new Deque<() => void>();
   closed = false;
 
   constructor(private capacity: number = Infinity) {}
@@ -26,22 +27,22 @@ class AsyncQueue<T> {
     if (this.closed) throw new Error('Queue closed');
 
     while (this.items.length >= this.capacity) {
-      await new Promise<void>((resolve) => this.waitingProducers.push(resolve));
+      await new Promise<void>((resolve) => this.waitingProducers.pushBack(resolve));
     }
 
     this.items.push(item);
 
     // Wake up one waiting consumer
-    if (this.waitingConsumers.length > 0) {
-      const resolve = this.waitingConsumers.shift()!;
+    if (this.waitingConsumers.size() > 0) {
+      const resolve = this.waitingConsumers.popFront()!;
       resolve();
     }
   }
 
   get(): T | undefined {
     const item = this.items.shift();
-    if (this.waitingProducers.length > 0) {
-      const resolve = this.waitingProducers.shift()!;
+    if (this.waitingProducers.size() > 0) {
+      const resolve = this.waitingProducers.popFront()!;
       resolve(); // wakes up one waiting producer
     }
     return item;
@@ -55,15 +56,15 @@ class AsyncQueue<T> {
     if (this.items.length > 0 || this.closed) {
       return;
     }
-    await new Promise<void>((resolve) => this.waitingConsumers.push(resolve));
+    await new Promise<void>((resolve) => this.waitingConsumers.pushBack(resolve));
   }
 
   close() {
     this.closed = true;
-    for (const resolve of this.waitingProducers) resolve();
-    for (const resolve of this.waitingConsumers) resolve();
-    this.waitingProducers = [];
-    this.waitingConsumers = [];
+    this.waitingProducers.toArray().forEach((resolve) => resolve());
+    this.waitingConsumers.toArray().forEach((resolve) => resolve());
+    this.waitingProducers.clear();
+    this.waitingConsumers.clear();
   }
 
   get length() {

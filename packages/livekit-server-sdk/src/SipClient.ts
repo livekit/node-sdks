@@ -29,6 +29,7 @@ import {
   SIPDispatchRuleIndividual,
   SIPDispatchRuleInfo,
   SIPInboundTrunkInfo,
+  SIPMediaEncryption,
   SIPOutboundConfig,
   SIPOutboundTrunkInfo,
   SIPParticipantInfo,
@@ -79,6 +80,7 @@ export interface CreateSipInboundTrunkOptions {
   // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
   includeHeaders?: SIPHeaderOptions;
   krispEnabled?: boolean;
+  mediaEncryption?: SIPMediaEncryption;
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
@@ -94,6 +96,7 @@ export interface CreateSipOutboundTrunkOptions {
   headersToAttributes?: { [key: string]: string };
   // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
   includeHeaders?: SIPHeaderOptions;
+  mediaEncryption?: SIPMediaEncryption;
 }
 
 export interface SipDispatchRuleDirect {
@@ -189,6 +192,7 @@ export interface SipInboundTrunkUpdateOptions {
   authPassword?: string;
   name?: string;
   metadata?: string;
+  mediaEncryption?: SIPMediaEncryption;
 }
 
 export interface SipOutboundTrunkUpdateOptions {
@@ -200,6 +204,7 @@ export interface SipOutboundTrunkUpdateOptions {
   destinationCountry?: string;
   name?: string;
   metadata?: string;
+  mediaEncryption?: SIPMediaEncryption;
 }
 
 export interface TransferSipParticipantOptions {
@@ -306,6 +311,7 @@ export class SipClient extends ServiceBase {
         headersToAttributes: opts.headersToAttributes,
         includeHeaders: opts.includeHeaders,
         krispEnabled: opts.krispEnabled,
+        mediaEncryption: opts.mediaEncryption,
       }),
     }).toJson();
 
@@ -352,6 +358,7 @@ export class SipClient extends ServiceBase {
         headersToAttributes: opts.headersToAttributes,
         includeHeaders: opts.includeHeaders,
         destinationCountry: opts.destinationCountry,
+        mediaEncryption: opts.mediaEncryption,
       }),
     }).toJson();
 

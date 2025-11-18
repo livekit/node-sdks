@@ -267,8 +267,8 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@livekit/protocol':
-        specifier: ^1.42.0
-        version: 1.42.0
+        specifier: link:../../../protocol/packages/javascript
+        version: link:../../../protocol/packages/javascript
       camelcase-keys:
         specifier: ^9.0.0
         version: 9.1.3
@@ -988,9 +988,6 @@ packages:
 
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
-
-  '@livekit/protocol@1.42.0':
-    resolution: {integrity: sha512-42sYSCay2PZrn5yHHt+O3RQpTElcTrA7bqg7iYbflUApeerA5tUCJDr8Z4abHsYHVKjqVUbkBq/TPmT3X6aYOQ==}
 
   '@livekit/typed-emitter@3.0.0':
     resolution: {integrity: sha512-9bl0k4MgBPZu3Qu3R3xy12rmbW17e3bE9yf4YY85gJIQ3ezLEj/uzpKHWBsLaDoL5Mozz8QCgggwIBudYQWeQg==}
@@ -4408,10 +4405,6 @@ snapshots:
       - encoding
 
   '@livekit/mutex@1.1.1': {}
-
-  '@livekit/protocol@1.42.0':
-    dependencies:
-      '@bufbuild/protobuf': 1.10.1
 
   '@livekit/typed-emitter@3.0.0': {}
 

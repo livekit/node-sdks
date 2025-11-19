@@ -204,7 +204,7 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@datastructures-js/deque':
-        specifier: ^1.0.8
+        specifier: 1.0.8
         version: 1.0.8
       '@livekit/mutex':
         specifier: ^1.0.0

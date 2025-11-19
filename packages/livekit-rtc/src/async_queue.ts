@@ -65,7 +65,9 @@ export class AsyncQueue<T> {
   close() {
     this.closed = true;
     // Reject all waiting producers with an error
-    this.waitingProducers.toArray().forEach((producer) => producer.reject(new Error('Queue closed')));
+    this.waitingProducers
+      .toArray()
+      .forEach((producer) => producer.reject(new Error('Queue closed')));
     // Resolve all waiting consumers so they can see the queue is closed
     this.waitingConsumers.toArray().forEach((resolve) => resolve());
     this.waitingProducers.clear();

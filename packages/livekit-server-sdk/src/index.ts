@@ -4,6 +4,7 @@
 
 export {
   AliOSSUpload,
+  AgentDispatch,
   AudioCodec,
   AutoParticipantEgress,
   AutoTrackEgress,
@@ -36,11 +37,18 @@ export {
   Room,
   RoomAgentDispatch,
   RoomCompositeEgressRequest,
+  RoomConfiguration,
   RoomEgress,
   S3Upload,
+  SIPDispatchRule,
   SIPDispatchRuleInfo,
+  SIPDispatchRuleDirect,
+  SIPDispatchRuleIndividual,
   SIPParticipantInfo,
+  SIPOutboundTrunkInfo,
+  SIPInboundTrunkInfo,
   SIPTrunkInfo,
+  SIPCallStatus,
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StreamOutput,
@@ -61,4 +69,5 @@ export * from './grants.js';
 export * from './IngressClient.js';
 export * from './RoomServiceClient.js';
 export * from './SipClient.js';
+export { TwirpError } from './TwirpRPC.js';
 export * from './WebhookReceiver.js';

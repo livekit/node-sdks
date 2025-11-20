@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.22
+
+### Patch Changes
+
+- fix disconnect - [#575](https://github.com/livekit/node-sdks/pull/575) ([@simllll](https://github.com/simllll))
+
+- added AsyncQueue-based AudioMixer - [#567](https://github.com/livekit/node-sdks/pull/567) ([@simllll](https://github.com/simllll))
+
 ## 0.13.21
 
 ### Patch Changes

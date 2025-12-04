@@ -400,7 +400,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         console.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
       }
     } else if (ev.case == 'trackSubscribed') {
-      console.info('ffi track subscribed event received');
       const ownedTrack = ev.value.track!;
       const trackInfo = ownedTrack.info!;
       try {

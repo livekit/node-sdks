@@ -14,7 +14,6 @@ import {
   DialWhatsAppCallResponse,
   DisconnectWhatsAppCallRequest,
   DisconnectWhatsAppCallResponse,
-  WhatsAppCallDirection,
 } from '@livekit/protocol';
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
@@ -24,7 +23,7 @@ const svc = 'Connector';
 
 // WhatsApp types
 export interface DialWhatsAppCallOptions {
-  /** Required - The number of the business that is initiating the call */
+  /** Required - The identifier of the WhatsApp phone number that is initiating the call */
   whatsappPhoneNumberId: string;
   /** Required - The number of the user that is supposed to receive the call */
   whatsappToPhoneNumber: string;
@@ -51,7 +50,7 @@ export interface DialWhatsAppCallOptions {
 }
 
 export interface AcceptWhatsAppCallOptions {
-  /** Required - The number of the business that is connecting the call */
+  /** Required - The identifier of the WhatsApp phone number that is connecting the call */
   whatsappPhoneNumberId: string;
   /** Required - The API key of the business that is connecting the call */
   whatsappApiKey: string;
@@ -278,6 +277,3 @@ export class ConnectorClient extends ServiceBase {
     return ConnectTwilioCallResponse.fromJson(data, { ignoreUnknownFields: true });
   }
 }
-
-// Re-export enums and types for convenience
-export { WhatsAppCallDirection, ConnectTwilioCallRequest_TwilioCallDirection };

@@ -3,13 +3,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export {
+  AcceptWhatsAppCallResponse,
   AliOSSUpload,
   AudioCodec,
   AutoParticipantEgress,
   AutoTrackEgress,
   AzureBlobUpload,
+  ConnectTwilioCallRequest_TwilioCallDirection,
+  ConnectTwilioCallResponse,
+  ConnectWhatsAppCallResponse,
   DataPacket_Kind,
+  DialWhatsAppCallResponse,
   DirectFileOutput,
+  DisconnectWhatsAppCallResponse,
   EgressInfo,
   EgressStatus,
   EncodedFileOutput,
@@ -38,6 +44,7 @@ export {
   RoomCompositeEgressRequest,
   RoomEgress,
   S3Upload,
+  SessionDescription,
   SIPDispatchRuleInfo,
   SIPParticipantInfo,
   SIPTrunkInfo,

@@ -47,18 +47,19 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^1.10.1",
+    "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^1.10.1",
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^22.13.10",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
-    "typescript": "5.8.2",
-    "@bufbuild/protoc-gen-es": "^1.10.1"
+    "typescript": "5.8.2"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",

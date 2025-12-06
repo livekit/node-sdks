@@ -1,5 +1,13 @@
 # livekit-server-sdk
 
+## 2.14.2
+
+### Patch Changes
+
+- re-export types from @livekit/protocol - [#574](https://github.com/livekit/node-sdks/pull/574) ([@davidzhao](https://github.com/davidzhao))
+
+- Add media encryption field to inbound and outbound SIP trunks - [#570](https://github.com/livekit/node-sdks/pull/570) ([@chrisackermann](https://github.com/chrisackermann))
+
 ## 2.14.1
 
 ### Patch Changes

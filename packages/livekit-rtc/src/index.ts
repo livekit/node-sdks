@@ -8,6 +8,7 @@ export { AudioSource } from './audio_source.js';
 export { AudioStream } from './audio_stream.js';
 export type { NoiseCancellationOptions } from './audio_stream.js';
 export { AudioFilter } from './audio_filter.js';
+export { AudioMixer, type AudioMixerOptions } from './audio_mixer.js';
 export * from './data_streams/index.js';
 export { E2EEManager, FrameCryptor, KeyProvider } from './e2ee.js';
 export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';

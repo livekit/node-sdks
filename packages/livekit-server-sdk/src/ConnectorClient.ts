@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { RoomAgentDispatch, SessionDescription } from '@livekit/protocol';
+import type {
+  ConnectTwilioCallRequest_TwilioCallDirection,
+  RoomAgentDispatch,
+  SessionDescription,
+} from '@livekit/protocol';
 import {
   AcceptWhatsAppCallRequest,
   AcceptWhatsAppCallResponse,
   ConnectTwilioCallRequest,
-  ConnectTwilioCallRequest_TwilioCallDirection,
   ConnectTwilioCallResponse,
   ConnectWhatsAppCallRequest,
   ConnectWhatsAppCallResponse,

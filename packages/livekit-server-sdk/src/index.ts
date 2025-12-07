@@ -3,14 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export {
+  AcceptWhatsAppCallResponse,
   AliOSSUpload,
   AgentDispatch,
   AudioCodec,
   AutoParticipantEgress,
   AutoTrackEgress,
   AzureBlobUpload,
+  ConnectTwilioCallRequest_TwilioCallDirection,
+  ConnectTwilioCallResponse,
+  ConnectWhatsAppCallResponse,
   DataPacket_Kind,
+  DialWhatsAppCallResponse,
   DirectFileOutput,
+  DisconnectWhatsAppCallResponse,
   EgressInfo,
   EgressStatus,
   EncodedFileOutput,
@@ -40,6 +46,7 @@ export {
   RoomConfiguration,
   RoomEgress,
   S3Upload,
+  SessionDescription,
   SIPDispatchRule,
   SIPDispatchRuleInfo,
   SIPDispatchRuleDirect,
@@ -64,6 +71,7 @@ export {
 } from '@livekit/protocol';
 export * from './AccessToken.js';
 export * from './AgentDispatchClient.js';
+export * from './ConnectorClient.js';
 export * from './EgressClient.js';
 export * from './grants.js';
 export * from './IngressClient.js';

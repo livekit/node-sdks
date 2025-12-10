@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.15.0
+
+### Minor Changes
+
+- feat(connector): initial client impl - [#573](https://github.com/livekit/node-sdks/pull/573) ([@anunaym14](https://github.com/anunaym14))
+
 ## 2.14.2
 
 ### Patch Changes

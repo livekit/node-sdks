@@ -4,6 +4,11 @@ env:
   MACOSX_DEPLOYMENT_TARGET: '10.13'
   CARGO_TERM_COLOR: always
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: write # Required to create GH releases
+  pull-requests: write # Required to interact with PRs
+
 on:
   workflow_dispatch:
   push:
@@ -47,12 +52,13 @@ jobs:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repo
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24 # NPM v11.5.1 or later is required for OIDC, which ships with node v24
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
@@ -72,7 +78,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        node-version: [18, 20, 22, latest]
+        node-version: [20, 22, 24, latest]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -125,17 +131,17 @@ jobs:
       RUST_BACKTRACE: full
     needs: check-changes
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - uses: pnpm/action-setup@v4
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         if: ${{ !matrix.docker }}
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - uses: dtolnay/rust-toolchain@stable
@@ -208,14 +214,14 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -244,7 +250,6 @@ jobs:
           publish: pnpm ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build Server SDK Docs
         if: steps.changesets.outputs.published == 'true'

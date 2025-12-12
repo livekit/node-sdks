@@ -50,4 +50,4 @@ export type { ChatMessage } from './types.js';
 export { VideoFrame } from './video_frame.js';
 export { VideoSource } from './video_source.js';
 export { VideoStream, type VideoFrameEvent } from './video_stream.js';
-export { FrameProcessor } from './frame_processor.js';
+export { FrameProcessor, type FrameProcessorStreamInfo, type FrameProcessorCredentials } from './frame_processor.js';

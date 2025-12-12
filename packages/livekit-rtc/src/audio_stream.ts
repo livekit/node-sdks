@@ -8,11 +8,11 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import type { NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
-import { FrameProcessor, WrappedAudioFrameBuffer } from './frame_processor.js';
+import { FrameProcessor } from './frame_processor.js';
 import { log } from './log.js';
 
 export interface AudioStreamOptions {
-  noiseCancellation?: NoiseCancellationOptions | FrameProcessor<WrappedAudioFrameBuffer>;
+  noiseCancellation?: NoiseCancellationOptions | FrameProcessor<AudioFrame>;
   sampleRate?: number;
   numChannels?: number;
   frameSizeMs?: number;
@@ -29,7 +29,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private sampleRate: number;
   private numChannels: number;
   private legacyNcOptions?: NoiseCancellationOptions;
-  private frameProcessor?: FrameProcessor<WrappedAudioFrameBuffer>;
+  private frameProcessor?: FrameProcessor<AudioFrame>;
   private frameSizeMs?: number;
 
   constructor(

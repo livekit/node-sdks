@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
 import { AudioFrame } from './audio_frame.js';
 import { VideoFrame } from './video_frame.js';
 

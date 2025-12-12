@@ -2,9 +2,11 @@ import { AudioFrame } from "./audio_frame.js";
 import { VideoFrame } from "./video_frame.js";
 
 export type FrameProcessorStreamInfo = {
+  roomId: string;
   roomName: string;
   participantIdentity: string;
-  publicationSid: string;
+  participantId: string;
+  trackId: string;
 };
 
 export type FrameProcessorCredentials = {

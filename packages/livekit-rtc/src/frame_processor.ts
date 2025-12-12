@@ -1,5 +1,5 @@
-import { AudioFrame } from "./audio_frame.js";
-import { VideoFrame } from "./video_frame.js";
+import { AudioFrame } from './audio_frame.js';
+import { VideoFrame } from './video_frame.js';
 
 export type FrameProcessorStreamInfo = {
   roomId: string;
@@ -23,4 +23,4 @@ export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
 
   abstract process(frame: Frame): Frame;
   abstract close(): void;
-};
+}

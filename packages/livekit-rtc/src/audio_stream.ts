@@ -93,7 +93,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     switch (streamEvent.case) {
       case 'frameReceived':
         let frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
-        if (this.frameProcessor) {
+        if (this.frameProcessor && this.frameProcessor.isEnabled()) {
           try {
             frame = this.frameProcessor.process(frame);
           } catch (err: unknown) {

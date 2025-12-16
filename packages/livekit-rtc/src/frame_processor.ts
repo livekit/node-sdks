@@ -5,24 +5,22 @@ import { AudioFrame } from './audio_frame.js';
 import { VideoFrame } from './video_frame.js';
 
 export type FrameProcessorStreamInfo = {
-  roomId: string;
   roomName: string;
   participantIdentity: string;
-  participantId: string;
-  trackId: string;
+  publicationSid: string;
 };
 
 export type FrameProcessorCredentials = {
-  participantToken: string;
-  serverUrl: string;
+  token: string;
+  url: string;
 };
 
 export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 
-  abstract updateStreamInfo(info: FrameProcessorStreamInfo): void;
-  abstract updateCredentials(credentials: FrameProcessorCredentials): void;
+  abstract onStreamInfoUpdated(info: FrameProcessorStreamInfo): void;
+  abstract onCredentialsUpdated(credentials: FrameProcessorCredentials): void;
 
   abstract process(frame: Frame): Frame;
   abstract close(): void;

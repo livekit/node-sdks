@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 import { config } from 'dotenv';
 import * as fs from 'fs';
 import { AccessToken } from 'livekit-server-sdk';
-import { audioEnhancement as aicAudioEnhancement } from '@livekit/audio-filter-uniffi';
+import { audioEnhancement as aicAudioEnhancement } from '@livekit/plugins-ai-coustics';
 
 config();
 
@@ -88,14 +88,14 @@ room.on(RoomEvent.TrackSubscribed, async (track, publication, participant) => {
   console.log('subscribed to track', track.sid, publication, participant.identity);
   if (track.kind === TrackKind.KIND_AUDIO) {
     const aic = aicAudioEnhancement();
-    aic.updateStreamInfo({
+    aic.onStreamInfoUpdated({
       roomId: await room.getSid(),
       roomName: room.name,
       participantIdentity: participant.identity,
       participantId: participant.sid,
       trackId: track.sid,
     });
-    aic.updateCredentials({
+    aic.onCredentialsUpdated({
       serverUrl: process.env.LIVEKIT_URL,
       participantToken: jwt,
     });

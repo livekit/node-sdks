@@ -203,7 +203,7 @@ export class AccessToken {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuer(this.apiKey)
       .setExpirationTime(this.ttl)
-      .setNotBefore(0);
+      .setNotBefore(new Date());
     if (this.identity) {
       jwt.setSubject(this.identity);
     } else if (this.grants.video?.roomJoin) {

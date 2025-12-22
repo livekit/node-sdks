@@ -20,6 +20,7 @@ export interface AudioStreamOptions {
 
 export interface NoiseCancellationOptions {
   moduleId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: Record<string, any>;
 }
 

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AudioFrame } from './audio_frame.js';
-import { VideoFrame } from './video_frame.js';
+import { type AudioFrame } from './audio_frame.js';
+import { type VideoFrame } from './video_frame.js';
 
 export type FrameProcessorStreamInfo = {
   roomName: string;
@@ -19,7 +19,9 @@ export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onStreamInfoUpdated(_info: FrameProcessorStreamInfo): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onCredentialsUpdated(_credentials: FrameProcessorCredentials): void {}
 
   abstract process(frame: Frame): Frame;

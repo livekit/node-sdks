@@ -19,8 +19,8 @@ export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 
-  abstract onStreamInfoUpdated(info: FrameProcessorStreamInfo): void;
-  abstract onCredentialsUpdated(credentials: FrameProcessorCredentials): void;
+  onStreamInfoUpdated(_info: FrameProcessorStreamInfo): void {}
+  onCredentialsUpdated(_credentials: FrameProcessorCredentials): void {}
 
   abstract process(frame: Frame): Frame;
   abstract close(): void;

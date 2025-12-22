@@ -5,12 +5,14 @@ import type { UnderlyingSource } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { FrameProcessor } from './frame_processor.js';
+import { log } from './log.js';
 import type { NewAudioStreamResponse } from './proto/audio_frame_pb.js';
 import { AudioStreamType, NewAudioStreamRequest } from './proto/audio_frame_pb.js';
 import type { Track } from './track.js';
 
 export interface AudioStreamOptions {
-  noiseCancellation?: NoiseCancellationOptions;
+  noiseCancellation?: NoiseCancellationOptions | FrameProcessor<AudioFrame>;
   sampleRate?: number;
   numChannels?: number;
   frameSizeMs?: number;
@@ -18,6 +20,7 @@ export interface AudioStreamOptions {
 
 export interface NoiseCancellationOptions {
   moduleId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: Record<string, any>;
 }
 
@@ -26,7 +29,8 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private ffiHandle: FfiHandle;
   private sampleRate: number;
   private numChannels: number;
-  private ncOptions?: NoiseCancellationOptions;
+  private legacyNcOptions?: NoiseCancellationOptions;
+  private frameProcessor?: FrameProcessor<AudioFrame>;
   private frameSizeMs?: number;
 
   constructor(
@@ -37,7 +41,11 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
-      this.ncOptions = sampleRateOrOptions.noiseCancellation;
+      if (sampleRateOrOptions.noiseCancellation instanceof FrameProcessor) {
+        this.frameProcessor = sampleRateOrOptions.noiseCancellation;
+      } else {
+        this.legacyNcOptions = sampleRateOrOptions.noiseCancellation;
+      }
       this.frameSizeMs = sampleRateOrOptions.frameSizeMs;
     } else {
       this.sampleRate = (sampleRateOrOptions as number) ?? 48000;
@@ -50,10 +58,10 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       sampleRate: this.sampleRate,
       numChannels: this.numChannels,
       frameSizeMs: this.frameSizeMs,
-      ...(this.ncOptions
+      ...(this.legacyNcOptions
         ? {
-            audioFilterModuleId: this.ncOptions.moduleId,
-            audioFilterOptions: JSON.stringify(this.ncOptions.options),
+            audioFilterModuleId: this.legacyNcOptions.moduleId,
+            audioFilterOptions: JSON.stringify(this.legacyNcOptions.options),
           }
         : {}),
     });
@@ -85,7 +93,14 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     const streamEvent = ev.message.value.message;
     switch (streamEvent.case) {
       case 'frameReceived':
-        const frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
+        let frame = AudioFrame.fromOwnedInfo(streamEvent.value.frame!);
+        if (this.frameProcessor && this.frameProcessor.isEnabled()) {
+          try {
+            frame = this.frameProcessor.process(frame);
+          } catch (err: unknown) {
+            log.warn(`Frame processing failed, passing through original frame: ${err}`);
+          }
+        }
         this.controller.enqueue(frame);
         break;
       case 'eos':

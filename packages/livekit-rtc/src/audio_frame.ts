@@ -11,6 +11,8 @@ export class AudioFrame {
   channels: number;
   samplesPerChannel: number;
 
+  private _userdata: Record<string, unknown> = {};
+
   // note: if converting from Uint8Array to Int16Array, *do not* use buffer.slice!
   // it is marked unstable by Node and can cause undefined behaviour, such as massive chunks of
   // noise being added to the end.
@@ -50,6 +52,11 @@ export class AudioFrame {
       numChannels: this.channels,
       samplesPerChannel: this.samplesPerChannel,
     });
+  }
+
+  /** Returns the user data associated with the audio frame. */
+  get userdata() {
+    return this._userdata;
   }
 }
 

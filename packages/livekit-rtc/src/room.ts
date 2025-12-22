@@ -18,7 +18,7 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
-import { EncryptionState, EncryptionType } from './proto/e2ee_pb.js';
+import { EncryptionState, type EncryptionType } from './proto/e2ee_pb.js';
 import type { FfiEvent } from './proto/ffi_pb.js';
 import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
 import type { DataStream_Trailer, DisconnectCallback } from './proto/room_pb.js';
@@ -179,10 +179,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   /**
    * Connects to a LiveKit room using the provided URL and access token.
-   * @param url The WebSocket URL of the LiveKit server
-   * @param token A valid LiveKit access token for authentication
-   * @param opts Optional room configuration options
-   * @throws ConnectError if connection fails
+   * @param url - The WebSocket URL of the LiveKit server
+   * @param token - A valid LiveKit access token for authentication
+   * @param opts - Optional room configuration options
+   * @throws ConnectError - if connection fails
    */
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
@@ -268,9 +268,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   /**
    * Registers a handler for incoming text data streams on a specific topic.
    * Text streams are used for receiving structured text data from other participants.
-   * @param topic The topic to listen for text streams on
-   * @param callback Function to handle incoming text stream data
-   * @throws Error if a handler for this topic is already registered
+   * @param topic - The topic to listen for text streams on
+   * @param callback - Function to handle incoming text stream data
+   * @throws Error - if a handler for this topic is already registered
    */
   registerTextStreamHandler(topic: string, callback: TextStreamHandler) {
     if (this.textStreamHandlers.has(topic)) {
@@ -286,9 +286,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   /**
    * Registers a handler for incoming byte data streams on a specific topic.
    * Byte streams are used for receiving binary data like files from other participants.
-   * @param topic The topic to listen for byte streams on
-   * @param callback Function to handle incoming byte stream data
-   * @throws Error if a handler for this topic is already registered
+   * @param topic - The topic to listen for byte streams on
+   * @param callback - Function to handle incoming byte stream data
+   * @throws Error - if a handler for this topic is already registered
    */
   registerByteStreamHandler(topic: string, callback: ByteStreamHandler) {
     if (this.byteStreamHandlers.has(topic)) {
@@ -415,8 +415,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         }
 
         this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.TrackSubscribed: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.TrackSubscribed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackUnsubscribed') {
       try {
@@ -428,8 +428,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         publication.track = undefined;
         publication.subscribed = false;
         this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.TrackUnsubscribed: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.TrackUnsubscribed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackSubscriptionFailed') {
       try {
@@ -440,8 +440,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant,
           ev.value.error,
         );
-      } catch (e: any) {
-        console.warn(`RoomEvent.TrackSubscriptionFailed: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.TrackSubscriptionFailed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackMuted') {
       try {
@@ -454,8 +454,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           publication.track.info!.muted = true;
         }
         this.emit(RoomEvent.TrackMuted, publication, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.TrackMuted: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.TrackMuted: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackUnmuted') {
       try {
@@ -468,8 +468,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           publication.track.info!.muted = false;
         }
         this.emit(RoomEvent.TrackUnmuted, publication, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.TrackUnmuted: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.TrackUnmuted: ${(e as Error).message}`);
       }
     } else if (ev.case == 'activeSpeakersChanged') {
       try {
@@ -477,8 +477,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           this.requireParticipantByIdentity(identity),
         );
         this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
-      } catch (e: any) {
-        console.warn(`RoomEvent.ActiveSpeakersChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ActiveSpeakersChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'roomMetadataChanged') {
       this.info.metadata = ev.value.metadata ?? '';
@@ -488,16 +488,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
         participant.info.metadata = ev.value.metadata;
         this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.ParticipantMetadataChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ParticipantMetadataChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'participantNameChanged') {
       try {
         const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
         participant.info.name = ev.value.name;
         this.emit(RoomEvent.ParticipantNameChanged, participant.name!, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.ParticipantNameChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ParticipantNameChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'participantAttributesChanged') {
       try {
@@ -519,15 +519,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           );
           this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
         }
-      } catch (e: any) {
-        console.warn(`RoomEvent.ParticipantAttributesChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ParticipantAttributesChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'connectionQualityChanged') {
       try {
         const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
         this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality!, participant);
-      } catch (e: any) {
-        console.warn(`RoomEvent.ConnectionQualityChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ConnectionQualityChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity!);
@@ -611,8 +611,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           !!ev.value.isEncrypted,
           participant,
         );
-      } catch (e: any) {
-        console.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${(e as Error).message}`);
       }
     }
   };

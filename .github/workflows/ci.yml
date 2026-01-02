@@ -91,7 +91,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Test livekit-rtc
-        run: pnpm --filter="livekit-rtc" test
+        run: pnpm --filter="@livekit/rtc-node" test
+      - name: E2E livekit-rtc
+        if: ${{ matrix.node-version == 22 }}
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+        run: pnpm --filter="@livekit/rtc-node" test:e2e
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)

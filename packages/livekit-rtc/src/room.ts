@@ -155,7 +155,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   get creationTime(): Date {
-    return new Date(Number(this.info?.creationTime ?? 0));
+    // TODO: workaround for Rust SDK bug, remove after updating to:
+    //   https://github.com/livekit/rust-sdks/pull/822
+    // check if creationTime looks like seconds (less than year 3000 in ms), convert to ms if needed
+    let creationTimeMs = Number(this.info?.creationTime ?? 0);
+    if (creationTimeMs > 0 && creationTimeMs < 1e12) {
+      creationTimeMs *= 1000;
+    }
+    return new Date(creationTimeMs);
   }
 
   get isRecording(): boolean {
@@ -347,7 +354,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
       const ev = ffiEvent.message.value.message;
       if (process.env.LIVEKIT_DEBUG_LOG_ROOM_EVENTS) {
-        console.log('Room event:', ev);
+        console.info('Room event:', ev);
       }
       if (ev.case == 'participantConnected') {
         const participant = this.createRemoteParticipant(ev.value.info!);
@@ -360,7 +367,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant.info.disconnectReason = ev.value.disconnectReason;
           this.emit(RoomEvent.ParticipantDisconnected, participant);
         } else {
-          console.log(`RoomEvent.ParticipantDisconnected: Could not find participant`);
+          log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);
         }
       } else if (ev.case == 'localTrackPublished') {
         const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);

@@ -28,7 +28,7 @@ jobs:
       rtc_build: ${{ steps.changes.outputs.rtc_build }}
       server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: paths
         with:

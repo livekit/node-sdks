@@ -1,4 +1,4 @@
-// Copyright 2023 LiveKit, Inc.
+// Copyright 2025 LiveKit, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,11 @@ export enum VideoCodec {
    * @generated from enum value: VP9 = 3;
    */
   VP9 = 3,
+
+  /**
+   * @generated from enum value: H265 = 4;
+   */
+  H265 = 4,
 }
 // Retrieve enum metadata with: proto2.getEnumType(VideoCodec)
 proto2.util.setEnumType(VideoCodec, "livekit.proto.VideoCodec", [
@@ -52,6 +57,7 @@ proto2.util.setEnumType(VideoCodec, "livekit.proto.VideoCodec", [
   { no: 1, name: "H264" },
   { no: 2, name: "AV1" },
   { no: 3, name: "VP9" },
+  { no: 4, name: "H265" },
 ]);
 
 /**

@@ -1,4 +1,4 @@
-// Copyright 2023 LiveKit, Inc.
+// Copyright 2025 LiveKit, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ export enum ParticipantKind {
    * @generated from enum value: PARTICIPANT_KIND_AGENT = 4;
    */
   AGENT = 4,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_CONNECTOR = 5;
+   */
+  CONNECTOR = 5,
 }
 // Retrieve enum metadata with: proto2.getEnumType(ParticipantKind)
 proto2.util.setEnumType(ParticipantKind, "livekit.proto.ParticipantKind", [
@@ -57,6 +62,39 @@ proto2.util.setEnumType(ParticipantKind, "livekit.proto.ParticipantKind", [
   { no: 2, name: "PARTICIPANT_KIND_EGRESS" },
   { no: 3, name: "PARTICIPANT_KIND_SIP" },
   { no: 4, name: "PARTICIPANT_KIND_AGENT" },
+  { no: 5, name: "PARTICIPANT_KIND_CONNECTOR" },
+]);
+
+/**
+ * @generated from enum livekit.proto.ParticipantKindDetail
+ */
+export enum ParticipantKindDetail {
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_DETAIL_CLOUD_AGENT = 0;
+   */
+  CLOUD_AGENT = 0,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_DETAIL_FORWARDED = 1;
+   */
+  FORWARDED = 1,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_DETAIL_CONNECTOR_WHATSAPP = 2;
+   */
+  CONNECTOR_WHATSAPP = 2,
+
+  /**
+   * @generated from enum value: PARTICIPANT_KIND_DETAIL_CONNECTOR_TWILIO = 3;
+   */
+  CONNECTOR_TWILIO = 3,
+}
+// Retrieve enum metadata with: proto2.getEnumType(ParticipantKindDetail)
+proto2.util.setEnumType(ParticipantKindDetail, "livekit.proto.ParticipantKindDetail", [
+  { no: 0, name: "PARTICIPANT_KIND_DETAIL_CLOUD_AGENT" },
+  { no: 1, name: "PARTICIPANT_KIND_DETAIL_FORWARDED" },
+  { no: 2, name: "PARTICIPANT_KIND_DETAIL_CONNECTOR_WHATSAPP" },
+  { no: 3, name: "PARTICIPANT_KIND_DETAIL_CONNECTOR_TWILIO" },
 ]);
 
 /**
@@ -228,6 +266,11 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
    */
   disconnectReason?: DisconnectReason;
 
+  /**
+   * @generated from field: repeated livekit.proto.ParticipantKindDetail kind_details = 8;
+   */
+  kindDetails: ParticipantKindDetail[] = [];
+
   constructor(data?: PartialMessage<ParticipantInfo>) {
     super();
     proto2.util.initPartial(data, this);
@@ -243,6 +286,7 @@ export class ParticipantInfo extends Message<ParticipantInfo> {
     { no: 5, name: "attributes", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
     { no: 6, name: "kind", kind: "enum", T: proto2.getEnumType(ParticipantKind), req: true },
     { no: 7, name: "disconnect_reason", kind: "enum", T: proto2.getEnumType(DisconnectReason), req: true },
+    { no: 8, name: "kind_details", kind: "enum", T: proto2.getEnumType(ParticipantKindDetail), repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ParticipantInfo {

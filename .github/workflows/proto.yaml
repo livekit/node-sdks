@@ -20,13 +20,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: recursive
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 25
           cache: pnpm
 
       - name: Install Protoc
@@ -42,9 +43,9 @@ jobs:
         run: ./generate_proto.sh
         working-directory: packages/livekit-rtc
 
-      - name: Ensure generated stubs are committed
-        run: |
-          git status --porcelain
-          git diff -- packages/livekit-rtc/src/proto
-          git diff --exit-code -- packages/livekit-rtc/src/proto
-
+      - name: Add changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: '["packages/livekit-rtc"]'
+          default_author: github_actions
+          message: generated protobuf

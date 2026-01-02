@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AsyncQueue } from './async_queue.js';
 import { AudioFrame } from './audio_frame.js';
+import { log } from './log.js';
 
 // Re-export AsyncQueue for backward compatibility
 export { AsyncQueue } from './async_queue.js';
@@ -238,7 +239,7 @@ export class AudioMixer {
 
       for (const result of results) {
         if (result.status !== 'fulfilled') {
-          console.warn('AudioMixer: Stream contribution failed:', result.reason);
+          log.warn('AudioMixer: Stream contribution failed:', result.reason);
           continue;
         }
 

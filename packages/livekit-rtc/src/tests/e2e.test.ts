@@ -23,6 +23,7 @@ import {
 const hasE2EEnv =
   !!process.env.LIVEKIT_URL && !!process.env.LIVEKIT_API_KEY && !!process.env.LIVEKIT_API_SECRET;
 const describeE2E = hasE2EEnv ? describe : describe.skip;
+const testTimeoutMs = 10_000;
 
 type TestEnv = {
   url: string;
@@ -211,7 +212,6 @@ describeE2E('livekit-rtc e2e', () => {
       expect(room.name).toBe(roomName);
       expect(room.remoteParticipants.size).toBe(0);
 
-      console.log('room.creationTime', room.creationTime.getTime());
       expect(room.creationTime.getTime()).toBeGreaterThan(0);
       expect(Math.abs(room.creationTime.getTime() - Date.now())).toBeLessThanOrEqual(10_000);
 
@@ -222,7 +222,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       await room.disconnect();
     },
-    15_000,
+    testTimeoutMs,
   );
 
   it(
@@ -238,7 +238,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    15_000,
+    testTimeoutMs,
   );
 
   it(
@@ -252,7 +252,7 @@ describeE2E('livekit-rtc e2e', () => {
       const disconnected = waitForRoomEvent(
         first!,
         RoomEvent.ParticipantDisconnected,
-        15_000,
+        testTimeoutMs,
         (p: { identity: string; name?: string }) => ({ identity: p.identity, name: p.name ?? '' }),
       );
 
@@ -264,7 +264,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       await first!.disconnect();
     },
-    20_000,
+    testTimeoutMs,
   );
 
   it(
@@ -355,7 +355,7 @@ describeE2E('livekit-rtc e2e', () => {
         await Promise.all(rooms.map((r) => r.disconnect()));
       }
     },
-    120_000,
+    testTimeoutMs * 2,
   );
 
   it(
@@ -378,7 +378,7 @@ describeE2E('livekit-rtc e2e', () => {
             if (received === iterations) resolve();
           });
         }),
-        15_000,
+        testTimeoutMs,
         'Timed out waiting for all reliable packets',
       );
 
@@ -395,7 +395,7 @@ describeE2E('livekit-rtc e2e', () => {
       await Promise.all([receiveTask, sendTask]);
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    25_000,
+    testTimeoutMs,
   );
 
   it(
@@ -415,7 +415,7 @@ describeE2E('livekit-rtc e2e', () => {
             resolve(await reader.readAll());
           });
         }),
-        10_000,
+        testTimeoutMs,
         'Timed out waiting for text stream',
       );
 
@@ -436,7 +436,7 @@ describeE2E('livekit-rtc e2e', () => {
             resolve(concatUint8(chunks));
           });
         }),
-        10_000,
+        testTimeoutMs,
         'Timed out waiting for byte stream',
       );
 
@@ -457,7 +457,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    25_000,
+    testTimeoutMs,
   );
 
   it(
@@ -500,7 +500,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    25_000,
+    testTimeoutMs,
   );
 });
 

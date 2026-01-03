@@ -1,4 +1,4 @@
-// Copyright 2023 LiveKit, Inc.
+// Copyright 2025 LiveKit, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -2702,12 +2702,6 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "participantAttributesChanged";
   } | {
     /**
-     * @generated from field: livekit.proto.ParticipantEncryptionStatusChanged participant_encryption_status_changed = 39;
-     */
-    value: ParticipantEncryptionStatusChanged;
-    case: "participantEncryptionStatusChanged";
-  } | {
-    /**
      * @generated from field: livekit.proto.ConnectionQualityChanged connection_quality_changed = 20;
      */
     value: ConnectionQualityChanged;
@@ -2834,6 +2828,18 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: ParticipantsUpdated;
     case: "participantsUpdated";
+  } | {
+    /**
+     * @generated from field: livekit.proto.ParticipantEncryptionStatusChanged participant_encryption_status_changed = 39;
+     */
+    value: ParticipantEncryptionStatusChanged;
+    case: "participantEncryptionStatusChanged";
+  } | {
+    /**
+     * @generated from field: livekit.proto.TokenRefreshed token_refreshed = 40;
+     */
+    value: TokenRefreshed;
+    case: "tokenRefreshed";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -2863,7 +2869,6 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 17, name: "participant_metadata_changed", kind: "message", T: ParticipantMetadataChanged, oneof: "message" },
     { no: 18, name: "participant_name_changed", kind: "message", T: ParticipantNameChanged, oneof: "message" },
     { no: 19, name: "participant_attributes_changed", kind: "message", T: ParticipantAttributesChanged, oneof: "message" },
-    { no: 39, name: "participant_encryption_status_changed", kind: "message", T: ParticipantEncryptionStatusChanged, oneof: "message" },
     { no: 20, name: "connection_quality_changed", kind: "message", T: ConnectionQualityChanged, oneof: "message" },
     { no: 21, name: "connection_state_changed", kind: "message", T: ConnectionStateChanged, oneof: "message" },
     { no: 22, name: "disconnected", kind: "message", T: Disconnected, oneof: "message" },
@@ -2883,6 +2888,8 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 36, name: "room_updated", kind: "message", T: RoomInfo, oneof: "message" },
     { no: 37, name: "moved", kind: "message", T: RoomInfo, oneof: "message" },
     { no: 38, name: "participants_updated", kind: "message", T: ParticipantsUpdated, oneof: "message" },
+    { no: 39, name: "participant_encryption_status_changed", kind: "message", T: ParticipantEncryptionStatusChanged, oneof: "message" },
+    { no: 40, name: "token_refreshed", kind: "message", T: TokenRefreshed, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -4441,6 +4448,43 @@ export class Reconnected extends Message<Reconnected> {
 
   static equals(a: Reconnected | PlainMessage<Reconnected> | undefined, b: Reconnected | PlainMessage<Reconnected> | undefined): boolean {
     return proto2.util.equals(Reconnected, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.TokenRefreshed
+ */
+export class TokenRefreshed extends Message<TokenRefreshed> {
+  /**
+   * @generated from field: required string token = 1;
+   */
+  token?: string;
+
+  constructor(data?: PartialMessage<TokenRefreshed>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.TokenRefreshed";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "token", kind: "scalar", T: 9 /* ScalarType.STRING */, req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TokenRefreshed {
+    return new TokenRefreshed().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TokenRefreshed {
+    return new TokenRefreshed().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TokenRefreshed {
+    return new TokenRefreshed().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TokenRefreshed | PlainMessage<TokenRefreshed> | undefined, b: TokenRefreshed | PlainMessage<TokenRefreshed> | undefined): boolean {
+    return proto2.util.equals(TokenRefreshed, a, b);
   }
 }
 

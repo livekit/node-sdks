@@ -207,7 +207,7 @@ jobs:
                 cd /workspace
                 CI=true pnpm install
                 cd packages/livekit-rtc
-                pnpm build --target \$TARGET
+                pnpm build --target $TARGET
               "
             '
 

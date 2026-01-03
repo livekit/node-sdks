@@ -92,17 +92,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
-        # build is slow, and is a pre-requisite for tests, we'll only run this once
-      - name: build
-        run: pnpm build
-        if: ${{ matrix.node-version == 22 }}
-      - name: Test livekit-rtc
-        run: pnpm --filter="@livekit/rtc-node" test
-        if: ${{ matrix.node-version == 22 }}
-        env:
-          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
-          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
-          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+      # RTC tests will be ran after they are built, because builds are so slow
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)
@@ -200,6 +190,18 @@ jobs:
               yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
               npm install --global pnpm && pnpm install; \
               cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
+
+      - name: Build (Linux-test)
+        run: pnpm build
+        if: ${{ matrix.platform == 'linux' }}
+
+      - name: Test livekit-rtc
+        run: pnpm --filter="@livekit/rtc-node" test
+        if: ${{ matrix.platform == 'linux' }}
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}

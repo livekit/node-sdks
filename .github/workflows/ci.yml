@@ -33,7 +33,7 @@ jobs:
       rtc_build: ${{ steps.changes.outputs.rtc_build }}
       server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: paths
         with:
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - name: Use Node.js 24
         uses: actions/setup-node@v6
@@ -82,8 +82,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -132,7 +130,7 @@ jobs:
       RUST_BACKTRACE: full
     needs: check-changes
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -191,11 +189,13 @@ jobs:
               cp /tmp/protoc /usr/local/bin/protoc
               chmod +x /usr/local/bin/protoc
 
-              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang-devel
+              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang clang-devel
               yum install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++
               source /opt/rh/gcc-toolset-12/enable
               gcc --version
               g++ --version
+              clang --version
+              clang++ --version
               curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
               yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1
               npm install --global pnpm
@@ -209,8 +209,8 @@ jobs:
                 curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
                 export PATH=\$HOME/.cargo/bin:\$PATH
                 source /opt/rh/gcc-toolset-12/enable
-                export CC=gcc
-                export CXX=g++
+                export CC=clang
+                export CXX=clang++
                 cd /workspace
                 CI=true pnpm install
                 cd packages/livekit-rtc

@@ -211,9 +211,8 @@ jobs:
                 source /opt/rh/gcc-toolset-12/enable
                 export CC=clang
                 export CXX=clang++
-                export CFLAGS=\"--gcc-toolchain=/opt/rh/gcc-toolset-12/root/usr\"
-                export CXXFLAGS=\"--gcc-toolchain=/opt/rh/gcc-toolset-12/root/usr\"
-                echo '#include <version>' | clang++ \$CXXFLAGS -std=c++20 -x c++ - -c -o /tmp/cxx20_header_probe.o
+                TOOLCHAIN_ROOT=/opt/rh/gcc-toolset-12/root/usr
+                printf '#include <version>\n' | \"\$CXX\" --gcc-toolchain=\"\$TOOLCHAIN_ROOT\" -std=c++20 -x c++ - -c -o /tmp/cxx20_header_probe.o || (\"\$CXX\" --gcc-toolchain=\"\$TOOLCHAIN_ROOT\" -std=c++20 -x c++ - -c -v -o /tmp/cxx20_header_probe.o; exit 1)
                 cd /workspace
                 CI=true pnpm install
                 cd packages/livekit-rtc

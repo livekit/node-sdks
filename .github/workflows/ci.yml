@@ -174,22 +174,42 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
         run: |
           PROTOC_PATH=$(which protoc)
+          HOST_UID=$(id -u)
+          HOST_GID=$(id -g)
           docker run --rm \
+            -e HOST_UID \
+            -e HOST_GID \
+            -e TARGET=${{ matrix.target }} \
             -v $PWD:/workspace \
             -v $PROTOC_PATH:/tmp/protoc:ro \
             -w /workspace \
             ${{ matrix.build_image }} \
-            bash -c "\
-              uname -a; \
-              cp /tmp/protoc /usr/local/bin/protoc && chmod +x /usr/local/bin/protoc; \
-              export PATH=/root/.cargo/bin:\$PATH; \
-              export RUST_BACKTRACE=full; \
-              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang-devel; \
-              curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
-              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
-              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
-              npm install --global pnpm && pnpm install; \
-              cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
+            bash -lc '
+              set -euo pipefail
+
+              uname -a
+              cp /tmp/protoc /usr/local/bin/protoc
+              chmod +x /usr/local/bin/protoc
+
+              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang-devel
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1
+              npm install --global pnpm
+
+              groupadd -g "$HOST_GID" hostgroup 2>/dev/null || true
+              useradd -m -u "$HOST_UID" -g "$HOST_GID" hostuser 2>/dev/null || true
+
+              su - hostuser -c "
+                set -euo pipefail
+                export RUST_BACKTRACE=full
+                curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+                export PATH=\$HOME/.cargo/bin:\$PATH
+                cd /workspace
+                pnpm install
+                cd packages/livekit-rtc
+                pnpm build --target \$TARGET
+              "
+            '
 
       - name: Build (Linux-test)
         run: pnpm build

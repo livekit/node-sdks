@@ -30,7 +30,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
+    "build": "tsup --onSuccess \"tsc -p tsconfig.json --declaration --emitDeclarationOnly --skipLibCheck\"",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
     "changeset": "changeset",

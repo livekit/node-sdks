@@ -57,9 +57,11 @@
     "@bufbuild/protoc-gen-es": "^1.10.1",
     "@napi-rs/cli": "^2.18.0",
     "@types/node": "^22.13.10",
+    "vitest": "^3.0.0",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "livekit-server-sdk": "workspace:*"
   },
   "optionalDependencies": {
     "@livekit/rtc-node-darwin-arm64": "workspace:*",
@@ -78,6 +80,8 @@
     "artifacts": "pnpm build:ts && napi artifacts",
     "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
+    "test": "vitest run",
+    "test:e2e": "vitest run src/tests/e2e.test.ts",
     "universal": "napi universal",
     "version": "napi version"
   }

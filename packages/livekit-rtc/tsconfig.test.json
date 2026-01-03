@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2022", "dom"],
+    "types": ["node", "vitest"]
+  },
+  "include": ["src/**/*.test.ts", "src/e2e/**/*.ts", "vite.config.js"],
+  "exclude": ["dist", "target", "node_modules"]
+}

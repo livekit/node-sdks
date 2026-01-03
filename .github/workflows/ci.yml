@@ -177,8 +177,8 @@ jobs:
           HOST_UID=$(id -u)
           HOST_GID=$(id -g)
           docker run --rm \
-            -e HOST_UID \
-            -e HOST_GID \
+            -e HOST_UID=$HOST_UID \
+            -e HOST_GID=$HOST_GID \
             -e TARGET=${{ matrix.target }} \
             -v $PWD:/workspace \
             -v $PROTOC_PATH:/tmp/protoc:ro \

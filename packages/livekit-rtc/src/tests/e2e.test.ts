@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { AccessToken } from 'livekit-server-sdk';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   AudioFrame,
@@ -112,10 +112,10 @@ async function connectTestRooms(count: number): Promise<{ roomName: string; room
   );
 
   const start = Date.now();
-  await waitFor(
-    () => rooms.every((r) => r.remoteParticipants.size === count - 1),
-    { timeoutMs: 5000, debugName: `participant visibility (${Date.now() - start}ms)` },
-  );
+  await waitFor(() => rooms.every((r) => r.remoteParticipants.size === count - 1), {
+    timeoutMs: 5000,
+    debugName: `participant visibility (${Date.now() - start}ms)`,
+  });
 
   return { roomName, rooms };
 }
@@ -303,7 +303,10 @@ describeE2E('livekit-rtc e2e', () => {
 
         const sineHz = 60;
         const framesToAnalyze = 100;
-        const collected: Int16Array[] = Array.from({ length: params.subChannels }, () => new Int16Array(0));
+        const collected: Int16Array[] = Array.from(
+          { length: params.subChannels },
+          () => new Int16Array(0),
+        );
 
         const readTask = (async () => {
           let frames = 0;
@@ -332,7 +335,9 @@ describeE2E('livekit-rtc e2e', () => {
           for (let i = 0; i < framesToAnalyze + 20; i++) {
             const frame = AudioFrame.create(params.pubRateHz, params.pubChannels, samplesPer10ms);
             for (let s = 0; s < samplesPer10ms; s++) {
-              const v = Math.round(amplitude * Math.sin((2 * Math.PI * sineHz * t) / params.pubRateHz));
+              const v = Math.round(
+                amplitude * Math.sin((2 * Math.PI * sineHz * t) / params.pubRateHz),
+              );
               t++;
               for (let ch = 0; ch < params.pubChannels; ch++) {
                 frame.data[s * params.pubChannels + ch] = v;
@@ -343,7 +348,11 @@ describeE2E('livekit-rtc e2e', () => {
           await source.waitForPlayout();
         })();
 
-        await withTimeout(Promise.all([readTask, publishTask]), 20_000, 'Timed out during audio test');
+        await withTimeout(
+          Promise.all([readTask, publishTask]),
+          20_000,
+          'Timed out during audio test',
+        );
 
         for (let ch = 0; ch < params.subChannels; ch++) {
           const detected = estimateFreqHz(collected[ch]!, params.subRateHz);
@@ -503,5 +512,3 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 });
-
-

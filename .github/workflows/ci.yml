@@ -227,24 +227,9 @@ jobs:
                 pnpm build --target $TARGET
                 cd ../..
                 pnpm --filter "./packages/livekit-server-sdk" build
-                pnpm --filter="@livekit/rtc-node" test
+                pnpm --filter "@livekit/rtc-node" test
               "
             '
-
-      - name: Install Linux system dependencies (test)
-        if: ${{ matrix.platform == 'linux' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pkg-config libglib2.0-dev
-
-      - name: Build (Linux-test)
-        run: pnpm --filter "./packages/*" build
-        if: ${{ matrix.platform == 'linux' }}
-
-      - name: Test livekit-rtc
-        run: pnpm --filter="@livekit/rtc-node" test
-        if: ${{ matrix.platform == 'linux' }}
-        
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}

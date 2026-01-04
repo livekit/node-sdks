@@ -168,6 +168,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+        # on linux, we'll also run tests after building. for the e2e suite, this would
+        # only run on the main repo, and not forks
       - name: Build & test (Linux)
         if: ${{ matrix.platform == 'linux' }}
         env:

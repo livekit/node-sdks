@@ -183,9 +183,6 @@ jobs:
           docker run --rm \
             -e HOST_UID=$HOST_UID \
             -e HOST_GID=$HOST_GID \
-            -e LIVEKIT_URL=${{ secrets.LIVEKIT_URL }} \
-            -e LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }} \
-            -e LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }} \
             -e TARGET=${{ matrix.target }} \
             -v $PWD:/workspace \
             -v $PROTOC_PATH:/tmp/protoc:ro \
@@ -229,6 +226,9 @@ jobs:
                 pnpm build --target $TARGET
                 cd ../..
                 pnpm --filter "./packages/livekit-server-sdk" build
+                export LIVEKIT_URL=${{ secrets.LIVEKIT_URL }}
+                export LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
+                export LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
                 pnpm --filter "@livekit/rtc-node" test
               "
             '

@@ -1,5 +1,7 @@
 # @livekit/rtc-node-darwin-arm64
 
+## 0.13.23
+
 ## 0.13.22
 
 ## 0.13.21

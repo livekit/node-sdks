@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.23
+
+### Patch Changes
+
+- Add frame processor support for audio streams - [#583](https://github.com/livekit/node-sdks/pull/583) ([@1egoman](https://github.com/1egoman))
+
+- update rust ffi to 0.12.43 - [#589](https://github.com/livekit/node-sdks/pull/589) ([@davidzhao](https://github.com/davidzhao))
+
 ## 0.13.22
 
 ### Patch Changes

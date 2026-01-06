@@ -11,18 +11,25 @@ export class AudioFrame {
   channels: number;
   samplesPerChannel: number;
 
-  private _userdata: Record<string, unknown> = {};
+  private _userdata: Record<string, unknown>;
 
   // note: if converting from Uint8Array to Int16Array, *do not* use buffer.slice!
   // it is marked unstable by Node and can cause undefined behaviour, such as massive chunks of
   // noise being added to the end.
   // it is recommended to use buffer.subarray instead.
   // XXX(nbsp): add this when writing proper docs
-  constructor(data: Int16Array, sampleRate: number, channels: number, samplesPerChannel: number) {
+  constructor(
+    data: Int16Array,
+    sampleRate: number,
+    channels: number,
+    samplesPerChannel: number,
+    userdata: Record<string, unknown> = {},
+  ) {
     this.data = data;
     this.sampleRate = sampleRate;
     this.channels = channels;
     this.samplesPerChannel = samplesPerChannel;
+    this._userdata = userdata;
   }
 
   static create(sampleRate: number, channels: number, samplesPerChannel: number): AudioFrame {

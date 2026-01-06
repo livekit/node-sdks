@@ -1,4 +1,4 @@
-// Copyright 2023 LiveKit, Inc.
+// Copyright 2025 LiveKit, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import { CaptureVideoFrameRequest, CaptureVideoFrameResponse, NewVideoSourceRequ
 import { ApmProcessReverseStreamRequest, ApmProcessReverseStreamResponse, ApmProcessStreamRequest, ApmProcessStreamResponse, ApmSetStreamDelayRequest, ApmSetStreamDelayResponse, AudioStreamEvent, AudioStreamFromParticipantRequest, AudioStreamFromParticipantResponse, CaptureAudioFrameCallback, CaptureAudioFrameRequest, CaptureAudioFrameResponse, ClearAudioBufferRequest, ClearAudioBufferResponse, FlushSoxResamplerRequest, FlushSoxResamplerResponse, LoadAudioFilterPluginRequest, LoadAudioFilterPluginResponse, NewApmRequest, NewApmResponse, NewAudioResamplerRequest, NewAudioResamplerResponse, NewAudioSourceRequest, NewAudioSourceResponse, NewAudioStreamRequest, NewAudioStreamResponse, NewSoxResamplerRequest, NewSoxResamplerResponse, PushSoxResamplerRequest, PushSoxResamplerResponse, RemixAndResampleRequest, RemixAndResampleResponse } from "./audio_frame_pb.js";
 import { E2eeRequest, E2eeResponse } from "./e2ee_pb.js";
 import { PerformRpcCallback, PerformRpcRequest, PerformRpcResponse, RegisterRpcMethodRequest, RegisterRpcMethodResponse, RpcMethodInvocationEvent, RpcMethodInvocationResponseRequest, RpcMethodInvocationResponseResponse, UnregisterRpcMethodRequest, UnregisterRpcMethodResponse } from "./rpc_pb.js";
-import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
+import { EnableRemoteTrackPublicationRequest, EnableRemoteTrackPublicationResponse, SetRemoteTrackPublicationQualityRequest, SetRemoteTrackPublicationQualityResponse, UpdateRemoteTrackPublicationDimensionRequest, UpdateRemoteTrackPublicationDimensionResponse } from "./track_publication_pb.js";
 import { ByteStreamOpenCallback, ByteStreamOpenRequest, ByteStreamOpenResponse, ByteStreamReaderEvent, ByteStreamReaderReadAllCallback, ByteStreamReaderReadAllRequest, ByteStreamReaderReadAllResponse, ByteStreamReaderReadIncrementalRequest, ByteStreamReaderReadIncrementalResponse, ByteStreamReaderWriteToFileCallback, ByteStreamReaderWriteToFileRequest, ByteStreamReaderWriteToFileResponse, ByteStreamWriterCloseCallback, ByteStreamWriterCloseRequest, ByteStreamWriterCloseResponse, ByteStreamWriterWriteCallback, ByteStreamWriterWriteRequest, ByteStreamWriterWriteResponse, StreamSendBytesCallback, StreamSendBytesRequest, StreamSendBytesResponse, StreamSendFileCallback, StreamSendFileRequest, StreamSendFileResponse, StreamSendTextCallback, StreamSendTextRequest, StreamSendTextResponse, TextStreamOpenCallback, TextStreamOpenRequest, TextStreamOpenResponse, TextStreamReaderEvent, TextStreamReaderReadAllCallback, TextStreamReaderReadAllRequest, TextStreamReaderReadAllResponse, TextStreamReaderReadIncrementalRequest, TextStreamReaderReadIncrementalResponse, TextStreamWriterCloseCallback, TextStreamWriterCloseRequest, TextStreamWriterCloseResponse, TextStreamWriterWriteCallback, TextStreamWriterWriteRequest, TextStreamWriterWriteResponse } from "./data_stream_pb.js";
 
 /**
@@ -492,6 +492,12 @@ export class FfiRequest extends Message<FfiRequest> {
      */
     value: StreamSendBytesRequest;
     case: "sendBytes";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SetRemoteTrackPublicationQualityRequest set_remote_track_publication_quality = 68;
+     */
+    value: SetRemoteTrackPublicationQualityRequest;
+    case: "setRemoteTrackPublicationQuality";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiRequest>) {
@@ -568,6 +574,7 @@ export class FfiRequest extends Message<FfiRequest> {
     { no: 65, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteRequest, oneof: "message" },
     { no: 66, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseRequest, oneof: "message" },
     { no: 67, name: "send_bytes", kind: "message", T: StreamSendBytesRequest, oneof: "message" },
+    { no: 68, name: "set_remote_track_publication_quality", kind: "message", T: SetRemoteTrackPublicationQualityRequest, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiRequest {
@@ -1006,6 +1013,12 @@ export class FfiResponse extends Message<FfiResponse> {
      */
     value: StreamSendBytesResponse;
     case: "sendBytes";
+  } | {
+    /**
+     * @generated from field: livekit.proto.SetRemoteTrackPublicationQualityResponse set_remote_track_publication_quality = 67;
+     */
+    value: SetRemoteTrackPublicationQualityResponse;
+    case: "setRemoteTrackPublicationQuality";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<FfiResponse>) {
@@ -1081,6 +1094,7 @@ export class FfiResponse extends Message<FfiResponse> {
     { no: 64, name: "text_stream_write", kind: "message", T: TextStreamWriterWriteResponse, oneof: "message" },
     { no: 65, name: "text_stream_close", kind: "message", T: TextStreamWriterCloseResponse, oneof: "message" },
     { no: 66, name: "send_bytes", kind: "message", T: StreamSendBytesResponse, oneof: "message" },
+    { no: 67, name: "set_remote_track_publication_quality", kind: "message", T: SetRemoteTrackPublicationQualityResponse, oneof: "message" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FfiResponse {

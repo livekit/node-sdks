@@ -1,4 +1,4 @@
-// Copyright 2023 LiveKit, Inc.
+// Copyright 2025 LiveKit, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,34 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto2 } from "@bufbuild/protobuf";
+
+/**
+ * Video quality for simulcasted tracks.
+ *
+ * @generated from enum livekit.proto.VideoQuality
+ */
+export enum VideoQuality {
+  /**
+   * @generated from enum value: VIDEO_QUALITY_LOW = 0;
+   */
+  LOW = 0,
+
+  /**
+   * @generated from enum value: VIDEO_QUALITY_MEDIUM = 1;
+   */
+  MEDIUM = 1,
+
+  /**
+   * @generated from enum value: VIDEO_QUALITY_HIGH = 2;
+   */
+  HIGH = 2,
+}
+// Retrieve enum metadata with: proto2.getEnumType(VideoQuality)
+proto2.util.setEnumType(VideoQuality, "livekit.proto.VideoQuality", [
+  { no: 0, name: "VIDEO_QUALITY_LOW" },
+  { no: 1, name: "VIDEO_QUALITY_MEDIUM" },
+  { no: 2, name: "VIDEO_QUALITY_HIGH" },
+]);
 
 /**
  * Enable/Disable a remote track publication
@@ -175,6 +203,82 @@ export class UpdateRemoteTrackPublicationDimensionResponse extends Message<Updat
 
   static equals(a: UpdateRemoteTrackPublicationDimensionResponse | PlainMessage<UpdateRemoteTrackPublicationDimensionResponse> | undefined, b: UpdateRemoteTrackPublicationDimensionResponse | PlainMessage<UpdateRemoteTrackPublicationDimensionResponse> | undefined): boolean {
     return proto2.util.equals(UpdateRemoteTrackPublicationDimensionResponse, a, b);
+  }
+}
+
+/**
+ * For tracks that support simulcasting, adjust subscribed quality.
+ *
+ * @generated from message livekit.proto.SetRemoteTrackPublicationQualityRequest
+ */
+export class SetRemoteTrackPublicationQualityRequest extends Message<SetRemoteTrackPublicationQualityRequest> {
+  /**
+   * @generated from field: required uint64 track_publication_handle = 1;
+   */
+  trackPublicationHandle?: bigint;
+
+  /**
+   * @generated from field: required livekit.proto.VideoQuality quality = 2;
+   */
+  quality?: VideoQuality;
+
+  constructor(data?: PartialMessage<SetRemoteTrackPublicationQualityRequest>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetRemoteTrackPublicationQualityRequest";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+    { no: 1, name: "track_publication_handle", kind: "scalar", T: 4 /* ScalarType.UINT64 */, req: true },
+    { no: 2, name: "quality", kind: "enum", T: proto2.getEnumType(VideoQuality), req: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetRemoteTrackPublicationQualityRequest {
+    return new SetRemoteTrackPublicationQualityRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetRemoteTrackPublicationQualityRequest {
+    return new SetRemoteTrackPublicationQualityRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetRemoteTrackPublicationQualityRequest {
+    return new SetRemoteTrackPublicationQualityRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetRemoteTrackPublicationQualityRequest | PlainMessage<SetRemoteTrackPublicationQualityRequest> | undefined, b: SetRemoteTrackPublicationQualityRequest | PlainMessage<SetRemoteTrackPublicationQualityRequest> | undefined): boolean {
+    return proto2.util.equals(SetRemoteTrackPublicationQualityRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message livekit.proto.SetRemoteTrackPublicationQualityResponse
+ */
+export class SetRemoteTrackPublicationQualityResponse extends Message<SetRemoteTrackPublicationQualityResponse> {
+  constructor(data?: PartialMessage<SetRemoteTrackPublicationQualityResponse>) {
+    super();
+    proto2.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto2 = proto2;
+  static readonly typeName = "livekit.proto.SetRemoteTrackPublicationQualityResponse";
+  static readonly fields: FieldList = proto2.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetRemoteTrackPublicationQualityResponse {
+    return new SetRemoteTrackPublicationQualityResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetRemoteTrackPublicationQualityResponse {
+    return new SetRemoteTrackPublicationQualityResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetRemoteTrackPublicationQualityResponse {
+    return new SetRemoteTrackPublicationQualityResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SetRemoteTrackPublicationQualityResponse | PlainMessage<SetRemoteTrackPublicationQualityResponse> | undefined, b: SetRemoteTrackPublicationQualityResponse | PlainMessage<SetRemoteTrackPublicationQualityResponse> | undefined): boolean {
+    return proto2.util.equals(SetRemoteTrackPublicationQualityResponse, a, b);
   }
 }
 

@@ -1,0 +1,54 @@
+name: Generate protobuf stubs
+
+permissions:
+  contents: write
+
+on:
+  pull_request:
+    branches:
+      - main
+    # If rust-sdks is a git submodule, GitHub sees updates as a change to the
+    # gitlink at the submodule path (not files under it), so include the bare
+    # path. If it's checked into the repo normally, the ** pattern will match.
+    paths:
+      - 'packages/livekit-rtc/rust-sdks'
+      - 'packages/livekit-rtc/rust-sdks/**'
+
+jobs:
+  generate-proto:
+    name: Regenerate protobuf stubs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: '25.1'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate stubs
+        run: ./generate_proto.sh
+        working-directory: packages/livekit-rtc
+
+      - name: Add changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: '["packages/livekit-rtc"]'
+          default_author: github_actions
+          message: generated protobuf

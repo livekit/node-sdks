@@ -202,7 +202,7 @@ describeE2E('livekit-rtc e2e', () => {
     await dispose();
   });
 
-  it(
+  it.concurrent(
     'connects to a room',
     async () => {
       const { roomName, rooms } = await connectTestRooms(1);
@@ -225,7 +225,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  it.concurrent(
     'connects multiple participants to the same room',
     async () => {
       const { roomName, rooms } = await connectTestRooms(2);
@@ -241,7 +241,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  it.concurrent(
     'emits participantDisconnected when a participant leaves',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -267,7 +267,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  it.concurrent(
     'transfers audio between two participants (sine detection)',
     async () => {
       const cases = [
@@ -367,7 +367,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs * 2,
   );
 
-  it(
+  it.concurrent(
     'publishes and receives reliable data packets',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -407,7 +407,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  it.concurrent(
     'sends and receives text and byte streams',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -469,7 +469,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  it.concurrent(
     'invokes RPC methods and returns structured errors',
     async () => {
       const { rooms } = await connectTestRooms(2);

@@ -2,6 +2,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
+import { EncryptionState, type EncryptionType } from '@livekit/node-rtc-ffi-bindings';
+import type { FfiEvent } from '@livekit/node-rtc-ffi-bindings';
+import type { DisconnectReason, OwnedParticipant } from '@livekit/node-rtc-ffi-bindings';
+import type { DataStream_Trailer, DisconnectCallback } from '@livekit/node-rtc-ffi-bindings';
+import {
+  type ConnectCallback,
+  ConnectRequest,
+  type ConnectResponse,
+  type ConnectionQuality,
+  ConnectionState,
+  ContinualGatheringPolicy,
+  type DataPacketKind,
+  type DataStream_Chunk,
+  type DataStream_Header,
+  type DisconnectResponse,
+  RoomOptions as FfiRoomOptions,
+  type IceServer,
+  IceTransportType,
+  type RoomInfo,
+} from '@livekit/node-rtc-ffi-bindings';
+import { TrackKind } from '@livekit/node-rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
@@ -18,27 +39,6 @@ import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import type { Participant } from './participant.js';
 import { LocalParticipant, RemoteParticipant } from './participant.js';
-import { EncryptionState, type EncryptionType } from './proto/e2ee_pb.js';
-import type { FfiEvent } from './proto/ffi_pb.js';
-import type { DisconnectReason, OwnedParticipant } from './proto/participant_pb.js';
-import type { DataStream_Trailer, DisconnectCallback } from './proto/room_pb.js';
-import {
-  type ConnectCallback,
-  ConnectRequest,
-  type ConnectResponse,
-  type ConnectionQuality,
-  ConnectionState,
-  ContinualGatheringPolicy,
-  type DataPacketKind,
-  type DataStream_Chunk,
-  type DataStream_Header,
-  type DisconnectResponse,
-  RoomOptions as FfiRoomOptions,
-  type IceServer,
-  IceTransportType,
-  type RoomInfo,
-} from './proto/room_pb.js';
-import { TrackKind } from './proto/track_pb.js';
 import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';

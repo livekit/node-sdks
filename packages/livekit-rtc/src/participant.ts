@@ -2,23 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
-import type { PathLike } from 'node:fs';
-import { open, stat } from 'node:fs/promises';
-import {
-  type ByteStreamInfo,
-  type ByteStreamOptions,
-  ByteStreamWriter,
-  type TextStreamInfo,
-  TextStreamWriter,
-} from './data_streams/index.js';
-import { FfiClient, FfiHandle } from './ffi_client.js';
-import { log } from './log.js';
 import {
   DisconnectReason,
   type OwnedParticipant,
   type ParticipantInfo,
   ParticipantKind,
-} from './proto/participant_pb.js';
+} from '@livekit/node-rtc-ffi-bindings';
 import {
   ChatMessage as ChatMessageModel,
   DataStream_ByteHeader,
@@ -66,20 +55,31 @@ import {
   type UnpublishTrackCallback,
   UnpublishTrackRequest,
   type UnpublishTrackResponse,
-} from './proto/room_pb.js';
+} from '@livekit/node-rtc-ffi-bindings';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
-} from './proto/rpc_pb.js';
+} from '@livekit/node-rtc-ffi-bindings';
 import {
   PerformRpcRequest,
   RegisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
   UnregisterRpcMethodRequest,
-} from './proto/rpc_pb.js';
+} from '@livekit/node-rtc-ffi-bindings';
+import type { PathLike } from 'node:fs';
+import { open, stat } from 'node:fs/promises';
+import {
+  type ByteStreamInfo,
+  type ByteStreamOptions,
+  ByteStreamWriter,
+  type TextStreamInfo,
+  TextStreamWriter,
+} from './data_streams/index.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
+import { log } from './log.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';

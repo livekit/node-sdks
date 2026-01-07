@@ -32,53 +32,27 @@
     "Cargo.toml",
     "Cargo.lock"
   ],
-  "napi": {
-    "name": "rtc-node",
-    "triples": {
-      "defaults": false,
-      "additional": [
-        "aarch64-apple-darwin",
-        "x86_64-apple-darwin",
-        "aarch64-unknown-linux-gnu",
-        "x86_64-unknown-linux-gnu",
-        "x86_64-pc-windows-msvc"
-      ]
-    }
-  },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.10.1",
     "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
+    "@livekit/node-rtc-ffi-bindings": "latest",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
-    "@bufbuild/protoc-gen-es": "^1.10.1",
-    "@napi-rs/cli": "^2.18.0",
+    "@bufbuild/protobuf": "^1.10.1",
     "@types/node": "^22.13.10",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
     "typescript": "5.8.2"
-  },
-  "optionalDependencies": {
-    "@livekit/rtc-node-darwin-arm64": "workspace:*",
-    "@livekit/rtc-node-darwin-x64": "workspace:*",
-    "@livekit/rtc-node-linux-arm64-gnu": "workspace:*",
-    "@livekit/rtc-node-linux-x64-gnu": "workspace:*",
-    "@livekit/rtc-node-win32-x64-msvc": "workspace:*"
   },
   "engines": {
     "node": ">= 18"
   },
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "build:ts": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\" && cp -r src/napi dist/ && cp -r src/napi/* dist/",
-    "build": "pnpm build:ts && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
-    "artifacts": "pnpm build:ts && napi artifacts",
-    "build:debug": "napi build --platform",
-    "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
-    "universal": "napi universal",
-    "version": "napi version"
+    "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
+    "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\""
   }
 }

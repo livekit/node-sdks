@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { PartialMessage } from '@bufbuild/protobuf';
-import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
-import EventEmitter from 'events';
 import {
   FfiHandle,
   livekitCopyBuffer,
@@ -11,8 +9,10 @@ import {
   livekitFfiRequest,
   livekitInitialize,
   livekitRetrievePtr,
-} from './napi/native.js';
-import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
+} from '@livekit/node-rtc-ffi-bindings';
+import { FfiEvent, FfiRequest, FfiResponse } from '@livekit/node-rtc-ffi-bindings';
+import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
+import EventEmitter from 'events';
 import { SDK_VERSION } from './version.js';
 
 export { FfiHandle, type FfiEvent, type FfiResponse, FfiRequest, livekitDispose as dispose };

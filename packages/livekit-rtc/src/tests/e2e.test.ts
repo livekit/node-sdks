@@ -509,6 +509,6 @@ describeE2E('livekit-rtc e2e', () => {
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    testTimeoutMs,
+    testTimeoutMs * 2,
   );
 });

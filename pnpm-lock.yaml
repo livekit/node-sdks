@@ -74,6 +74,9 @@ importers:
 
   examples/agent-dispatch:
     dependencies:
+      '@livekit/protocol':
+        specifier: ^1.43.4
+        version: 1.43.4
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -228,6 +231,9 @@ importers:
       '@types/node':
         specifier: ^22.13.10
         version: 22.15.29
+      livekit-server-sdk:
+        specifier: workspace:*
+        version: link:../livekit-server-sdk
       prettier:
         specifier: ^3.0.3
         version: 3.6.2
@@ -237,6 +243,9 @@ importers:
       typescript:
         specifier: 5.8.2
         version: 5.8.2
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.0.0)
     optionalDependencies:
       '@livekit/rtc-node-darwin-arm64':
         specifier: workspace:*
@@ -994,6 +1003,9 @@ packages:
 
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
+
+  '@livekit/protocol@1.43.4':
+    resolution: {integrity: sha512-mJDFt/p+G2OKmIGizYiACK7Jb06wd42m9Pe7Y9cAOfdYpvwCqHlw4yul5Z7iRU3VKPsYJ27WL3oeHEoiu+HuAA==}
 
   '@livekit/protocol@1.43.4':
     resolution: {integrity: sha512-mJDFt/p+G2OKmIGizYiACK7Jb06wd42m9Pe7Y9cAOfdYpvwCqHlw4yul5Z7iRU3VKPsYJ27WL3oeHEoiu+HuAA==}
@@ -4416,6 +4428,10 @@ snapshots:
       - encoding
 
   '@livekit/mutex@1.1.1': {}
+
+  '@livekit/protocol@1.43.4':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
 
   '@livekit/protocol@1.43.4':
     dependencies:

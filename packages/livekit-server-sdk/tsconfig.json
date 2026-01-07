@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2020"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "vite.config.ts"],

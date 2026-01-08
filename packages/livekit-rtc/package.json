@@ -33,17 +33,14 @@
     "Cargo.lock"
   ],
   "napi": {
-    "name": "rtc-node",
-    "triples": {
-      "defaults": false,
-      "additional": [
-        "aarch64-apple-darwin",
-        "x86_64-apple-darwin",
-        "aarch64-unknown-linux-gnu",
-        "x86_64-unknown-linux-gnu",
-        "x86_64-pc-windows-msvc"
-      ]
-    }
+    "binaryName": "rtc-node",
+    "targets": [
+      "aarch64-apple-darwin",
+      "x86_64-apple-darwin",
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc"
+    ]
   },
   "dependencies": {
     "@bufbuild/protobuf": "^1.10.1",
@@ -55,7 +52,7 @@
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^1.10.1",
-    "@napi-rs/cli": "^2.18.0",
+    "@napi-rs/cli": "^3.5.1",
     "@types/node": "^22.13.10",
     "vitest": "^3.0.0",
     "prettier": "^3.0.3",
@@ -76,13 +73,13 @@
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build:ts": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\" && cp -r src/napi dist/ && cp -r src/napi/* dist/",
-    "build": "pnpm build:ts && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" src/napi",
+    "build": "pnpm build:ts && napi build --platform --release --dts native.d.ts --js native.cjs --pipe \"prettier -w\" --output-dir src/napi",
     "artifacts": "pnpm build:ts && napi artifacts",
     "build:debug": "napi build --platform",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
     "test": "vitest run",
     "test:e2e": "vitest run src/tests/e2e.test.ts",
-    "universal": "napi universal",
+    "universal": "napi universalize",
     "version": "napi version"
   }
 }

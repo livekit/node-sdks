@@ -8,17 +8,21 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const defaultOptions: LoggerOptions = { name: 'lk-rtc' };
 
-const devOptions: LoggerOptions = {
-  ...defaultOptions,
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-    },
-  },
-};
+/**
+ * temporarily disabling the transport option as there might be a memory leak in some corner cases related to it
+ * see https://github.com/pinojs/pino/issues/2370
+ */
+// const devOptions: LoggerOptions = {
+//   ...defaultOptions,
+//   transport: {
+//     target: 'pino-pretty',
+//     options: {
+//       colorize: true,
+//     },
+//   },
+// };
 
-const log = pino(isProduction ? defaultOptions : devOptions);
+const log = pino(defaultOptions);
 log.level = isProduction ? 'info' : 'debug';
 
 export type LogLevel = LevelWithSilent;

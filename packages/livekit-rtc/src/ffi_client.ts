@@ -48,7 +48,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
         const event = FfiEvent.fromBinary(event_data);
         this.emit(FfiClientEvent.FfiEvent, event);
       },
-      false,
+      true,
       SDK_VERSION,
     );
   }

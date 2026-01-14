@@ -231,14 +231,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     });
 
     log.debug('Connect callback received');
-    this._token = token;
-    this._serverUrl = url;
 
     switch (cb.message.case) {
       case 'result':
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
         this.e2eeManager = e2eeEnabled && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
 
+        this._token = token;
+        this._serverUrl = url;
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;
         this.localParticipant = new LocalParticipant(

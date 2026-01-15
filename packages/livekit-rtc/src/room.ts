@@ -96,6 +96,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private preConnectEvents: FfiEvent[] = [];
 
+  private _token?: string;
+  private _serverUrl?: string;
+
   e2eeManager?: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
@@ -116,6 +119,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   get isConnected(): boolean {
     return this.ffiHandle != undefined && this.connectionState != ConnectionState.CONN_DISCONNECTED;
+  }
+
+  /** @internal */
+  get token(): string | undefined {
+    return this._token;
+  }
+
+  /** @internal */
+  get serverUrl(): string | undefined {
+    return this._serverUrl;
   }
 
   /**
@@ -224,6 +237,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
         this.e2eeManager = e2eeEnabled && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
 
+        this._token = token;
+        this._serverUrl = url;
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;
         this.localParticipant = new LocalParticipant(
@@ -621,6 +636,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       } catch (e: unknown) {
         log.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${(e as Error).message}`);
       }
+    } else if (ev.case === 'tokenRefreshed') {
+      this._token = ev.value.token;
+      this.emit('tokenRefreshed');
     }
   };
 
@@ -842,6 +860,7 @@ export type RoomCallbacks = {
   roomSidChanged: (sid: string) => void;
   roomUpdated: () => void;
   moved: () => void;
+  tokenRefreshed: () => void;
 };
 
 export enum RoomEvent {
@@ -876,4 +895,5 @@ export enum RoomEvent {
   Reconnected = 'reconnected',
   RoomUpdated = 'roomUpdated',
   Moved = 'moved',
+  TokenRefreshed = 'tokenRefreshed',
 }

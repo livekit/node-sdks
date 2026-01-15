@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.13.24
+
+### Patch Changes
+
+- Add userdata constructor param to AudioFrame - [#594](https://github.com/livekit/node-sdks/pull/594) ([@1egoman](https://github.com/1egoman))
+
+- Add RoomEvent.TokenRefreshed - [#605](https://github.com/livekit/node-sdks/pull/605) ([@lukasIO](https://github.com/lukasIO))
+
+- Temporarily disable pino-pretty transport - [#604](https://github.com/livekit/node-sdks/pull/604) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.23
 
 ### Patch Changes

@@ -41,5 +41,11 @@
     "typescript": "5.8.2",
     "vitest": "^3.0.0"
   },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "packages/livekit-rtc/npm/*"
+    ]
+  },
   "packageManager": "pnpm@10.18.2"
 }

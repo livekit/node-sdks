@@ -98,6 +98,24 @@ jobs:
       - name: Test env livekit-server-sdk (Edge Runtime)
         run: pnpm --filter="livekit-server-sdk" test:edge
 
+  test-bun:
+    name: Run tests with bun
+    runs-on: ubuntu-latest
+    steps:
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun test --concurrent
+
+  test-deno:
+    name: Run tests with deno
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x # Run with latest stable Deno.
+      - run: deno install
+      - run: deno -A npm:vitest run
+
   build:
     if: ${{ needs.check-changes.outputs.rtc_build == 'true' }}
     strategy:

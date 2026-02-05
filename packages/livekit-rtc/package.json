@@ -36,7 +36,7 @@
     "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
-    "@livekit/node-rtc-ffi-bindings": "latest",
+    "@livekit/rtc-ffi-bindings": "latest",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },

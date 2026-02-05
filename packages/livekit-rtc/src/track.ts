@@ -8,8 +8,8 @@ import type {
   StreamState,
   TrackInfo,
   TrackKind,
-} from '@livekit/node-rtc-ffi-bindings';
-import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
+import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/rtc-ffi-bindings';
 import type { AudioSource } from './audio_source.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { VideoSource } from './video_source.js';

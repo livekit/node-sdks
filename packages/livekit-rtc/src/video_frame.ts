@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { OwnedVideoBuffer, VideoConvertResponse } from '@livekit/node-rtc-ffi-bindings';
+import type { OwnedVideoBuffer, VideoConvertResponse } from '@livekit/rtc-ffi-bindings';
 import {
   VideoBufferInfo,
   VideoBufferInfo_ComponentInfo,
   VideoBufferType,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 
 export class VideoFrame {

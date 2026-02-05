@@ -7,14 +7,14 @@ import type {
   CaptureAudioFrameResponse,
   ClearAudioBufferResponse,
   NewAudioSourceResponse,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import {
   AudioSourceType,
   CaptureAudioFrameRequest,
   ClearAudioBufferRequest,
   FfiHandle,
   NewAudioSourceRequest,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import type { AudioFrame } from './audio_frame.js';
 import { FfiClient } from './ffi_client.js';
 

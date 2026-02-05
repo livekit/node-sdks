@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { RpcError as RpcError_Proto } from '@livekit/node-rtc-ffi-bindings';
+import type { RpcError as RpcError_Proto } from '@livekit/rtc-ffi-bindings';
 
 /** Parameters for initiating an RPC call */
 export interface PerformRpcParams {

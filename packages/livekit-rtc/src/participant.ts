@@ -7,7 +7,7 @@ import {
   type OwnedParticipant,
   type ParticipantInfo,
   ParticipantKind,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import {
   ChatMessage as ChatMessageModel,
   DataStream_ByteHeader,
@@ -55,20 +55,20 @@ import {
   type UnpublishTrackCallback,
   UnpublishTrackRequest,
   type UnpublishTrackResponse,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import type {
   PerformRpcCallback,
   PerformRpcResponse,
   RegisterRpcMethodResponse,
   RpcMethodInvocationResponseResponse,
   UnregisterRpcMethodResponse,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import {
   PerformRpcRequest,
   RegisterRpcMethodRequest,
   RpcMethodInvocationResponseRequest,
   UnregisterRpcMethodRequest,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import {

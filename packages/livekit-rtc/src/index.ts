@@ -14,8 +14,8 @@ export { E2EEManager, FrameCryptor, KeyProvider } from './e2ee.js';
 export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
 export { dispose } from './ffi_client.js';
 export { LocalParticipant, Participant, RemoteParticipant } from './participant.js';
-export { EncryptionState, EncryptionType } from '@livekit/node-rtc-ffi-bindings';
-export { DisconnectReason, ParticipantKind } from '@livekit/node-rtc-ffi-bindings';
+export { EncryptionState, EncryptionType } from '@livekit/rtc-ffi-bindings';
+export { DisconnectReason, ParticipantKind } from '@livekit/rtc-ffi-bindings';
 export {
   ConnectionQuality,
   ConnectionState,
@@ -24,9 +24,9 @@ export {
   IceServer,
   IceTransportType,
   TrackPublishOptions,
-} from '@livekit/node-rtc-ffi-bindings';
-export { StreamState, TrackKind, TrackSource } from '@livekit/node-rtc-ffi-bindings';
-export { VideoBufferType, VideoCodec, VideoRotation } from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
+export { StreamState, TrackKind, TrackSource } from '@livekit/rtc-ffi-bindings';
+export { VideoBufferType, VideoCodec, VideoRotation } from '@livekit/rtc-ffi-bindings';
 export { ConnectError, Room, RoomEvent, type RoomOptions, type RtcConfiguration } from './room.js';
 export { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
 export {

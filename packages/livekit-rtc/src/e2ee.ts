@@ -8,7 +8,7 @@ import type {
   GetSharedKeyResponse,
   RatchetKeyResponse,
   RatchetSharedKeyResponse,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import {
   E2eeManagerSetEnabledRequest,
   E2eeRequest,
@@ -21,7 +21,7 @@ import {
   RatchetSharedKeyRequest,
   SetKeyRequest,
   SetSharedKeyRequest,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import { FfiClient } from './ffi_client.js';
 
 const DEFAULT_RATCHET_SALT = new TextEncoder().encode('LKFrameEncryptionKey');

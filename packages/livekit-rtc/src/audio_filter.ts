@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { LoadAudioFilterPluginResponse } from '@livekit/node-rtc-ffi-bindings';
-import { LoadAudioFilterPluginRequest } from '@livekit/node-rtc-ffi-bindings';
+import type { LoadAudioFilterPluginResponse } from '@livekit/rtc-ffi-bindings';
+import { LoadAudioFilterPluginRequest } from '@livekit/rtc-ffi-bindings';
 import { FfiClient } from './ffi_client.js';
 
 export class AudioFilter {

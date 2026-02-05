@@ -5,14 +5,14 @@ import type {
   FlushSoxResamplerResponse,
   NewSoxResamplerResponse,
   PushSoxResamplerResponse,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import {
   FlushSoxResamplerRequest,
   NewSoxResamplerRequest,
   PushSoxResamplerRequest,
   SoxQualityRecipe,
   SoxResamplerDataType,
-} from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
 import { AudioFrame } from './audio_frame.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 

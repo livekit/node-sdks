@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
-import { EncryptionState, type EncryptionType } from '@livekit/node-rtc-ffi-bindings';
-import type { FfiEvent } from '@livekit/node-rtc-ffi-bindings';
-import type { DisconnectReason, OwnedParticipant } from '@livekit/node-rtc-ffi-bindings';
-import type { DataStream_Trailer, DisconnectCallback } from '@livekit/node-rtc-ffi-bindings';
+import { EncryptionState, type EncryptionType } from '@livekit/rtc-ffi-bindings';
+import type { FfiEvent } from '@livekit/rtc-ffi-bindings';
+import type { DisconnectReason, OwnedParticipant } from '@livekit/rtc-ffi-bindings';
+import type { DataStream_Trailer, DisconnectCallback } from '@livekit/rtc-ffi-bindings';
 import {
   type ConnectCallback,
   ConnectRequest,
@@ -21,8 +21,8 @@ import {
   type IceServer,
   IceTransportType,
   type RoomInfo,
-} from '@livekit/node-rtc-ffi-bindings';
-import { TrackKind } from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
+import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';

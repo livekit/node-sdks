@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataStream_Chunk } from '@livekit/node-rtc-ffi-bindings';
+import type { DataStream_Chunk } from '@livekit/rtc-ffi-bindings';
 import { log } from '../log.js';
 import { bigIntToNumber } from '../utils.js';
 import type { BaseStreamInfo, ByteStreamInfo, TextStreamInfo } from './types.js';

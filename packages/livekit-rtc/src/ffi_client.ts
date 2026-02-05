@@ -9,8 +9,8 @@ import {
   livekitFfiRequest,
   livekitInitialize,
   livekitRetrievePtr,
-} from '@livekit/node-rtc-ffi-bindings';
-import { FfiEvent, FfiRequest, FfiResponse } from '@livekit/node-rtc-ffi-bindings';
+} from '@livekit/rtc-ffi-bindings';
+import { FfiEvent, FfiRequest, FfiResponse } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { SDK_VERSION } from './version.js';

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { NewAudioStreamResponse } from '@livekit/node-rtc-ffi-bindings';
-import { AudioStreamType, NewAudioStreamRequest } from '@livekit/node-rtc-ffi-bindings';
+import type { NewAudioStreamResponse } from '@livekit/rtc-ffi-bindings';
+import { AudioStreamType, NewAudioStreamRequest } from '@livekit/rtc-ffi-bindings';
 import type { UnderlyingSource } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';

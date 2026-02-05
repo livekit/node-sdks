@@ -232,7 +232,7 @@ jobs:
                 export LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
                 pnpm --filter "@livekit/rtc-node" test
                 bun install
-                bun test
+                bun test --concurrent
 
               "
             '

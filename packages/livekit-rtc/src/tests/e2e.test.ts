@@ -4,7 +4,7 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it as itRaw } from 'vitest';
 import {
   AudioFrame,
   AudioSource,
@@ -19,6 +19,9 @@ import {
   TrackSource,
   dispose,
 } from '../index.js';
+
+// use concurrent testing if available on the runner (currently not supported by bun's api)
+const it = typeof itRaw.concurrent === 'function' ? itRaw.concurrent : itRaw;
 
 const hasE2EEnv =
   !!process.env.LIVEKIT_URL && !!process.env.LIVEKIT_API_KEY && !!process.env.LIVEKIT_API_SECRET;

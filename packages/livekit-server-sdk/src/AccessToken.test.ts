@@ -59,9 +59,7 @@ describe('identity is required for only join grants', () => {
     const t = new AccessToken(testApiKey, testSecret);
     t.addGrant({ roomJoin: true });
 
-    await expect(async () => {
-      await t.toJwt();
-    }).rejects.toThrow();
+    await expect(t.toJwt()).rejects.toThrow();
   });
 });
 

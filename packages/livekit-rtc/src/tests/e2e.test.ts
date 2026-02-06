@@ -4,7 +4,7 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it as itRaw } from 'vitest';
 import {
   AudioFrame,
   AudioSource,
@@ -19,6 +19,9 @@ import {
   TrackSource,
   dispose,
 } from '../index.js';
+
+// use concurrent testing if available on the runner (currently not supported by bun's api)
+const it = typeof itRaw.concurrent === 'function' ? itRaw.concurrent : itRaw;
 
 const hasE2EEnv =
   !!process.env.LIVEKIT_URL && !!process.env.LIVEKIT_API_KEY && !!process.env.LIVEKIT_API_SECRET;
@@ -202,7 +205,7 @@ describeE2E('livekit-rtc e2e', () => {
     await dispose();
   });
 
-  it.concurrent(
+  it(
     'connects to a room',
     async () => {
       const { roomName, rooms } = await connectTestRooms(1);
@@ -225,7 +228,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it.concurrent(
+  it(
     'connects multiple participants to the same room',
     async () => {
       const { roomName, rooms } = await connectTestRooms(2);
@@ -241,7 +244,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it.concurrent(
+  it(
     'emits participantDisconnected when a participant leaves',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -267,7 +270,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it.concurrent(
+  it(
     'transfers audio between two participants (sine detection)',
     async () => {
       const cases = [
@@ -367,7 +370,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs * 2,
   );
 
-  it.concurrent(
+  it(
     'publishes and receives reliable data packets',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -407,7 +410,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it.concurrent(
+  it(
     'sends and receives text and byte streams',
     async () => {
       const { rooms } = await connectTestRooms(2);
@@ -469,7 +472,7 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it.concurrent(
+  it(
     'invokes RPC methods and returns structured errors',
     async () => {
       const { rooms } = await connectTestRooms(2);

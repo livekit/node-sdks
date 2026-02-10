@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - name: Use Node.js 24
         uses: actions/setup-node@v6
@@ -81,7 +81,7 @@ jobs:
         node-version: [20, 22, 24, latest]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -90,8 +90,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: Test livekit-rtc
-        run: pnpm --filter="livekit-rtc" test
+      # RTC tests will be ran after they are built, because builds are so slow
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)
@@ -131,7 +130,7 @@ jobs:
       RUST_BACKTRACE: full
     needs: check-changes
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -169,26 +168,74 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build (Linux)
+        # on linux, we'll also run tests after building. for the e2e suite, this would
+        # only run on the main repo, and not forks
+      - name: Build & test (Linux)
         if: ${{ matrix.platform == 'linux' }}
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
         run: |
           PROTOC_PATH=$(which protoc)
+          HOST_UID=$(id -u)
+          HOST_GID=$(id -g)
           docker run --rm \
+            -e HOST_UID=$HOST_UID \
+            -e HOST_GID=$HOST_GID \
+            -e TARGET=${{ matrix.target }} \
             -v $PWD:/workspace \
             -v $PROTOC_PATH:/tmp/protoc:ro \
             -w /workspace \
             ${{ matrix.build_image }} \
-            bash -c "\
-              uname -a; \
-              cp /tmp/protoc /usr/local/bin/protoc && chmod +x /usr/local/bin/protoc; \
-              export PATH=/root/.cargo/bin:\$PATH; \
-              export RUST_BACKTRACE=full; \
-              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang-devel; \
-              curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
-              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -; \
-              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1; \
-              npm install --global pnpm && pnpm install; \
-              cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}"
+            bash -lc '
+              set -euo pipefail
+
+              uname -a
+              cp /tmp/protoc /usr/local/bin/protoc
+              chmod +x /usr/local/bin/protoc
+
+              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang clang-devel
+              yum install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ gcc-toolset-12-libstdc++-devel libstdc++-devel
+              source /opt/rh/gcc-toolset-12/enable
+              gcc --version
+              g++ --version
+              clang --version
+              clang++ --version
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1
+              npm install --global pnpm
+              npm install --global bun
+
+              groupadd -g "$HOST_GID" hostgroup 2>/dev/null || true
+              useradd -m -u "$HOST_UID" -g "$HOST_GID" hostuser 2>/dev/null || true
+
+              su - hostuser -c "
+                set -euo pipefail
+                export RUST_BACKTRACE=full
+                curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+                export PATH=\$HOME/.cargo/bin:\$PATH
+                source /opt/rh/gcc-toolset-12/enable
+                export CC=clang
+                export CXX=clang++
+                TOOLCHAIN_ROOT=/opt/rh/gcc-toolset-12/root/usr
+                export CFLAGS=\"--gcc-toolchain=\$TOOLCHAIN_ROOT\"
+                export CXXFLAGS=\"--gcc-toolchain=\$TOOLCHAIN_ROOT\"
+                cd /workspace
+                CI=true pnpm install
+                cd packages/livekit-rtc
+                pnpm build --target $TARGET
+                cd ../..
+                pnpm --filter "./packages/livekit-server-sdk" build
+                export LIVEKIT_URL=${{ secrets.LIVEKIT_URL }}
+                export LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
+                export LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
+                pnpm --filter "@livekit/rtc-node" test
+                bun install
+                bun test --concurrent
+
+              "
+            '
 
       - name: Build (macOS)
         if: ${{ matrix.platform == 'macos' }}

@@ -106,6 +106,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         this.controller.close();
+        this.frameProcessor?.close();
         break;
     }
   };

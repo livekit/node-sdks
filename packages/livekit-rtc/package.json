@@ -3,7 +3,7 @@
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
   "author": "LiveKit",
-  "version": "0.13.23",
+  "version": "0.13.24",
   "main": "dist/index.js",
   "require": "dist/index.cjs",
   "types": "dist/index.d.ts",
@@ -43,9 +43,11 @@
   "devDependencies": {
     "@bufbuild/protobuf": "^1.10.1",
     "@types/node": "^22.13.10",
+    "vitest": "^3.0.0",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "livekit-server-sdk": "workspace:*"
   },
   "engines": {
     "node": ">= 18"

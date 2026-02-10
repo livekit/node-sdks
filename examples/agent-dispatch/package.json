@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "livekit-server-sdk": "workspace:*"
+    "livekit-server-sdk": "workspace:*",
+    "@livekit/protocol": "^1.43.4"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

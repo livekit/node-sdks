@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AsyncQueue } from './async_queue.js';
 import { AudioFrame } from './audio_frame.js';
+import { log } from './log.js';
 
 // Re-export AsyncQueue for backward compatibility
 export { AsyncQueue } from './async_queue.js';
@@ -238,7 +239,7 @@ export class AudioMixer {
 
       for (const result of results) {
         if (result.status !== 'fulfilled') {
-          console.warn('AudioMixer: Stream contribution failed:', result.reason);
+          log.warn('AudioMixer: Stream contribution failed:', result.reason);
           continue;
         }
 
@@ -259,6 +260,12 @@ export class AudioMixer {
       // Remove exhausted streams
       for (const stream of removals) {
         this.removeStream(stream);
+      }
+
+      // If all streams are exhausted, end the mixer automatically.
+      // This keeps `for await...of` consumers from hanging indefinitely when inputs complete.
+      if (!this.ending && removals.length > 0 && this.streams.size === 0) {
+        this.ending = true;
       }
 
       if (!anyData) {
@@ -372,25 +379,29 @@ export class AudioMixer {
     }
 
     const length = this.chunkSize * this.numChannels;
-    const mixed = new Int16Array(length);
+    // Use a wider accumulator to avoid int16 overflow while summing.
+    const acc = new Int32Array(length);
 
     // Sum all contributions
     for (const contrib of contributions) {
       for (let i = 0; i < length; i++) {
         const val = contrib[i];
         if (val !== undefined) {
-          mixed[i] = (mixed[i] ?? 0) + val;
+          acc[i] = (acc[i] ?? 0) + val;
         }
       }
     }
 
     // Clip to Int16 range
+    const mixed = new Int16Array(length);
     for (let i = 0; i < length; i++) {
-      const val = mixed[i] ?? 0;
+      const val = acc[i] ?? 0;
       if (val > 32767) {
         mixed[i] = 32767;
       } else if (val < -32768) {
         mixed[i] = -32768;
+      } else {
+        mixed[i] = val;
       }
     }
 

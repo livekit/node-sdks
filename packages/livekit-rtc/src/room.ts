@@ -96,6 +96,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private preConnectEvents: FfiEvent[] = [];
 
+  private _token?: string;
+  private _serverUrl?: string;
+
   e2eeManager?: E2EEManager;
   connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
@@ -116,6 +119,16 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   get isConnected(): boolean {
     return this.ffiHandle != undefined && this.connectionState != ConnectionState.CONN_DISCONNECTED;
+  }
+
+  /** @internal */
+  get token(): string | undefined {
+    return this._token;
+  }
+
+  /** @internal */
+  get serverUrl(): string | undefined {
+    return this._serverUrl;
   }
 
   /**
@@ -155,7 +168,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   get creationTime(): Date {
-    return new Date(Number(this.info?.creationTime ?? 0));
+    // TODO: workaround for Rust SDK bug, remove after updating to:
+    //   https://github.com/livekit/rust-sdks/pull/822
+    // check if creationTime looks like seconds (less than year 3000 in ms), convert to ms if needed
+    let creationTimeMs = Number(this.info?.creationTime ?? 0);
+    if (creationTimeMs > 0 && creationTimeMs < 1e12) {
+      creationTimeMs *= 1000;
+    }
+    return new Date(creationTimeMs);
   }
 
   get isRecording(): boolean {
@@ -217,6 +237,8 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.ffiHandle = new FfiHandle(cb.message.value.room!.handle!.id!);
         this.e2eeManager = e2eeEnabled && new E2EEManager(this.ffiHandle.handle, e2eeOptions);
 
+        this._token = token;
+        this._serverUrl = url;
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;
         this.localParticipant = new LocalParticipant(
@@ -362,7 +384,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant.info.disconnectReason = ev.value.disconnectReason;
         this.emit(RoomEvent.ParticipantDisconnected, participant);
       } else {
-        console.log(`RoomEvent.ParticipantDisconnected: Could not find participant`);
+        log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);
       }
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
@@ -377,7 +399,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         publication.resolveFirstSubscription();
         this.emit(RoomEvent.LocalTrackSubscribed, publication!.track!);
       } else {
-        console.warn(`RoomEvent.LocalTrackSubscribed: Publication not found: ${ev.value.trackSid}`);
+        log.warn(`RoomEvent.LocalTrackSubscribed: Publication not found: ${ev.value.trackSid}`);
       }
     } else if (ev.case == 'trackPublished') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
@@ -385,7 +407,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (participant) {
         participant.trackPublications.set(publication.sid!, publication);
       } else {
-        console.warn(
+        log.warn(
           `RoomEvent.TrackPublished: Could not find participant: ${ev.value.participantIdentity}`,
         );
       }
@@ -397,7 +419,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (publication) {
         this.emit(RoomEvent.TrackUnpublished, publication, participant);
       } else {
-        console.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
+        log.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
       }
     } else if (ev.case == 'trackSubscribed') {
       const ownedTrack = ev.value.track!;
@@ -416,7 +438,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
         this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.TrackSubscribed: ${(e as Error).message}`);
+        log.warn(`RoomEvent.TrackSubscribed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackUnsubscribed') {
       try {
@@ -429,7 +451,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         publication.subscribed = false;
         this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.TrackUnsubscribed: ${(e as Error).message}`);
+        log.warn(`RoomEvent.TrackUnsubscribed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackSubscriptionFailed') {
       try {
@@ -441,7 +463,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           ev.value.error,
         );
       } catch (e: unknown) {
-        console.warn(`RoomEvent.TrackSubscriptionFailed: ${(e as Error).message}`);
+        log.warn(`RoomEvent.TrackSubscriptionFailed: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackMuted') {
       try {
@@ -455,7 +477,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         }
         this.emit(RoomEvent.TrackMuted, publication, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.TrackMuted: ${(e as Error).message}`);
+        log.warn(`RoomEvent.TrackMuted: ${(e as Error).message}`);
       }
     } else if (ev.case == 'trackUnmuted') {
       try {
@@ -469,7 +491,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         }
         this.emit(RoomEvent.TrackUnmuted, publication, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.TrackUnmuted: ${(e as Error).message}`);
+        log.warn(`RoomEvent.TrackUnmuted: ${(e as Error).message}`);
       }
     } else if (ev.case == 'activeSpeakersChanged') {
       try {
@@ -478,7 +500,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         );
         this.emit(RoomEvent.ActiveSpeakersChanged, activeSpeakers);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ActiveSpeakersChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ActiveSpeakersChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'roomMetadataChanged') {
       this.info.metadata = ev.value.metadata ?? '';
@@ -489,7 +511,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant.info.metadata = ev.value.metadata;
         this.emit(RoomEvent.ParticipantMetadataChanged, participant.metadata, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ParticipantMetadataChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ParticipantMetadataChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'participantNameChanged') {
       try {
@@ -497,7 +519,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant.info.name = ev.value.name;
         this.emit(RoomEvent.ParticipantNameChanged, participant.name!, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ParticipantNameChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ParticipantNameChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'participantAttributesChanged') {
       try {
@@ -520,14 +542,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           this.emit(RoomEvent.ParticipantAttributesChanged, changedAttributes, participant);
         }
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ParticipantAttributesChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ParticipantAttributesChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'connectionQualityChanged') {
       try {
         const participant = this.requireParticipantByIdentity(ev.value.participantIdentity!);
         this.emit(RoomEvent.ConnectionQualityChanged, ev.value.quality!, participant);
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ConnectionQualityChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ConnectionQualityChanged: ${(e as Error).message}`);
       }
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity!);
@@ -612,8 +634,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           participant,
         );
       } catch (e: unknown) {
-        console.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${(e as Error).message}`);
+        log.warn(`RoomEvent.ParticipantEncryptionStatusChanged: ${(e as Error).message}`);
       }
+    } else if (ev.case === 'tokenRefreshed') {
+      this._token = ev.value.token;
+      this.emit('tokenRefreshed');
     }
   };
 
@@ -835,6 +860,7 @@ export type RoomCallbacks = {
   roomSidChanged: (sid: string) => void;
   roomUpdated: () => void;
   moved: () => void;
+  tokenRefreshed: () => void;
 };
 
 export enum RoomEvent {
@@ -869,4 +895,5 @@ export enum RoomEvent {
   Reconnected = 'reconnected',
   RoomUpdated = 'roomUpdated',
   Moved = 'moved',
+  TokenRefreshed = 'tokenRefreshed',
 }

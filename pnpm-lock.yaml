@@ -74,6 +74,9 @@ importers:
 
   examples/agent-dispatch:
     dependencies:
+      '@livekit/protocol':
+        specifier: ^1.43.4
+        version: 1.43.4
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -234,6 +237,9 @@ importers:
       '@types/node':
         specifier: ^22.13.10
         version: 22.15.29
+      livekit-server-sdk:
+        specifier: workspace:*
+        version: link:../livekit-server-sdk
       prettier:
         specifier: ^3.0.3
         version: 3.6.2
@@ -243,6 +249,19 @@ importers:
       typescript:
         specifier: 5.8.2
         version: 5.8.2
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.0.0)
+
+  packages/livekit-rtc/npm/darwin-arm64: {}
+
+  packages/livekit-rtc/npm/darwin-x64: {}
+
+  packages/livekit-rtc/npm/linux-arm64-gnu: {}
+
+  packages/livekit-rtc/npm/linux-x64-gnu: {}
+
+  packages/livekit-rtc/npm/win32-x64-msvc: {}
 
   packages/livekit-server-sdk:
     dependencies:

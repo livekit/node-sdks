@@ -15,7 +15,42 @@ export type FrameProcessorCredentials = {
   url: string;
 };
 
+export const FrameProcessorSymbol = Symbol.for('lk.frame-processor');
+
+export function isFrameProcessor<Type extends 'audio' | 'video'>(
+  maybeProcessor: unknown,
+  type?: Type,
+): maybeProcessor is FrameProcessor<
+  Type extends 'audio' ? AudioFrame : Type extends 'video' ? VideoFrame : AudioFrame | VideoFrame
+> {
+  return (
+    maybeProcessor !== null &&
+    typeof maybeProcessor === 'object' &&
+    'symbol' in maybeProcessor &&
+    maybeProcessor.symbol === FrameProcessorSymbol &&
+    (!type || ('type' in maybeProcessor && maybeProcessor.type === type))
+  );
+}
+
+export function isAudioFrameProcessor(
+  maybeProcessor: unknown,
+): maybeProcessor is FrameProcessor<AudioFrame> {
+  return isFrameProcessor(maybeProcessor, 'audio');
+}
+
+export function isVideoFrameProcessor(
+  maybeProcessor: unknown,
+): maybeProcessor is FrameProcessor<VideoFrame> {
+  return isFrameProcessor(maybeProcessor, 'video');
+}
+
 export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
+  readonly symbol = FrameProcessorSymbol;
+  abstract readonly type: Frame extends VideoFrame
+    ? 'video'
+    : Frame extends AudioFrame
+      ? 'audio'
+      : never;
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 

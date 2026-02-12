@@ -46,9 +46,7 @@ export function isVideoFrameProcessor(
   return isFrameProcessor(maybeProcessor, 'video');
 }
 
-export abstract class FrameProcessor<
-  Frame extends VideoFrame | AudioFrame = VideoFrame | AudioFrame,
-> {
+export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   readonly symbol = FrameProcessorSymbol;
   abstract readonly type: FrameProcessorType;
   abstract isEnabled(): boolean;

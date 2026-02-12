@@ -27,10 +27,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "build.rs",
-    "Cargo.toml",
-    "Cargo.lock"
+    "src"
   ],
   "dependencies": {
     "@datastructures-js/deque": "1.0.8",

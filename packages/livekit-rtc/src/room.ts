@@ -792,7 +792,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const textBuffer = this.textStreamControllers.get(streamId);
     if (textBuffer) {
       textBuffer.controller.close();
-      this.byteStreamControllers.delete(streamId);
+      this.textStreamControllers.delete(streamId);
     }
   }
 }

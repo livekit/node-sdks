@@ -248,7 +248,7 @@ jobs:
         run: cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: github.event_name != 'pull-request'
         with:
           name: bindings-${{ matrix.target }}
@@ -278,7 +278,7 @@ jobs:
         run: pnpm --filter=livekit-server-sdk build
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: packages/livekit-rtc/artifacts
 

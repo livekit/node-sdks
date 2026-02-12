@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^1.10.1",
-    "@napi-rs/cli": "^2.18.0",
+    "@napi-rs/cli": "^3.0.0",
     "@types/node": "^22.13.10",
     "vitest": "^3.0.0",
     "prettier": "^3.0.3",

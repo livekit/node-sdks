@@ -17,8 +17,6 @@ export type FrameProcessorCredentials = {
 
 export const FrameProcessorSymbol = Symbol.for('lk.frame-processor');
 
-export type FrameProcessorType = 'audio' | 'video';
-
 export function isFrameProcessor<Type extends 'audio' | 'video'>(
   maybeProcessor: unknown,
   type?: Type,
@@ -48,7 +46,11 @@ export function isVideoFrameProcessor(
 
 export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   readonly symbol = FrameProcessorSymbol;
-  abstract readonly type: FrameProcessorType;
+  abstract readonly type: Frame extends VideoFrame
+    ? 'video'
+    : Frame extends AudioFrame
+      ? 'audio'
+      : never;
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 

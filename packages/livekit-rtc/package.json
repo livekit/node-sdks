@@ -52,6 +52,7 @@
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
-    "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\""
+    "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
+    "test": "vitest run src"
   }
 }

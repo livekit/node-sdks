@@ -26,28 +26,6 @@ on:
       - main
 
 jobs:
-  check-changes:
-    name: Check for changes
-    runs-on: ubuntu-latest
-    outputs:
-      rtc_build: ${{ steps.changes.outputs.rtc_build }}
-      server_sdk_build: ${{ steps.changes.outputs.server_sdk_build }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v3
-        id: paths
-        with:
-          filters: |
-            livekit-rtc:
-              - 'packages/livekit-rtc/**'
-            server-sdk:
-              - 'packages/livekit-server-sdk/**'
-      - name: Store change outputs
-        id: changes
-        run: |
-          echo "rtc_build=${{ steps.paths.outputs.livekit-rtc == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
-          echo "server_sdk_build=${{ steps.paths.outputs.server-sdk == 'true' || github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
-
   lint:
     name: Formatting
     runs-on: ubuntu-latest
@@ -97,168 +75,12 @@ jobs:
         run: pnpm --filter="livekit-server-sdk" test:browser
       - name: Test env livekit-server-sdk (Edge Runtime)
         run: pnpm --filter="livekit-server-sdk" test:edge
+      - name: Test rtc-node
+        run: pnpm --filter="@livekit/rtc-node" run test
 
-  build:
-    if: ${{ needs.check-changes.outputs.rtc_build == 'true' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-15-large
-            platform: macos
-            target: x86_64-apple-darwin
-            macosx_deployment_target: '10.15'
-          - os: macos-15
-            platform: macos
-            target: aarch64-apple-darwin
-            macosx_deployment_target: '11.0'
-          - os: windows-latest
-            platform: windows
-            target: x86_64-pc-windows-msvc
-          - os: ubuntu-latest
-            platform: linux
-            target: x86_64-unknown-linux-gnu
-            build_image: sameli/manylinux_2_28_x86_64_cuda_12.3
-          - os: ubuntu-24.04-arm
-            platform: linux
-            target: aarch64-unknown-linux-gnu
-            build_image: quay.io/pypa/manylinux_2_28_aarch64
-
-    name: stable - ${{ matrix.target }} - node@20
-    runs-on: ${{ matrix.os }}
-    env:
-      RUST_BACKTRACE: full
-    needs: check-changes
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Setup node
-        uses: actions/setup-node@v6
-        if: ${{ !matrix.docker }}
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          targets: ${{ matrix.target }}
-
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          version: '25.1'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Cache cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            packages/livekit-rtc/.cargo-cache
-            packages/livekit-rtc/target/
-          key: ${{ matrix.target }}-cargo-${{ matrix.os }}
-
-      - name: Install dependencies
-        run: pnpm install
-
-        # on linux, we'll also run tests after building. for the e2e suite, this would
-        # only run on the main repo, and not forks
-      - name: Build & test (Linux)
-        if: ${{ matrix.platform == 'linux' }}
-        env:
-          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
-          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
-          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
-        run: |
-          PROTOC_PATH=$(which protoc)
-          HOST_UID=$(id -u)
-          HOST_GID=$(id -g)
-          docker run --rm \
-            -e HOST_UID=$HOST_UID \
-            -e HOST_GID=$HOST_GID \
-            -e TARGET=${{ matrix.target }} \
-            -v $PWD:/workspace \
-            -v $PROTOC_PATH:/tmp/protoc:ro \
-            -w /workspace \
-            ${{ matrix.build_image }} \
-            bash -lc '
-              set -euo pipefail
-
-              uname -a
-              cp /tmp/protoc /usr/local/bin/protoc
-              chmod +x /usr/local/bin/protoc
-
-              yum install -y openssl-devel libX11-devel mesa-libGL-devel libXext-devel libva-devel libdrm-devel clang clang-devel
-              yum install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ gcc-toolset-12-libstdc++-devel libstdc++-devel
-              source /opt/rh/gcc-toolset-12/enable
-              gcc --version
-              g++ --version
-              clang --version
-              clang++ --version
-              curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-              yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1
-              npm install --global pnpm
-              npm install --global bun
-
-              groupadd -g "$HOST_GID" hostgroup 2>/dev/null || true
-              useradd -m -u "$HOST_UID" -g "$HOST_GID" hostuser 2>/dev/null || true
-
-              su - hostuser -c "
-                set -euo pipefail
-                export RUST_BACKTRACE=full
-                curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-                export PATH=\$HOME/.cargo/bin:\$PATH
-                source /opt/rh/gcc-toolset-12/enable
-                export CC=clang
-                export CXX=clang++
-                TOOLCHAIN_ROOT=/opt/rh/gcc-toolset-12/root/usr
-                export CFLAGS=\"--gcc-toolchain=\$TOOLCHAIN_ROOT\"
-                export CXXFLAGS=\"--gcc-toolchain=\$TOOLCHAIN_ROOT\"
-                cd /workspace
-                CI=true pnpm install
-                cd packages/livekit-rtc
-                pnpm build --target $TARGET
-                cd ../..
-                pnpm --filter "./packages/livekit-server-sdk" build
-                export LIVEKIT_URL=${{ secrets.LIVEKIT_URL }}
-                export LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
-                export LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
-                pnpm --filter "@livekit/rtc-node" test
-                bun install
-                bun test --concurrent
-
-              "
-            '
-
-      - name: Build (macOS)
-        if: ${{ matrix.platform == 'macos' }}
-        env:
-          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
-        run: cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}
-
-      - name: Build (Windows)
-        if: ${{ matrix.platform == 'windows' }}
-        run: cd packages/livekit-rtc && pnpm build --target ${{ matrix.target }}
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull-request'
-        with:
-          name: bindings-${{ matrix.target }}
-          path: packages/livekit-rtc/src/napi/${{ env.APP_NAME }}.*.node
-          if-no-files-found: error
-
-  release:
-    needs: build
+  build_and_release:
     if: github.ref == 'refs/heads/main'
-    name: Release
+    name: Build and release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -275,20 +97,10 @@ jobs:
         run: pnpm install
 
       - name: Build server SDK
-        run: pnpm --filter=livekit-server-sdk build
+        run: pnpm --filter="livekit-server-sdk" build
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: packages/livekit-rtc/artifacts
-
-      - name: Move artifacts
-        run: pnpm artifacts
-        working-directory: packages/livekit-rtc
-
-      - name: List packages
-        run: ls -R ./packages/livekit-rtc/npm
-        shell: bash
+      - name: Build rtc-node
+        run: pnpm --filter="@livekit/rtc-node" build
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

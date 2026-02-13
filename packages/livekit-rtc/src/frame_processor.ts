@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type AudioFrame } from './audio_frame.js';
+import { AudioFrame } from './audio_frame.js';
 import { type VideoFrame } from './video_frame.js';
 
 export type FrameProcessorStreamInfo = {
@@ -17,40 +17,26 @@ export type FrameProcessorCredentials = {
 
 export const FrameProcessorSymbol = Symbol.for('lk.frame-processor');
 
-export function isFrameProcessor<Type extends 'audio' | 'video'>(
+export function isFrameProcessor<
+  T extends FrameProcessor<AudioFrame> | FrameProcessor<VideoFrame> | unknown,
+>(
   maybeProcessor: unknown,
-  type?: Type,
-): maybeProcessor is FrameProcessor<
-  Type extends 'audio' ? AudioFrame : Type extends 'video' ? VideoFrame : AudioFrame | VideoFrame
-> {
+): maybeProcessor is T extends FrameProcessor<AudioFrame>
+  ? FrameProcessor<AudioFrame>
+  : T extends FrameProcessor<VideoFrame>
+    ? FrameProcessor<VideoFrame>
+    : FrameProcessor<AudioFrame> | FrameProcessor<VideoFrame> {
   return (
     maybeProcessor !== null &&
     typeof maybeProcessor === 'object' &&
     'symbol' in maybeProcessor &&
-    maybeProcessor.symbol === FrameProcessorSymbol &&
-    (!type || ('type' in maybeProcessor && maybeProcessor.type === type))
+    maybeProcessor.symbol === FrameProcessorSymbol
   );
-}
-
-export function isAudioFrameProcessor(
-  maybeProcessor: unknown,
-): maybeProcessor is FrameProcessor<AudioFrame> {
-  return isFrameProcessor(maybeProcessor, 'audio');
-}
-
-export function isVideoFrameProcessor(
-  maybeProcessor: unknown,
-): maybeProcessor is FrameProcessor<VideoFrame> {
-  return isFrameProcessor(maybeProcessor, 'video');
 }
 
 export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   readonly symbol = FrameProcessorSymbol;
-  abstract readonly type: Frame extends VideoFrame
-    ? 'video'
-    : Frame extends AudioFrame
-      ? 'audio'
-      : never;
+
   abstract isEnabled(): boolean;
   abstract setEnabled(enabled: boolean): void;
 

@@ -54,4 +54,5 @@ export {
   FrameProcessor,
   type FrameProcessorStreamInfo,
   type FrameProcessorCredentials,
+  isFrameProcessor,
 } from './frame_processor.js';

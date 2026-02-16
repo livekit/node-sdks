@@ -1,18 +1,20 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { PartialMessage } from '@bufbuild/protobuf';
-import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
-import EventEmitter from 'events';
 import {
+  FfiEvent,
   FfiHandle,
+  FfiRequest,
+  FfiResponse,
+  type PartialMessage,
   livekitCopyBuffer,
   livekitDispose,
   livekitFfiRequest,
   livekitInitialize,
   livekitRetrievePtr,
-} from './napi/native.js';
-import { FfiEvent, FfiRequest, FfiResponse } from './proto/ffi_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
+import EventEmitter from 'events';
 import { SDK_VERSION } from './version.js';
 
 export { FfiHandle, type FfiEvent, type FfiResponse, FfiRequest, livekitDispose as dispose };

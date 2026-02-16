@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { AudioFrame } from './audio_frame.js';
-import { FfiClient } from './ffi_client.js';
-import { FfiHandle } from './napi/native.js';
 import type {
   AudioSourceInfo,
   CaptureAudioFrameCallback,
   CaptureAudioFrameResponse,
   ClearAudioBufferResponse,
   NewAudioSourceResponse,
-} from './proto/audio_frame_pb.js';
+} from '@livekit/rtc-ffi-bindings';
 import {
   AudioSourceType,
   CaptureAudioFrameRequest,
   ClearAudioBufferRequest,
+  FfiHandle,
   NewAudioSourceRequest,
-} from './proto/audio_frame_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import type { AudioFrame } from './audio_frame.js';
+import { FfiClient } from './ffi_client.js';
 
 export class AudioSource {
   /** @internal */

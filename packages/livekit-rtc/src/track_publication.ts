@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FfiClient } from './ffi_client.js';
-import { FfiHandle } from './napi/native.js';
-import type { EncryptionType } from './proto/e2ee_pb.js';
-import type { SetSubscribedResponse } from './proto/room_pb.js';
-import { SetSubscribedRequest } from './proto/room_pb.js';
+import type { EncryptionType } from '@livekit/rtc-ffi-bindings';
+import type { SetSubscribedResponse } from '@livekit/rtc-ffi-bindings';
+import { SetSubscribedRequest } from '@livekit/rtc-ffi-bindings';
 import type {
   OwnedTrackPublication,
   TrackKind,
   TrackPublicationInfo,
   TrackSource,
-} from './proto/track_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import { FfiHandle } from '@livekit/rtc-ffi-bindings';
+import { FfiClient } from './ffi_client.js';
 import type { Track } from './track.js';
 
 export abstract class TrackPublication {

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FfiClient } from './ffi_client.js';
 import type {
   E2eeManagerGetFrameCryptorsResponse,
   E2eeResponse,
@@ -9,7 +8,7 @@ import type {
   GetSharedKeyResponse,
   RatchetKeyResponse,
   RatchetSharedKeyResponse,
-} from './proto/e2ee_pb.js';
+} from '@livekit/rtc-ffi-bindings';
 import {
   E2eeManagerSetEnabledRequest,
   E2eeRequest,
@@ -22,7 +21,8 @@ import {
   RatchetSharedKeyRequest,
   SetKeyRequest,
   SetSharedKeyRequest,
-} from './proto/e2ee_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import { FfiClient } from './ffi_client.js';
 
 const DEFAULT_RATCHET_SALT = new TextEncoder().encode('LKFrameEncryptionKey');
 const DEFAULT_RATCHET_WINDOW_SIZE = 16;

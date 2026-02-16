@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
   CaptureVideoFrameResponse,
   NewVideoSourceResponse,
   VideoSourceInfo,
-} from './proto/video_frame_pb.js';
+} from '@livekit/rtc-ffi-bindings';
 import {
   CaptureVideoFrameRequest,
   NewVideoSourceRequest,
   VideoRotation,
   VideoSourceType,
-} from './proto/video_frame_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { VideoFrame } from './video_frame.js';
 
 export class VideoSource {

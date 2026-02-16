@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { DataStream_Chunk, DataStream_Header } from '../proto/room_pb.js';
+import type { DataStream_Chunk, DataStream_Header } from '@livekit/rtc-ffi-bindings';
 import type { ByteStreamReader, TextStreamReader } from './stream_reader.js';
 
 export interface StreamController<T extends DataStream_Chunk> {

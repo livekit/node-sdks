@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { AudioSource } from './audio_source.js';
-import { FfiClient, FfiHandle } from './ffi_client.js';
 import type {
   CreateAudioTrackResponse,
   CreateVideoTrackResponse,
@@ -10,8 +8,10 @@ import type {
   StreamState,
   TrackInfo,
   TrackKind,
-} from './proto/track_pb.js';
-import { CreateAudioTrackRequest, CreateVideoTrackRequest } from './proto/track_pb.js';
+} from '@livekit/rtc-ffi-bindings';
+import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/rtc-ffi-bindings';
+import type { AudioSource } from './audio_source.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { VideoSource } from './video_source.js';
 
 export abstract class Track {

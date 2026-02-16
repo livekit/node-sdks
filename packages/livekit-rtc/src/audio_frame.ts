@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { OwnedAudioFrameBuffer } from '@livekit/rtc-ffi-bindings';
+import { AudioFrameBufferInfo } from '@livekit/rtc-ffi-bindings';
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type { OwnedAudioFrameBuffer } from './proto/audio_frame_pb.js';
-import { AudioFrameBufferInfo } from './proto/audio_frame_pb.js';
 
 export class AudioFrame {
   data: Int16Array;

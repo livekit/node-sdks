@@ -66,10 +66,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: pnpm
+          cache: pnpm --filter="*livekit*" build
       - name: Install dependencies
         run: pnpm install
-      # RTC tests will be ran after they are built, because builds are so slow
+      - name: Test build
+        run: pnpm build
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)

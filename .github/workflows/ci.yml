@@ -66,11 +66,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: pnpm --filter="*livekit*" build
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install
       - name: Test build
-        run: pnpm build
+        run: pnpm --filter="*livekit*" run build
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)

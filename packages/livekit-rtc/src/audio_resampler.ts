@@ -131,12 +131,14 @@ export class AudioResampler {
     }
 
     const outputData = FfiClient.instance.copyBuffer(res.outputPtr, res.size!);
+
     return [
       new AudioFrame(
         new Int16Array(outputData.buffer),
         this.#outputRate,
         this.#channels,
         Math.trunc(outputData.length / this.#channels / 2),
+        data.userdata,
       ),
     ];
   }

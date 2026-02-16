@@ -32,9 +32,14 @@ export class AudioFrame {
     this._userdata = userdata;
   }
 
-  static create(sampleRate: number, channels: number, samplesPerChannel: number): AudioFrame {
+  static create(
+    sampleRate: number,
+    channels: number,
+    samplesPerChannel: number,
+    userdata?: Record<string, unknown>,
+  ): AudioFrame {
     const data = new Int16Array(channels * samplesPerChannel);
-    return new AudioFrame(data, sampleRate, channels, samplesPerChannel);
+    return new AudioFrame(data, sampleRate, channels, samplesPerChannel, userdata);
   }
 
   /** @internal */
@@ -103,5 +108,12 @@ export const combineAudioFrames = (buffer: AudioFrame | AudioFrame[]): AudioFram
   }
 
   const data = new Int16Array(buffer.map((x) => [...x.data]).flat());
-  return new AudioFrame(data, sampleRate, channels, totalSamplesPerChannel);
+
+  // Merge userdata from all frames
+  const mergedUserdata: Record<string, unknown> = {};
+  for (const frame of buffer) {
+    Object.assign(mergedUserdata, frame.userdata);
+  }
+
+  return new AudioFrame(data, sampleRate, channels, totalSamplesPerChannel, mergedUserdata);
 };

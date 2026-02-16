@@ -1,5 +1,4 @@
-import { AudioStream, Room, RoomEvent, TrackKind } from '@livekit/rtc-node';
-import type { AudioFrame } from '@livekit/rtc-node/src';
+import { AudioFrame, AudioStream, Room, RoomEvent, TrackKind } from '@livekit/rtc-node';
 import { Buffer } from 'buffer';
 import { config } from 'dotenv';
 import * as fs from 'fs';

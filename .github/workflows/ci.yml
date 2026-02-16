@@ -79,6 +79,11 @@ jobs:
         run: pnpm --filter="livekit-server-sdk" test:edge
       - name: Test rtc-node (Node)
         run: pnpm --filter="@livekit/rtc-node" run test
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+
       - name: Test server sdk + rtc-node (Bun)
         run: bun install && bun test --concurrent
 

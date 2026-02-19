@@ -15,13 +15,6 @@ on:
     branches:
       - main
   pull_request:
-    paths:
-      - 'packages/**'
-      - 'examples/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'REUSE.toml'
-      - '.github/workflows'
     branches:
       - main
 

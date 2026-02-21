@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.13.25
+
+### Patch Changes
+
+- ensure userdata is passed through when resampling - [#608](https://github.com/livekit/node-sdks/pull/608) ([@lukasIO](https://github.com/lukasIO))
+
+- Add typeguards for frame processors in order to avoid dual package hazard - [#608](https://github.com/livekit/node-sdks/pull/608) ([@lukasIO](https://github.com/lukasIO))
+
+- Update FFI bindings to latest and import them as a direct dependency - [#599](https://github.com/livekit/node-sdks/pull/599) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.24
 
 ### Patch Changes

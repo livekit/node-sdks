@@ -42,7 +42,7 @@ jobs:
     name: REUSE-3.2
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: fsfe/reuse-action@v5
 
   test:
@@ -85,7 +85,7 @@ jobs:
     name: Build and release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
 

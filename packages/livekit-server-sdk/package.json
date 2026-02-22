@@ -46,7 +46,7 @@
     "@bufbuild/protobuf": "^1.10.1",
     "@livekit/protocol": "^1.43.1",
     "camelcase-keys": "^9.0.0",
-    "jose": "^5.1.2"
+    "jose": "^6.0.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",

@@ -110,6 +110,15 @@ importers:
         specifier: ^4.7.1
         version: 4.17.0
 
+  examples/debug:
+    dependencies:
+      '@livekit/rtc-node':
+        specifier: workspace:*
+        version: link:../../packages/livekit-rtc
+      pino:
+        specifier: ^10.1.0
+        version: 10.3.1
+
   examples/publish-wav:
     dependencies:
       '@livekit/rtc-node':
@@ -210,8 +219,8 @@ importers:
         specifier: ^1.0.0
         version: 1.1.1
       '@livekit/rtc-ffi-bindings':
-        specifier: 0.12.46-dev.8
-        version: 0.12.46-dev.8
+        specifier: 0.12.48
+        version: 0.12.48
       '@livekit/typed-emitter':
         specifier: ^3.0.0
         version: 3.0.0
@@ -965,38 +974,38 @@ packages:
   '@livekit/protocol@1.43.4':
     resolution: {integrity: sha512-mJDFt/p+G2OKmIGizYiACK7Jb06wd42m9Pe7Y9cAOfdYpvwCqHlw4yul5Z7iRU3VKPsYJ27WL3oeHEoiu+HuAA==}
 
-  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.46-dev.8':
-    resolution: {integrity: sha512-AZdrtSe4/tBQSv1rXcWi1yqDmJ8n0bSjRXjzWePCToQAJvG1M1ilV3YzJMuw6/8mPebqx6Fs/wxuqC0b3CTfaA==}
+  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.48':
+    resolution: {integrity: sha512-nJKZqTWP8W89/oAEgoS0I7QReFFJ224ybEQPDlEvasK3PCGwKSgXTxqAwtFUwMEm3oiLY+CcBMzn+5XItFWP2g==}
     engines: {node: '>= 18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.46-dev.8':
-    resolution: {integrity: sha512-5gOTRsb9vdldJbqKDtQ+0q9ApEjzyD7M89EJ3GCp+HXwnNjQxcyLdXsK7DuaTJ52W3Fao2kjd2D4QE9IErmFlw==}
+  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.48':
+    resolution: {integrity: sha512-kX90On/besGcioT6pVWK9rAL5nHTPMciYhv+h/F8hpOk/ajONfQZGUstZMDtpHJ7l7845hT2oPoJjK00x2D3cw==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [darwin]
 
-  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.46-dev.8':
-    resolution: {integrity: sha512-fFhQ0apSF7R6BkN78V9C8n4WQu1MKin1qiCt9W2oldiQ62sAGeHmH42ZsvF+Tss6rtqp+QBUezH2A5S+Tcz/YQ==}
+  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.48':
+    resolution: {integrity: sha512-KpJhuZoXnTmv0Do0IHIz1q1zg+QLFE2xo9NAf8FSLl94XCuPIirC+L9CNc8Yj2dRN+d4GAJvfgKmuuK73K/0Kw==}
     engines: {node: '>= 18'}
     cpu: [arm64]
     os: [linux]
 
-  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.46-dev.8':
-    resolution: {integrity: sha512-eUj0PZvlbRaMTNAnulkRGojjgpT4PYLqrdl1UpT0KW3Jsx2dQddYh4LJfPVQNvHkikyoRcMKkhtdZkKSjKnOmg==}
+  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.48':
+    resolution: {integrity: sha512-hHk1KZFs4hraivlIjXIHnrYWDBZYdnMBEEZmLO/c4Y6ag+Lf7JYxBp9XiRJO5sCpAwz0X08NPRqXgka5wuVbSQ==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [linux]
 
-  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.46-dev.8':
-    resolution: {integrity: sha512-mIOJtXoRKYO46JutRo2JRqkglc43eMewowHYdZbnAwU1iL5SEIRGWlw0m8ns2iQpGCRoFCiIMOXtzOmuqfzYRg==}
+  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.48':
+    resolution: {integrity: sha512-rchdqpXXghdieCch6qdMKaWR7FoKtlnrQ+dVnX/Hu0T946F9YVsFSLVMLu8HIKBzC81A5soIQIWNfpYCu8uHxw==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [win32]
 
-  '@livekit/rtc-ffi-bindings@0.12.46-dev.8':
-    resolution: {integrity: sha512-b3J88DkWO2OPpNWZ02kImYQn/yd4RINsd1CzPVlW77LXhUmaLwZjyJtJFk6amHHIr9SrZ7uqtVuH2RrKFFU+pw==}
+  '@livekit/rtc-ffi-bindings@0.12.48':
+    resolution: {integrity: sha512-vJMh+or+6cVbZ2EHiLhP7Wsf1HN2o72U4zWof/wIWcWdKA5KlKXJ/OD7X8bXa0RNm1RD8Y3/jWMlTqoXXDpJ1w==}
     engines: {node: '>= 18'}
 
   '@livekit/typed-emitter@3.0.0':
@@ -3173,12 +3182,19 @@ packages:
   pino-abstract-transport@2.0.0:
     resolution: {integrity: sha512-F63x5tizV6WCh4R6RHyi2Ml+M70DNRXt/+HANowMflpgGFMAym/VKm6G7ZOQRjqN7XbGxK1Lg9t6ZrtzOaivMw==}
 
+  pino-abstract-transport@3.0.0:
+    resolution: {integrity: sha512-wlfUczU+n7Hy/Ha5j9a/gZNy7We5+cXp8YL+X+PG8S0KXxw7n/JXA3c46Y0zQznIJ83URJiwy7Lh56WLokNuxg==}
+
   pino-pretty@13.0.0:
     resolution: {integrity: sha512-cQBBIVG3YajgoUjo1FdKVRX6t9XPxwB9lcNJVD5GCnNM4Y6T12YYx8c6zEejxQsU0wrg9TwmDulcE9LR7qcJqA==}
     hasBin: true
 
   pino-std-serializers@7.1.0:
     resolution: {integrity: sha512-BndPH67/JxGExRgiX1dX0w1FvZck5Wa4aal9198SrRhZjH3GxKQUKIBnYJTdj2HDN3UQAS06HlfcSbQj2OHmaw==}
+
+  pino@10.3.1:
+    resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
+    hasBin: true
 
   pino@9.14.0:
     resolution: {integrity: sha512-8OEwKp5juEvb/MjpIc4hjqfgCNysrS94RIOMXYvpYCdm/jglrKEiAYmiumbmGhCvs+IcInsphYDFwqrjr7398w==}
@@ -3592,6 +3608,10 @@ packages:
 
   thread-stream@3.1.0:
     resolution: {integrity: sha512-OqyPZ9u96VohAyMfJykzmivOrY2wfMSf3C5TtFJVgN+Hm6aj+voFhlK+kZEIv2FBh1X6Xp3DlnCOfEQ3B2J86A==}
+
+  thread-stream@4.0.0:
+    resolution: {integrity: sha512-4iMVL6HAINXWf1ZKZjIPcz5wYaOdPhtO8ATvZ+Xqp3BTdaqtAwQkNmKORqcIo5YkQqGXq5cwfswDwMqqQNrpJA==}
+    engines: {node: '>=20'}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -4556,30 +4576,30 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
-  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.48':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.48':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.48':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.48':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.48':
     optional: true
 
-  '@livekit/rtc-ffi-bindings@0.12.46-dev.8':
+  '@livekit/rtc-ffi-bindings@0.12.48':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
     optionalDependencies:
-      '@livekit/rtc-ffi-bindings-darwin-arm64': 0.12.46-dev.8
-      '@livekit/rtc-ffi-bindings-darwin-x64': 0.12.46-dev.8
-      '@livekit/rtc-ffi-bindings-linux-arm64-gnu': 0.12.46-dev.8
-      '@livekit/rtc-ffi-bindings-linux-x64-gnu': 0.12.46-dev.8
-      '@livekit/rtc-ffi-bindings-win32-x64-msvc': 0.12.46-dev.8
+      '@livekit/rtc-ffi-bindings-darwin-arm64': 0.12.48
+      '@livekit/rtc-ffi-bindings-darwin-x64': 0.12.48
+      '@livekit/rtc-ffi-bindings-linux-arm64-gnu': 0.12.48
+      '@livekit/rtc-ffi-bindings-linux-x64-gnu': 0.12.48
+      '@livekit/rtc-ffi-bindings-win32-x64-msvc': 0.12.48
 
   '@livekit/typed-emitter@3.0.0': {}
 
@@ -6898,6 +6918,10 @@ snapshots:
     dependencies:
       split2: 4.2.0
 
+  pino-abstract-transport@3.0.0:
+    dependencies:
+      split2: 4.2.0
+
   pino-pretty@13.0.0:
     dependencies:
       colorette: 2.0.20
@@ -6915,6 +6939,20 @@ snapshots:
       strip-json-comments: 3.1.1
 
   pino-std-serializers@7.1.0: {}
+
+  pino@10.3.1:
+    dependencies:
+      '@pinojs/redact': 0.4.0
+      atomic-sleep: 1.0.0
+      on-exit-leak-free: 2.1.2
+      pino-abstract-transport: 3.0.0
+      pino-std-serializers: 7.1.0
+      process-warning: 5.0.0
+      quick-format-unescaped: 4.0.4
+      real-require: 0.2.0
+      safe-stable-stringify: 2.5.0
+      sonic-boom: 4.2.1
+      thread-stream: 4.0.0
 
   pino@9.14.0:
     dependencies:
@@ -7412,6 +7450,10 @@ snapshots:
       any-promise: 1.3.0
 
   thread-stream@3.1.0:
+    dependencies:
+      real-require: 0.2.0
+
+  thread-stream@4.0.0:
     dependencies:
       real-require: 0.2.0
 

@@ -7,6 +7,8 @@ import type {
   Pagination,
   RoomConfiguration,
   SIPHeaderOptions,
+  SIPMediaEncryption,
+  SIPOutboundConfig
 } from '@livekit/protocol';
 import {
   CreateSIPDispatchRuleRequest,
@@ -29,8 +31,6 @@ import {
   SIPDispatchRuleIndividual,
   SIPDispatchRuleInfo,
   SIPInboundTrunkInfo,
-  SIPMediaEncryption,
-  SIPOutboundConfig,
   SIPOutboundTrunkInfo,
   SIPParticipantInfo,
   SIPTransport,

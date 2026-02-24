@@ -30,6 +30,8 @@ export class TwirpError extends Error {
   status: number;
   code?: string;
   metadata?: Record<string, string>;
+  sipStatus?: string;
+  sipStatusCode?: number;
 
   constructor(
     name: string,
@@ -43,6 +45,13 @@ export class TwirpError extends Error {
     this.status = status;
     this.code = code;
     this.metadata = metadata;
+
+    if (metadata?.sip_status) {
+      this.sipStatus = metadata.sip_status;
+    }
+    if (metadata?.sip_status_code) {
+      this.sipStatusCode = parseInt(metadata.sip_status_code, 10);
+    }
   }
 }
 

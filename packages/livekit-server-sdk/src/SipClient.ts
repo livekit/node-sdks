@@ -778,7 +778,7 @@ export class SipClient extends ServiceBase {
     participantIdentity: string,
     transferTo: string,
     opts?: TransferSipParticipantOptions,
-  ): Promise<void> {
+  ): Promise<string> {
     if (opts === undefined) {
       opts = {};
     }
@@ -791,7 +791,7 @@ export class SipClient extends ServiceBase {
       headers: opts.headers,
     }).toJson();
 
-    await this.rpc.request(
+    return await this.rpc.request(
       svc,
       'TransferSIPParticipant',
       req,

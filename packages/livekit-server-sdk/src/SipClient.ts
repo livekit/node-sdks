@@ -8,7 +8,7 @@ import type {
   RoomConfiguration,
   SIPHeaderOptions,
   SIPMediaEncryption,
-  SIPOutboundConfig
+  SIPOutboundConfig,
 } from '@livekit/protocol';
 import {
   CreateSIPDispatchRuleRequest,

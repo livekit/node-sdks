@@ -52,7 +52,7 @@
     "@changesets/cli": "^2.27.1",
     "@edge-runtime/vm": "^5.0.0",
     "@livekit/changesets-changelog-github": "^0.0.4",
-    "@types/node": "^20.10.1",
+    "@types/node": "^24.0.0",
     "happy-dom": "^20.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.3.5",

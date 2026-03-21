@@ -38,13 +38,19 @@ export interface CreateOptions {
   name: string;
 
   /**
-   * number of seconds to keep the room open before any participant joins
+   * Number of seconds to keep the room open when empty.
+   *
+   * Before any participant joins, the room will close after this timeout.
+   * After all participants leave, the countdown restarts. If a new participant
+   * joins before it elapses, the timer resets and the room stays open.
    */
   emptyTimeout?: number;
 
   /**
-   * number of seconds to keep the room open after the last participant leaves
-   * this option is helpful to give a grace period for participants to re-join
+   * Number of seconds to keep the room open after the last participant leaves.
+   *
+   * This provides a grace period for participants to re-join (e.g. after a
+   * brief disconnection) without the room being closed and recreated.
    */
   departureTimeout?: number;
 

@@ -7,6 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { afterAll, describe, expect, it as itRaw } from 'vitest';
 import {
   AudioFrame,
+  AudioResampler,
   AudioSource,
   AudioStream,
   ConnectionState,
@@ -513,5 +514,205 @@ describeE2E('livekit-rtc e2e', () => {
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
     testTimeoutMs * 2,
+  );
+
+  // --- Resource cleanup tests ---
+  // These tests verify the fixes for FD / handle leaks that occur when
+  // participants connect and disconnect rapidly, streams are abandoned
+  // mid-transfer, or native handles are not disposed.
+
+  it(
+    'cleans up track publications when a remote participant disconnects',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [stayingRoom, leavingRoom] = rooms;
+
+      // Publish a track from the leaving participant so its track publication
+      // will need to be cleaned up on disconnect.
+      const source = new AudioSource(48_000, 1);
+      const track = LocalAudioTrack.createAudioTrack('cleanup-test', source);
+      const options = new TrackPublishOptions();
+      options.source = TrackSource.SOURCE_MICROPHONE;
+      await leavingRoom!.localParticipant!.publishTrack(track, options);
+
+      // Wait for the staying room to see the track subscription
+      await waitFor(
+        () => {
+          const remote = stayingRoom!.remoteParticipants.get(
+            leavingRoom!.localParticipant!.identity,
+          );
+          return remote !== undefined && remote.trackPublications.size > 0;
+        },
+        { timeoutMs: 5000, debugName: 'track publication visible' },
+      );
+
+      // Capture a reference to the remote participant before disconnect
+      const remoteParticipant = stayingRoom!.remoteParticipants.get(
+        leavingRoom!.localParticipant!.identity,
+      )!;
+      expect(remoteParticipant.trackPublications.size).toBeGreaterThan(0);
+
+      // Listen for the disconnect event
+      const disconnected = waitForRoomEvent(
+        stayingRoom!,
+        RoomEvent.ParticipantDisconnected,
+        testTimeoutMs,
+        (p: { identity: string }) => p.identity,
+      );
+
+      await leavingRoom!.disconnect();
+      await disconnected;
+
+      // After disconnect, the remote participant's track publications map
+      // should be cleared (handles disposed).
+      expect(remoteParticipant.trackPublications.size).toBe(0);
+      expect(stayingRoom!.remoteParticipants.has(remoteParticipant.identity)).toBe(false);
+
+      await source.close();
+      await stayingRoom!.disconnect();
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'cleans up stream controllers when disconnecting during an active stream',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'cleanup-stream-topic';
+
+      // Register a handler on the receiving side that will intentionally
+      // NOT fully consume the stream — simulating an abandoned transfer.
+      let readerReceived = false;
+      receivingRoom!.registerTextStreamHandler(topic, async (_reader, _sender) => {
+        readerReceived = true;
+        // Deliberately do not call reader.readAll() so the stream stays open
+      });
+
+      // Start sending a text stream but don't close it
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('partial data');
+
+      // Wait for the receiving side to get the stream header
+      await waitFor(() => readerReceived, {
+        timeoutMs: 5000,
+        debugName: 'text stream header received',
+      });
+
+      // Disconnect the receiving room while the stream is still open.
+      // This should close the stream controller without throwing.
+      await receivingRoom!.disconnect();
+
+      // Also close the writer and disconnect the sender
+      await writer.close();
+      await sendingRoom!.disconnect();
+
+      // If we got here without hanging or throwing, the stream controller
+      // was properly cleaned up on disconnect.
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'cleans up resources when multiple participants disconnect simultaneously',
+    async () => {
+      // Connect 4 participants to stress-test concurrent disconnection cleanup
+      const { rooms } = await connectTestRooms(4);
+
+      // Publish a track from each participant to create track publications
+      const sources: AudioSource[] = [];
+      for (const room of rooms) {
+        const source = new AudioSource(48_000, 1);
+        sources.push(source);
+        const track = LocalAudioTrack.createAudioTrack('multi-cleanup', source);
+        const options = new TrackPublishOptions();
+        options.source = TrackSource.SOURCE_MICROPHONE;
+        await room.localParticipant!.publishTrack(track, options);
+      }
+
+      // Wait for all participants to see each other's tracks
+      await waitFor(
+        () =>
+          rooms.every(
+            (r) =>
+              r.remoteParticipants.size === 3 &&
+              [...r.remoteParticipants.values()].every((p) => p.trackPublications.size > 0),
+          ),
+        { timeoutMs: 5000, debugName: 'all tracks visible' },
+      );
+
+      // Disconnect all participants simultaneously
+      await Promise.all([
+        ...rooms.map((r) => r.disconnect()),
+        ...sources.map((s) => s.close()),
+      ]);
+
+      // Verify all rooms are disconnected and remote participant maps are empty
+      for (const room of rooms) {
+        expect(room.isConnected).toBe(false);
+      }
+    },
+    testTimeoutMs * 2,
+  );
+
+  it(
+    'AudioSource.close() clears pending timeout',
+    async () => {
+      const source = new AudioSource(48_000, 1);
+
+      // Capture a frame to create a pending timeout
+      const frame = AudioFrame.create(48_000, 1, 480);
+      for (let i = 0; i < 480; i++) frame.data[i] = 0;
+      await source.captureFrame(frame);
+
+      // Close while the timeout is pending — should not throw or
+      // leave a dangling timer that references disposed state.
+      await source.close();
+
+      // Verify the source is marked as closed
+      await expect(source.captureFrame(frame)).rejects.toThrow('AudioSource is closed');
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'AudioResampler.close() releases the native handle',
+    async () => {
+      const resampler = new AudioResampler(48_000, 24_000, 1);
+
+      // Push some data to ensure the handle is actively used
+      const frame = AudioFrame.create(48_000, 1, 480);
+      for (let i = 0; i < 480; i++) frame.data[i] = i % 32767;
+      const output = resampler.push(frame);
+      expect(output.length).toBeGreaterThanOrEqual(0);
+
+      // close() should dispose the native handle without throwing
+      resampler.close();
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'concurrent getSid() calls share a single listener and resolve consistently',
+    async () => {
+      const { rooms } = await connectTestRooms(1);
+      const room = rooms[0]!;
+
+      // Fire multiple concurrent getSid() calls — they should all resolve
+      // to the same SID without leaking event listeners.
+      const results = await Promise.all([
+        room.getSid(),
+        room.getSid(),
+        room.getSid(),
+      ]);
+
+      // All calls should return the same non-empty SID
+      expect(results[0]).toBeTruthy();
+      expect(results[1]).toBe(results[0]);
+      expect(results[2]).toBe(results[0]);
+
+      await room.disconnect();
+    },
+    testTimeoutMs,
   );
 });

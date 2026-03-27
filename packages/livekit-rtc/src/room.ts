@@ -131,6 +131,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return this._serverUrl;
   }
 
+  // Shared promise for concurrent getSid() callers. Without this, each call
+  // registers its own RoomSidChanged + Disconnected listeners, and if many
+  // calls race only one of each pair is cleaned up — leaking the rest.
+  private sidPromise?: Promise<string>;
+
   /**
    * Gets the room's server ID. This ID is assigned by the LiveKit server
    * and is unique for each room session.
@@ -144,19 +149,24 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     if (this.info?.sid && this.info.sid !== '') {
       return this.info.sid;
     }
-    return new Promise((resolve, reject) => {
-      const handleRoomUpdate = (sid: string) => {
-        if (sid !== '') {
+    if (!this.sidPromise) {
+      this.sidPromise = new Promise<string>((resolve, reject) => {
+        const handleRoomUpdate = (sid: string) => {
+          if (sid !== '') {
+            this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
+            this.sidPromise = undefined;
+            resolve(sid);
+          }
+        };
+        this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
+        this.once(RoomEvent.Disconnected, () => {
           this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-          resolve(sid);
-        }
-      };
-      this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
-      this.once(RoomEvent.Disconnected, () => {
-        this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-        reject('Room disconnected before room server id was available');
+          this.sidPromise = undefined;
+          reject('Room disconnected before room server id was available');
+        });
       });
-    });
+    }
+    return this.sidPromise;
   }
 
   get numParticipants(): number {
@@ -283,6 +293,28 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    // Close all in-progress stream controllers to prevent FD leaks.
+    // Streams that were receiving data but never got a trailer (e.g. the sender
+    // disconnected mid-transfer) would otherwise keep their ReadableStream open
+    // indefinitely, leaking the underlying controller and any buffered chunks.
+    for (const [, streamController] of this.byteStreamControllers) {
+      try {
+        streamController.controller.close();
+      } catch {
+        // controller may already be closed
+      }
+    }
+    this.byteStreamControllers.clear();
+
+    for (const [, streamController] of this.textStreamControllers) {
+      try {
+        streamController.controller.close();
+      } catch {
+        // controller may already be closed
+      }
+    }
+    this.textStreamControllers.clear();
+
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
   }
@@ -382,6 +414,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (participant) {
         this.remoteParticipants.delete(participant.identity);
         participant.info.disconnectReason = ev.value.disconnectReason;
+        // Dispose each track publication's FfiHandle to prevent FD leaks.
+        // Without this, rapid participant disconnections accumulate undisposed
+        // native handles since nothing else triggers their cleanup.
+        for (const [, publication] of participant.trackPublications) {
+          publication.ffiHandle.dispose();
+        }
+        participant.trackPublications.clear();
         this.emit(RoomEvent.ParticipantDisconnected, participant);
       } else {
         log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);

@@ -7,7 +7,8 @@
       "schedule": "on the first day of the month",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "devDependencies (non-major)"
+      "groupName": "devDependencies (non-major)",
+      "minimumReleaseAge": "2 weeks"
     },
     {
       "matchPackagePrefixes": ["@livekit", "livekit-"],
@@ -17,7 +18,8 @@
     {
       "matchPackagePrefixes": ["typescript"],
       "matchUpdateTypes": ["major", "minor"],
-      "groupName": "Update Typescript dependencies (breaking)"
+      "groupName": "Update Typescript dependencies (breaking)",
+      "minimumReleaseAge": "2 weeks"
     }
   ]
 }

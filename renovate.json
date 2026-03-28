@@ -2,24 +2,24 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
   "rangeStrategy": "auto",
+  "minimumReleaseAge": "2 weeks",
   "packageRules": [
     {
       "schedule": "on the first day of the month",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "devDependencies (non-major)",
-      "minimumReleaseAge": "2 weeks"
+      "groupName": "devDependencies (non-major)"
     },
     {
       "matchPackagePrefixes": ["@livekit", "livekit-"],
       "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "Update LiveKit dependencies (non-major)"
+      "groupName": "Update LiveKit dependencies (non-major)",
+      "minimumReleaseAge": null
     },
     {
       "matchPackagePrefixes": ["typescript"],
       "matchUpdateTypes": ["major", "minor"],
-      "groupName": "Update Typescript dependencies (breaking)",
-      "minimumReleaseAge": "2 weeks"
+      "groupName": "Update Typescript dependencies (breaking)"
     }
   ]
 }

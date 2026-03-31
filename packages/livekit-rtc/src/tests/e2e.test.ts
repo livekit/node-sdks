@@ -584,6 +584,7 @@ describeE2E('livekit-rtc e2e', () => {
       // Register a handler on the receiving side that will intentionally
       // NOT fully consume the stream — simulating an abandoned transfer.
       let readerReceived = false;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       receivingRoom!.registerTextStreamHandler(topic, async (_reader, _sender) => {
         readerReceived = true;
         // Deliberately do not call reader.readAll() so the stream stays open

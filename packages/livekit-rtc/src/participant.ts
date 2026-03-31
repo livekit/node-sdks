@@ -545,7 +545,7 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  private async sendStreamChunk(req: SendStreamChunkRequest) {
+  private sendStreamChunk = async (req: SendStreamChunkRequest) => {
     const type = 'sendStreamChunk';
     const res = FfiClient.instance.request<SendStreamChunkResponse>({
       message: { case: type, value: req },
@@ -561,7 +561,7 @@ export class LocalParticipant extends Participant {
     }
   }
 
-  private async sendStreamTrailer(req: SendStreamTrailerRequest) {
+  private sendStreamTrailer = async (req: SendStreamTrailerRequest) => {
     const type = 'sendStreamTrailer';
     const res = FfiClient.instance.request<SendStreamTrailerResponse>({
       message: { case: type, value: req },

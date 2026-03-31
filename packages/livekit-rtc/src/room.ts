@@ -155,19 +155,21 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
     if (!this.sidPromise) {
       this.sidPromise = new Promise<string>((resolve, reject) => {
+        const handleDisconnect = () => {
+          this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
+          this.sidPromise = undefined;
+          reject('Room disconnected before room server id was available');
+        };
         const handleRoomUpdate = (sid: string) => {
           if (sid !== '') {
             this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
+            this.off(RoomEvent.Disconnected as any, handleDisconnect);
             this.sidPromise = undefined;
             resolve(sid);
           }
         };
         this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
-        this.once(RoomEvent.Disconnected, () => {
-          this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-          this.sidPromise = undefined;
-          reject('Room disconnected before room server id was available');
-        });
+        this.once(RoomEvent.Disconnected, handleDisconnect);
       });
     }
     return this.sidPromise;

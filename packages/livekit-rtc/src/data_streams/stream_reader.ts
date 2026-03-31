@@ -127,6 +127,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
   [Symbol.asyncIterator]() {
     const reader = this.reader.getReader();
     const decoder = new TextDecoder();
+    const receivedChunks = this.receivedChunks;
 
     return {
       next: async (): Promise<IteratorResult<string>> => {
@@ -137,7 +138,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
             // underlying ReadableStream can be garbage-collected.
             reader.releaseLock();
             // Clear received chunks so the buffered data can be GC'd.
-            this.receivedChunks.clear();
+            receivedChunks.clear();
             return { done: true, value: undefined };
           } else {
             this.handleChunkReceived(value);
@@ -150,7 +151,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
           // Release the lock on error so it doesn't stay held when the
           // consumer never calls return() (e.g. breaking out of for-await).
           reader.releaseLock();
-          this.receivedChunks.clear();
+          receivedChunks.clear();
           log.error('error processing stream update: %s', error);
           return { done: true, value: undefined };
         }
@@ -159,7 +160,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
       return(): IteratorResult<string> {
         reader.releaseLock();
         // Clear received chunks so the buffered data can be GC'd.
-        this.receivedChunks.clear();
+        receivedChunks.clear();
         return { done: true, value: undefined };
       },
     };

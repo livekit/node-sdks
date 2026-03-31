@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AudioFrame } from './audio_frame.js';
 import { AudioMixer } from './audio_mixer.js';
 
@@ -26,6 +26,10 @@ async function* createMockAudioStream(
 }
 
 describe('AudioMixer', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('mixes two audio streams', async () => {
     const sampleRate = 48000;
     const numChannels = 1;
@@ -163,5 +167,104 @@ describe('AudioMixer', () => {
 
     // Should get at least 2 frames (stream exhausts after 2)
     expect(frames.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('clears timeout timers after iterator resolves first', async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+    const sampleRate = 48000;
+    const numChannels = 1;
+    const samplesPerChannel = 480;
+    const mixer = new AudioMixer(sampleRate, numChannels, {
+      blocksize: samplesPerChannel,
+      // Long timeout so the iterator always wins the race
+      streamTimeoutMs: 5000,
+    });
+
+    const stream = createMockAudioStream(3, sampleRate, numChannels, samplesPerChannel, 42);
+    mixer.addStream(stream);
+
+    const frames: AudioFrame[] = [];
+    for await (const frame of mixer) {
+      frames.push(frame);
+      if (frames.length >= 2) break;
+    }
+
+    await mixer.aclose();
+
+    expect(frames.length).toBe(2);
+    // Each iteration through the while loop calls cancel() after the race.
+    // Verify clearTimeout was called at least once per frame produced.
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThanOrEqual(frames.length);
+  });
+
+  it('clearTimeout is called at least once per race iteration', async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+    const sampleRate = 48000;
+    const numChannels = 1;
+    const samplesPerChannel = 480;
+    const mixer = new AudioMixer(sampleRate, numChannels, {
+      blocksize: samplesPerChannel,
+      streamTimeoutMs: 5000,
+    });
+
+    // Use more frames to ensure multiple race iterations
+    const stream = createMockAudioStream(6, sampleRate, numChannels, samplesPerChannel, 10);
+    mixer.addStream(stream);
+
+    const frames: AudioFrame[] = [];
+    for await (const frame of mixer) {
+      frames.push(frame);
+      if (frames.length >= 4) break;
+    }
+
+    const callCount = clearTimeoutSpy.mock.calls.length;
+    await mixer.aclose();
+
+    expect(frames.length).toBe(4);
+    // The mixer races iterator.next() against a timeout on every iteration.
+    // Each iteration should clear the losing timeout, so clearTimeout must
+    // be called at least as many times as there were race iterations.
+    // Multiple iterations happen per frame (accumulating data), so this is
+    // a conservative lower bound.
+    expect(callCount).toBeGreaterThanOrEqual(frames.length);
+  });
+
+  it('timeout fires when stream is slow', async () => {
+    const sampleRate = 48000;
+    const numChannels = 1;
+    const samplesPerChannel = 480;
+    const mixer = new AudioMixer(sampleRate, numChannels, {
+      blocksize: samplesPerChannel,
+      // Very short timeout to trigger the timeout path
+      streamTimeoutMs: 1,
+    });
+
+    // Create a stream that is slower than the timeout
+    async function* slowStream(): AsyncGenerator<AudioFrame> {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const data = new Int16Array(numChannels * samplesPerChannel).fill(500);
+      yield new AudioFrame(data, sampleRate, numChannels, samplesPerChannel);
+    }
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mixer.addStream(slowStream());
+
+    // The mixer should eventually produce a frame (zero-padded due to timeout)
+    // and auto-close when the stream exhausts.
+    const frames: AudioFrame[] = [];
+    for await (const frame of mixer) {
+      frames.push(frame);
+      if (frames.length >= 1) break;
+    }
+
+    await mixer.aclose();
+
+    // The timeout warning should have been logged
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('stream timeout after'),
+    );
   });
 });

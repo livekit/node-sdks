@@ -96,6 +96,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private preConnectEvents: FfiEvent[] = [];
 
+  // Aborted on disconnect to cancel any pending FfiClient.waitFor() listeners,
+  // preventing them from leaking when the room goes away.
+  private disconnectController = new AbortController();
+
   private _token?: string;
   private _serverUrl?: string;
 
@@ -251,9 +255,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this._serverUrl = url;
         this.info = cb.message.value.room!.info;
         this.connectionState = ConnectionState.CONN_CONNECTED;
+        // Reset the abort controller for this connection session so that
+        // a previous disconnect doesn't immediately cancel new operations.
+        this.disconnectController = new AbortController();
         this.localParticipant = new LocalParticipant(
           cb.message.value.localParticipant!,
           this.ffiEventLock,
+          this.disconnectController.signal,
         );
 
         for (const pt of cb.message.value.participants) {
@@ -314,6 +322,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     }
     this.textStreamControllers.clear();
+
+    // Abort all pending FfiClient.waitFor() listeners so they don't leak.
+    // This causes any in-flight operations (publishData, publishTrack, etc.)
+    // to reject and clean up their event listeners.
+    this.disconnectController.abort('Room disconnected');
 
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();

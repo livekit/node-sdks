@@ -70,14 +70,37 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     return livekitRetrievePtr(data);
   }
 
-  async waitFor<T>(predicate: (ev: FfiEvent) => boolean): Promise<T> {
-    return new Promise<T>((resolve) => {
+  async waitFor<T>(
+    predicate: (ev: FfiEvent) => boolean,
+    options?: { signal?: AbortSignal },
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
       const listener = (ev: FfiEvent) => {
         if (predicate(ev)) {
-          this.off(FfiClientEvent.FfiEvent, listener);
+          cleanup();
           resolve(ev.message.value as T);
         }
       };
+
+      const cleanup = () => {
+        this.off(FfiClientEvent.FfiEvent, listener);
+        options?.signal?.removeEventListener('abort', onAbort);
+      };
+
+      // If an AbortSignal is provided, remove the listener when the signal
+      // fires so that pending waitFor() calls don't leak listeners after
+      // the room disconnects or the operation is cancelled.
+      const onAbort = () => {
+        cleanup();
+        reject(new Error(options?.signal?.reason ?? 'waitFor aborted'));
+      };
+
+      if (options?.signal?.aborted) {
+        reject(new Error(options.signal.reason ?? 'waitFor aborted'));
+        return;
+      }
+
+      options?.signal?.addEventListener('abort', onAbort);
       this.on(FfiClientEvent.FfiEvent, listener);
     });
   }

@@ -559,7 +559,7 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-  }
+  };
 
   private sendStreamTrailer = async (req: SendStreamTrailerRequest) => {
     const type = 'sendStreamTrailer';
@@ -575,7 +575,7 @@ export class LocalParticipant extends Participant {
     if (cb.error) {
       throw new Error(cb.error);
     }
-  }
+  };
 
   /**
    * Sends a chat message to participants in the room

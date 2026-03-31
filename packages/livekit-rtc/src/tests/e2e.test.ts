@@ -643,10 +643,7 @@ describeE2E('livekit-rtc e2e', () => {
       );
 
       // Disconnect all participants simultaneously
-      await Promise.all([
-        ...rooms.map((r) => r.disconnect()),
-        ...sources.map((s) => s.close()),
-      ]);
+      await Promise.all([...rooms.map((r) => r.disconnect()), ...sources.map((s) => s.close())]);
 
       // Verify all rooms are disconnected and remote participant maps are empty
       for (const room of rooms) {
@@ -701,11 +698,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       // Fire multiple concurrent getSid() calls — they should all resolve
       // to the same SID without leaking event listeners.
-      const results = await Promise.all([
-        room.getSid(),
-        room.getSid(),
-        room.getSid(),
-      ]);
+      const results = await Promise.all([room.getSid(), room.getSid(), room.getSid()]);
 
       // All calls should return the same non-empty SID
       expect(results[0]).toBeTruthy();

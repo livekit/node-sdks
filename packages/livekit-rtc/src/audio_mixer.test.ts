@@ -263,8 +263,6 @@ describe('AudioMixer', () => {
     await mixer.aclose();
 
     // The timeout warning should have been logged
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('stream timeout after'),
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('stream timeout after'));
   });
 });

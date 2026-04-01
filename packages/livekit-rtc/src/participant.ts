@@ -157,11 +157,16 @@ export class LocalParticipant extends Participant {
 
   private ffiEventLock: Mutex;
 
+  // Signal that fires when the owning Room disconnects, used to cancel
+  // pending FfiClient.waitFor() listeners so they don't leak.
+  private disconnectSignal: AbortSignal;
+
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
-  constructor(info: OwnedParticipant, ffiEventLock: Mutex) {
+  constructor(info: OwnedParticipant, ffiEventLock: Mutex, disconnectSignal: AbortSignal) {
     super(info);
     this.ffiEventLock = ffiEventLock;
+    this.disconnectSignal = disconnectSignal;
   }
 
   async publishData(data: Uint8Array, options: DataPublishOptions) {
@@ -178,9 +183,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'publishData', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PublishDataCallback>((ev) => {
-      return ev.message.case == 'publishData' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<PublishDataCallback>(
+      (ev) => ev.message.case == 'publishData' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
@@ -198,9 +204,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'publishSipDtmf', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PublishSipDtmfCallback>((ev) => {
-      return ev.message.case == 'publishSipDtmf' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<PublishSipDtmfCallback>(
+      (ev) => ev.message.case == 'publishSipDtmf' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
@@ -229,9 +236,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'publishTranscription', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PublishTranscriptionCallback>((ev) => {
-      return ev.message.case == 'publishTranscription' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<PublishTranscriptionCallback>(
+      (ev) => ev.message.case == 'publishTranscription' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
@@ -248,9 +256,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'setLocalMetadata', value: req },
     });
 
-    await FfiClient.instance.waitFor<SetLocalMetadataCallback>((ev) => {
-      return ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId;
-    });
+    await FfiClient.instance.waitFor<SetLocalMetadataCallback>(
+      (ev) => ev.message.case == 'setLocalMetadata' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
   }
 
   /**
@@ -335,8 +344,24 @@ export class LocalParticipant extends Participant {
         });
         await sendTrailer(trailerReq);
       },
-      abort(err) {
+      // Send a trailer with the error reason so the remote side's stream
+      // controller is closed instead of waiting for data that won't arrive.
+      async abort(err) {
         log.error(err, 'Sink Error');
+        try {
+          const trailerReq = new SendStreamTrailerRequest({
+            senderIdentity,
+            localParticipantHandle: localHandle,
+            destinationIdentities,
+            trailer: new DataStream_Trailer({
+              streamId,
+              reason: err instanceof Error ? err.message : String(err ?? ''),
+            }),
+          });
+          await sendTrailer(trailerReq);
+        } catch {
+          // Best-effort: the connection may already be gone.
+        }
       },
     });
 
@@ -450,8 +475,24 @@ export class LocalParticipant extends Participant {
         });
         await sendTrailer(trailerReq);
       },
-      abort(err) {
+      // Send a trailer with the error reason so the remote side's stream
+      // controller is closed instead of waiting for data that won't arrive.
+      async abort(err) {
         log.error(err, 'Sink error');
+        try {
+          const trailerReq = new SendStreamTrailerRequest({
+            senderIdentity,
+            localParticipantHandle: localHandle,
+            destinationIdentities,
+            trailer: new DataStream_Trailer({
+              streamId,
+              reason: err instanceof Error ? err.message : String(err ?? ''),
+            }),
+          });
+          await sendTrailer(trailerReq);
+        } catch {
+          // Best-effort: the connection may already be gone.
+        }
       },
     });
 
@@ -494,44 +535,47 @@ export class LocalParticipant extends Participant {
       message: { case: type, value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>((ev) => {
-      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<SendStreamHeaderCallback>(
+      (ev) => ev.message.case == type && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
     }
   }
 
-  private async sendStreamChunk(req: SendStreamChunkRequest) {
+  private sendStreamChunk = async (req: SendStreamChunkRequest) => {
     const type = 'sendStreamChunk';
     const res = FfiClient.instance.request<SendStreamChunkResponse>({
       message: { case: type, value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>((ev) => {
-      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<SendStreamChunkCallback>(
+      (ev) => ev.message.case == type && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
     }
-  }
+  };
 
-  private async sendStreamTrailer(req: SendStreamTrailerRequest) {
+  private sendStreamTrailer = async (req: SendStreamTrailerRequest) => {
     const type = 'sendStreamTrailer';
     const res = FfiClient.instance.request<SendStreamTrailerResponse>({
       message: { case: type, value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<SendStreamTrailerCallback>((ev) => {
-      return ev.message.case == type && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<SendStreamTrailerCallback>(
+      (ev) => ev.message.case == type && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw new Error(cb.error);
     }
-  }
+  };
 
   /**
    * Sends a chat message to participants in the room
@@ -557,9 +601,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'sendChatMessage', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
-      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>(
+      (ev) => ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     switch (cb.message.case) {
       case 'chatMessage':
@@ -603,9 +648,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'editChatMessage', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>((ev) => {
-      return ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<SendChatMessageCallback>(
+      (ev) => ev.message.case == 'chatMessage' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     switch (cb.message.case) {
       case 'chatMessage':
@@ -632,9 +678,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'setLocalName', value: req },
     });
 
-    await FfiClient.instance.waitFor<SetLocalNameCallback>((ev) => {
-      return ev.message.case == 'setLocalName' && ev.message.value.asyncId == res.asyncId;
-    });
+    await FfiClient.instance.waitFor<SetLocalNameCallback>(
+      (ev) => ev.message.case == 'setLocalName' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
   }
 
   async setAttributes(attributes: Record<string, string>) {
@@ -647,9 +694,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'setLocalAttributes', value: req },
     });
 
-    await FfiClient.instance.waitFor<SetLocalAttributesCallback>((ev) => {
-      return ev.message.case == 'setLocalAttributes' && ev.message.value.asyncId == res.asyncId;
-    });
+    await FfiClient.instance.waitFor<SetLocalAttributesCallback>(
+      (ev) => ev.message.case == 'setLocalAttributes' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
   }
 
   async publishTrack(
@@ -669,9 +717,10 @@ export class LocalParticipant extends Participant {
     });
 
     try {
-      const cb = await FfiClient.instance.waitFor<PublishTrackCallback>((ev) => {
-        return ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId;
-      });
+      const cb = await FfiClient.instance.waitFor<PublishTrackCallback>(
+        (ev) => ev.message.case == 'publishTrack' && ev.message.value.asyncId == res.asyncId,
+        { signal: this.disconnectSignal },
+      );
 
       switch (cb.message.case) {
         case 'publication':
@@ -702,9 +751,10 @@ export class LocalParticipant extends Participant {
         message: { case: 'unpublishTrack', value: req },
       });
 
-      const cb = await FfiClient.instance.waitFor<UnpublishTrackCallback>((ev) => {
-        return ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId;
-      });
+      const cb = await FfiClient.instance.waitFor<UnpublishTrackCallback>(
+        (ev) => ev.message.case == 'unpublishTrack' && ev.message.value.asyncId == res.asyncId,
+        { signal: this.disconnectSignal },
+      );
 
       if (cb.error) {
         throw new Error(cb.error);
@@ -744,9 +794,10 @@ export class LocalParticipant extends Participant {
       message: { case: 'performRpc', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<PerformRpcCallback>((ev) => {
-      return ev.message.case === 'performRpc' && ev.message.value.asyncId === res.asyncId;
-    });
+    const cb = await FfiClient.instance.waitFor<PerformRpcCallback>(
+      (ev) => ev.message.case === 'performRpc' && ev.message.value.asyncId === res.asyncId,
+      { signal: this.disconnectSignal },
+    );
 
     if (cb.error) {
       throw RpcError.fromProto(cb.error);

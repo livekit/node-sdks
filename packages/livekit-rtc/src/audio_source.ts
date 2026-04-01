@@ -151,6 +151,8 @@ export class AudioSource {
       clearTimeout(this.timeout);
       this.timeout = undefined;
     }
+    // Resolve any pending waitForPlayout() promise so callers don't hang.
+    this.release();
     this.ffiHandle.dispose();
     this.closed = true;
   }

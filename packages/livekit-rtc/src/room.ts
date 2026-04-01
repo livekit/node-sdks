@@ -295,6 +295,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    // Clear sidPromise before removing listeners so that a reconnect
+    // doesn't return a stale, permanently-pending promise.
+    this.sidPromise = undefined;
+
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
   }

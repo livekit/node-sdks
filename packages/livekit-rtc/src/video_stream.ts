@@ -18,6 +18,7 @@ export type VideoFrameEvent = {
 class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
   private controller?: ReadableStreamDefaultController<VideoFrameEvent>;
   private ffiHandle: FfiHandle;
+  private disposed = false;
 
   constructor(track: Track) {
     const req = new NewVideoStreamRequest({
@@ -67,7 +68,12 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
         this.controller.close();
         // Dispose the native handle so the FD is released on stream end,
         // not just when cancel() is called explicitly by the consumer.
-        this.ffiHandle.dispose();
+        // Guard against double-dispose if cancel() is called after EOS
+        // while buffered frames are still in the ReadableStream queue.
+        if (!this.disposed) {
+          this.disposed = true;
+          this.ffiHandle.dispose();
+        }
         break;
     }
   };
@@ -78,7 +84,10 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
 
   cancel() {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-    this.ffiHandle.dispose();
+    if (!this.disposed) {
+      this.disposed = true;
+      this.ffiHandle.dispose();
+    }
   }
 }
 

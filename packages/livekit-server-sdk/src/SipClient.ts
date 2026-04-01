@@ -210,6 +210,8 @@ export interface SipOutboundTrunkUpdateOptions {
 export interface TransferSipParticipantOptions {
   playDialtone?: boolean;
   headers?: { [key: string]: string };
+  /** Maximum time for the transfer destination to answer the call, in seconds. */
+  ringingTimeout?: number;
 }
 
 /**
@@ -789,6 +791,9 @@ export class SipClient extends ServiceBase {
       transferTo: transferTo,
       playDialtone: opts.playDialtone,
       headers: opts.headers,
+      ringingTimeout: opts.ringingTimeout
+        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+        : undefined,
     }).toJson();
 
     await this.rpc.request(

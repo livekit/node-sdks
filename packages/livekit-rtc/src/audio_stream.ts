@@ -106,6 +106,9 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         this.controller.close();
+        // Dispose the native handle so the FD is released on stream end,
+        // not just when cancel() is called explicitly by the consumer.
+        this.ffiHandle.dispose();
         this.frameProcessor?.close();
         break;
     }
@@ -118,6 +121,9 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   cancel() {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     this.ffiHandle.dispose();
+    // Also close the frame processor on cancel for symmetry with the EOS path,
+    // so resources are released regardless of how the stream ends.
+    this.frameProcessor?.close();
   }
 }
 

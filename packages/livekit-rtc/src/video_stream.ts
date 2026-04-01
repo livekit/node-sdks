@@ -65,6 +65,9 @@ class VideoStreamSource implements UnderlyingSource<VideoFrameEvent> {
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         this.controller.close();
+        // Dispose the native handle so the FD is released on stream end,
+        // not just when cancel() is called explicitly by the consumer.
+        this.ffiHandle.dispose();
         break;
     }
   };

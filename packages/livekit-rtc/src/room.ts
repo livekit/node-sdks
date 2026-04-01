@@ -612,6 +612,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {
+      // Abort pending waitFor() listeners on server-initiated disconnect too,
+      // not just on explicit disconnect() calls.
+      this.disconnectController.abort('Room disconnected');
       this.emit(RoomEvent.Disconnected, ev.value.reason!);
     } else if (ev.case == 'reconnecting') {
       this.emit(RoomEvent.Reconnecting);

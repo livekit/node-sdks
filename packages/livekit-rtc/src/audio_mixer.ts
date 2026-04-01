@@ -310,11 +310,11 @@ export class AudioMixer {
 
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
+      const { result, clearTimeout: cancel } = this.timeoutRace(
+        iterator.next(),
+        this.streamTimeoutMs,
+      );
       try {
-        const { result, clearTimeout: cancel } = this.timeoutRace(
-          iterator.next(),
-          this.streamTimeoutMs,
-        );
         const value = await result;
         cancel();
 
@@ -345,6 +345,9 @@ export class AudioMixer {
           buf = combined;
         }
       } catch (error) {
+        // Clear the timeout on the error path too, so it doesn't linger
+        // when iterator.next() rejects.
+        cancel();
         console.error(`AudioMixer: Error reading from stream:`, error);
         exhausted = true;
         break;

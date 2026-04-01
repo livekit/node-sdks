@@ -311,19 +311,25 @@ export class AudioMixer {
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
       try {
-        const result = await Promise.race([iterator.next(), this.timeout(this.streamTimeoutMs)]);
+        const { result, clearTimeout: cancel } = this.timeoutRace(
+          iterator.next(),
+          this.streamTimeoutMs,
+        );
+        const value = await result;
+        cancel();
 
-        if (result === 'timeout') {
+        if (value === 'timeout') {
           console.warn(`AudioMixer: stream timeout after ${this.streamTimeoutMs}ms`);
           break;
         }
+        const iterResult = value;
 
-        if (result.done) {
+        if (iterResult.done) {
           exhausted = true;
           break;
         }
 
-        const frame = result.value;
+        const frame = iterResult.value;
         const newData = frame.data;
 
         // Mark that we received data in this call
@@ -412,7 +418,19 @@ export class AudioMixer {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private timeout(ms: number): Promise<'timeout'> {
-    return new Promise((resolve) => setTimeout(() => resolve('timeout'), ms));
+  /** Race a promise against a timeout, returning a handle to clear the timer
+   *  so the losing setTimeout doesn't linger after the winner resolves. */
+  private timeoutRace<T>(
+    promise: Promise<T>,
+    ms: number,
+  ): { result: Promise<T | 'timeout'>; clearTimeout: () => void } {
+    let timer: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<'timeout'>((resolve) => {
+      timer = setTimeout(() => resolve('timeout'), ms);
+    });
+    return {
+      result: Promise.race([promise, timeoutPromise]),
+      clearTimeout: () => clearTimeout(timer),
+    };
   }
 }

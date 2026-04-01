@@ -283,6 +283,28 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    // Close all in-progress stream controllers to prevent FD leaks.
+    // Streams that were receiving data but never got a trailer (e.g. the sender
+    // disconnected mid-transfer) would otherwise keep their ReadableStream open
+    // indefinitely, leaking the underlying controller and any buffered chunks.
+    for (const [, streamController] of this.byteStreamControllers) {
+      try {
+        streamController.controller.close();
+      } catch {
+        // controller may already be closed
+      }
+    }
+    this.byteStreamControllers.clear();
+
+    for (const [, streamController] of this.textStreamControllers) {
+      try {
+        streamController.controller.close();
+      } catch {
+        // controller may already be closed
+      }
+    }
+    this.textStreamControllers.clear();
+
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
   }

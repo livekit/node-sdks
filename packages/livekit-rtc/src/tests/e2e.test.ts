@@ -514,4 +514,44 @@ describeE2E('livekit-rtc e2e', () => {
     },
     testTimeoutMs * 2,
   );
+
+  it(
+    'cleans up stream controllers when disconnecting during an active stream',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'cleanup-stream-topic';
+
+      // Register a handler on the receiving side that will intentionally
+      // NOT fully consume the stream — simulating an abandoned transfer.
+      let readerReceived = false;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      receivingRoom!.registerTextStreamHandler(topic, async (_reader, _sender) => {
+        readerReceived = true;
+        // Deliberately do not call reader.readAll() so the stream stays open
+      });
+
+      // Start sending a text stream but don't close it
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('partial data');
+
+      // Wait for the receiving side to get the stream header
+      await waitFor(() => readerReceived, {
+        timeoutMs: 5000,
+        debugName: 'text stream header received',
+      });
+
+      // Disconnect the receiving room while the stream is still open.
+      // This should close the stream controller without throwing.
+      await receivingRoom!.disconnect();
+
+      // Also close the writer and disconnect the sender
+      await writer.close();
+      await sendingRoom!.disconnect();
+
+      // If we got here without hanging or throwing, the stream controller
+      // was properly cleaned up on disconnect.
+    },
+    testTimeoutMs,
+  );
 });

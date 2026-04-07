@@ -81,6 +81,7 @@ export interface CreateSipInboundTrunkOptions {
   includeHeaders?: SIPHeaderOptions;
   krispEnabled?: boolean;
   mediaEncryption?: SIPMediaEncryption;
+  ringingTimeout?: Duration;
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
@@ -314,6 +315,7 @@ export class SipClient extends ServiceBase {
         includeHeaders: opts.includeHeaders,
         krispEnabled: opts.krispEnabled,
         mediaEncryption: opts.mediaEncryption,
+        ringingTimeout: opts.ringingTimeout,
       }),
     }).toJson();
 

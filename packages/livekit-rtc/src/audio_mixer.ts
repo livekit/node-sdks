@@ -239,7 +239,7 @@ export class AudioMixer {
 
       for (const result of results) {
         if (result.status !== 'fulfilled') {
-          log.warn('AudioMixer: Stream contribution failed:', result.reason);
+          log.warn({ reason: result.reason }, 'AudioMixer: Stream contribution failed');
           continue;
         }
 

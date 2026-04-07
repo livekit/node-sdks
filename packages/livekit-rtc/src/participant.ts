@@ -336,7 +336,7 @@ export class LocalParticipant extends Participant {
         await sendTrailer(trailerReq);
       },
       abort(err) {
-        log.error('Sink error:', err);
+        log.error(err, 'Sink Error');
       },
     });
 
@@ -451,7 +451,7 @@ export class LocalParticipant extends Participant {
         await sendTrailer(trailerReq);
       },
       abort(err) {
-        log.error('Sink error:', err);
+        log.error(err, 'Sink error');
       },
     });
 

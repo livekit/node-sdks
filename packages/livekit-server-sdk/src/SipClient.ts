@@ -81,6 +81,8 @@ export interface CreateSipInboundTrunkOptions {
   includeHeaders?: SIPHeaderOptions;
   krispEnabled?: boolean;
   mediaEncryption?: SIPMediaEncryption;
+  /** Maximum time for a call to ring in seconds. */
+  ringingTimeout?: number;
 }
 export interface CreateSipOutboundTrunkOptions {
   metadata?: string;
@@ -314,6 +316,9 @@ export class SipClient extends ServiceBase {
         includeHeaders: opts.includeHeaders,
         krispEnabled: opts.krispEnabled,
         mediaEncryption: opts.mediaEncryption,
+        ringingTimeout: opts.ringingTimeout
+          ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+          : undefined,
       }),
     }).toJson();
 

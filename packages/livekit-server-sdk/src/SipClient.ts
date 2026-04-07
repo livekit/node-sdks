@@ -317,8 +317,8 @@ export class SipClient extends ServiceBase {
         krispEnabled: opts.krispEnabled,
         mediaEncryption: opts.mediaEncryption,
         ringingTimeout: opts.ringingTimeout
-        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
-        : undefined,
+          ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+          : undefined,
       }),
     }).toJson();
 

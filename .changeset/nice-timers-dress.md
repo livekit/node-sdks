@@ -1,5 +1,4 @@
 ---
-"example-receive-audio": patch
 "@livekit/rtc-node": patch
 ---
 

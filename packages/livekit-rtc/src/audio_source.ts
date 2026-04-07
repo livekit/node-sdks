@@ -145,6 +145,14 @@ export class AudioSource {
   }
 
   async close() {
+    // Clear any pending playout timeout so its callback doesn't fire after
+    // the handle is disposed, which would reference freed native state.
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = undefined;
+    }
+    // Resolve any pending waitForPlayout() promise so callers don't hang.
+    this.release();
     this.ffiHandle.dispose();
     this.closed = true;
   }

@@ -17,6 +17,7 @@ import { FfiClient, FfiHandle } from '../ffi_client.js';
 import type { DataTrackFrame, DataTrackInfo } from './types.js';
 import { DataTrackPushFrameError } from './types.js';
 
+/** Data track published by the local participant. */
 export class LocalDataTrack {
   private _info: DataTrackInfo;
   private ffiHandle: FfiHandle;
@@ -31,10 +32,12 @@ export class LocalDataTrack {
     this.ffiHandle = new FfiHandle(ownedTrack.handle!.id!);
   }
 
+  /** Information about the data track. */
   get info(): DataTrackInfo {
     return this._info;
   }
 
+  /** Whether or not the track is still published. */
   isPublished(): boolean {
     const res = FfiClient.instance.request<LocalDataTrackIsPublishedResponse>({
       message: {
@@ -47,6 +50,18 @@ export class LocalDataTrack {
     return res.isPublished!;
   }
 
+  /**
+   * Try pushing a frame to subscribers of the track.
+   *
+   * See {@link DataTrackFrame} for how to construct a frame and attach metadata.
+   *
+   * Pushing a frame can fail for several reasons:
+   *
+   * - The track has been unpublished by the local participant or SFU
+   * - The room is no longer connected
+   *
+   * @throws {@link DataTrackPushFrameError} If the push fails.
+   */
   tryPush(frame: DataTrackFrame): void {
     const protoFrame = new ProtoDataTrackFrame({
       payload: frame.payload,
@@ -68,6 +83,10 @@ export class LocalDataTrack {
     }
   }
 
+  /**
+   * Unpublish the track from the SFU. Once this is called, any further calls to
+   * {@link tryPush} will fail.
+   */
   async unpublish(): Promise<void> {
     FfiClient.instance.request({
       message: {

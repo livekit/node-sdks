@@ -17,8 +17,11 @@ import type { UnderlyingSource } from 'node:stream/web';
 import { FfiClient, FfiHandle } from '../ffi_client.js';
 import type { DataTrackFrame, DataTrackInfo, DataTrackSubscribeOptions } from './types.js';
 
+/** Data track published by a remote participant. */
 export class RemoteDataTrack {
+  /** Information about the data track. */
   info: DataTrackInfo;
+  /** Identity of the participant who published the track. */
   publisherIdentity: string;
   private ffiHandle: FfiHandle;
 
@@ -33,6 +36,19 @@ export class RemoteDataTrack {
     this.ffiHandle = new FfiHandle(ownedTrack.handle!.id!);
   }
 
+  /**
+   * Subscribes to the data track to receive frames.
+   *
+   * Returns a `ReadableStream` that yields {@link DataTrackFrame}s as they arrive.
+   *
+   * An application may call `subscribe` more than once to process frames in multiple places.
+   * Internally, only the first call communicates with the SFU and allocates the resources
+   * required to receive frames. Additional subscriptions reuse the same underlying pipeline
+   * and do not trigger additional signaling.
+   *
+   * Note that newly created subscriptions only receive frames published after the initial
+   * subscription is established.
+   */
   subscribe(options?: DataTrackSubscribeOptions): ReadableStream<DataTrackFrame> {
     const opts = new ProtoDataTrackSubscribeOptions({
       bufferSize: options?.bufferSize,

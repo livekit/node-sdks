@@ -12,6 +12,7 @@ import {
   ConnectionState,
   LocalAudioTrack,
   ParticipantKind,
+  type RemoteDataTrack,
   Room,
   RoomEvent,
   RpcError,
@@ -510,6 +511,88 @@ describeE2E('livekit-rtc e2e', () => {
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.CONNECTION_TIMEOUT });
 
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs * 2,
+  );
+
+  it(
+    'publishes and subscribes to a data track',
+    async () => {
+      const FRAME_COUNT = 5;
+      const PAYLOAD_SIZE = 64;
+      const TRACK_NAME = 'test-track';
+
+      const { rooms } = await connectTestRooms(2);
+      const [subscriberRoom, publisherRoom] = rooms;
+      const publisherIdentity = publisherRoom!.localParticipant!.identity;
+
+      const unpublishedEvent = waitForRoomEvent(
+        subscriberRoom!,
+        RoomEvent.DataTrackUnpublished,
+        testTimeoutMs,
+        (sid: string) => sid,
+      );
+
+      const publishedEvent = waitForRoomEvent(
+        subscriberRoom!,
+        RoomEvent.DataTrackPublished,
+        testTimeoutMs,
+        (track: RemoteDataTrack) => track,
+      );
+
+      const localTrack = await publisherRoom!.localParticipant!.publishDataTrack({
+        name: TRACK_NAME,
+      });
+      expect(localTrack.info.sid).toBeTruthy();
+      expect(localTrack.info.name).toBe(TRACK_NAME);
+      expect(localTrack.isPublished()).toBe(true);
+
+      const remoteTrack = await publishedEvent;
+      expect(remoteTrack.info.name).toBe(TRACK_NAME);
+      expect(remoteTrack.publisherIdentity).toBe(publisherIdentity);
+
+      const stream = remoteTrack.subscribe();
+      const reader = stream.getReader();
+
+      const pushTask = (async () => {
+        for (let i = 0; i < FRAME_COUNT; i++) {
+          localTrack.tryPush({
+            payload: new Uint8Array(PAYLOAD_SIZE).fill(i),
+            userTimestamp: BigInt(Date.now()),
+          });
+          await delay(100);
+        }
+        await localTrack.unpublish();
+      })();
+
+      const readTask = (async () => {
+        let recvCount = 0;
+        while (true) {
+          const { done, value: frame } = await reader.read();
+          if (done) break;
+          const firstByte = frame.payload[0]!;
+          expect(frame.payload.every((b) => b === firstByte)).toBe(true);
+          expect(frame.payload.byteLength).toBe(PAYLOAD_SIZE);
+          expect(frame.userTimestamp).toBeDefined();
+          const latency = (Date.now() - Number(frame.userTimestamp!)) / 1000;
+          expect(latency).toBeLessThan(5.0);
+          recvCount++;
+        }
+        return recvCount;
+      })();
+
+      const recvCount = await withTimeout(
+        Promise.all([pushTask, readTask]).then(([, count]) => count),
+        testTimeoutMs,
+        'Timed out during data track test',
+      );
+      expect(recvCount).toBeGreaterThan(0);
+
+      const unpublishedSid = await unpublishedEvent;
+      expect(unpublishedSid).toBe(localTrack.info.sid);
+
+      reader.releaseLock();
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
     testTimeoutMs * 2,

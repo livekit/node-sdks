@@ -64,12 +64,9 @@ export class RemoteDataTrack {
       },
     });
 
-    return new ReadableStream<DataTrackFrame>(
-      new DataTrackStreamSource(res.stream!),
-      options?.bufferSize != null
-        ? new CountQueuingStrategy({ highWaterMark: options.bufferSize })
-        : undefined,
-    );
+    return new ReadableStream<DataTrackFrame>(new DataTrackStreamSource(res.stream!), {
+      highWaterMark: 0, // Buffer owned by Rust
+    });
   }
 }
 

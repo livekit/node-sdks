@@ -78,6 +78,17 @@ import {
   type TextStreamInfo,
   TextStreamWriter,
 } from './data_streams/index.js';
+import type { PublishDataTrackCallback, PublishDataTrackResponse } from '@livekit/rtc-ffi-bindings';
+import {
+  DataTrackOptions as ProtoDataTrackOptions,
+  PublishDataTrackRequest,
+} from '@livekit/rtc-ffi-bindings';
+import {
+  type DataTrackOptions,
+  type LocalDataTrack,
+  PublishDataTrackError,
+} from './data_tracks/index.js';
+import { LocalDataTrack as LocalDataTrackImpl } from './data_tracks/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
 import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
@@ -717,6 +728,39 @@ export class LocalParticipant extends Participant {
       this.trackPublications.delete(trackSid);
     } finally {
       unlock();
+    }
+  }
+
+  /**
+   * Publishes a data track.
+   *
+   * @returns The published data track. Use {@link LocalDataTrack.tryPush} to send data frames.
+   * @throws {@link PublishDataTrackError} if there is an error publishing the data track.
+   */
+  async publishDataTrack(options: DataTrackOptions): Promise<LocalDataTrack> {
+    const protoOpts = new ProtoDataTrackOptions({ name: options.name });
+
+    const res = FfiClient.instance.request<PublishDataTrackResponse>({
+      message: {
+        case: 'publishDataTrack',
+        value: new PublishDataTrackRequest({
+          localParticipantHandle: this.ffi_handle.handle,
+          options: protoOpts,
+        }),
+      },
+    });
+
+    const cb = await FfiClient.instance.waitFor<PublishDataTrackCallback>((ev) => {
+      return ev.message.case === 'publishDataTrack' && ev.message.value.asyncId === res.asyncId;
+    });
+
+    switch (cb.result.case) {
+      case 'track':
+        return new LocalDataTrackImpl(cb.result.value);
+      case 'error':
+        throw new PublishDataTrackError(cb.result.value.message!);
+      default:
+        throw new PublishDataTrackError('Unknown error publishing data track');
     }
   }
 

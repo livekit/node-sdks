@@ -43,6 +43,7 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
+import { RemoteDataTrack } from './data_tracks/index.js';
 import type { ChatMessage } from './types.js';
 import { bigIntToNumber } from './utils.js';
 
@@ -639,6 +640,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case === 'tokenRefreshed') {
       this._token = ev.value.token;
       this.emit('tokenRefreshed');
+    } else if (ev.case === 'dataTrackPublished') {
+      const remoteDataTrack = new RemoteDataTrack(ev.value.track!);
+      this.emit(RoomEvent.DataTrackPublished, remoteDataTrack);
+    } else if (ev.case === 'dataTrackUnpublished') {
+      this.emit(RoomEvent.DataTrackUnpublished, ev.value.sid!);
     }
   };
 
@@ -861,6 +867,8 @@ export type RoomCallbacks = {
   roomUpdated: () => void;
   moved: () => void;
   tokenRefreshed: () => void;
+  dataTrackPublished: (track: RemoteDataTrack) => void;
+  dataTrackUnpublished: (sid: string) => void;
 };
 
 export enum RoomEvent {
@@ -896,4 +904,6 @@ export enum RoomEvent {
   RoomUpdated = 'roomUpdated',
   Moved = 'moved',
   TokenRefreshed = 'tokenRefreshed',
+  DataTrackPublished = 'dataTrackPublished',
+  DataTrackUnpublished = 'dataTrackUnpublished',
 }

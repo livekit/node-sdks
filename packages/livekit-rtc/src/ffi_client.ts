@@ -92,11 +92,11 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
       // the room disconnects or the operation is cancelled.
       const onAbort = () => {
         cleanup();
-        reject(new Error(options?.signal?.reason ?? 'waitFor aborted'));
+        reject(options?.signal?.reason ?? new Error('waitFor aborted'));
       };
 
       if (options?.signal?.aborted) {
-        reject(new Error(options.signal.reason ?? 'waitFor aborted'));
+        reject(options.signal.reason ?? new Error('waitFor aborted'));
         return;
       }
 

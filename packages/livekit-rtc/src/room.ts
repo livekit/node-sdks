@@ -294,7 +294,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     // Abort all pending FfiClient.waitFor() listeners so they don't leak.
     // This causes any in-flight operations (publishData, publishTrack, etc.)
     // to reject and clean up their event listeners.
-    this.disconnectController.abort('Room disconnected');
+    this.disconnectController.abort();
 
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
@@ -614,7 +614,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case == 'disconnected') {
       // Abort pending waitFor() listeners on server-initiated disconnect too,
       // not just on explicit disconnect() calls.
-      this.disconnectController.abort('Room disconnected');
+      this.disconnectController.abort();
       this.emit(RoomEvent.Disconnected, ev.value.reason!);
     } else if (ev.case == 'reconnecting') {
       this.emit(RoomEvent.Reconnecting);

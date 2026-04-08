@@ -33,6 +33,7 @@ import type {
   TextStreamHandler,
   TextStreamInfo,
 } from './data_streams/types.js';
+import { RemoteDataTrack } from './data_tracks/index.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -43,7 +44,6 @@ import type { LocalTrack, RemoteTrack } from './track.js';
 import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
-import { RemoteDataTrack } from './data_tracks/index.js';
 import type { ChatMessage } from './types.js';
 import { bigIntToNumber } from './utils.js';
 

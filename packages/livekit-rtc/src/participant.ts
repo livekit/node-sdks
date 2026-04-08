@@ -69,6 +69,11 @@ import {
   RpcMethodInvocationResponseRequest,
   UnregisterRpcMethodRequest,
 } from '@livekit/rtc-ffi-bindings';
+import type { PublishDataTrackCallback, PublishDataTrackResponse } from '@livekit/rtc-ffi-bindings';
+import {
+  DataTrackOptions as ProtoDataTrackOptions,
+  PublishDataTrackRequest,
+} from '@livekit/rtc-ffi-bindings';
 import type { PathLike } from 'node:fs';
 import { open, stat } from 'node:fs/promises';
 import {
@@ -78,11 +83,6 @@ import {
   type TextStreamInfo,
   TextStreamWriter,
 } from './data_streams/index.js';
-import type { PublishDataTrackCallback, PublishDataTrackResponse } from '@livekit/rtc-ffi-bindings';
-import {
-  DataTrackOptions as ProtoDataTrackOptions,
-  PublishDataTrackRequest,
-} from '@livekit/rtc-ffi-bindings';
 import {
   type DataTrackOptions,
   type LocalDataTrack,

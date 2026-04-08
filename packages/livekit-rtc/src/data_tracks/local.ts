@@ -1,17 +1,16 @@
 // SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import type {
   LocalDataTrackIsPublishedResponse,
   LocalDataTrackTryPushResponse,
   OwnedLocalDataTrack,
 } from '@livekit/rtc-ffi-bindings';
 import {
-  DataTrackFrame as ProtoDataTrackFrame,
   LocalDataTrackIsPublishedRequest,
   LocalDataTrackTryPushRequest,
   LocalDataTrackUnpublishRequest,
+  DataTrackFrame as ProtoDataTrackFrame,
 } from '@livekit/rtc-ffi-bindings';
 import { FfiClient, FfiHandle } from '../ffi_client.js';
 import type { DataTrackFrame, DataTrackInfo } from './types.js';

@@ -1,6 +1,6 @@
 # Data Tracks Example
 
-This example demonstrates how to publish and subscribe to data tracks in LiveKit. It consists of two scripts:
+This example demonstrates how to publish and subscribe to [data tracks](https://docs.livekit.io/transport/data/data-tracks/) in LiveKit. It consists of two scripts:
 
 - **publisher** — Connects to a room, publishes a data track, and pushes frames at a regular interval.
 - **subscriber** — Connects to a room, listens for published data tracks, subscribes, and logs received frames.
@@ -22,6 +22,7 @@ Before running this example, make sure you have:
    ```
 
 2. Create a `.env.local` file in the example directory with your LiveKit credentials:
+
    ```
    LIVEKIT_API_KEY=your_api_key
    LIVEKIT_API_SECRET=your_api_secret

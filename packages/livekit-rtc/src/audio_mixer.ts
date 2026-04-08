@@ -310,26 +310,20 @@ export class AudioMixer {
 
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
-      const { result, clearTimeout: cancel } = this.timeoutRace(
-        iterator.next(),
-        this.streamTimeoutMs,
-      );
       try {
-        const value = await result;
-        cancel();
+        const result = await this.timeoutRace(iterator.next(), this.streamTimeoutMs);
 
-        if (value === 'timeout') {
+        if (result === 'timeout') {
           console.warn(`AudioMixer: stream timeout after ${this.streamTimeoutMs}ms`);
           break;
         }
-        const iterResult = value;
 
-        if (iterResult.done) {
+        if (result.done) {
           exhausted = true;
           break;
         }
 
-        const frame = iterResult.value;
+        const frame = result.value;
         const newData = frame.data;
 
         // Mark that we received data in this call
@@ -345,9 +339,6 @@ export class AudioMixer {
           buf = combined;
         }
       } catch (error) {
-        // Clear the timeout on the error path too, so it doesn't linger
-        // when iterator.next() rejects.
-        cancel();
         console.error(`AudioMixer: Error reading from stream:`, error);
         exhausted = true;
         break;
@@ -421,19 +412,13 @@ export class AudioMixer {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  /** Race a promise against a timeout, returning a handle to clear the timer
-   *  so the losing setTimeout doesn't linger after the winner resolves. */
-  private timeoutRace<T>(
-    promise: Promise<T>,
-    ms: number,
-  ): { result: Promise<T | 'timeout'>; clearTimeout: () => void } {
+  /** Race a promise against a timeout. The losing setTimeout is automatically
+   *  cleared via `.finally()` so callers don't need to manage cleanup. */
+  private timeoutRace<T>(promise: Promise<T>, ms: number): Promise<T | 'timeout'> {
     let timer: ReturnType<typeof setTimeout>;
     const timeoutPromise = new Promise<'timeout'>((resolve) => {
       timer = setTimeout(() => resolve('timeout'), ms);
     });
-    return {
-      result: Promise.race([promise, timeoutPromise]),
-      clearTimeout: () => clearTimeout(timer),
-    };
+    return Promise.race([promise.finally(() => clearTimeout(timer)), timeoutPromise]);
   }
 }

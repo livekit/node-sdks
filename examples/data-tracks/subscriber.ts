@@ -14,12 +14,13 @@ async function subscribe(track: RemoteDataTrack) {
   console.log(
     `Subscribing to '${track.info.name}' published by '${track.publisherIdentity}'`,
   );
-  for await (const frame of track.subscribe()) {
+  const stream = track.subscribe();
+  for await (const frame of stream) {
     console.log(`Received frame (${frame.payload.byteLength} bytes)`);
 
-    if (frame.userTimestamp != null) {
-      const latency = (Date.now() - Number(frame.userTimestamp)) / 1000;
-      console.log(`Latency: ${latency.toFixed(3)} s`);
+    if (frame.userTimestamp) {
+      const latencyMs = Date.now() - Number(frame.userTimestamp);
+      console.log(`Latency: ${latencyMs}ms`);
     }
   }
 }

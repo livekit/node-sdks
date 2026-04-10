@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.15.1
+
+### Patch Changes
+
+- Add ringingTimeout option to transferSipParticipant - [#627](https://github.com/livekit/node-sdks/pull/627) ([@alexlivekit](https://github.com/alexlivekit))
+
 ## 2.15.0
 
 ### Minor Changes

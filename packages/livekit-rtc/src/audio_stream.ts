@@ -27,6 +27,7 @@ export interface NoiseCancellationOptions {
 class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private controller?: ReadableStreamDefaultController<AudioFrame>;
   private ffiHandle: FfiHandle;
+  private disposed = false;
   private sampleRate: number;
   private numChannels: number;
   private legacyNcOptions?: NoiseCancellationOptions;
@@ -106,7 +107,15 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       case 'eos':
         FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
         this.controller.close();
-        this.frameProcessor?.close();
+        // Dispose the native handle so the FD is released on stream end,
+        // not just when cancel() is called explicitly by the consumer.
+        // Guard against double-dispose if cancel() is called after EOS
+        // while buffered frames are still in the ReadableStream queue.
+        if (!this.disposed) {
+          this.disposed = true;
+          this.ffiHandle.dispose();
+          this.frameProcessor?.close();
+        }
         break;
     }
   };
@@ -117,7 +126,13 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
 
   cancel() {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-    this.ffiHandle.dispose();
+    if (!this.disposed) {
+      this.disposed = true;
+      this.ffiHandle.dispose();
+      // Also close the frame processor on cancel for symmetry with the EOS path,
+      // so resources are released regardless of how the stream ends.
+      this.frameProcessor?.close();
+    }
   }
 }
 

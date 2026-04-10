@@ -98,6 +98,14 @@ export class AudioResampler {
   }
 
   /**
+   * Releases the underlying native resampler handle. Must be called when
+   * the resampler is no longer needed to avoid leaking the FD.
+   */
+  close() {
+    this.#ffiHandle.dispose();
+  }
+
+  /**
    * Push audio data into the resampler and retrieve any available resampled data.
    *
    * This method accepts audio data, resamples it according to the configured input and output rates,

@@ -1,5 +1,27 @@
 # @livekit/rtc-node
 
+## 0.13.25
+
+### Patch Changes
+
+- Release reader lock on stream completion and clear receivedChunks to prevent memory leak - [#640](https://github.com/livekit/node-sdks/pull/640) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Dispose native handles on audio/video stream EOS to prevent FD leaks - [#637](https://github.com/livekit/node-sdks/pull/637) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- ensure userdata is passed through when resampling - [#608](https://github.com/livekit/node-sdks/pull/608) ([@lukasIO](https://github.com/lukasIO))
+
+- Add typeguards for frame processors in order to avoid dual package hazard - [#608](https://github.com/livekit/node-sdks/pull/608) ([@lukasIO](https://github.com/lukasIO))
+
+- Add close() method to AudioResampler to release native handle - [#638](https://github.com/livekit/node-sdks/pull/638) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Update FFI bindings to latest and import them as a direct dependency - [#599](https://github.com/livekit/node-sdks/pull/599) ([@lukasIO](https://github.com/lukasIO))
+
+- Clear pending timeout in AudioSource.close() to prevent use-after-free - [#639](https://github.com/livekit/node-sdks/pull/639) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Bump FFI version to 0.12.52-patch.0 - [#644](https://github.com/livekit/node-sdks/pull/644) ([@lukasIO](https://github.com/lukasIO))
+
+- Update node FFI bindings to 0.12.50 - [#621](https://github.com/livekit/node-sdks/pull/621) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.24
 
 ### Patch Changes

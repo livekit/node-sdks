@@ -384,9 +384,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         participant.info.disconnectReason = ev.value.disconnectReason;
         // Emit before disposing so listeners can still access trackPublications.
         this.emit(RoomEvent.ParticipantDisconnected, participant);
-        // Dispose each track publication's FfiHandle to prevent FD leaks.
-        // Without this, rapid participant disconnections accumulate undisposed
-        // native handles since nothing else triggers their cleanup.
+        // Safety net: dispose any remaining publication handles that were not
+        // already cleaned up by individual trackUnpublished events (e.g. the
+        // server sent participantDisconnected without prior trackUnpublished
+        // events for every track, which can happen on abrupt disconnects).
         for (const [, publication] of participant.trackPublications) {
           publication.ffiHandle.dispose();
         }
@@ -426,6 +427,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       participant.trackPublications.delete(ev.value.publicationSid!);
       if (publication) {
         this.emit(RoomEvent.TrackUnpublished, publication, participant);
+        // Dispose eagerly so handles don't accumulate when a participant
+        // publishes and unpublishes many tracks during a long-lived session.
+        publication.ffiHandle.dispose();
       } else {
         log.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
       }

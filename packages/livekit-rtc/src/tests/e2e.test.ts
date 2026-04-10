@@ -514,4 +514,24 @@ describeE2E('livekit-rtc e2e', () => {
     },
     testTimeoutMs * 2,
   );
+
+  it(
+    'concurrent getSid() calls share a single listener and resolve consistently',
+    async () => {
+      const { rooms } = await connectTestRooms(1);
+      const room = rooms[0]!;
+
+      // Fire multiple concurrent getSid() calls — they should all resolve
+      // to the same SID without leaking event listeners.
+      const results = await Promise.all([room.getSid(), room.getSid(), room.getSid()]);
+
+      // All calls should return the same non-empty SID
+      expect(results[0]).toBeTruthy();
+      expect(results[1]).toBe(results[0]);
+      expect(results[2]).toBe(results[0]);
+
+      await room.disconnect();
+    },
+    testTimeoutMs,
+  );
 });

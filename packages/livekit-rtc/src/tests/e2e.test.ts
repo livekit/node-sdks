@@ -557,8 +557,8 @@ describeE2E('livekit-rtc e2e', () => {
       await leavingRoom!.disconnect();
       await disconnected;
 
-      // After disconnect, the remote participant's track publications map
-      // should be cleared (handles disposed).
+      // trackUnpublished events fire before participantDisconnected, so
+      // by this point all publications should already be removed and disposed.
       expect(remoteParticipant.trackPublications.size).toBe(0);
       expect(stayingRoom!.remoteParticipants.has(remoteParticipant.identity)).toBe(false);
 

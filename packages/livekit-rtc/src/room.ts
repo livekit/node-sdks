@@ -382,16 +382,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       if (participant) {
         this.remoteParticipants.delete(participant.identity);
         participant.info.disconnectReason = ev.value.disconnectReason;
-        // Emit before disposing so listeners can still access trackPublications.
         this.emit(RoomEvent.ParticipantDisconnected, participant);
-        // Safety net: dispose any remaining publication handles that were not
-        // already cleaned up by individual trackUnpublished events (e.g. the
-        // server sent participantDisconnected without prior trackUnpublished
-        // events for every track, which can happen on abrupt disconnects).
-        for (const [, publication] of participant.trackPublications) {
-          publication.ffiHandle.dispose();
-        }
-        participant.trackPublications.clear();
       } else {
         log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);
       }

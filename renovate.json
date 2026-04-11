@@ -1,7 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base", "helpers:pinGitHubActionDigests"],
-  "minimumReleaseAge": "2 weeks",
   "rangeStrategy": "auto",
   "minimumReleaseAge": "2 weeks",
   "packageRules": [

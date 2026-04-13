@@ -446,6 +446,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       participant.trackPublications.delete(ev.value.publicationSid!);
       if (publication) {
         this.emit(RoomEvent.TrackUnpublished, publication, participant);
+        // Dispose eagerly so handles don't accumulate when a participant
+        // publishes and unpublishes many tracks during a long-lived session.
+        publication.ffiHandle.dispose();
       } else {
         log.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
       }

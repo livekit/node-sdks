@@ -135,6 +135,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return this._serverUrl;
   }
 
+  // Shared promise for concurrent getSid() callers. Without this, each call
+  // registers its own RoomSidChanged + Disconnected listeners, and if many
+  // calls race only one of each pair is cleaned up — leaking the rest.
+  private sidPromise?: Promise<string>;
+
   /**
    * Gets the room's server ID. This ID is assigned by the LiveKit server
    * and is unique for each room session.
@@ -148,19 +153,26 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     if (this.info?.sid && this.info.sid !== '') {
       return this.info.sid;
     }
-    return new Promise((resolve, reject) => {
-      const handleRoomUpdate = (sid: string) => {
-        if (sid !== '') {
+    if (!this.sidPromise) {
+      this.sidPromise = new Promise<string>((resolve, reject) => {
+        const handleDisconnect = () => {
           this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-          resolve(sid);
-        }
-      };
-      this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
-      this.once(RoomEvent.Disconnected, () => {
-        this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
-        reject('Room disconnected before room server id was available');
+          this.sidPromise = undefined;
+          reject('Room disconnected before room server id was available');
+        };
+        const handleRoomUpdate = (sid: string) => {
+          if (sid !== '') {
+            this.off(RoomEvent.RoomSidChanged, handleRoomUpdate);
+            this.off(RoomEvent.Disconnected as any, handleDisconnect);
+            this.sidPromise = undefined;
+            resolve(sid);
+          }
+        };
+        this.on(RoomEvent.RoomSidChanged, handleRoomUpdate);
+        this.once(RoomEvent.Disconnected, handleDisconnect);
       });
-    });
+    }
+    return this.sidPromise;
   }
 
   get numParticipants(): number {
@@ -321,6 +333,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
     this.textStreamControllers.clear();
 
+    // Clear sidPromise before removing listeners so that a reconnect
+    // doesn't return a stale, permanently-pending promise.
+    this.sidPromise = undefined;
     // Abort all pending FfiClient.waitFor() listeners so they don't leak.
     // This causes any in-flight operations (publishData, publishTrack, etc.)
     // to reject and clean up their event listeners.
@@ -458,6 +473,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       participant.trackPublications.delete(ev.value.publicationSid!);
       if (publication) {
         this.emit(RoomEvent.TrackUnpublished, publication, participant);
+        // Dispose eagerly so handles don't accumulate when a participant
+        // publishes and unpublishes many tracks during a long-lived session.
+        publication.ffiHandle.dispose();
       } else {
         log.warn(`RoomEvent.TrackUnpublished: Could not find publication`);
       }

@@ -291,6 +291,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    this.cleanupOnDisconnect();
+
+    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
+    this.removeAllListeners();
+  }
+
+  private cleanupOnDisconnect() {
     // Error all in-progress stream controllers to prevent FD leaks.
     // Streams that were receiving data but never got a trailer (e.g. the sender
     // disconnected mid-transfer) would otherwise keep their ReadableStream open
@@ -313,13 +320,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     }
     this.textStreamControllers.clear();
+
     // Abort all pending FfiClient.waitFor() listeners so they don't leak.
     // This causes any in-flight operations (publishData, publishTrack, etc.)
     // to reject and clean up their event listeners.
     this.disconnectController.abort();
-
-    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
-    this.removeAllListeners();
   }
 
   /**
@@ -634,9 +639,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {
-      // Abort pending waitFor() listeners on server-initiated disconnect too,
-      // not just on explicit disconnect() calls.
-      this.disconnectController.abort();
+      this.cleanupOnDisconnect();
       this.emit(RoomEvent.Disconnected, ev.value.reason!);
     } else if (ev.case == 'reconnecting') {
       this.emit(RoomEvent.Reconnecting);

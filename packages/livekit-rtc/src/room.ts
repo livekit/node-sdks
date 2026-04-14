@@ -600,6 +600,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {
+      this.cleanupStreamControllers();
       this.emit(RoomEvent.Disconnected, ev.value.reason!);
     } else if (ev.case == 'reconnecting') {
       this.emit(RoomEvent.Reconnecting);

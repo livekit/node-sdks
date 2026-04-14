@@ -70,14 +70,49 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     return livekitRetrievePtr(data);
   }
 
-  async waitFor<T>(predicate: (ev: FfiEvent) => boolean): Promise<T> {
-    return new Promise<T>((resolve) => {
+  static defaultTimeout = 10000;
+
+  async waitFor<T>(
+    predicate: (ev: FfiEvent) => boolean,
+    { timeout = FfiClient.defaultTimeout, signal }: { timeout?: number; signal?: AbortSignal } = {},
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      let settled = false;
+
+      const cleanup = () => {
+        settled = true;
+        this.off(FfiClientEvent.FfiEvent, listener);
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', onAbort);
+      };
+
       const listener = (ev: FfiEvent) => {
         if (predicate(ev)) {
-          this.off(FfiClientEvent.FfiEvent, listener);
+          cleanup();
           resolve(ev.message.value as T);
         }
       };
+
+      const timer = setTimeout(() => {
+        if (!settled) {
+          cleanup();
+          reject(new Error('waitFor timed out'));
+        }
+      }, timeout);
+
+      const onAbort = () => {
+        if (!settled) {
+          cleanup();
+          reject(signal!.reason ?? new Error('waitFor aborted'));
+        }
+      };
+
+      if (signal?.aborted) {
+        reject(signal.reason ?? new Error('waitFor aborted'));
+        return;
+      }
+
+      signal?.addEventListener('abort', onAbort);
       this.on(FfiClientEvent.FfiEvent, listener);
     });
   }

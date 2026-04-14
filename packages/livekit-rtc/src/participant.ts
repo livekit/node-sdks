@@ -335,8 +335,22 @@ export class LocalParticipant extends Participant {
         });
         await sendTrailer(trailerReq);
       },
-      abort(err) {
+      async abort(err) {
         log.error('Sink error:', err);
+        try {
+          const trailerReq = new SendStreamTrailerRequest({
+            senderIdentity,
+            localParticipantHandle: localHandle,
+            destinationIdentities,
+            trailer: new DataStream_Trailer({
+              streamId,
+              reason: err instanceof Error ? err.message : String(err ?? 'unknown error'),
+            }),
+          });
+          await sendTrailer(trailerReq);
+        } catch {
+          // best effort — transport may already be down
+        }
       },
     });
 
@@ -450,8 +464,22 @@ export class LocalParticipant extends Participant {
         });
         await sendTrailer(trailerReq);
       },
-      abort(err) {
+      async abort(err) {
         log.error('Sink error:', err);
+        try {
+          const trailerReq = new SendStreamTrailerRequest({
+            senderIdentity,
+            localParticipantHandle: localHandle,
+            destinationIdentities,
+            trailer: new DataStream_Trailer({
+              streamId,
+              reason: err instanceof Error ? err.message : String(err ?? 'unknown error'),
+            }),
+          });
+          await sendTrailer(trailerReq);
+        } catch {
+          // best effort — transport may already be down
+        }
       },
     });
 

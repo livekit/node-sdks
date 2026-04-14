@@ -283,6 +283,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
+    this.cleanupStreamControllers();
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
     this.removeAllListeners();
   }
@@ -694,6 +695,25 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const participant = new RemoteParticipant(ownedInfo);
     this.remoteParticipants.set(ownedInfo.info!.identity!, participant);
     return participant;
+  }
+
+  private cleanupStreamControllers() {
+    for (const [streamId, entry] of this.byteStreamControllers) {
+      try {
+        entry.controller.error(new Error('Room disconnected'));
+      } catch {
+        // controller may already be closed
+      }
+      this.byteStreamControllers.delete(streamId);
+    }
+    for (const [streamId, entry] of this.textStreamControllers) {
+      try {
+        entry.controller.error(new Error('Room disconnected'));
+      } catch {
+        // controller may already be closed
+      }
+      this.textStreamControllers.delete(streamId);
+    }
   }
 
   private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {

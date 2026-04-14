@@ -108,6 +108,7 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
       };
 
       if (signal?.aborted) {
+        clearTimeout(timer);
         reject(signal.reason ?? new Error('waitFor aborted'));
         return;
       }

@@ -53,6 +53,7 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
         try {
           const { done, value } = await reader.read();
           if (done) {
+            reader.releaseLock();
             return { done: true, value: undefined as unknown };
           } else {
             this.handleChunkReceived(value);
@@ -60,12 +61,17 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
           }
         } catch (error: unknown) {
           log.error('error processing stream update: %s', error);
+          reader.releaseLock();
           return { done: true, value: undefined as unknown };
         }
       },
 
       return(): IteratorResult<Uint8Array> {
-        reader.releaseLock();
+        try {
+          reader.releaseLock();
+        } catch {
+          // already released
+        }
         return { done: true, value: undefined };
       },
     };
@@ -127,6 +133,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
         try {
           const { done, value } = await reader.read();
           if (done) {
+            reader.releaseLock();
             return { done: true, value: undefined };
           } else {
             this.handleChunkReceived(value);
@@ -137,12 +144,17 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
           }
         } catch (error: unknown) {
           log.error('error processing stream update: %s', error);
+          reader.releaseLock();
           return { done: true, value: undefined };
         }
       },
 
       return(): IteratorResult<string> {
-        reader.releaseLock();
+        try {
+          reader.releaseLock();
+        } catch {
+          // already released
+        }
         return { done: true, value: undefined };
       },
     };

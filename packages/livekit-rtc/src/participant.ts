@@ -736,6 +736,8 @@ export class LocalParticipant extends Participant {
    *
    * @returns The published data track. Use {@link LocalDataTrack.tryPush} to send data frames.
    * @throws {@link PublishDataTrackError} if there is an error publishing the data track.
+   *
+   * For LiveKit OSS, v1.11.0 or higher is required to use data tracks.
    */
   async publishDataTrack(options: DataTrackOptions): Promise<LocalDataTrack> {
     const protoOpts = new ProtoDataTrackOptions({ name: options.name });

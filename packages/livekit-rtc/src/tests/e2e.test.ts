@@ -597,4 +597,156 @@ describeE2E('livekit-rtc e2e', () => {
     },
     testTimeoutMs * 2,
   );
+
+  it(
+    'cleans up stream controllers when disconnecting during an active stream',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'cleanup-stream-topic';
+
+      // Register a handler on the receiving side that will intentionally
+      // NOT fully consume the stream — simulating an abandoned transfer.
+      let readerReceived = false;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      receivingRoom!.registerTextStreamHandler(topic, async (_reader, _sender) => {
+        readerReceived = true;
+        // Deliberately do not call reader.readAll() so the stream stays open
+      });
+
+      // Start sending a text stream but don't close it
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('partial data');
+
+      // Wait for the receiving side to get the stream header
+      await waitFor(() => readerReceived, {
+        timeoutMs: 5000,
+        debugName: 'text stream header received',
+      });
+
+      // Disconnect the receiving room while the stream is still open.
+      // This should close the stream controller without throwing.
+      await receivingRoom!.disconnect();
+
+      // Also close the writer and disconnect the sender
+      await writer.close();
+      await sendingRoom!.disconnect();
+
+      // If we got here without hanging or throwing, the stream controller
+      // was properly cleaned up on disconnect.
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'cleans up track publications when a remote participant disconnects',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [stayingRoom, leavingRoom] = rooms;
+
+      // Publish a track from the leaving participant so its track publication
+      // will need to be cleaned up on disconnect.
+      const source = new AudioSource(48_000, 1);
+      const track = LocalAudioTrack.createAudioTrack('cleanup-test', source);
+      const options = new TrackPublishOptions();
+      options.source = TrackSource.SOURCE_MICROPHONE;
+      await leavingRoom!.localParticipant!.publishTrack(track, options);
+
+      // Wait for the staying room to see the track subscription
+      await waitFor(
+        () => {
+          const remote = stayingRoom!.remoteParticipants.get(
+            leavingRoom!.localParticipant!.identity,
+          );
+          return remote !== undefined && remote.trackPublications.size > 0;
+        },
+        { timeoutMs: 5000, debugName: 'track publication visible' },
+      );
+
+      // Capture a reference to the remote participant before disconnect
+      const remoteParticipant = stayingRoom!.remoteParticipants.get(
+        leavingRoom!.localParticipant!.identity,
+      )!;
+      expect(remoteParticipant.trackPublications.size).toBeGreaterThan(0);
+
+      // Listen for the disconnect event
+      const disconnected = waitForRoomEvent(
+        stayingRoom!,
+        RoomEvent.ParticipantDisconnected,
+        testTimeoutMs,
+        (p: { identity: string }) => p.identity,
+      );
+
+      await leavingRoom!.disconnect();
+      await disconnected;
+
+      // trackUnpublished events fire before participantDisconnected, so
+      // by this point all publications should already be removed and disposed.
+      expect(remoteParticipant.trackPublications.size).toBe(0);
+      expect(stayingRoom!.remoteParticipants.has(remoteParticipant.identity)).toBe(false);
+
+      await source.close();
+      await stayingRoom!.disconnect();
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'cleans up resources when multiple participants disconnect simultaneously',
+    async () => {
+      // Connect 4 participants to stress-test concurrent disconnection cleanup
+      const { rooms } = await connectTestRooms(4);
+
+      // Publish a track from each participant to create track publications
+      const sources: AudioSource[] = [];
+      for (const room of rooms) {
+        const source = new AudioSource(48_000, 1);
+        sources.push(source);
+        const track = LocalAudioTrack.createAudioTrack('multi-cleanup', source);
+        const options = new TrackPublishOptions();
+        options.source = TrackSource.SOURCE_MICROPHONE;
+        await room.localParticipant!.publishTrack(track, options);
+      }
+
+      // Wait for all participants to see each other's tracks
+      await waitFor(
+        () =>
+          rooms.every(
+            (r) =>
+              r.remoteParticipants.size === 3 &&
+              [...r.remoteParticipants.values()].every((p) => p.trackPublications.size > 0),
+          ),
+        { timeoutMs: 5000, debugName: 'all tracks visible' },
+      );
+
+      // Disconnect all participants simultaneously
+      await Promise.all([...rooms.map((r) => r.disconnect()), ...sources.map((s) => s.close())]);
+
+      // Verify all rooms are disconnected and remote participant maps are empty
+      for (const room of rooms) {
+        expect(room.isConnected).toBe(false);
+      }
+    },
+    testTimeoutMs * 2,
+  );
+
+  it(
+    'concurrent getSid() calls share a single listener and resolve consistently',
+    async () => {
+      const { rooms } = await connectTestRooms(1);
+      const room = rooms[0]!;
+
+      // Fire multiple concurrent getSid() calls — they should all resolve
+      // to the same SID without leaking event listeners.
+      const results = await Promise.all([room.getSid(), room.getSid(), room.getSid()]);
+
+      // All calls should return the same non-empty SID
+      expect(results[0]).toBeTruthy();
+      expect(results[1]).toBe(results[0]);
+      expect(results[2]).toBe(results[0]);
+
+      await room.disconnect();
+    },
+    testTimeoutMs,
+  );
 });

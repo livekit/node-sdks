@@ -311,7 +311,7 @@ export class AudioMixer {
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
       try {
-        const result = await Promise.race([iterator.next(), this.timeout(this.streamTimeoutMs)]);
+        const result = await this.timeoutRace(iterator.next(), this.streamTimeoutMs);
 
         if (result === 'timeout') {
           console.warn(`AudioMixer: stream timeout after ${this.streamTimeoutMs}ms`);
@@ -412,7 +412,13 @@ export class AudioMixer {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private timeout(ms: number): Promise<'timeout'> {
-    return new Promise((resolve) => setTimeout(() => resolve('timeout'), ms));
+  /** Race a promise against a timeout. The losing setTimeout is automatically
+   *  cleared via `.finally()` so callers don't need to manage cleanup. */
+  private timeoutRace<T>(promise: Promise<T>, ms: number): Promise<T | 'timeout'> {
+    let timer: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<'timeout'>((resolve) => {
+      timer = setTimeout(() => resolve('timeout'), ms);
+    });
+    return Promise.race([promise.finally(() => clearTimeout(timer)), timeoutPromise]);
   }
 }

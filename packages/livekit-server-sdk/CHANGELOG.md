@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.15.2
+
+### Patch Changes
+
+- add ringingTimeput field to SIP inbound create api - [#645](https://github.com/livekit/node-sdks/pull/645) ([@s-hamdananwar](https://github.com/s-hamdananwar))
+
 ## 2.15.1
 
 ### Patch Changes

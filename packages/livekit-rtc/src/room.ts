@@ -346,6 +346,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     // This causes any in-flight operations (publishData, publishTrack, etc.)
     // to reject and clean up their event listeners.
     this.disconnectController.abort();
+    // Flip state synchronously so isConnected reflects reality immediately.
+    // The connectionStateChanged FFI event may arrive after we've removed
+    // our listener (see disconnect()), so relying on it alone is racy.
+    this.connectionState = ConnectionState.CONN_DISCONNECTED;
   }
 
   /**

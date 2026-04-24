@@ -636,12 +636,28 @@ describeE2E('livekit-rtc e2e', () => {
         { timeoutMs: 5000, debugName: 'all tracks visible' },
       );
 
+      // Register listeners before disconnecting so we can verify both
+      // RoomEvent.Disconnected and RoomEvent.ConnectionStateChanged fire
+      // for every room, even when disconnects race.
+      const disconnectedEvents = rooms.map((r) =>
+        waitForRoomEvent(r, RoomEvent.Disconnected, 3_000, (reason) => reason),
+      );
+      const connectionStateEvents = rooms.map((r) =>
+        waitForRoomEvent(r, RoomEvent.ConnectionStateChanged, 3_000, (state) => state),
+      );
+
       // Disconnect all participants simultaneously
       await Promise.all([...rooms.map((r) => r.disconnect()), ...sources.map((s) => s.close())]);
+
+      await Promise.all(disconnectedEvents);
+      const observedStates = await Promise.all(connectionStateEvents);
 
       // Verify all rooms are disconnected and remote participant maps are empty
       for (const room of rooms) {
         expect(room.isConnected).toBe(false);
+      }
+      for (const state of observedStates) {
+        expect(state).toBe(ConnectionState.CONN_DISCONNECTED);
       }
     },
     testTimeoutMs * 2,

@@ -1,5 +1,23 @@
 # @livekit/rtc-node
 
+## 0.13.26
+
+### Patch Changes
+
+- Remove FfiClient listener on failed connect to prevent leak - [#652](https://github.com/livekit/node-sdks/pull/652) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Add AbortSignal to waitFor() to clean up listeners on disconnect and send trailer on stream abort - [#636](https://github.com/livekit/node-sdks/pull/636) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Cancel losing timeout in AudioMixer race to prevent orphaned timers - [#641](https://github.com/livekit/node-sdks/pull/641) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Close in-progress stream controllers on room disconnect to prevent FD leaks - [#633](https://github.com/livekit/node-sdks/pull/633) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- Deduplicate getSid() listeners to prevent event listener leak on concurrent calls - [#635](https://github.com/livekit/node-sdks/pull/635) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
+- fix: ensure connection state of room is flipped after disconnecting - [#653](https://github.com/livekit/node-sdks/pull/653) ([@lukasIO](https://github.com/lukasIO))
+
+- Dispose track publication FfiHandles on participant disconnect to prevent FD leaks - [#634](https://github.com/livekit/node-sdks/pull/634) ([@LautaroPetaccio](https://github.com/LautaroPetaccio))
+
 ## 0.13.25
 
 ### Patch Changes

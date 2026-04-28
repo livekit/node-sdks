@@ -107,9 +107,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
   private _token?: string;
   private _serverUrl?: string;
+  private _connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
   e2eeManager?: E2EEManager;
-  _connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
   remoteParticipants: Map<string, RemoteParticipant> = new Map();
   localParticipant?: LocalParticipant;

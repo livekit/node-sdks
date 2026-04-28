@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.27
+
+### Patch Changes
+
+- fix(rtc): consistent connection state handling - [#655](https://github.com/livekit/node-sdks/pull/655) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.26
 
 ### Patch Changes

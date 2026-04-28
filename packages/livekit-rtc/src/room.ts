@@ -109,13 +109,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   private _serverUrl?: string;
 
   e2eeManager?: E2EEManager;
-  connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
+  _connectionState: ConnectionState = ConnectionState.CONN_DISCONNECTED;
 
   remoteParticipants: Map<string, RemoteParticipant> = new Map();
   localParticipant?: LocalParticipant;
 
   constructor() {
     super();
+  }
+
+  get connectionState() {
+    return this._connectionState;
   }
 
   get name(): string | undefined {
@@ -262,7 +266,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           this._token = token;
           this._serverUrl = url;
           this.info = cb.message.value.room!.info;
-          this.connectionState = ConnectionState.CONN_CONNECTED;
           // Reset the abort controller for this connection session so that
           // a previous disconnect doesn't immediately cancel new operations.
           this.disconnectController = new AbortController();
@@ -281,6 +284,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
               rp.trackPublications.set(publication.sid!, publication);
             }
           }
+          this.updateConnectionState(ConnectionState.CONN_CONNECTED);
           break;
         case 'error':
         default:
@@ -321,6 +325,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     this.removeAllListeners();
   }
 
+  private updateConnectionState(newState: ConnectionState) {
+    if (this._connectionState === newState) {
+      return;
+    }
+    this._connectionState = newState;
+    this.emit(RoomEvent.ConnectionStateChanged, this._connectionState);
+  }
+
   // Runs at most once per connection session. The FFI layer and explicit
   // disconnect() both race to get here — whichever wins emits the events,
   // the other is a no-op. A reconnect via connect() clears hasCleanedUp.
@@ -359,12 +371,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     // to reject and clean up their event listeners.
     this.disconnectController.abort();
 
-    // Only emit ConnectionStateChanged if the FFI 'connectionStateChanged'
-    // path didn't already flip us to DISCONNECTED.
-    if (this.connectionState !== ConnectionState.CONN_DISCONNECTED) {
-      this.connectionState = ConnectionState.CONN_DISCONNECTED;
-      this.emit(RoomEvent.ConnectionStateChanged, this.connectionState);
-    }
+    this.updateConnectionState(ConnectionState.CONN_DISCONNECTED);
     this.emit(RoomEvent.Disconnected, reason);
   }
 
@@ -678,14 +685,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.emit(RoomEvent.EncryptionError, new Error('internal server error'));
       }
     } else if (ev.case == 'connectionStateChanged') {
-      const newState = ev.value.state!;
-      // Skip redundant transitions — cleanupOnDisconnect may have already
-      // flipped us to DISCONNECTED, and we don't want to emit the event twice.
-      if (this.connectionState === newState) {
-        return;
-      }
-      this.connectionState = newState;
-      this.emit(RoomEvent.ConnectionStateChanged, this.connectionState);
+      this.updateConnectionState(ev.value.state!);
       /*} else if (ev.case == 'connected') {
       this.emit(RoomEvent.Connected);*/
     } else if (ev.case == 'disconnected') {

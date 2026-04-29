@@ -15,7 +15,11 @@ export type { E2EEOptions, KeyProviderOptions } from './e2ee.js';
 export { dispose } from './ffi_client.js';
 export { LocalParticipant, Participant, RemoteParticipant } from './participant.js';
 export { EncryptionState, EncryptionType } from '@livekit/rtc-ffi-bindings';
-export { DisconnectReason, ParticipantKind } from '@livekit/rtc-ffi-bindings';
+export {
+  DisconnectReason,
+  ParticipantKind,
+  ParticipantKindDetail,
+} from '@livekit/rtc-ffi-bindings';
 export {
   ConnectionQuality,
   ConnectionState,

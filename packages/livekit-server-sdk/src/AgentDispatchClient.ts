@@ -5,6 +5,7 @@ import {
   AgentDispatch,
   CreateAgentDispatchRequest,
   DeleteAgentDispatchRequest,
+  type JobRestartPolicy,
   ListAgentDispatchRequest,
   ListAgentDispatchResponse,
 } from '@livekit/protocol';
@@ -16,6 +17,8 @@ interface CreateDispatchOptions {
   // any custom data to send along with the job.
   // note: this is different from room and participant metadata
   metadata?: string;
+  // controls whether the job should be restarted when it fails (cloud only)
+  restartPolicy?: JobRestartPolicy;
 }
 
 const svc = 'AgentDispatchService';
@@ -57,6 +60,7 @@ export class AgentDispatchClient extends ServiceBase {
       room: roomName,
       agentName,
       metadata: options?.metadata,
+      restartPolicy: options?.restartPolicy,
     }).toJson();
     const data = await this.rpc.request(
       svc,

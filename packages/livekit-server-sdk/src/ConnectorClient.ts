@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Duration } from '@bufbuild/protobuf';
 import type {
   ConnectTwilioCallRequest_TwilioCallDirection,
+  DisconnectWhatsAppCallRequest_DisconnectReason,
   RoomAgentDispatch,
   SessionDescription,
 } from '@livekit/protocol';
@@ -50,6 +52,8 @@ export interface DialWhatsAppCallOptions {
   participantAttributes?: { [key: string]: string };
   /** Optional - Country where the call terminates as ISO 3166-1 alpha-2 */
   destinationCountry?: string;
+  /** Optional - Max time in seconds for the callee to answer the call */
+  ringingTimeout?: number;
 }
 
 export interface AcceptWhatsAppCallOptions {
@@ -79,6 +83,10 @@ export interface AcceptWhatsAppCallOptions {
   participantAttributes?: { [key: string]: string };
   /** Optional - Country where the call terminates as ISO 3166-1 alpha-2 */
   destinationCountry?: string;
+  /** Optional - Max time in seconds for the callee to answer the call */
+  ringingTimeout?: number;
+  /** Optional - Wait for the call to be answered before returning */
+  waitUntilAnswered?: boolean;
 }
 
 // Twilio types
@@ -148,6 +156,9 @@ export class ConnectorClient extends ServiceBase {
       participantMetadata,
       participantAttributes: options.participantAttributes,
       destinationCountry,
+      ringingTimeout: options.ringingTimeout
+        ? new Duration({ seconds: BigInt(options.ringingTimeout) })
+        : undefined,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -189,6 +200,10 @@ export class ConnectorClient extends ServiceBase {
       participantMetadata,
       participantAttributes: options.participantAttributes,
       destinationCountry,
+      ringingTimeout: options.ringingTimeout
+        ? new Duration({ seconds: BigInt(options.ringingTimeout) })
+        : undefined,
+      waitUntilAnswered: options.waitUntilAnswered,
     }).toJson();
 
     const data = await this.rpc.request(
@@ -228,15 +243,19 @@ export class ConnectorClient extends ServiceBase {
    * Disconnect an active WhatsApp call
    *
    * @param whatsappCallId - Call ID sent by Meta
-   * @param whatsappApiKey - The API key of the business that is disconnecting the call
+   * @param whatsappApiKey - The API key of the business that is disconnecting the call.
+   *   Required when `disconnectReason` is BUSINESS_INITIATED, optional for USER_INITIATED.
+   * @param disconnectReason - Optional reason for disconnecting the call. Defaults to BUSINESS_INITIATED.
    */
   async disconnectWhatsAppCall(
     whatsappCallId: string,
     whatsappApiKey: string,
+    disconnectReason?: DisconnectWhatsAppCallRequest_DisconnectReason,
   ): Promise<DisconnectWhatsAppCallResponse> {
     const req = new DisconnectWhatsAppCallRequest({
       whatsappCallId,
       whatsappApiKey,
+      disconnectReason,
     }).toJson();
 
     const data = await this.rpc.request(

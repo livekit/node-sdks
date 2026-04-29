@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.28
+
+### Patch Changes
+
+- Expose `kindDetails` on `Participant` and re-export the `ParticipantKindDetail` enum - [#657](https://github.com/livekit/node-sdks/pull/657) ([@anunaym14](https://github.com/anunaym14))
+
 ## 0.13.27
 
 ### Patch Changes

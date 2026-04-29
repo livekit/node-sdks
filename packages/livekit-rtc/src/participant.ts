@@ -7,6 +7,7 @@ import {
   type OwnedParticipant,
   type ParticipantInfo,
   ParticipantKind,
+  type ParticipantKindDetail,
 } from '@livekit/rtc-ffi-bindings';
 import {
   ChatMessage as ChatMessageModel,
@@ -126,6 +127,10 @@ export abstract class Participant {
 
   get kind(): ParticipantKind {
     return this.info.kind ?? ParticipantKind.STANDARD;
+  }
+
+  get kindDetails(): ParticipantKindDetail[] {
+    return this.info.kindDetails ?? [];
   }
 
   get disconnectReason(): DisconnectReason | undefined {

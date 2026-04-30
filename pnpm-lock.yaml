@@ -110,6 +110,25 @@ importers:
         specifier: ^4.7.1
         version: 4.17.0
 
+  examples/data-tracks:
+    dependencies:
+      '@livekit/rtc-node':
+        specifier: workspace:*
+        version: link:../../packages/livekit-rtc
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      livekit-server-sdk:
+        specifier: workspace:*
+        version: link:../../packages/livekit-server-sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.19.11
+      tsx:
+        specifier: ^4.7.1
+        version: 4.17.0
+
   examples/publish-wav:
     dependencies:
       '@livekit/rtc-node':
@@ -2582,9 +2601,6 @@ packages:
 
   get-tsconfig@4.10.1:
     resolution: {integrity: sha512-auHyJ4AgMz7vgS8Hp3N6HXSmlMdUyhSUrfBF16w153rxtLIEOE+HGqaBppczZvnHLqQJfiHotCYpNhl0lUROFQ==}
-
-  get-tsconfig@4.8.0:
-    resolution: {integrity: sha512-Pgba6TExTZ0FJAn1qkJAjIeKoDJ3CsI2ChuLohJnZl/tTU8MVrq3b+2t5UOPfRa4RMsorClBjJALkJUMjG1PAw==}
 
   git-repo-info@2.1.1:
     resolution: {integrity: sha512-8aCohiDo4jwjOwma4FmYFd3i97urZulL8XL24nIPxuE+GZnfsAyy/g2Shqx6OjUiFKUXZM+Yy+KHnOmmA3FVcg==}
@@ -6350,10 +6366,6 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  get-tsconfig@4.8.0:
-    dependencies:
-      resolve-pkg-maps: 1.0.0
-
   git-repo-info@2.1.1: {}
 
   glob-parent@5.1.2:
@@ -7573,7 +7585,7 @@ snapshots:
   tsx@4.17.0:
     dependencies:
       esbuild: 0.23.1
-      get-tsconfig: 4.8.0
+      get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
 

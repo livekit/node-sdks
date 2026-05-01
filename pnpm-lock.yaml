@@ -70,7 +70,7 @@ importers:
         version: 5.8.2
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)
+        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(tsx@4.17.0)(yaml@2.8.1)
 
   examples/agent-dispatch:
     dependencies:
@@ -242,7 +242,7 @@ importers:
         version: 5.8.2
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)
+        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(tsx@4.17.0)(yaml@2.8.1)
 
   packages/livekit-server-sdk:
     dependencies:
@@ -287,11 +287,11 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.2.9
-        version: 5.4.21(@types/node@20.19.11)
+        specifier: ^6.0.0
+        version: 6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9)
+        version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9)(tsx@4.17.0)(yaml@2.8.1)
 
 packages:
 
@@ -3871,21 +3871,26 @@ packages:
       terser:
         optional: true
 
-  vite@5.4.21:
-    resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  vite@6.4.2:
+    resolution: {integrity: sha512-2N/55r4JDJ4gdrCvGgINMy+HH3iRpNIz8K6SFwVsA+JbQScLiC+clmAxBgwiSPgcG9U15QmvqCGWzMbqda5zGQ==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^18.0.0 || >=20.0.0
+      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
+      jiti: '>=1.21.0'
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
       sass-embedded: '*'
       stylus: '*'
       sugarss: '*'
-      terser: ^5.4.0
+      terser: ^5.16.0
+      tsx: ^4.8.1
+      yaml: ^2.4.2
     peerDependenciesMeta:
       '@types/node':
+        optional: true
+      jiti:
         optional: true
       less:
         optional: true
@@ -3900,6 +3905,10 @@ packages:
       sugarss:
         optional: true
       terser:
+        optional: true
+      tsx:
+        optional: true
+      yaml:
         optional: true
 
   vitest@3.2.4:
@@ -7705,15 +7714,16 @@ snapshots:
     dependencies:
       react: 18.2.0
 
-  vite-node@3.2.4(@types/node@20.19.11):
+  vite-node@3.2.4(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       cac: 6.7.14
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 5.4.20(@types/node@20.19.11)
+      vite: 6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@types/node'
+      - jiti
       - less
       - lightningcss
       - sass
@@ -7722,16 +7732,19 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+      - tsx
+      - yaml
 
-  vite-node@3.2.4(@types/node@22.15.29):
+  vite-node@3.2.4(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       cac: 6.7.14
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 5.4.20(@types/node@22.15.29)
+      vite: 6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@types/node'
+      - jiti
       - less
       - lightningcss
       - sass
@@ -7740,6 +7753,8 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+      - tsx
+      - yaml
 
   vite@5.4.20(@types/node@20.19.11):
     dependencies:
@@ -7759,16 +7774,35 @@ snapshots:
       '@types/node': 22.15.29
       fsevents: 2.3.3
 
-  vite@5.4.21(@types/node@20.19.11):
+  vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
-      esbuild: 0.21.5
+      esbuild: 0.25.9
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.57.1
+      tinyglobby: 0.2.14
     optionalDependencies:
       '@types/node': 20.19.11
       fsevents: 2.3.3
+      tsx: 4.17.0
+      yaml: 2.8.1
 
-  vitest@3.2.4(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9):
+  vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.9
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.57.1
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 22.15.29
+      fsevents: 2.3.3
+      tsx: 4.17.0
+      yaml: 2.8.1
+
+  vitest@3.2.4(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -7791,13 +7825,14 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 5.4.20(@types/node@20.19.11)
-      vite-node: 3.2.4(@types/node@20.19.11)
+      vite-node: 3.2.4(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@edge-runtime/vm': 5.0.0
       '@types/node': 20.19.11
       happy-dom: 20.8.9
     transitivePeerDependencies:
+      - jiti
       - less
       - lightningcss
       - msw
@@ -7807,8 +7842,10 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+      - tsx
+      - yaml
 
-  vitest@3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9):
+  vitest@3.2.4(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -7831,13 +7868,14 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 5.4.20(@types/node@22.15.29)
-      vite-node: 3.2.4(@types/node@22.15.29)
+      vite-node: 3.2.4(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@edge-runtime/vm': 5.0.0
       '@types/node': 22.15.29
       happy-dom: 20.8.9
     transitivePeerDependencies:
+      - jiti
       - less
       - lightningcss
       - msw
@@ -7847,6 +7885,8 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+      - tsx
+      - yaml
 
   watchpack@2.4.0:
     dependencies:

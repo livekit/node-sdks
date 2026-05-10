@@ -53,6 +53,7 @@
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
-    "test": "vitest run src"
+    "test": "vitest run src",
+    "test:e2e": "node scripts/run-e2e.mjs"
   }
 }

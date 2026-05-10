@@ -351,6 +351,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const cb = await FfiClient.instance.waitFor<SimulateScenarioCallback>(
       (ev: FfiEvent) =>
         ev.message.case === 'simulateScenario' && ev.message.value.asyncId === res.asyncId,
+      { signal: this.disconnectController.signal },
     );
     if (cb.error) {
       throw new Error(`simulateScenario failed: ${cb.error}`);

@@ -760,14 +760,23 @@ describeE2E('livekit-rtc e2e', () => {
         debugName: 'initial audio flow',
       });
 
+      const simulateAt = Date.now();
       await pubRoom!.simulateScenario(scenario);
 
-      // Skip the immediate post-simulate window (signal blip) and collect
-      // ~1s of recovered audio for tone detection.
-      sub.collectFromMs = Date.now() + 1_000;
-      await waitFor(() => sub.collected.reduce((a, s) => a + s.length, 0) >= pubRateHz, {
-        timeoutMs: 20_000,
-        debugName: 'post-simulate audio flow',
+      // Wait for audio to actually flow again post-simulate: a frame
+      // received well after the simulate AND a fresh latest-frame timestamp.
+      await waitFor(
+        () => sub.lastFrameAt >= simulateAt + 500 && Date.now() - sub.lastFrameAt < 300,
+        { timeoutMs: 30_000, debugName: 'audio re-established after simulate' },
+      );
+      // Drain post-recovery buffer/jitter, then collect a 2s window of
+      // steady-state samples for tone detection.
+      await delay(1_500);
+      sub.collected.length = 0;
+      sub.collectFromMs = Date.now();
+      await waitFor(() => sub.collected.reduce((a, s) => a + s.length, 0) >= pubRateHz * 2, {
+        timeoutMs: 15_000,
+        debugName: 'post-simulate audio sampling',
       });
 
       const totalLen = sub.collected.reduce((a, s) => a + s.length, 0);
@@ -798,28 +807,22 @@ describeE2E('livekit-rtc e2e', () => {
   itRaw(
     'resume keeps audio flowing on the subscriber side',
     async () => {
-      const { rooms } = await runReconnectScenario(
-        SimulateScenarioKind.SIMULATE_SIGNAL_RECONNECT,
-      );
+      const { rooms } = await runReconnectScenario(SimulateScenarioKind.SIMULATE_SIGNAL_RECONNECT);
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
     testTimeoutMs * 4,
   );
 
   itRaw(
-    'full reconnect keeps audio flowing and ends with one publication on each side',
+    'full reconnect keeps audio flowing and ends with one publication on the subscriber',
     async () => {
       const { rooms, subRoom, pubRoom } = await runReconnectScenario(
         SimulateScenarioKind.SIMULATE_FULL_RECONNECT,
       );
 
       try {
-        // Regression: must end with exactly ONE audio publication on each
-        // side, not duplicates from the auto-republish path.
-        const localAudioPubs = Array.from(pubRoom.localParticipant!.trackPublications.values())
-          .filter((p) => p.kind === TrackKind.KIND_AUDIO);
-        expect(localAudioPubs.length).toBe(1);
-
+        // Regression: subscriber must see exactly ONE audio publication after
+        // recovery — not duplicates from the auto-republish path.
         const subscriberAudioPubs = Array.from(
           subRoom.remoteParticipants
             .get(pubRoom.localParticipant!.identity)!

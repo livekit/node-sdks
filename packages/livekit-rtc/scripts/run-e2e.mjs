@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 LiveKit, Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 // Spins up `livekit-server --dev` with a known dev key, runs the e2e
 // vitest suite against it, then tears the server down on exit.
 //

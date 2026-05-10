@@ -29,9 +29,15 @@ export {
   IceTransportType,
   TrackPublishOptions,
 } from '@livekit/rtc-ffi-bindings';
-export { StreamState, TrackKind, TrackSource } from '@livekit/rtc-ffi-bindings';
+export { SimulateScenarioKind, StreamState, TrackKind, TrackSource } from '@livekit/rtc-ffi-bindings';
 export { VideoBufferType, VideoCodec, VideoRotation } from '@livekit/rtc-ffi-bindings';
-export { ConnectError, Room, RoomEvent, type RoomOptions, type RtcConfiguration } from './room.js';
+export {
+  ConnectError,
+  Room,
+  RoomEvent,
+  type RoomOptions,
+  type RtcConfiguration,
+} from './room.js';
 export { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
 export {
   LocalAudioTrack,

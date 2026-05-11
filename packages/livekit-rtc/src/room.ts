@@ -21,6 +21,9 @@ import {
   type IceServer,
   IceTransportType,
   type RoomInfo,
+  type SimulateScenarioCallback,
+  type SimulateScenarioKind,
+  type SimulateScenarioResponse,
 } from '@livekit/rtc-ffi-bindings';
 import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
@@ -323,6 +326,36 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
 
     this.removeAllListeners();
+  }
+
+  /**
+   * Trigger a reconnection / chaos scenario for testing. Most useful in
+   * tests to deterministically force a Resume (signal-only reconnect that
+   * preserves the PeerConnection and existing publications) or a full
+   * reconnect (the SDK rebuilds the RtcSession and re-publishes existing
+   * local tracks; `RoomEvent.Reconnected` fires).
+   */
+  async simulateScenario(scenario: SimulateScenarioKind): Promise<void> {
+    if (!this.isConnected || !this.ffiHandle) {
+      throw new Error('simulateScenario requires a connected room');
+    }
+    const res = FfiClient.instance.request<SimulateScenarioResponse>({
+      message: {
+        case: 'simulateScenario',
+        value: {
+          roomHandle: this.ffiHandle.handle,
+          scenario,
+        },
+      },
+    });
+    const cb = await FfiClient.instance.waitFor<SimulateScenarioCallback>(
+      (ev: FfiEvent) =>
+        ev.message.case === 'simulateScenario' && ev.message.value.asyncId === res.asyncId,
+      { signal: this.disconnectController.signal },
+    );
+    if (cb.error) {
+      throw new Error(`simulateScenario failed: ${cb.error}`);
+    }
   }
 
   private updateConnectionState(newState: ConnectionState) {

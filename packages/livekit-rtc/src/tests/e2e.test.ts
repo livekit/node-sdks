@@ -15,6 +15,8 @@ import {
   Room,
   RoomEvent,
   RpcError,
+  SimulateScenarioKind,
+  TrackKind,
   TrackPublishOptions,
   TrackSource,
   dispose,
@@ -681,5 +683,156 @@ describeE2E('livekit-rtc e2e', () => {
       await room.disconnect();
     },
     testTimeoutMs,
+  );
+
+  // -- Reconnect scenarios --
+  //
+  // Both tests verify the user-visible behavior: after the scenario fires,
+  // the subscriber continues to receive the publisher's tone. The full
+  // reconnect test additionally asserts there is exactly one audio
+  // publication on each side (regression: duplicate-publish bug).
+
+  const runReconnectScenario = async (scenario: SimulateScenarioKind) => {
+    const { rooms } = await connectTestRooms(2);
+    const [subRoom, pubRoom] = rooms;
+
+    const pubRateHz = 48_000;
+    const source = new AudioSource(pubRateHz, 1);
+    const track = LocalAudioTrack.createAudioTrack('reconnect_tone', source);
+    const opts = new TrackPublishOptions();
+    opts.source = TrackSource.SOURCE_MICROPHONE;
+    await pubRoom!.localParticipant!.publishTrack(track, opts);
+
+    let tonePhase = 0;
+    const samplesPer10ms = Math.floor(pubRateHz / 100);
+    const amplitude = 0.8 * 32767;
+    const sineHz = 60;
+    let toneRunning = true;
+    const toneTask = (async () => {
+      while (toneRunning) {
+        const frame = AudioFrame.create(pubRateHz, 1, samplesPer10ms);
+        for (let s = 0; s < samplesPer10ms; s++) {
+          frame.data[s] = Math.round(
+            amplitude * Math.sin((2 * Math.PI * sineHz * tonePhase) / pubRateHz),
+          );
+          tonePhase++;
+        }
+        await source.captureFrame(frame);
+      }
+    })();
+
+    // Subscriber-side: re-attach an AudioStream every time TrackSubscribed
+    // fires (a full reconnect may issue TrackUnsubscribed → TrackSubscribed
+    // with a fresh remote track).
+    const sub = {
+      lastFrameAt: 0,
+      collectFromMs: Number.POSITIVE_INFINITY,
+      collected: [] as Int16Array[],
+      readers: [] as ReturnType<AudioStream['getReader']>[],
+    };
+    const attach = (remoteTrack: unknown) => {
+      const stream = new AudioStream(remoteTrack as any, {
+        sampleRate: pubRateHz,
+        numChannels: 1,
+      });
+      const reader = stream.getReader();
+      sub.readers.push(reader);
+      (async () => {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            sub.lastFrameAt = Date.now();
+            if (sub.lastFrameAt >= sub.collectFromMs) {
+              sub.collected.push(channelSamples(value, 0));
+            }
+          }
+        } catch {
+          // reader released
+        }
+      })();
+    };
+    subRoom!.on(RoomEvent.TrackSubscribed, (t) => attach(t));
+
+    try {
+      await waitFor(() => sub.lastFrameAt > 0 && Date.now() - sub.lastFrameAt < 500, {
+        timeoutMs: 10_000,
+        debugName: 'initial audio flow',
+      });
+
+      const simulateAt = Date.now();
+      await pubRoom!.simulateScenario(scenario);
+
+      // Wait for audio to actually flow again post-simulate: a frame
+      // received well after the simulate AND a fresh latest-frame timestamp.
+      await waitFor(
+        () => sub.lastFrameAt >= simulateAt + 500 && Date.now() - sub.lastFrameAt < 300,
+        { timeoutMs: 30_000, debugName: 'audio re-established after simulate' },
+      );
+      // Drain post-recovery buffer/jitter, then collect a 2s window of
+      // steady-state samples for tone detection.
+      await delay(1_500);
+      sub.collected.length = 0;
+      sub.collectFromMs = Date.now();
+      await waitFor(() => sub.collected.reduce((a, s) => a + s.length, 0) >= pubRateHz * 2, {
+        timeoutMs: 15_000,
+        debugName: 'post-simulate audio sampling',
+      });
+
+      const totalLen = sub.collected.reduce((a, s) => a + s.length, 0);
+      const concat = new Int16Array(totalLen);
+      let off = 0;
+      for (const s of sub.collected) {
+        concat.set(s, off);
+        off += s.length;
+      }
+      const detected = estimateFreqHz(concat, pubRateHz);
+      expect(Math.abs(detected - sineHz)).toBeLessThan(20);
+
+      return { rooms, subRoom: subRoom!, pubRoom: pubRoom! };
+    } finally {
+      toneRunning = false;
+      await toneTask;
+      for (const r of sub.readers) {
+        try {
+          r.releaseLock();
+        } catch {
+          // ignore
+        }
+      }
+      await track.close();
+    }
+  };
+
+  itRaw(
+    'resume keeps audio flowing on the subscriber side',
+    async () => {
+      const { rooms } = await runReconnectScenario(SimulateScenarioKind.SIMULATE_SIGNAL_RECONNECT);
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs * 4,
+  );
+
+  itRaw(
+    'full reconnect keeps audio flowing and ends with one publication on the subscriber',
+    async () => {
+      const { rooms, subRoom, pubRoom } = await runReconnectScenario(
+        SimulateScenarioKind.SIMULATE_FULL_RECONNECT,
+      );
+
+      try {
+        // Regression: subscriber must see exactly ONE audio publication after
+        // recovery — not duplicates from the auto-republish path.
+        const subscriberAudioPubs = Array.from(
+          subRoom.remoteParticipants
+            .get(pubRoom.localParticipant!.identity)!
+            .trackPublications.values(),
+        ).filter((p) => p.kind === TrackKind.KIND_AUDIO);
+        expect(subscriberAudioPubs.length).toBe(1);
+      } finally {
+        await Promise.all(rooms.map((r) => r.disconnect()));
+      }
+    },
+    testTimeoutMs * 4,
   );
 });

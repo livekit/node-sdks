@@ -33,7 +33,7 @@
     "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
     "@livekit/typed-emitter": "^3.0.0",
-    "@livekit/rtc-ffi-bindings": "0.12.53",
+    "@livekit/rtc-ffi-bindings": "0.12.54",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },
@@ -53,6 +53,7 @@
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
-    "test": "vitest run src"
+    "test": "vitest run src",
+    "test:e2e": "node scripts/run-e2e.mjs"
   }
 }

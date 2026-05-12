@@ -529,9 +529,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         this.localParticipant.trackPublications.set(publication.sid!, publication);
         this.emit(RoomEvent.LocalTrackRepublished, publication, previousSid, this.localParticipant);
       } else {
-        log.warn(
-          `RoomEvent.LocalTrackRepublished: previous publication not found: ${previousSid}`,
-        );
+        log.warn(`RoomEvent.LocalTrackRepublished: previous publication not found: ${previousSid}`);
       }
     } else if (ev.case == 'localTrackSubscribed') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);

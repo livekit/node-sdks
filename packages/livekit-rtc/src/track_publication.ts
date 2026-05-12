@@ -66,6 +66,18 @@ export abstract class TrackPublication {
   get encryptionType(): EncryptionType | undefined {
     return this.info?.encryptionType;
   }
+
+  /**
+   * Update the publication's info in place. Used by the SDK when the
+   * server re-issues IDs / metadata for an existing publication (e.g.
+   * after a full reconnect). Application code holding a cached
+   * publication reference continues to read fresh values via the
+   * unchanged object identity.
+   * @internal
+   */
+  updateInfo(info: TrackPublicationInfo): void {
+    this.info = info;
+  }
 }
 
 export class LocalTrackPublication extends TrackPublication {

@@ -11,6 +11,7 @@ import {
   AudioStream,
   ConnectionState,
   LocalAudioTrack,
+  type LocalTrackPublication,
   ParticipantKind,
   Room,
   RoomEvent,
@@ -712,7 +713,7 @@ describeE2E('livekit-rtc e2e', () => {
       const opts = new TrackPublishOptions();
       opts.source = TrackSource.SOURCE_MICROPHONE;
       const publication = await pubRoom!.localParticipant!.publishTrack(track, opts);
-      const sidBefore = publication.sid;
+      const sidBefore = publication.sid!;
 
       // Drive the tone in a loop until cancelled.
       let tonePhase = 0;
@@ -804,7 +805,8 @@ describeE2E('livekit-rtc e2e', () => {
       const track = LocalAudioTrack.createAudioTrack('reconnect_tone', source);
       const opts = new TrackPublishOptions();
       opts.source = TrackSource.SOURCE_MICROPHONE;
-      await pubRoom!.localParticipant!.publishTrack(track, opts);
+      const initialPub = await pubRoom!.localParticipant!.publishTrack(track, opts);
+      const initialPubSid = initialPub.sid!;
 
       let tonePhase = 0;
       const samplesPer10ms = Math.floor(pubRateHz / 100);
@@ -837,6 +839,15 @@ describeE2E('livekit-rtc e2e', () => {
           reconnectedFired++;
         });
 
+        // Capture LocalTrackRepublished events from the publisher.
+        const republishedEvents: Array<{
+          publication: LocalTrackPublication;
+          previousSid: string;
+        }> = [];
+        pubRoom!.on(RoomEvent.LocalTrackRepublished, (publication, previousSid) => {
+          republishedEvents.push({ publication, previousSid });
+        });
+
         const reconnected = waitForRoomEvent(
           pubRoom!,
           RoomEvent.Reconnected,
@@ -857,12 +868,31 @@ describeE2E('livekit-rtc e2e', () => {
         expect(localPubs.length).toBe(1);
         expect(reconnectedFired).toBe(1);
 
-        // Subscriber view: also exactly one audio publication.
+        // LocalTrackRepublished fired exactly once with the prior SID.
+        expect(republishedEvents.length).toBe(1);
+        expect(republishedEvents[0]!.previousSid).toBe(initialPubSid);
+        expect(republishedEvents[0]!.publication).toBe(initialPub);
+
+        // Publisher-side state under the new SID:
+        //  - the cached publication reference returned by publishTrack()
+        //    has the same JS object identity (in-place mutation).
+        //  - its .sid now reports the new server-assigned SID.
+        //  - trackPublications is rekeyed under the new SID.
+        const pubAfter = localPubs[0]!;
+        expect(pubAfter).toBe(initialPub);
+        expect(pubAfter.sid).not.toBe(initialPubSid);
+        expect(initialPub.sid).toBe(pubAfter.sid);
+        expect(pubRoom!.localParticipant!.trackPublications.has(pubAfter.sid!)).toBe(true);
+        expect(pubRoom!.localParticipant!.trackPublications.has(initialPubSid)).toBe(false);
+
+        // Subscriber view: also exactly one audio publication, with the
+        // new SID matching the publisher's view.
         const subscriberAudioPubs = Array.from(
           subRoom!.remoteParticipants.get(pubRoom!.localParticipant!.identity)!.trackPublications
             .values(),
         ).filter((p) => p.kind === TrackKind.KIND_AUDIO);
         expect(subscriberAudioPubs.length).toBe(1);
+        expect(subscriberAudioPubs[0]!.sid).toBe(pubAfter.sid);
       } finally {
         toneRunning = false;
         await toneTask;

@@ -787,7 +787,11 @@ describeE2E('livekit-rtc e2e', () => {
         off += s.length;
       }
       const detected = estimateFreqHz(concat, pubRateHz);
-      expect(Math.abs(detected - sineHz)).toBeLessThan(20);
+      // Wider tolerance than the clean-path sine test: post-reconnect
+      // audio has brief discontinuities, and the autocorrelation is
+      // integer-lag (next neighbors to 60Hz are exactly 80Hz/40Hz), so
+      // ±20Hz lands right on the failure boundary under CI load.
+      expect(Math.abs(detected - sineHz)).toBeLessThan(25);
 
       return { rooms, subRoom: subRoom!, pubRoom: pubRoom! };
     } finally {

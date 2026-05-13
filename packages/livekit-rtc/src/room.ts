@@ -5,7 +5,11 @@ import { Mutex } from '@livekit/mutex';
 import { EncryptionState, type EncryptionType } from '@livekit/rtc-ffi-bindings';
 import type { FfiEvent } from '@livekit/rtc-ffi-bindings';
 import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
-import type { DataStream_Trailer, DisconnectCallback } from '@livekit/rtc-ffi-bindings';
+import type {
+  DataStream_Trailer,
+  DisconnectCallback,
+  TrackPublicationInfo,
+} from '@livekit/rtc-ffi-bindings';
 import {
   type ConnectCallback,
   ConnectRequest,
@@ -514,6 +518,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid!);
       this.localParticipant.trackPublications.delete(ev.value.publicationSid!);
       this.emit(RoomEvent.LocalTrackUnpublished, publication!, this.localParticipant!);
+    } else if ((ev.case as string) == 'localTrackRepublished') {
+      const value = (ev as any).value;
+      const previousSid: string = value.previousSid!;
+      const newInfo: TrackPublicationInfo = value.info!;
+      const publication = this.localParticipant.trackPublications.get(previousSid);
+      if (publication) {
+        publication.updateInfo(newInfo);
+        this.localParticipant.trackPublications.delete(previousSid);
+        this.localParticipant.trackPublications.set(publication.sid!, publication);
+        this.emit(RoomEvent.LocalTrackRepublished, publication, previousSid, this.localParticipant);
+      } else {
+        log.warn(`RoomEvent.LocalTrackRepublished: previous publication not found: ${previousSid}`);
+      }
     } else if (ev.case == 'localTrackSubscribed') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
       if (publication) {
@@ -936,6 +953,18 @@ export type RoomCallbacks = {
     publication: LocalTrackPublication,
     participant: LocalParticipant,
   ) => void;
+  /**
+   * Fired when the SDK auto-republished a local track during a full
+   * reconnect. The publication object's identity is preserved (the same
+   * instance is updated in place with the new server-assigned SIDs);
+   * `previousSid` is provided for callers that key external state on the
+   * old SID and need to reconcile.
+   */
+  localTrackRepublished: (
+    publication: LocalTrackPublication,
+    previousSid: string,
+    participant: LocalParticipant,
+  ) => void;
   localTrackSubscribed: (track: LocalTrack) => void;
   trackPublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
   trackUnpublished: (publication: RemoteTrackPublication, participant: RemoteParticipant) => void;
@@ -993,6 +1022,7 @@ export enum RoomEvent {
   ParticipantDisconnected = 'participantDisconnected',
   LocalTrackPublished = 'localTrackPublished',
   LocalTrackUnpublished = 'localTrackUnpublished',
+  LocalTrackRepublished = 'localTrackRepublished',
   LocalTrackSubscribed = 'localTrackSubscribed',
   TrackPublished = 'trackPublished',
   TrackUnpublished = 'trackUnpublished',

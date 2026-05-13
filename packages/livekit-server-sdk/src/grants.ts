@@ -91,6 +91,9 @@ export interface VideoGrant {
   /** allow participant to subscribe to metrics */
   canSubscribeMetrics?: boolean;
 
+  /** allow participant to manage an agent session via RemoteSession */
+  canManageAgentSession?: boolean;
+
   /** destination room which this participant can forward to */
   destinationRoom?: string;
 }

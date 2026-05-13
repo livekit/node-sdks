@@ -1,5 +1,15 @@
 # @livekit/rtc-node
 
+## 0.13.28
+
+### Patch Changes
+
+- Expose `kindDetails` on `Participant` and re-export the `ParticipantKindDetail` enum - [#657](https://github.com/livekit/node-sdks/pull/657) ([@anunaym14](https://github.com/anunaym14))
+
+- feat: handle track republish - [#660](https://github.com/livekit/node-sdks/pull/660) ([@davidzhao](https://github.com/davidzhao))
+
+- feat: add support for SimulateScenario - [#659](https://github.com/livekit/node-sdks/pull/659) ([@davidzhao](https://github.com/davidzhao))
+
 ## 0.13.27
 
 ### Patch Changes

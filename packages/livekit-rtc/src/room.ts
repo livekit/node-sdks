@@ -40,6 +40,7 @@ import type {
   TextStreamHandler,
   TextStreamInfo,
 } from './data_streams/types.js';
+import { RemoteDataTrack } from './data_tracks/index.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -781,6 +782,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case === 'tokenRefreshed') {
       this._token = ev.value.token;
       this.emit('tokenRefreshed');
+    } else if (ev.case === 'dataTrackPublished') {
+      const remoteDataTrack = new RemoteDataTrack(ev.value.track!);
+      this.emit(RoomEvent.DataTrackPublished, remoteDataTrack);
+    } else if (ev.case === 'dataTrackUnpublished') {
+      this.emit(RoomEvent.DataTrackUnpublished, ev.value.sid!);
     }
   };
 
@@ -1015,6 +1021,8 @@ export type RoomCallbacks = {
   roomUpdated: () => void;
   moved: () => void;
   tokenRefreshed: () => void;
+  dataTrackPublished: (track: RemoteDataTrack) => void;
+  dataTrackUnpublished: (sid: string) => void;
 };
 
 export enum RoomEvent {
@@ -1051,4 +1059,6 @@ export enum RoomEvent {
   RoomUpdated = 'roomUpdated',
   Moved = 'moved',
   TokenRefreshed = 'tokenRefreshed',
+  DataTrackPublished = 'dataTrackPublished',
+  DataTrackUnpublished = 'dataTrackUnpublished',
 }

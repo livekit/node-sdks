@@ -25,6 +25,7 @@ import {
   type DataStream_Chunk,
   type DataStream_Header,
   type DisconnectResponse,
+  type ReadyForRoomEventResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
   IceTransportType,
@@ -326,6 +327,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
             }
           }
           this.updateConnectionState(ConnectionState.CONN_CONNECTED);
+          // Release the FFI room event gate after our listener and local state are ready.
+          FfiClient.instance.request<ReadyForRoomEventResponse>({
+            message: {
+              case: 'readyForRoomEvent',
+              value: {
+                roomHandle: this.ffiHandle.handle,
+              },
+            },
+          });
           break;
         case 'error':
         default:

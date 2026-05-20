@@ -2,11 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
-import {
-  EncryptionState,
-  type EncryptionType,
-  GetSessionStatsRequest,
-} from '@livekit/rtc-ffi-bindings';
+import { EncryptionState, type EncryptionType } from '@livekit/rtc-ffi-bindings';
 import type {
   FfiEvent,
   GetSessionStatsCallback,
@@ -39,7 +35,6 @@ import {
 } from '@livekit/rtc-ffi-bindings';
 import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
-import { randomInt } from 'crypto';
 import EventEmitter from 'events';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
 import type {

@@ -32,19 +32,19 @@
   "dependencies": {
     "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
+    "@livekit/rtc-ffi-bindings": "0.12.59",
     "@livekit/typed-emitter": "^3.0.0",
-    "@livekit/rtc-ffi-bindings": "0.12.56",
     "pino": "^9.0.0",
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
     "@bufbuild/protobuf": "^1.10.1",
     "@types/node": "^22.13.10",
-    "vitest": "^3.0.0",
+    "livekit-server-sdk": "workspace:*",
     "prettier": "^3.0.3",
     "tsup": "^8.3.5",
     "typescript": "5.8.2",
-    "livekit-server-sdk": "workspace:*"
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">= 18"

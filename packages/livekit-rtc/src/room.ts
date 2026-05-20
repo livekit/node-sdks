@@ -3,7 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Mutex } from '@livekit/mutex';
 import { EncryptionState, type EncryptionType } from '@livekit/rtc-ffi-bindings';
-import type { FfiEvent } from '@livekit/rtc-ffi-bindings';
+import type {
+  FfiEvent,
+  GetSessionStatsCallback,
+  GetSessionStatsResponse,
+} from '@livekit/rtc-ffi-bindings';
 import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
 import type {
   DataStream_Trailer,
@@ -189,6 +193,36 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       });
     }
     return this.sidPromise;
+  }
+
+  async getRtcStats() {
+    if (!this.isConnected || !this.ffiHandle) {
+      throw new Error('getRtcStats requires a connected room');
+    }
+    // subscribe before issuing the request
+    const requestId = FfiClient.instance.getNextRequestAsyncId();
+    const cbPromise = FfiClient.instance.waitFor<GetSessionStatsCallback>(
+      (ev: FfiEvent) =>
+        ev.message.case === 'getSessionStats' && ev.message.value.asyncId === requestId,
+      { signal: this.disconnectController.signal },
+    );
+    FfiClient.instance.request<GetSessionStatsResponse>({
+      message: {
+        case: 'getSessionStats',
+        value: {
+          roomHandle: this.ffiHandle.handle,
+          requestAsyncId: requestId,
+        },
+      },
+    });
+    const cb = await cbPromise;
+    if (cb.message.case === 'error') {
+      throw new Error(cb.message.value);
+    } else if (cb.message.case === 'result') {
+      return cb.message.value;
+    } else {
+      throw new Error('could not retrieve rtc stats');
+    }
   }
 
   get numParticipants(): number {

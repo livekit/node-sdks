@@ -7,7 +7,11 @@ import {
   type EncryptionType,
   GetSessionStatsRequest,
 } from '@livekit/rtc-ffi-bindings';
-import type { FfiEvent, GetSessionStatsCallback } from '@livekit/rtc-ffi-bindings';
+import type {
+  FfiEvent,
+  GetSessionStatsCallback,
+  GetSessionStatsResponse,
+} from '@livekit/rtc-ffi-bindings';
 import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
 import type {
   DataStream_Trailer,
@@ -35,6 +39,7 @@ import {
 } from '@livekit/rtc-ffi-bindings';
 import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
+import { randomInt } from 'crypto';
 import EventEmitter from 'events';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
 import type {
@@ -199,19 +204,23 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     if (!this.isConnected || !this.ffiHandle) {
       throw new Error('getRtcStats requires a connected room');
     }
-    const res = FfiClient.instance.request<GetSessionStatsRequest>({
+    // subscribe before issuing the request
+    const requestId = FfiClient.instance.getNextRequestAsyncId();
+    const cbPromise = FfiClient.instance.waitFor<GetSessionStatsCallback>(
+      (ev: FfiEvent) =>
+        ev.message.case === 'getSessionStats' && ev.message.value.asyncId === requestId,
+      { signal: this.disconnectController.signal },
+    );
+    FfiClient.instance.request<GetSessionStatsResponse>({
       message: {
         case: 'getSessionStats',
         value: {
           roomHandle: this.ffiHandle.handle,
+          requestAsyncId: requestId,
         },
       },
     });
-    const cb = await FfiClient.instance.waitFor<GetSessionStatsCallback>(
-      (ev: FfiEvent) =>
-        ev.message.case === 'getSessionStats' && ev.message.value.asyncId === res.requestAsyncId,
-      { signal: this.disconnectController.signal },
-    );
+    const cb = await cbPromise;
     if (cb.message.case === 'error') {
       throw new Error(cb.message.value);
     } else if (cb.message.case === 'result') {

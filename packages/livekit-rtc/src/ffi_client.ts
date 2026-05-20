@@ -41,6 +41,8 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     return globalThis._ffiClientInstance;
   }
 
+  private _nextRequestAsyncId = BigInt(0);
+
   constructor() {
     super();
     this.setMaxListeners(0);
@@ -68,6 +70,10 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
   retrievePtr(data: Uint8Array): bigint {
     return livekitRetrievePtr(data);
+  }
+
+  getNextRequestAsyncId() {
+    return ++this._nextRequestAsyncId;
   }
 
   async waitFor<T>(

@@ -33,6 +33,13 @@ async function main() {
   }
 
   try {
+    console.log('\n\nRunning send long info example...');
+    await Promise.all([performSendVeryLongInfo(callersRoom)]);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+  try {
     console.log('\n\nRunning error handling example...');
     await Promise.all([performDivision(callersRoom)]);
   } catch (error) {
@@ -67,6 +74,17 @@ const registerReceiverMethods = (greetersRoom: Room, mathGeniusRoom: Room) => {
       console.log(`[Greeter] Oh ${data.callerIdentity} arrived and said "${data.payload}"`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return 'Welcome and have a wonderful day!';
+    },
+  );
+
+  greetersRoom.localParticipant?.registerRpcMethod(
+    'exchanging-long-info',
+    async (data: RpcInvocationData) => {
+      console.log(
+        `[Greeter] ${data.callerIdentity} has arrived and said that its long info is ${data.payload.length} chars long and starts with: "${data.payload.slice(0, 20)}..."`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return new Array<string>(20_000).fill('Y').join('');
     },
   );
 
@@ -118,6 +136,23 @@ const performGreeting = async (room: Room): Promise<void> => {
       payload: 'Hello',
     });
     console.log(`[Caller] That's nice, the greeter said: "${response}"`);
+  } catch (error) {
+    console.error('[Caller] RPC call failed:', error);
+    throw error;
+  }
+};
+
+const performSendVeryLongInfo = async (room: Room): Promise<void> => {
+  console.log('[Caller] Sending the greeter a very long message');
+  try {
+    const response = await room.localParticipant!.performRpc({
+      destinationIdentity: 'greeter',
+      method: 'exchanging-long-info',
+      payload: new Array<string>(20_000).fill('X').join(''),
+    });
+    console.log(
+      `[Caller] The greeter's long info is ${response.length} chars long and starts with: "${response.slice(0, 20)}..."`,
+    );
   } catch (error) {
     console.error('[Caller] RPC call failed:', error);
     throw error;

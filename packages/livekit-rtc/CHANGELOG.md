@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.29
+
+### Patch Changes
+
+- bump ffi bindings, includes rpc v2 support - [#666](https://github.com/livekit/node-sdks/pull/666) ([@stephen-derosa](https://github.com/stephen-derosa))
+
+- Add method to query rtcStats on room via `await room.getRtcStats()` - [#663](https://github.com/livekit/node-sdks/pull/663) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.28
 
 ### Patch Changes

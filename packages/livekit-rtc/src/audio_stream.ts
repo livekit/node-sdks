@@ -13,6 +13,12 @@ import type { Track } from './track.js';
 
 export interface AudioStreamOptions {
   noiseCancellation?: NoiseCancellationOptions | FrameProcessor<AudioFrame>;
+  /**
+   * If true and `noiseCancellation` is a {@link FrameProcessor}, leaves the
+   * processor open when the stream closes so the same processor can be reused
+   * with another {@link AudioStream}. Defaults to `false`.
+   */
+  noiseCancellationLeaveOpen?: boolean;
   sampleRate?: number;
   numChannels?: number;
   frameSizeMs?: number;
@@ -31,19 +37,23 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private sampleRate: number;
   private numChannels: number;
   private legacyNcOptions?: NoiseCancellationOptions;
-  private frameProcessor?: FrameProcessor<AudioFrame>;
+  private frameProcessor: FrameProcessor<AudioFrame> | null = null;
+  private leaveProcessorOpen = false;
   private frameSizeMs?: number;
+  private track: Track;
 
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
   ) {
+    this.track = track;
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
       if (isFrameProcessor(sampleRateOrOptions.noiseCancellation)) {
         this.frameProcessor = sampleRateOrOptions.noiseCancellation;
+        this.leaveProcessorOpen = sampleRateOrOptions.noiseCancellationLeaveOpen ?? false;
       } else {
         this.legacyNcOptions = sampleRateOrOptions.noiseCancellation;
       }
@@ -77,6 +87,12 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    track.registerAudioStream(this);
+  }
+
+  /** @internal */
+  get processor(): FrameProcessor<AudioFrame> | null {
+    return this.frameProcessor;
   }
 
   private onEvent = (ev: FfiEvent) => {
@@ -113,8 +129,11 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
         // while buffered frames are still in the ReadableStream queue.
         if (!this.disposed) {
           this.disposed = true;
+          this.track.unregisterAudioStream(this);
           this.ffiHandle.dispose();
-          this.frameProcessor?.close();
+          if (this.frameProcessor && !this.leaveProcessorOpen) {
+            this.frameProcessor.close();
+          }
         }
         break;
     }
@@ -128,10 +147,13 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     if (!this.disposed) {
       this.disposed = true;
+      this.track.unregisterAudioStream(this);
       this.ffiHandle.dispose();
       // Also close the frame processor on cancel for symmetry with the EOS path,
       // so resources are released regardless of how the stream ends.
-      this.frameProcessor?.close();
+      if (this.frameProcessor && !this.leaveProcessorOpen) {
+        this.frameProcessor.close();
+      }
     }
   }
 }

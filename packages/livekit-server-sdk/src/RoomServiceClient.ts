@@ -108,6 +108,13 @@ export type UpdateParticipantOptions = {
   name?: string;
 };
 
+export type RemoveParticipantOptions = {
+  /**
+   * Unix timestamp used to invalidate tokens whose nbf is before this value.
+   */
+  revokeTokenTs?: bigint;
+};
+
 const svc = 'RoomService';
 
 /**
@@ -226,12 +233,21 @@ export class RoomServiceClient extends ServiceBase {
    * Even after being removed, the participant can still re-join the room.
    * @param room -
    * @param identity -
+   * @param options - removal options
    */
-  async removeParticipant(room: string, identity: string): Promise<void> {
+  async removeParticipant(
+    room: string,
+    identity: string,
+    options?: RemoveParticipantOptions,
+  ): Promise<void> {
     await this.rpc.request(
       svc,
       'RemoveParticipant',
-      new RoomParticipantIdentity({ room, identity }).toJson(),
+      new RoomParticipantIdentity({
+        room,
+        identity,
+        revokeTokenTs: options?.revokeTokenTs,
+      }).toJson(),
       await this.authHeader({ roomAdmin: true, room }),
     );
   }

@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.15.4
+
+### Patch Changes
+
+- Add token revocation timestamp to RemoveParticipant - [#668](https://github.com/livekit/node-sdks/pull/668) ([@cnderrauber](https://github.com/cnderrauber))
+
 ## 2.15.3
 
 ### Patch Changes

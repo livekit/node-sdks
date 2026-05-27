@@ -75,8 +75,8 @@ importers:
   examples/agent-dispatch:
     dependencies:
       '@livekit/protocol':
-        specifier: ^1.45.6
-        version: 1.45.6
+        specifier: ^1.46.3
+        version: 1.46.3
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5

@@ -43,7 +43,11 @@ export abstract class FrameProcessor<Frame extends VideoFrame | AudioFrame> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onStreamInfoUpdated(_info: FrameProcessorStreamInfo): void {}
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onStreamInfoCleared(): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onCredentialsUpdated(_credentials: FrameProcessorCredentials): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onCredentialsCleared(): void {}
 
   abstract process(frame: Frame): Frame;
   abstract close(): void;

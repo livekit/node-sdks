@@ -547,9 +547,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
+      if (publication?.track) {
+        publication.track.setRoom(this);
+      }
       this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant);
     } else if (ev.case == 'localTrackUnpublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid!);
+      if (publication?.track) {
+        publication.track.setRoom(null);
+      }
       this.localParticipant.trackPublications.delete(ev.value.publicationSid!);
       this.emit(RoomEvent.LocalTrackUnpublished, publication!, this.localParticipant!);
     } else if ((ev.case as string) == 'localTrackRepublished') {
@@ -610,6 +616,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         } else if (trackInfo.kind == TrackKind.KIND_AUDIO) {
           publication.track = new RemoteAudioTrack(ownedTrack);
         }
+        publication.track?.setRoom(this);
 
         this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
       } catch (e: unknown) {
@@ -622,6 +629,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           ev.value.trackSid!,
         );
         const track = publication.track!;
+        track.setRoom(null);
         publication.track = undefined;
         publication.subscribed = false;
         this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);

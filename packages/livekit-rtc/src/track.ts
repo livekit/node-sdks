@@ -11,10 +11,10 @@ import type {
 } from '@livekit/rtc-ffi-bindings';
 import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/rtc-ffi-bindings';
 import type { AudioSource } from './audio_source.js';
+import type { AudioStreamSource } from './audio_stream.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import type { Room } from './room.js';
 import type { VideoSource } from './video_source.js';
-import type { AudioStreamSource } from './audio_stream.js';
 
 export abstract class Track {
   /** @internal */
@@ -31,7 +31,9 @@ export abstract class Track {
     if (!room || !room.token || !room.serverUrl) return;
     for (const stream of this.iterateStreams()) {
       const processor = stream.processor;
-      if (!processor) continue;
+      if (!processor) {
+        continue;
+      }
       processor.onCredentialsUpdated({ token: room.token, url: room.serverUrl });
     }
   };
@@ -39,9 +41,11 @@ export abstract class Track {
   constructor(owned: OwnedTrack) {
     this.info = owned.info;
     this.ffi_handle = new FfiHandle(owned.handle!.id!);
-    this.streamFinalizationRegistry = new FinalizationRegistry<WeakRef<AudioStreamSource>>((ref) => {
-      this.audioStreams.delete(ref);
-    });
+    this.streamFinalizationRegistry = new FinalizationRegistry<WeakRef<AudioStreamSource>>(
+      (ref) => {
+        this.audioStreams.delete(ref);
+      },
+    );
   }
 
   /** @internal */
@@ -104,7 +108,9 @@ export abstract class Track {
 
   private pushProcessorMetadataToStream(stream: AudioStreamSource, room: Room | null): void {
     const processor = stream.processor;
-    if (!processor) return;
+    if (!processor) {
+      return;
+    }
 
     if (!room) {
       // Guard with optional-call: plugins built against an older @livekit/rtc-node

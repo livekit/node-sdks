@@ -10,17 +10,11 @@ import type {
   TrackKind,
 } from '@livekit/rtc-ffi-bindings';
 import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/rtc-ffi-bindings';
-import type { AudioFrame } from './audio_frame.js';
 import type { AudioSource } from './audio_source.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
-import type { FrameProcessor } from './frame_processor.js';
 import type { Room } from './room.js';
 import type { VideoSource } from './video_source.js';
-
-/** @internal */
-export interface AudioStreamLike {
-  readonly processor: FrameProcessor<AudioFrame> | null;
-}
+import type { AudioStreamSource } from './audio_stream.js';
 
 export abstract class Track {
   /** @internal */
@@ -30,8 +24,8 @@ export abstract class Track {
   ffi_handle: FfiHandle;
 
   private roomRef: WeakRef<Room> | null = null;
-  private audioStreams: Set<WeakRef<AudioStreamLike>> = new Set();
-  private streamFinalizationRegistry: FinalizationRegistry<WeakRef<AudioStreamLike>>;
+  private audioStreams: Set<WeakRef<AudioStreamSource>> = new Set();
+  private streamFinalizationRegistry: FinalizationRegistry<WeakRef<AudioStreamSource>>;
   private onRoomTokenRefreshed = () => {
     const room = this.resolveRoom();
     if (!room || !room.token || !room.serverUrl) return;
@@ -45,7 +39,7 @@ export abstract class Track {
   constructor(owned: OwnedTrack) {
     this.info = owned.info;
     this.ffi_handle = new FfiHandle(owned.handle!.id!);
-    this.streamFinalizationRegistry = new FinalizationRegistry<WeakRef<AudioStreamLike>>((ref) => {
+    this.streamFinalizationRegistry = new FinalizationRegistry<WeakRef<AudioStreamSource>>((ref) => {
       this.audioStreams.delete(ref);
     });
   }
@@ -73,7 +67,7 @@ export abstract class Track {
   }
 
   /** @internal */
-  registerAudioStream(stream: AudioStreamLike): void {
+  registerAudioStream(stream: AudioStreamSource): void {
     const ref = new WeakRef(stream);
     this.audioStreams.add(ref);
     this.streamFinalizationRegistry.register(stream, ref);
@@ -84,7 +78,7 @@ export abstract class Track {
   }
 
   /** @internal */
-  unregisterAudioStream(stream: AudioStreamLike): void {
+  unregisterAudioStream(stream: AudioStreamSource): void {
     for (const ref of this.audioStreams) {
       if (ref.deref() === stream) {
         this.audioStreams.delete(ref);
@@ -93,8 +87,8 @@ export abstract class Track {
     }
   }
 
-  private *iterateStreams(): Generator<AudioStreamLike> {
-    const dead: Array<WeakRef<AudioStreamLike>> = [];
+  private *iterateStreams(): Generator<AudioStreamSource> {
+    const dead: Array<WeakRef<AudioStreamSource>> = [];
     for (const ref of this.audioStreams) {
       const stream = ref.deref();
       if (stream) {
@@ -108,7 +102,7 @@ export abstract class Track {
     }
   }
 
-  private pushProcessorMetadataToStream(stream: AudioStreamLike, room: Room | null): void {
+  private pushProcessorMetadataToStream(stream: AudioStreamSource, room: Room | null): void {
     const processor = stream.processor;
     if (!processor) return;
 

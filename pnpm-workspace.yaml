@@ -6,3 +6,5 @@ packages:
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - '@livekit/*'
+  # Renovate security update: turbo@2.9.14
+  - turbo@2.9.14

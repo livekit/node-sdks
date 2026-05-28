@@ -113,8 +113,11 @@ export abstract class Track {
     if (!processor) return;
 
     if (!room) {
-      processor.onStreamInfoCleared();
-      processor.onCredentialsCleared();
+      // Guard with optional-call: plugins built against an older @livekit/rtc-node
+      // inherit a FrameProcessor base class that doesn't define these methods,
+      // so they could be undefined on the prototype chain.
+      processor.onStreamInfoCleared?.();
+      processor.onCredentialsCleared?.();
       return;
     }
 

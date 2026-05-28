@@ -121,20 +121,7 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
         this.controller.enqueue(frame);
         break;
       case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        this.controller.close();
-        // Dispose the native handle so the FD is released on stream end,
-        // not just when cancel() is called explicitly by the consumer.
-        // Guard against double-dispose if cancel() is called after EOS
-        // while buffered frames are still in the ReadableStream queue.
-        if (!this.disposed) {
-          this.disposed = true;
-          this.track.unregisterAudioStream(this);
-          this.ffiHandle.dispose();
-          if (this.frameProcessor && !this.leaveProcessorOpen) {
-            this.frameProcessor.close();
-          }
-        }
+        this.teardown();
         break;
     }
   };
@@ -144,16 +131,36 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   }
 
   cancel() {
+    this.teardown();
+  }
+
+  /**
+   * Tear down this stream from the Track side — used when the track has been
+   * unsubscribed remotely and there will be no more frames. Closes the
+   * controller so any in flight async iterators by downstream consumers terminate.
+   * @internal
+   */
+  closeFromTrack(): void {
+    this.teardown();
+  }
+
+  private teardown(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    // Close the controller FIRST so any pending reader.read() resolves with
+    // {done:true} and consumer-side `for await` / `iterator.return()` can
+    // unblock. The native EOS event (if it ever arrives) would do this for us,
+    // but we can't count on it firing for remote-unsubscribe scenarios.
+    try {
+      this.controller?.close();
+    } catch {
+      // Controller may already be closed if EOS arrived first; ignore.
+    }
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-    if (!this.disposed) {
-      this.disposed = true;
-      this.track.unregisterAudioStream(this);
-      this.ffiHandle.dispose();
-      // Also close the frame processor on cancel for symmetry with the EOS path,
-      // so resources are released regardless of how the stream ends.
-      if (this.frameProcessor && !this.leaveProcessorOpen) {
-        this.frameProcessor.close();
-      }
+    this.track.unregisterAudioStream(this);
+    this.ffiHandle.dispose();
+    if (this.frameProcessor && !this.leaveProcessorOpen) {
+      this.frameProcessor.close();
     }
   }
 }

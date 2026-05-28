@@ -105,20 +105,23 @@ export abstract class Track {
     }
   }
 
-  private pushProcessorMetadataToStream(stream: AudioStreamSource, room: Room | null): void {
-    const processor = stream.processor;
-    if (!processor) {
-      return;
-    }
-
+  private pushProcessorMetadataToStream(stream: AudioStreamLike, room: Room | null): void {
     if (!room) {
       // Guard with optional-call: plugins built against an older @livekit/rtc-node
       // inherit a FrameProcessor base class that doesn't define these methods,
       // so they could be undefined on the prototype chain.
-      processor.onStreamInfoCleared?.();
-      processor.onCredentialsCleared?.();
+      // still alive — the subsequent closeFromTrack may invoke processor.close().
+      stream.processor?.onStreamInfoCleared?.();
+      stream.processor?.onCredentialsCleared?.();
+      // Tell the stream the track left the room — no more frames will arrive
+      // (the remote peer has unsubscribed), so close it so consumers' `for
+      // await` loops can terminate.
+      stream.closeFromTrack?.();
       return;
     }
+
+    const processor = stream.processor;
+    if (!processor) return;
 
     let identity = '';
     let publicationSid = '';

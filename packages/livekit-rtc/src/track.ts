@@ -56,13 +56,12 @@ export abstract class Track {
   /** @internal */
   setRoom(room: Room | null): void {
     const oldRoom = this.resolveRoom();
-    if (oldRoom !== room) {
-      if (oldRoom) {
-        oldRoom.off('tokenRefreshed', this.onRoomTokenRefreshed);
-      }
-      if (room) {
-        room.on('tokenRefreshed', this.onRoomTokenRefreshed);
-      }
+    if (oldRoom && oldRoom !== room) {
+      oldRoom.off('tokenRefreshed', this.onRoomTokenRefreshed);
+    }
+    if (room) {
+      room.off('tokenRefreshed', this.onRoomTokenRefreshed);
+      room.on('tokenRefreshed', this.onRoomTokenRefreshed);
     }
     this.roomRef = room ? new WeakRef(room) : null;
     for (const stream of this.iterateStreams()) {

@@ -134,16 +134,6 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.teardown();
   }
 
-  /**
-   * Tear down this stream from the Track side — used when the track has been
-   * unsubscribed remotely and there will be no more frames. Closes the
-   * controller so any in flight async iterators by downstream consumers terminate.
-   * @internal
-   */
-  closeFromTrack(): void {
-    this.teardown();
-  }
-
   private teardown(): void {
     if (this.disposed) return;
     this.disposed = true;

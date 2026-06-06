@@ -8,3 +8,5 @@ minimumReleaseAgeExclude:
   - '@livekit/*'
   # Renovate security update: turbo@2.9.14
   - turbo@2.9.14
+  # Renovate security update: vite@6.4.2
+  - vite@6.4.2

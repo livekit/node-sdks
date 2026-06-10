@@ -14,14 +14,34 @@ import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 
 interface CreateDispatchOptions {
-  // any custom data to send along with the job.
-  // note: this is different from room and participant metadata
+  /** any custom data to send along with the job.
+   * note: this is different from room and participant metadata
+   */
   metadata?: string;
-  // controls whether the job should be restarted when it fails (cloud only)
+  /** controls whether the job should be restarted when it fails (cloud only) */
   restartPolicy?: JobRestartPolicy;
+  /** optional deployment to dispatch to. Leave empty to target the production deployment.
+   * Deployment must start and end with an alphanumeric character and may contain -, _, and . in between.
+   */
+  deployment?: string;
 }
 
 const svc = 'AgentDispatchService';
+
+/** @throws TypeError on invalid deployment names */
+export function validateAgentDeploymentString(deployment: string): void {
+  if (deployment.length > 63) {
+    throw new TypeError('Deployment string must not exceed 63 characters');
+  }
+  if (deployment.length === 0) {
+    return undefined;
+  }
+  if (!/^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$/.test(deployment)) {
+    throw new TypeError(
+      'Deployment must start and end with an alphanumeric character and may contain -, _, and . in between.',
+    );
+  }
+}
 
 /**
  * Client to access Agent APIs
@@ -56,11 +76,15 @@ export class AgentDispatchClient extends ServiceBase {
     agentName: string,
     options?: CreateDispatchOptions,
   ): Promise<AgentDispatch> {
+    if (options?.deployment) {
+      validateAgentDeploymentString(options.deployment);
+    }
     const req = new CreateAgentDispatchRequest({
       room: roomName,
       agentName,
       metadata: options?.metadata,
       restartPolicy: options?.restartPolicy,
+      deployment: options?.deployment,
     }).toJson();
     const data = await this.rpc.request(
       svc,

@@ -1,0 +1,23 @@
+{
+  "name": "example-data-tracks",
+  "author": "LiveKit",
+  "private": true,
+  "description": "Example of using data tracks in LiveKit",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint -f unix \"**/*.ts\"",
+    "publisher": "tsx publisher.ts",
+    "subscriber": "tsx subscriber.ts"
+  },
+  "keywords": [],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@livekit/rtc-node": "workspace:*",
+    "dotenv": "^16.4.5",
+    "livekit-server-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "tsx": "^4.7.1"
+  }
+}

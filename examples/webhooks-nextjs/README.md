@@ -1,12 +1,10 @@
-# Using Webhooks with a Next.JS app
+# Using Webhooks with a Next.js app
 
-This example was generated using [create-next-app](https://nextjs.org/docs/api-reference/create-next-app).
+This example shows how to receive [LiveKit webhooks](https://docs.livekit.io/home/server/webhooks/)
+in a Next.js (App Router) application using `livekit-server-sdk`.
 
-We've made the following modifications to the generated project:
-
-- `pnpm add livekit-server-sdk`
-- [webhook.ts](pages/api/webhook.ts)
-- added API key and secret to [next.config.js](next.config.js)
+The webhook handler lives in [app/api/webhook/route.ts](app/api/webhook/route.ts) and reads your
+API key and secret from environment variables.
 
 Follow these steps to see this demo in action:
 
@@ -20,7 +18,13 @@ Follow these steps to see this demo in action:
   ```
 
 - Start livekit-server locally
-- Open next.config.js and fill in your API key and secret pair
+- Provide your API key and secret, e.g. in a `.env.local` file:
+
+  ```
+  LIVEKIT_API_KEY=your-api-key
+  LIVEKIT_API_SECRET=your-api-secret
+  ```
+
 - Run this example with `pnpm dev`
 - Connect a client to livekit-server
 - Observe the following in your Next.js app logs:

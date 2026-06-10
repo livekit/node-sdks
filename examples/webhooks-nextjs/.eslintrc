@@ -1,14 +1,13 @@
 {
     "extends": [
-        "../../.eslintrc",
-        "plugin:@next/next/recommended"
+        "../../.eslintrc"
     ],
     "parserOptions": {
         "project": ["./tsconfig.json"]
     },
     "settings": {
         "react": {
-            "version": "18"
+            "version": "19"
         }
-    }   
+    }
 }

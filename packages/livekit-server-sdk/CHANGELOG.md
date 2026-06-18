@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.15.5
+
+### Patch Changes
+
+- Add `deployment` to `CreateDispatchOptions` - [#675](https://github.com/livekit/node-sdks/pull/675) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.15.4
 
 ### Patch Changes

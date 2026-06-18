@@ -28,21 +28,6 @@ interface CreateDispatchOptions {
 
 const svc = 'AgentDispatchService';
 
-/** @throws TypeError on invalid deployment names */
-export function validateAgentDeploymentString(deployment: string): void {
-  if (deployment.length > 63) {
-    throw new TypeError('Deployment string must not exceed 63 characters');
-  }
-  if (deployment.length === 0) {
-    return undefined;
-  }
-  if (!/^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$/.test(deployment)) {
-    throw new TypeError(
-      'Deployment must start and end with an alphanumeric character and may contain -, _, and . in between.',
-    );
-  }
-}
-
 /**
  * Client to access Agent APIs
  */
@@ -76,9 +61,6 @@ export class AgentDispatchClient extends ServiceBase {
     agentName: string,
     options?: CreateDispatchOptions,
   ): Promise<AgentDispatch> {
-    if (options?.deployment) {
-      validateAgentDeploymentString(options.deployment);
-    }
     const req = new CreateAgentDispatchRequest({
       room: roomName,
       agentName,

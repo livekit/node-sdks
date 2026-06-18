@@ -20,9 +20,7 @@ interface CreateDispatchOptions {
   metadata?: string;
   /** controls whether the job should be restarted when it fails (cloud only) */
   restartPolicy?: JobRestartPolicy;
-  /** optional deployment to dispatch to. Leave empty to target the production deployment.
-   * Deployment must start and end with an alphanumeric character and may contain -, _, and . in between.
-   */
+  /** optional deployment to dispatch to. Leave empty to target the production deployment. */
   deployment?: string;
 }
 

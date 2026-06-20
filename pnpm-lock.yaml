@@ -10,13 +10,13 @@ importers:
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.0
-        version: 2.31.0(@types/node@22.15.29)
+        version: 2.31.0(@types/node@24.13.2)
       '@livekit/changesets-changelog-github':
         specifier: ^0.0.4
         version: 0.0.4
       '@rushstack/heft':
         specifier: ^0.74.5
-        version: 0.74.5(@types/node@22.15.29)
+        version: 0.74.5(@types/node@24.13.2)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^6.0.2
         version: 6.0.2(prettier@3.8.3)
@@ -70,7 +70,7 @@ importers:
         version: 5.8.2
       vitest:
         specifier: ^4.1.8
-        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1))
+        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@24.13.2)(happy-dom@20.8.9)(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1))
 
   examples/agent-dispatch:
     dependencies:
@@ -223,8 +223,8 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@types/node':
-        specifier: ^22.13.10
-        version: 22.15.29
+        specifier: ^24.0.0
+        version: 24.13.2
       livekit-server-sdk:
         specifier: workspace:*
         version: link:../livekit-server-sdk
@@ -239,7 +239,7 @@ importers:
         version: 5.8.2
       vitest:
         specifier: ^4.0.0
-        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1))
+        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@24.13.2)(happy-dom@20.8.9)(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1))
 
   packages/livekit-server-sdk:
     dependencies:
@@ -258,7 +258,7 @@ importers:
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1
-        version: 2.29.6(@types/node@20.19.11)
+        version: 2.29.6(@types/node@24.13.2)
       '@edge-runtime/vm':
         specifier: ^5.0.0
         version: 5.0.0
@@ -266,8 +266,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       '@types/node':
-        specifier: ^20.10.1
-        version: 20.19.11
+        specifier: ^24.0.0
+        version: 24.13.2
       happy-dom:
         specifier: ^20.0.0
         version: 20.8.9
@@ -285,10 +285,10 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^6.0.0
-        version: 6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
+        version: 6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1)
       vitest:
         specifier: ^4.0.0
-        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9)(vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1))
+        version: 4.1.8(@edge-runtime/vm@5.0.0)(@types/node@24.13.2)(happy-dom@20.8.9)(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1))
 
 packages:
 
@@ -1418,6 +1418,9 @@ packages:
 
   '@types/node@22.15.29':
     resolution: {integrity: sha512-LNdjOkUDlU1RZb8e1kOIUpN1qQUlzGkEtbVNo53vbrwDg5om6oduhm4SiUaPW5ASTXhAiP0jInWG8Qx9fVlOeQ==}
+
+  '@types/node@24.13.2':
+    resolution: {integrity: sha512-fRa09kZTgu8o71KFcDjUFuc7F+dEbZYZmkI0mg5YBTRs0yMKjYHsq/c0urDKeDb+D5qVgXOdFcuu+DZPKOITwA==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -3586,6 +3589,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
   universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
     engines: {node: '>= 4.0.0'}
@@ -3873,7 +3879,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/cli@2.29.6(@types/node@20.19.11)':
+  '@changesets/cli@2.29.6(@types/node@24.13.2)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.12
       '@changesets/assemble-release-plan': 6.0.9
@@ -3889,7 +3895,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.1(@types/node@20.19.11)
+      '@inquirer/external-editor': 1.0.1(@types/node@24.13.2)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -3906,7 +3912,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@changesets/cli@2.31.0(@types/node@22.15.29)':
+  '@changesets/cli@2.31.0(@types/node@24.13.2)':
     dependencies:
       '@changesets/apply-release-plan': 7.1.1
       '@changesets/assemble-release-plan': 6.0.10
@@ -3922,7 +3928,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.3(@types/node@22.15.29)
+      '@inquirer/external-editor': 1.0.3(@types/node@24.13.2)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       enquirer: 2.4.1
@@ -4389,19 +4395,19 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@inquirer/external-editor@1.0.1(@types/node@20.19.11)':
+  '@inquirer/external-editor@1.0.1(@types/node@24.13.2)':
     dependencies:
       chardet: 2.1.0
       iconv-lite: 0.6.3
     optionalDependencies:
-      '@types/node': 20.19.11
+      '@types/node': 24.13.2
 
-  '@inquirer/external-editor@1.0.3(@types/node@22.15.29)':
+  '@inquirer/external-editor@1.0.3(@types/node@24.13.2)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -4641,24 +4647,24 @@ snapshots:
 
   '@rushstack/eslint-patch@1.16.1': {}
 
-  '@rushstack/heft-config-file@0.18.4(@types/node@22.15.29)':
+  '@rushstack/heft-config-file@0.18.4(@types/node@24.13.2)':
     dependencies:
-      '@rushstack/node-core-library': 5.14.0(@types/node@22.15.29)
+      '@rushstack/node-core-library': 5.14.0(@types/node@24.13.2)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.16.0(@types/node@22.15.29)
+      '@rushstack/terminal': 0.16.0(@types/node@24.13.2)
       '@ungap/structured-clone': 1.3.1
       jsonpath-plus: 10.3.0
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/heft@0.74.5(@types/node@22.15.29)':
+  '@rushstack/heft@0.74.5(@types/node@24.13.2)':
     dependencies:
-      '@rushstack/heft-config-file': 0.18.4(@types/node@22.15.29)
-      '@rushstack/node-core-library': 5.14.0(@types/node@22.15.29)
-      '@rushstack/operation-graph': 0.3.2(@types/node@22.15.29)
+      '@rushstack/heft-config-file': 0.18.4(@types/node@24.13.2)
+      '@rushstack/node-core-library': 5.14.0(@types/node@24.13.2)
+      '@rushstack/operation-graph': 0.3.2(@types/node@24.13.2)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.16.0(@types/node@22.15.29)
-      '@rushstack/ts-command-line': 5.0.3(@types/node@22.15.29)
+      '@rushstack/terminal': 0.16.0(@types/node@24.13.2)
+      '@rushstack/ts-command-line': 5.0.3(@types/node@24.13.2)
       '@types/tapable': 1.0.6
       fast-glob: 3.3.3
       git-repo-info: 2.1.1
@@ -4668,7 +4674,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/node-core-library@5.14.0(@types/node@22.15.29)':
+  '@rushstack/node-core-library@5.14.0(@types/node@24.13.2)':
     dependencies:
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
@@ -4679,30 +4685,30 @@ snapshots:
       resolve: 1.22.12
       semver: 7.5.4
     optionalDependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
 
-  '@rushstack/operation-graph@0.3.2(@types/node@22.15.29)':
+  '@rushstack/operation-graph@0.3.2(@types/node@24.13.2)':
     dependencies:
-      '@rushstack/node-core-library': 5.14.0(@types/node@22.15.29)
-      '@rushstack/terminal': 0.16.0(@types/node@22.15.29)
+      '@rushstack/node-core-library': 5.14.0(@types/node@24.13.2)
+      '@rushstack/terminal': 0.16.0(@types/node@24.13.2)
     optionalDependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
 
   '@rushstack/rig-package@0.5.3':
     dependencies:
       resolve: 1.22.12
       strip-json-comments: 3.1.1
 
-  '@rushstack/terminal@0.16.0(@types/node@22.15.29)':
+  '@rushstack/terminal@0.16.0(@types/node@24.13.2)':
     dependencies:
-      '@rushstack/node-core-library': 5.14.0(@types/node@22.15.29)
+      '@rushstack/node-core-library': 5.14.0(@types/node@24.13.2)
       supports-color: 8.1.1
     optionalDependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
 
-  '@rushstack/ts-command-line@5.0.3(@types/node@22.15.29)':
+  '@rushstack/ts-command-line@5.0.3(@types/node@24.13.2)':
     dependencies:
-      '@rushstack/terminal': 0.16.0(@types/node@22.15.29)
+      '@rushstack/terminal': 0.16.0(@types/node@24.13.2)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -4801,6 +4807,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/node@24.13.2':
+    dependencies:
+      undici-types: 7.18.2
+
   '@types/react-dom@19.2.3(@types/react@19.2.17)':
     dependencies:
       '@types/react': 19.2.17
@@ -4817,7 +4827,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
 
   '@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)':
     dependencies:
@@ -4991,21 +5001,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.8(vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1))':
+  '@vitest/mocker@4.1.8(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1))':
     dependencies:
       '@vitest/spy': 4.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
-
-  '@vitest/mocker@4.1.8(vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1))':
-    dependencies:
-      '@vitest/spy': 4.1.8
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1)
+      vite: 6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1)
 
   '@vitest/pretty-format@4.1.8':
     dependencies:
@@ -6034,7 +6036,7 @@ snapshots:
 
   happy-dom@20.8.9:
     dependencies:
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
       '@types/whatwg-mimetype': 3.0.2
       '@types/ws': 8.18.1
       entities: 7.0.1
@@ -7241,6 +7243,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici-types@7.18.2: {}
+
   universalify@0.1.2: {}
 
   universalify@2.0.1: {}
@@ -7276,7 +7280,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1):
+  vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       esbuild: 0.25.9
       fdir: 6.5.0(picomatch@4.0.4)
@@ -7285,29 +7289,15 @@ snapshots:
       rollup: 4.57.1
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 20.19.11
+      '@types/node': 24.13.2
       fsevents: 2.3.3
       tsx: 4.17.0
       yaml: 2.8.1
 
-  vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1):
-    dependencies:
-      esbuild: 0.25.9
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
-      postcss: 8.5.6
-      rollup: 4.57.1
-      tinyglobby: 0.2.17
-    optionalDependencies:
-      '@types/node': 22.15.29
-      fsevents: 2.3.3
-      tsx: 4.17.0
-      yaml: 2.8.1
-
-  vitest@4.1.8(@edge-runtime/vm@5.0.0)(@types/node@20.19.11)(happy-dom@20.8.9)(vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)):
+  vitest@4.1.8(@edge-runtime/vm@5.0.0)(@types/node@24.13.2)(happy-dom@20.8.9)(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1)):
     dependencies:
       '@vitest/expect': 4.1.8
-      '@vitest/mocker': 4.1.8(vite@6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1))
+      '@vitest/mocker': 4.1.8(vite@6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1))
       '@vitest/pretty-format': 4.1.8
       '@vitest/runner': 4.1.8
       '@vitest/snapshot': 4.1.8
@@ -7324,40 +7314,11 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 6.4.2(@types/node@20.19.11)(tsx@4.17.0)(yaml@2.8.1)
+      vite: 6.4.2(@types/node@24.13.2)(tsx@4.17.0)(yaml@2.8.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@edge-runtime/vm': 5.0.0
-      '@types/node': 20.19.11
-      happy-dom: 20.8.9
-    transitivePeerDependencies:
-      - msw
-
-  vitest@4.1.8(@edge-runtime/vm@5.0.0)(@types/node@22.15.29)(happy-dom@20.8.9)(vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1)):
-    dependencies:
-      '@vitest/expect': 4.1.8
-      '@vitest/mocker': 4.1.8(vite@6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1))
-      '@vitest/pretty-format': 4.1.8
-      '@vitest/runner': 4.1.8
-      '@vitest/snapshot': 4.1.8
-      '@vitest/spy': 4.1.8
-      '@vitest/utils': 4.1.8
-      es-module-lexer: 2.1.0
-      expect-type: 1.3.0
-      magic-string: 0.30.21
-      obug: 2.1.2
-      pathe: 2.0.3
-      picomatch: 4.0.4
-      std-env: 4.1.0
-      tinybench: 2.9.0
-      tinyexec: 1.2.4
-      tinyglobby: 0.2.17
-      tinyrainbow: 3.1.0
-      vite: 6.4.2(@types/node@22.15.29)(tsx@4.17.0)(yaml@2.8.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@edge-runtime/vm': 5.0.0
-      '@types/node': 22.15.29
+      '@types/node': 24.13.2
       happy-dom: 20.8.9
     transitivePeerDependencies:
       - msw

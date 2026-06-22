@@ -13,6 +13,12 @@ import type { Track } from './track.js';
 
 export interface AudioStreamOptions {
   noiseCancellation?: NoiseCancellationOptions | FrameProcessor<AudioFrame>;
+  /**
+   * If true and `noiseCancellation` is a {@link FrameProcessor}, leaves the
+   * processor open when the stream closes so the same processor can be reused
+   * with another {@link AudioStream}. Defaults to `false`.
+   */
+  noiseCancellationLeaveOpen?: boolean;
   sampleRate?: number;
   numChannels?: number;
   frameSizeMs?: number;
@@ -24,26 +30,30 @@ export interface NoiseCancellationOptions {
   options: Record<string, any>;
 }
 
-class AudioStreamSource implements UnderlyingSource<AudioFrame> {
+export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private controller?: ReadableStreamDefaultController<AudioFrame>;
   private ffiHandle: FfiHandle;
   private disposed = false;
   private sampleRate: number;
   private numChannels: number;
   private legacyNcOptions?: NoiseCancellationOptions;
-  private frameProcessor?: FrameProcessor<AudioFrame>;
+  private frameProcessor: FrameProcessor<AudioFrame> | null = null;
+  private leaveProcessorOpen = false;
   private frameSizeMs?: number;
+  private track: Track;
 
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
   ) {
+    this.track = track;
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
       if (isFrameProcessor(sampleRateOrOptions.noiseCancellation)) {
         this.frameProcessor = sampleRateOrOptions.noiseCancellation;
+        this.leaveProcessorOpen = sampleRateOrOptions.noiseCancellationLeaveOpen ?? false;
       } else {
         this.legacyNcOptions = sampleRateOrOptions.noiseCancellation;
       }
@@ -77,6 +87,12 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    track.registerAudioStream(this);
+  }
+
+  /** @internal */
+  get processor(): FrameProcessor<AudioFrame> | null {
+    return this.frameProcessor;
   }
 
   private onEvent = (ev: FfiEvent) => {
@@ -105,17 +121,7 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
         this.controller.enqueue(frame);
         break;
       case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        this.controller.close();
-        // Dispose the native handle so the FD is released on stream end,
-        // not just when cancel() is called explicitly by the consumer.
-        // Guard against double-dispose if cancel() is called after EOS
-        // while buffered frames are still in the ReadableStream queue.
-        if (!this.disposed) {
-          this.disposed = true;
-          this.ffiHandle.dispose();
-          this.frameProcessor?.close();
-        }
+        this.teardown();
         break;
     }
   };
@@ -125,13 +131,26 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   }
 
   cancel() {
+    this.teardown();
+  }
+
+  private teardown(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    // Close the controller FIRST so any pending reader.read() resolves with
+    // {done:true} and consumer-side `for await` / `iterator.return()` can
+    // unblock. The native EOS event (if it ever arrives) would do this for us,
+    // but we can't count on it firing for remote-unsubscribe scenarios.
+    try {
+      this.controller?.close();
+    } catch {
+      // Controller may already be closed if EOS arrived first; ignore.
+    }
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-    if (!this.disposed) {
-      this.disposed = true;
-      this.ffiHandle.dispose();
-      // Also close the frame processor on cancel for symmetry with the EOS path,
-      // so resources are released regardless of how the stream ends.
-      this.frameProcessor?.close();
+    this.track.unregisterAudioStream(this);
+    this.ffiHandle.dispose();
+    if (this.frameProcessor && !this.leaveProcessorOpen) {
+      this.frameProcessor.close();
     }
   }
 }

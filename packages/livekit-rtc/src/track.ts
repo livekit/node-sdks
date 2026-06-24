@@ -56,6 +56,13 @@ export abstract class Track {
   /** @internal */
   setRoom(room: Room | null): void {
     const oldRoom = this.resolveRoom();
+    if (!oldRoom && !room) {
+      // Already roomless — nothing to detach and nothing to re-clear. Without
+      // this guard a second setRoom(null) (e.g. the unpublishTrack /
+      // localTrackUnpublished race calling it from both paths) would re-fire
+      // onStreamInfoCleared / onCredentialsCleared on every registered processor.
+      return;
+    }
     if (oldRoom && oldRoom !== room) {
       oldRoom.off('tokenRefreshed', this.onRoomTokenRefreshed);
     }

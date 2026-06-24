@@ -767,6 +767,15 @@ export class LocalParticipant extends Participant {
 
       const pub = this.trackPublications.get(trackSid);
       if (pub) {
+        // Clear the processor's room context here too: this path races the
+        // localTrackUnpublished room event, and whichever loses finds the
+        // publication already gone and skips its own setRoom(null). Calling it
+        // from both paths guarantees the processor is cleared (and the
+        // tokenRefreshed listener detached); setRoom(null) is idempotent, so a
+        // double-clear when this path wins is safe.
+        if (pub.track) {
+          pub.track.setRoom(null);
+        }
         pub.track = undefined;
       }
       this.trackPublications.delete(trackSid);

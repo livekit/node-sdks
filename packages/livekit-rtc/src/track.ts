@@ -26,7 +26,22 @@ export abstract class Track {
   private roomRef: WeakRef<Room> | null = null;
   private audioStreams: Set<WeakRef<AudioStreamSource>> = new Set();
   private streamFinalizationRegistry: FinalizationRegistry<WeakRef<AudioStreamSource>>;
-  private onRoomTokenRefreshed = () => {
+
+  // Lazily-created bound listener for the Room's `tokenRefreshed` event. Stored
+  // so the same function reference is used for both on() and off(). Defined via
+  // a getter + plain method (rather than an instance arrow field) so the class
+  // can be constructed through Object.create in tests — bypassing the FFI handle
+  // — while keeping a stable listener identity.
+  private boundOnRoomTokenRefreshed?: () => void;
+
+  private get roomTokenRefreshedListener(): () => void {
+    if (!this.boundOnRoomTokenRefreshed) {
+      this.boundOnRoomTokenRefreshed = () => this.onRoomTokenRefreshed();
+    }
+    return this.boundOnRoomTokenRefreshed;
+  }
+
+  private onRoomTokenRefreshed(): void {
     const room = this.resolveRoom();
     if (!room || !room.token || !room.serverUrl) return;
     for (const stream of this.iterateStreams()) {
@@ -36,7 +51,7 @@ export abstract class Track {
       }
       processor.onCredentialsUpdated({ token: room.token, url: room.serverUrl });
     }
-  };
+  }
 
   constructor(owned: OwnedTrack) {
     this.info = owned.info;
@@ -64,11 +79,11 @@ export abstract class Track {
       return;
     }
     if (oldRoom && oldRoom !== room) {
-      oldRoom.off('tokenRefreshed', this.onRoomTokenRefreshed);
+      oldRoom.off('tokenRefreshed', this.roomTokenRefreshedListener);
     }
     if (room) {
-      room.off('tokenRefreshed', this.onRoomTokenRefreshed);
-      room.on('tokenRefreshed', this.onRoomTokenRefreshed);
+      room.off('tokenRefreshed', this.roomTokenRefreshedListener);
+      room.on('tokenRefreshed', this.roomTokenRefreshedListener);
     }
     this.roomRef = room ? new WeakRef(room) : null;
     for (const stream of this.iterateStreams()) {

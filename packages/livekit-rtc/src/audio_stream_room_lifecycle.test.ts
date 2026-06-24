@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { OwnedTrack } from '@livekit/rtc-ffi-bindings';
 import { TrackPublishOptions } from '@livekit/rtc-ffi-bindings';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { AudioFrame } from './audio_frame.js';
 import type { AudioStreamSource } from './audio_stream.js';
 import { FfiClient } from './ffi_client.js';
@@ -17,28 +16,43 @@ import { Room } from './room.js';
 import { LocalAudioTrack, RemoteAudioTrack, type Track } from './track.js';
 import { LocalTrackPublication } from './track_publication.js';
 
-// These tests fabricate Tracks with synthetic (invalid) FFI handle ids to avoid
-// touching the real FFI server. The native FfiHandle has a Rust-side drop that
-// runs when the JS wrapper is garbage-collected; dropping an unallocated handle
-// throws "trying to drop an invalid handle" as an uncaught exception at GC time
-// (intermittent locally, reliably on CI). Replace FfiHandle with an inert stub
-// so no native drop is ever scheduled; everything else in the bindings stays real.
-vi.mock('@livekit/rtc-ffi-bindings', async () => {
-  const actual = await vi.importActual<typeof import('@livekit/rtc-ffi-bindings')>(
-    '@livekit/rtc-ffi-bindings',
-  );
-  class FakeFfiHandle {
-    private _handle: bigint;
-    constructor(handle: bigint) {
-      this._handle = handle;
-    }
-    dispose(): void {}
-    get handle(): bigint {
-      return this._handle;
-    }
-  }
-  return { ...actual, FfiHandle: FakeFfiHandle };
-});
+// These tests fabricate Tracks/publications without going through the real FFI.
+// The native FfiHandle (a NAPI class) registers a Rust-side drop on the JS
+// wrapper that fires at GC and throws "trying to drop an invalid handle" for any
+// unallocated id — an uncaught exception that surfaces intermittently on CI.
+// There is no JS-level hook to disarm that native finalizer, and module-mocking
+// the bindings isn't portable (the suite also runs under `bun test`, whose `vi`
+// shim lacks vi.mock/vi.importActual). So we never construct a real handle:
+// Tracks are built via Object.create (bypassing the constructor — the Track
+// class is written to support this), and the one production path that does build
+// a real handle (publishTrack -> LocalTrackPublication) is pinned to keep its
+// wrapper alive so the finalizer never runs.
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const inertFfiHandle = () => ({ handle: BigInt(0), dispose() {} }) as any;
+
+// Keeps real FfiHandle wrappers reachable for the lifetime of the test process
+// so their native finalizers never fire. See the note above.
+const ffiHandleKeepAlive: Array<unknown> = [];
+
+/**
+ * Stub the FfiClient singleton's request/waitFor round-trip via plain property
+ * assignment. Runner-agnostic — avoids vi.spyOn, which Bun's `vi` shim doesn't
+ * fully implement. Returns a restore function to call in `finally`.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function stubFfiRoundTrip(waitForResult: any): () => void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = FfiClient.instance as any;
+  const origRequest = client.request;
+  const origWaitFor = client.waitFor;
+  client.request = () => ({ asyncId: BigInt(1) });
+  client.waitFor = async () => waitForResult;
+  return () => {
+    client.request = origRequest;
+    client.waitFor = origWaitFor;
+  };
+}
 
 class RecordingProcessor extends FrameProcessor<AudioFrame> {
   enabled = false;
@@ -104,23 +118,28 @@ function attachRemoteParticipant(
   room.remoteParticipants.set(identity, participant as any);
 }
 
+// Build a Track via Object.create so no real FfiHandle is constructed. Sets only
+// the instance state the Track methods read; the bound tokenRefreshed listener
+// is created lazily by the class getter, so it survives this bypass.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function initTrack(track: any, sid: string): void {
+  track.info = { sid };
+  track.ffi_handle = inertFfiHandle();
+  track.roomRef = null;
+  track.audioStreams = new Set();
+  track.streamFinalizationRegistry = { register() {}, unregister() {} };
+}
+
 function makeTrack(sid: string): RemoteAudioTrack {
-  const owned = {
-    info: { sid },
-    handle: { id: BigInt(0) },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any as OwnedTrack;
-  return new RemoteAudioTrack(owned);
+  const track = Object.create(RemoteAudioTrack.prototype) as RemoteAudioTrack;
+  initTrack(track, sid);
+  return track;
 }
 
 function makeLocalAudioTrack(sid: string): LocalAudioTrack {
-  // Safe under the FfiHandle mock — no native handle is created.
-  const owned = {
-    info: { sid },
-    handle: { id: BigInt(0) },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any as OwnedTrack;
-  return new LocalAudioTrack(owned);
+  const track = Object.create(LocalAudioTrack.prototype) as LocalAudioTrack;
+  initTrack(track, sid);
+  return track;
 }
 
 function makeStream(processor: FrameProcessor<AudioFrame> | null): AudioStreamSource {
@@ -645,21 +664,12 @@ describe('AudioStream room lifecycle', () => {
     const clearedInfoBefore = proc.streamInfoClearedCount;
     const clearedCredsBefore = proc.credentialsClearedCount;
 
-    // Mock the FFI round-trip so unpublishTrack resolves without a real server.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestSpy = vi.spyOn(FfiClient.instance, 'request').mockReturnValue({
-      asyncId: BigInt(1),
-    } as never);
-    const waitForSpy = vi
-      .spyOn(FfiClient.instance, 'waitFor')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .mockResolvedValue({ error: undefined } as never);
-
+    // Stub the FFI round-trip so unpublishTrack resolves without a real server.
+    const restore = stubFfiRoundTrip({ error: undefined });
     try {
       await local.unpublishTrack(TRACK_SID);
     } finally {
-      requestSpy.mockRestore();
-      waitForSpy.mockRestore();
+      restore();
     }
 
     expect(local.trackPublications.has(TRACK_SID)).toBe(false);
@@ -727,23 +737,22 @@ describe('AudioStream room lifecycle', () => {
     // Track starts with a provisional SID that differs from the publication SID.
     const track = makeLocalAudioTrack('PROVISIONAL');
 
-    const requestSpy = vi.spyOn(FfiClient.instance, 'request').mockReturnValue({
-      asyncId: BigInt(1),
-    } as never);
-    const waitForSpy = vi.spyOn(FfiClient.instance, 'waitFor').mockResolvedValue({
+    const restore = stubFfiRoundTrip({
       message: {
         case: 'publication',
         value: { info: { sid: 'PUB_NEW' }, handle: { id: BigInt(0) } },
       },
-    } as never);
-
+    });
     let pub: LocalTrackPublication;
     try {
       pub = await local.publishTrack(track, new TrackPublishOptions());
     } finally {
-      requestSpy.mockRestore();
-      waitForSpy.mockRestore();
+      restore();
     }
+    // publishTrack builds a real LocalTrackPublication, the one path here that
+    // constructs a native FfiHandle. Pin it so its finalizer never fires.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ffiHandleKeepAlive.push((pub as any).ffiHandle);
 
     expect(pub.sid).toBe('PUB_NEW');
     // The invariant: the track's own SID now matches the publication SID.

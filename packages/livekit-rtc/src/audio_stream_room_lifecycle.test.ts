@@ -23,8 +23,10 @@ import { LocalTrackPublication } from './track_publication.js';
 // throws "trying to drop an invalid handle" as an uncaught exception at GC time
 // (intermittent locally, reliably on CI). Replace FfiHandle with an inert stub
 // so no native drop is ever scheduled; everything else in the bindings stays real.
-vi.mock('@livekit/rtc-ffi-bindings', async (importActual) => {
-  const actual = await importActual<typeof import('@livekit/rtc-ffi-bindings')>();
+vi.mock('@livekit/rtc-ffi-bindings', async () => {
+  const actual = await vi.importActual<typeof import('@livekit/rtc-ffi-bindings')>(
+    '@livekit/rtc-ffi-bindings',
+  );
   class FakeFfiHandle {
     private _handle: bigint;
     constructor(handle: bigint) {

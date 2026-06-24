@@ -731,6 +731,14 @@ export class LocalParticipant extends Participant {
         case 'publication':
           const track_publication = new LocalTrackPublication(cb.message.value!);
           track_publication.track = track;
+          // Stamp the server-assigned publication
+          // SID onto the track so track.sid == publication.sid. Both
+          // Track.pushProcessorMetadataToStream and the localTrackRepublished
+          // handler look up the local publication by this SID; without it they
+          // depend on createAudioTrack's provisional SID happening to match.
+          if (track.info && track_publication.sid) {
+            track.info.sid = track_publication.sid;
+          }
           this.trackPublications.set(track_publication.sid!, track_publication);
 
           return track_publication;

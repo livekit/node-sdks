@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { OwnedTrack } from '@livekit/rtc-ffi-bindings';
+import { TrackPublishOptions } from '@livekit/rtc-ffi-bindings';
 import { describe, expect, it, vi } from 'vitest';
 import type { AudioFrame } from './audio_frame.js';
 import type { AudioStreamSource } from './audio_stream.js';
@@ -13,7 +14,7 @@ import {
 } from './frame_processor.js';
 import { LocalParticipant } from './participant.js';
 import { Room } from './room.js';
-import { RemoteAudioTrack, type Track } from './track.js';
+import { LocalAudioTrack, RemoteAudioTrack, type Track } from './track.js';
 import { LocalTrackPublication } from './track_publication.js';
 
 // These tests fabricate Tracks with synthetic (invalid) FFI handle ids to avoid
@@ -108,6 +109,16 @@ function makeTrack(sid: string): RemoteAudioTrack {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any as OwnedTrack;
   return new RemoteAudioTrack(owned);
+}
+
+function makeLocalAudioTrack(sid: string): LocalAudioTrack {
+  // Safe under the FfiHandle mock — no native handle is created.
+  const owned = {
+    info: { sid },
+    handle: { id: BigInt(0) },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any as OwnedTrack;
+  return new LocalAudioTrack(owned);
 }
 
 function makeStream(processor: FrameProcessor<AudioFrame> | null): AudioStreamSource {
@@ -655,5 +666,86 @@ describe('AudioStream room lifecycle', () => {
     // room-event handler never ran.
     expect(proc.streamInfoClearedCount).toBe(clearedInfoBefore + 1);
     expect(proc.credentialsClearedCount).toBe(clearedCredsBefore + 1);
+  });
+
+  it('disconnect clears processors and detaches listeners', () => {
+    // On disconnect, cleanupOnDisconnect must walk every publication and detach
+    // its track so attached processors get cleared callbacks and the
+    // tokenRefreshed listener is removed — covers both the local and remote
+    // participant maps.
+    const room = makeRoom({ name: 'room-1', token: 'tok-1', serverUrl: 'wss://r' });
+
+    // Local track + processor.
+    const localTrack = makeTrack('TR_LOCAL');
+    attachLocalTrack(room, 'agent', 'TR_LOCAL', localTrack);
+    const localProc = new RecordingProcessor();
+    localTrack.registerAudioStream(makeStream(localProc));
+    localTrack.setRoom(room);
+
+    // Remote track + processor on the same room.
+    const remoteTrack = makeTrack('TR_REMOTE');
+    const remoteParticipant = {
+      identity: 'bob',
+      trackPublications: new Map([['TR_REMOTE', { sid: 'PUB_REMOTE', track: remoteTrack }]]),
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    room.remoteParticipants.set('bob', remoteParticipant as any);
+    const remoteProc = new RecordingProcessor();
+    remoteTrack.registerAudioStream(makeStream(remoteProc));
+    remoteTrack.setRoom(room);
+
+    expect(room.listenerCount('tokenRefreshed')).toBe(2);
+    expect(localProc.streamInfoCalls.length).toBe(1);
+    expect(remoteProc.streamInfoCalls.length).toBe(1);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (room as any).cleanupOnDisconnect();
+
+    for (const proc of [localProc, remoteProc]) {
+      expect(proc.streamInfoClearedCount).toBe(1);
+      expect(proc.credentialsClearedCount).toBe(1);
+    }
+    expect(room.listenerCount('tokenRefreshed')).toBe(0);
+    expect(localTrack.resolveRoom()).toBe(null);
+    expect(remoteTrack.resolveRoom()).toBe(null);
+  });
+
+  it('publishTrack stamps publication sid onto track', async () => {
+    // Mirrors Python publish_track: after the server assigns the publication SID,
+    // the track's own info.sid is updated to match so the local-publication
+    // lookup in pushProcessorMetadataToStream resolves it.
+    const local = makeLocalParticipant('agent');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (local as any).ffiEventLock = { lock: async () => () => {} };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (local as any).ffi_handle = { handle: BigInt(1) };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (local as any).disconnectSignal = undefined;
+
+    // Track starts with a provisional SID that differs from the publication SID.
+    const track = makeLocalAudioTrack('PROVISIONAL');
+
+    const requestSpy = vi.spyOn(FfiClient.instance, 'request').mockReturnValue({
+      asyncId: BigInt(1),
+    } as never);
+    const waitForSpy = vi.spyOn(FfiClient.instance, 'waitFor').mockResolvedValue({
+      message: {
+        case: 'publication',
+        value: { info: { sid: 'PUB_NEW' }, handle: { id: BigInt(0) } },
+      },
+    } as never);
+
+    let pub: LocalTrackPublication;
+    try {
+      pub = await local.publishTrack(track, new TrackPublishOptions());
+    } finally {
+      requestSpy.mockRestore();
+      waitForSpy.mockRestore();
+    }
+
+    expect(pub.sid).toBe('PUB_NEW');
+    // The invariant: the track's own SID now matches the publication SID.
+    expect(track.sid).toBe('PUB_NEW');
+    expect(local.trackPublications.has('PUB_NEW')).toBe(true);
   });
 });

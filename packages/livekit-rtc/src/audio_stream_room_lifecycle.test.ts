@@ -170,9 +170,7 @@ const TRACK_SID = 'TR_1';
 describe('AudioStream room lifecycle', () => {
   it('processor receives lifecycle callbacks on room attach', () => {
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
     const stream = makeStream(proc);
@@ -190,13 +188,9 @@ describe('AudioStream room lifecycle', () => {
 
   it('processor callbacks refire on track room change', () => {
     const roomA = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(roomA, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomA, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const roomB = makeRoom({ name: 'room-b', token: 'tok-b', serverUrl: 'wss://b' });
-    attachRemoteParticipant(roomB, 'bob', [
-      { publicationSid: 'PUB_2', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomB, 'bob', [{ publicationSid: 'PUB_2', trackSid: TRACK_SID }]);
 
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
@@ -217,9 +211,7 @@ describe('AudioStream room lifecycle', () => {
 
   it('token refresh propagates to processor', () => {
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
     track.registerAudioStream(makeStream(proc));
@@ -297,12 +289,8 @@ describe('AudioStream room lifecycle', () => {
   it('unregisterAudioStream stops metadata pushes', () => {
     const roomA = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
     const roomB = makeRoom({ name: 'room-b', token: 'tok-b', serverUrl: 'wss://b' });
-    attachRemoteParticipant(roomA, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
-    attachRemoteParticipant(roomB, 'bob', [
-      { publicationSid: 'PUB_2', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomA, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
+    attachRemoteParticipant(roomB, 'bob', [{ publicationSid: 'PUB_2', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
     const stream = makeStream(proc);
@@ -320,9 +308,7 @@ describe('AudioStream room lifecycle', () => {
 
   it('track leaving room clears processor metadata', () => {
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
     track.registerAudioStream(makeStream(proc));
@@ -341,9 +327,7 @@ describe('AudioStream room lifecycle', () => {
 
   it('fanout to multiple registered streams', () => {
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc1 = new RecordingProcessor();
     const proc2 = new RecordingProcessor();
@@ -369,9 +353,7 @@ describe('AudioStream room lifecycle', () => {
     expect(proc.credentialsCalls.length).toBe(0);
 
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     track.setRoom(room);
 
     expect(proc.streamInfoCalls).toEqual([
@@ -382,13 +364,9 @@ describe('AudioStream room lifecycle', () => {
 
   it('track room cycle attach detach reattach', () => {
     const roomA = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(roomA, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomA, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const roomB = makeRoom({ name: 'room-b', token: 'tok-b', serverUrl: 'wss://b' });
-    attachRemoteParticipant(roomB, 'bob', [
-      { publicationSid: 'PUB_2', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomB, 'bob', [{ publicationSid: 'PUB_2', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc = new RecordingProcessor();
     track.registerAudioStream(makeStream(proc));
@@ -416,9 +394,7 @@ describe('AudioStream room lifecycle', () => {
 
   it('setRoom with no registered streams is safe', () => {
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
 
     expect(() => track.setRoom(room)).not.toThrow();
@@ -434,13 +410,9 @@ describe('AudioStream room lifecycle', () => {
 
   it('unregister one of many streams only fans out to remaining', () => {
     const roomA = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(roomA, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomA, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     const roomB = makeRoom({ name: 'room-b', token: 'tok-b', serverUrl: 'wss://b' });
-    attachRemoteParticipant(roomB, 'bob', [
-      { publicationSid: 'PUB_2', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(roomB, 'bob', [{ publicationSid: 'PUB_2', trackSid: TRACK_SID }]);
     const track = makeTrack(TRACK_SID);
     const proc1 = new RecordingProcessor();
     const proc2 = new RecordingProcessor();
@@ -476,9 +448,7 @@ describe('AudioStream room lifecycle', () => {
 
     // Stream is unregistered: further room attaches don't reach the processor.
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     track.setRoom(room);
     expect(proc.streamInfoCalls.length).toBe(0);
   });
@@ -495,9 +465,7 @@ describe('AudioStream room lifecycle', () => {
 
     // Still unregistered, even though we kept the processor open for reuse.
     const room = makeRoom({ name: 'room-a', token: 'tok-a', serverUrl: 'wss://a' });
-    attachRemoteParticipant(room, 'alice', [
-      { publicationSid: 'PUB_1', trackSid: TRACK_SID },
-    ]);
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: 'PUB_1', trackSid: TRACK_SID }]);
     track.setRoom(room);
     expect(proc.streamInfoCalls.length).toBe(0);
   });

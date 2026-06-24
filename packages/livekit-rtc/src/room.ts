@@ -444,6 +444,23 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
     this.textStreamControllers.clear();
 
+    // Detach every track from this room so attached FrameProcessors receive
+    // onStreamInfoCleared/onCredentialsCleared and the tokenRefreshed listener
+    // is removed. Otherwise a server-initiated disconnect leaves processors with
+    // stale room context and the Room holding a strong ref to each Track's bound
+    // listener until GC. setRoom(null) is idempotent, so this is safe even if a
+    // track was already detached (e.g. via unsubscribe/unpublish).
+    if (this.localParticipant) {
+      for (const pub of this.localParticipant.trackPublications.values()) {
+        pub.track?.setRoom(null);
+      }
+    }
+    for (const participant of this.remoteParticipants.values()) {
+      for (const pub of participant.trackPublications.values()) {
+        pub.track?.setRoom(null);
+      }
+    }
+
     // Clear sidPromise before removing listeners so that a reconnect
     // doesn't return a stale, permanently-pending promise.
     this.sidPromise = undefined;

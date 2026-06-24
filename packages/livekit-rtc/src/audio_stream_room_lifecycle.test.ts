@@ -16,6 +16,27 @@ import { Room } from './room.js';
 import { RemoteAudioTrack, type Track } from './track.js';
 import { LocalTrackPublication } from './track_publication.js';
 
+// These tests fabricate Tracks with synthetic (invalid) FFI handle ids to avoid
+// touching the real FFI server. The native FfiHandle has a Rust-side drop that
+// runs when the JS wrapper is garbage-collected; dropping an unallocated handle
+// throws "trying to drop an invalid handle" as an uncaught exception at GC time
+// (intermittent locally, reliably on CI). Replace FfiHandle with an inert stub
+// so no native drop is ever scheduled; everything else in the bindings stays real.
+vi.mock('@livekit/rtc-ffi-bindings', async (importActual) => {
+  const actual = await importActual<typeof import('@livekit/rtc-ffi-bindings')>();
+  class FakeFfiHandle {
+    private _handle: bigint;
+    constructor(handle: bigint) {
+      this._handle = handle;
+    }
+    dispose(): void {}
+    get handle(): bigint {
+      return this._handle;
+    }
+  }
+  return { ...actual, FfiHandle: FakeFfiHandle };
+});
+
 class RecordingProcessor extends FrameProcessor<AudioFrame> {
   enabled = false;
   streamInfoCalls: Array<FrameProcessorStreamInfo> = [];

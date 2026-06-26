@@ -43,7 +43,9 @@ export abstract class Track {
 
   private onRoomTokenRefreshed(): void {
     const room = this.resolveRoom();
-    if (!room || !room.token || !room.serverUrl) return;
+    if (!room || !room.token || !room.serverUrl) {
+      return;
+    }
     for (const stream of this.iterateStreams()) {
       const processor = stream.processor;
       if (!processor) {

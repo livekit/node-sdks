@@ -13,6 +13,13 @@ import type { Track } from './track.js';
 
 export interface AudioStreamOptions {
   noiseCancellation?: NoiseCancellationOptions | FrameProcessor<AudioFrame>;
+  /**
+   * When the audio stream closes, whether to run the {@link FrameProcessor}'s
+   * `close()` method. If `false`, the processor is left open so it can be
+   * reused with another {@link AudioStream}. Only relevant when
+   * `noiseCancellation` is a {@link FrameProcessor}. Defaults to `true`.
+   */
+  autoCloseNoiseCancellation?: boolean;
   sampleRate?: number;
   numChannels?: number;
   frameSizeMs?: number;
@@ -24,26 +31,31 @@ export interface NoiseCancellationOptions {
   options: Record<string, any>;
 }
 
-class AudioStreamSource implements UnderlyingSource<AudioFrame> {
+/** @internal */
+export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private controller?: ReadableStreamDefaultController<AudioFrame>;
   private ffiHandle: FfiHandle;
   private disposed = false;
   private sampleRate: number;
   private numChannels: number;
   private legacyNcOptions?: NoiseCancellationOptions;
-  private frameProcessor?: FrameProcessor<AudioFrame>;
+  private frameProcessor: FrameProcessor<AudioFrame> | null = null;
+  private autoCloseProcessor = true;
   private frameSizeMs?: number;
+  private track: Track;
 
   constructor(
     track: Track,
     sampleRateOrOptions?: number | AudioStreamOptions,
     numChannels?: number,
   ) {
+    this.track = track;
     if (sampleRateOrOptions !== undefined && typeof sampleRateOrOptions !== 'number') {
       this.sampleRate = sampleRateOrOptions.sampleRate ?? 48000;
       this.numChannels = sampleRateOrOptions.numChannels ?? 1;
       if (isFrameProcessor(sampleRateOrOptions.noiseCancellation)) {
         this.frameProcessor = sampleRateOrOptions.noiseCancellation;
+        this.autoCloseProcessor = sampleRateOrOptions.autoCloseNoiseCancellation ?? true;
       } else {
         this.legacyNcOptions = sampleRateOrOptions.noiseCancellation;
       }
@@ -77,6 +89,12 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    track.registerAudioStream(this);
+  }
+
+  /** @internal */
+  get processor(): FrameProcessor<AudioFrame> | null {
+    return this.frameProcessor;
   }
 
   private onEvent = (ev: FfiEvent) => {
@@ -113,8 +131,11 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
         // while buffered frames are still in the ReadableStream queue.
         if (!this.disposed) {
           this.disposed = true;
+          this.track.unregisterAudioStream(this);
           this.ffiHandle.dispose();
-          this.frameProcessor?.close();
+          if (this.frameProcessor && this.autoCloseProcessor) {
+            this.frameProcessor.close();
+          }
         }
         break;
     }
@@ -128,10 +149,13 @@ class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
     if (!this.disposed) {
       this.disposed = true;
+      this.track.unregisterAudioStream(this);
       this.ffiHandle.dispose();
       // Also close the frame processor on cancel for symmetry with the EOS path,
       // so resources are released regardless of how the stream ends.
-      this.frameProcessor?.close();
+      if (this.frameProcessor && this.autoCloseProcessor) {
+        this.frameProcessor.close();
+      }
     }
   }
 }

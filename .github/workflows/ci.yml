@@ -78,7 +78,18 @@ jobs:
           LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
 
       - name: Test server sdk + rtc-node (Bun)
-        run: bun install && bun test --concurrent
+        # Run vitest under the bun runtime rather than bun's native test runner.
+        # `--bun` forces bun to execute vitest (overriding its node shebang), so
+        # test bodies still run on bun while vitest provides full module mocking
+        # (vi.mock / vi.spyOn) that bun's native runner lacks.
+        # EXPECT_BUN_RUNTIME=1 arms a guard test (src/bun_runtime.test.ts) that
+        # fails if test bodies aren't actually executing on bun — i.e. if the
+        # `--bun` flag ever stops overriding vitest's node shebang and the job
+        # silently regresses to running under node.
+        run: |
+          bun install
+          (cd packages/livekit-server-sdk && EXPECT_BUN_RUNTIME=1 bun --bun run test)
+          (cd packages/livekit-rtc && EXPECT_BUN_RUNTIME=1 bun --bun run test)
 
   build_and_release:
     if: github.ref == 'refs/heads/main'

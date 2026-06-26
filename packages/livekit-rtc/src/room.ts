@@ -444,6 +444,23 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
     this.textStreamControllers.clear();
 
+    // Detach every track from this room so attached FrameProcessors receive
+    // onStreamInfoCleared/onCredentialsCleared and the tokenRefreshed listener
+    // is removed. Otherwise a server-initiated disconnect leaves processors with
+    // stale room context and the Room holding a strong ref to each Track's bound
+    // listener until GC. setRoom(null) is idempotent, so this is safe even if a
+    // track was already detached (e.g. via unsubscribe/unpublish).
+    if (this.localParticipant) {
+      for (const pub of this.localParticipant.trackPublications.values()) {
+        pub.track?.setRoom(null);
+      }
+    }
+    for (const participant of this.remoteParticipants.values()) {
+      for (const pub of participant.trackPublications.values()) {
+        pub.track?.setRoom(null);
+      }
+    }
+
     // Clear sidPromise before removing listeners so that a reconnect
     // doesn't return a stale, permanently-pending promise.
     this.sidPromise = undefined;
@@ -557,11 +574,27 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     } else if (ev.case == 'localTrackPublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.trackSid!);
+      if (publication?.track) {
+        publication.track.setRoom(this);
+      }
       this.emit(RoomEvent.LocalTrackPublished, publication!, this.localParticipant);
     } else if (ev.case == 'localTrackUnpublished') {
       const publication = this.localParticipant.trackPublications.get(ev.value.publicationSid!);
+      const track = publication?.track;
+      if (track) {
+        track.setRoom(null);
+      }
       this.localParticipant.trackPublications.delete(ev.value.publicationSid!);
+      // Emit while `publication.track` is still set, preserving the pre-existing
+      // payload for callbacks. The handler is synchronous, so nulling the track
+      // right after still completes before any other turn can observe it.
       this.emit(RoomEvent.LocalTrackUnpublished, publication!, this.localParticipant!);
+      // Mirror trackUnsubscribed: drop the publication's track reference. This
+      // also makes unpublishTrack's own setRoom(null) a no-op when it loses the
+      // race (its `pub.track` guard short-circuits), avoiding a redundant clear.
+      if (track && publication) {
+        publication.track = undefined;
+      }
     } else if ((ev.case as string) == 'localTrackRepublished') {
       const value = (ev as any).value;
       const previousSid: string = value.previousSid!;
@@ -571,6 +604,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         publication.updateInfo(newInfo);
         this.localParticipant.trackPublications.delete(previousSid);
         this.localParticipant.trackPublications.set(publication.sid!, publication);
+        if (publication.track?.info) {
+          // Keep the local-track invariant (track.sid == publication.sid, set at
+          // publishTrack) intact across republish, then re-push metadata so any
+          // attached FrameProcessor learns the new publication SID / credentials.
+          // setRoom with the same room is a no-op for the tokenRefreshed listener
+          // but re-fans the metadata to every registered AudioStream.
+          publication.track.info.sid = publication.sid;
+          publication.track.setRoom(this);
+        }
         this.emit(RoomEvent.LocalTrackRepublished, publication, previousSid, this.localParticipant);
       } else {
         log.warn(`RoomEvent.LocalTrackRepublished: previous publication not found: ${previousSid}`);
@@ -620,6 +662,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         } else if (trackInfo.kind == TrackKind.KIND_AUDIO) {
           publication.track = new RemoteAudioTrack(ownedTrack);
         }
+        publication.track?.setRoom(this);
 
         this.emit(RoomEvent.TrackSubscribed, publication.track!, publication, participant);
       } catch (e: unknown) {
@@ -632,6 +675,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           ev.value.trackSid!,
         );
         const track = publication.track!;
+        track.setRoom(null);
         publication.track = undefined;
         publication.subscribed = false;
         this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);

@@ -11,7 +11,9 @@ import type {
 } from '@livekit/rtc-ffi-bindings';
 import { CreateAudioTrackRequest, CreateVideoTrackRequest } from '@livekit/rtc-ffi-bindings';
 import type { AudioSource } from './audio_source.js';
+import type { AudioStreamSource } from './audio_stream.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
+import type { Room } from './room.js';
 import type { VideoSource } from './video_source.js';
 
 export abstract class Track {
@@ -21,9 +23,148 @@ export abstract class Track {
   /** @internal */
   ffi_handle: FfiHandle;
 
+  private roomRef: WeakRef<Room> | null = null;
+  private audioStreams: Set<WeakRef<AudioStreamSource>> = new Set();
+  private streamFinalizationRegistry: FinalizationRegistry<WeakRef<AudioStreamSource>>;
+  private onRoomTokenRefreshed = () => {
+    const room = this.resolveRoom();
+    if (!room || !room.token || !room.serverUrl) {
+      return;
+    }
+    for (const stream of this.iterateStreams()) {
+      const processor = stream.processor;
+      if (!processor) {
+        continue;
+      }
+      processor.onCredentialsUpdated({ token: room.token, url: room.serverUrl });
+    }
+  };
+
   constructor(owned: OwnedTrack) {
     this.info = owned.info;
     this.ffi_handle = new FfiHandle(owned.handle!.id!);
+    this.streamFinalizationRegistry = new FinalizationRegistry<WeakRef<AudioStreamSource>>(
+      (ref) => {
+        this.audioStreams.delete(ref);
+      },
+    );
+  }
+
+  /** @internal */
+  resolveRoom(): Room | null {
+    return this.roomRef?.deref() ?? null;
+  }
+
+  /** @internal */
+  setRoom(room: Room | null): void {
+    const oldRoom = this.resolveRoom();
+    if (!oldRoom && !room) {
+      // Already roomless — nothing to detach and nothing to re-clear. Without
+      // this guard a second setRoom(null) (e.g. the unpublishTrack /
+      // localTrackUnpublished race calling it from both paths) would re-fire
+      // onStreamInfoCleared / onCredentialsCleared on every registered processor.
+      return;
+    }
+    if (oldRoom && oldRoom !== room) {
+      oldRoom.off('tokenRefreshed', this.onRoomTokenRefreshed);
+    }
+    if (room) {
+      room.off('tokenRefreshed', this.onRoomTokenRefreshed);
+      room.on('tokenRefreshed', this.onRoomTokenRefreshed);
+    }
+    this.roomRef = room ? new WeakRef(room) : null;
+    for (const stream of this.iterateStreams()) {
+      this.pushProcessorMetadataToStream(stream, room);
+    }
+  }
+
+  /** @internal */
+  registerAudioStream(stream: AudioStreamSource): void {
+    const ref = new WeakRef(stream);
+    this.audioStreams.add(ref);
+    this.streamFinalizationRegistry.register(stream, ref);
+    const room = this.resolveRoom();
+    if (room) {
+      this.pushProcessorMetadataToStream(stream, room);
+    }
+  }
+
+  /** @internal */
+  unregisterAudioStream(stream: AudioStreamSource): void {
+    for (const ref of this.audioStreams) {
+      if (ref.deref() === stream) {
+        this.audioStreams.delete(ref);
+        return;
+      }
+    }
+  }
+
+  private *iterateStreams(): Generator<AudioStreamSource> {
+    const dead: Array<WeakRef<AudioStreamSource>> = [];
+    for (const ref of this.audioStreams) {
+      const stream = ref.deref();
+      if (stream) {
+        yield stream;
+      } else {
+        dead.push(ref);
+      }
+    }
+    for (const ref of dead) {
+      this.audioStreams.delete(ref);
+    }
+  }
+
+  private pushProcessorMetadataToStream(stream: AudioStreamSource, room: Room | null): void {
+    const processor = stream.processor;
+    if (!processor) {
+      return;
+    }
+
+    if (!room) {
+      // Guard with optional-call: plugins built against an older @livekit/rtc-node
+      // inherit a FrameProcessor base class that doesn't define these methods,
+      // so they could be undefined on the prototype chain.
+      processor.onStreamInfoCleared?.();
+      processor.onCredentialsCleared?.();
+      return;
+    }
+
+    let identity = '';
+    let publicationSid = '';
+    const trackSid = this.sid;
+    if (trackSid) {
+      let found = false;
+      for (const participant of room.remoteParticipants.values()) {
+        const publication = participant.trackPublications.get(trackSid);
+        if (publication) {
+          identity = participant.identity;
+          publicationSid = publication.sid ?? '';
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        const local = room.localParticipant;
+        if (local) {
+          for (const publication of local.trackPublications.values()) {
+            if (publication.sid === trackSid) {
+              identity = local.identity;
+              publicationSid = publication.sid ?? '';
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    processor.onStreamInfoUpdated({
+      roomName: room.name ?? '',
+      participantIdentity: identity,
+      publicationSid,
+    });
+    if (room.token && room.serverUrl) {
+      processor.onCredentialsUpdated({ token: room.token, url: room.serverUrl });
+    }
   }
 
   get sid(): string | undefined {

@@ -731,6 +731,14 @@ export class LocalParticipant extends Participant {
         case 'publication':
           const track_publication = new LocalTrackPublication(cb.message.value!);
           track_publication.track = track;
+          // Stamp the server-assigned publication
+          // SID onto the track so track.sid == publication.sid. Both
+          // Track.pushProcessorMetadataToStream and the localTrackRepublished
+          // handler look up the local publication by this SID; without it they
+          // depend on createAudioTrack's provisional SID happening to match.
+          if (track.info && track_publication.sid) {
+            track.info.sid = track_publication.sid;
+          }
           this.trackPublications.set(track_publication.sid!, track_publication);
 
           return track_publication;
@@ -767,6 +775,15 @@ export class LocalParticipant extends Participant {
 
       const pub = this.trackPublications.get(trackSid);
       if (pub) {
+        // Clear the processor's room context here too: this path races the
+        // localTrackUnpublished room event, and whichever loses finds the
+        // publication already gone and skips its own setRoom(null). Calling it
+        // from both paths guarantees the processor is cleared (and the
+        // tokenRefreshed listener detached); setRoom(null) is idempotent, so a
+        // double-clear when this path wins is safe.
+        if (pub.track) {
+          pub.track.setRoom(null);
+        }
         pub.track = undefined;
       }
       this.trackPublications.delete(trackSid);

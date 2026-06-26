@@ -27,6 +27,7 @@ import {
   ListSIPTrunkRequest,
   ListSIPTrunkResponse,
   SIPDispatchRule,
+  SIPDispatchRuleCallee,
   SIPDispatchRuleDirect,
   SIPDispatchRuleIndividual,
   SIPDispatchRuleInfo,
@@ -111,6 +112,14 @@ export interface SipDispatchRuleIndividual {
   type: 'individual';
   roomPrefix: string;
   pin?: string;
+}
+
+export interface SipDispatchRuleCallee {
+  type: 'callee';
+  roomPrefix: string;
+  pin?: string;
+  /** Optionally append a random suffix to the room name. */
+  randomize?: boolean;
 }
 
 export interface CreateSipDispatchRuleOptions {
@@ -450,7 +459,7 @@ export class SipClient extends ServiceBase {
    * @returns Created SIP dispatch rule
    */
   async createSipDispatchRule(
-    rule: SipDispatchRuleDirect | SipDispatchRuleIndividual,
+    rule: SipDispatchRuleDirect | SipDispatchRuleIndividual | SipDispatchRuleCallee,
     opts?: CreateSipDispatchRuleOptions,
   ): Promise<SIPDispatchRuleInfo> {
     if (opts === undefined) {
@@ -474,6 +483,17 @@ export class SipClient extends ServiceBase {
           value: new SIPDispatchRuleIndividual({
             roomPrefix: rule.roomPrefix,
             pin: rule.pin || '',
+          }),
+        },
+      });
+    } else if (rule.type == 'callee') {
+      ruleProto = new SIPDispatchRule({
+        rule: {
+          case: 'dispatchRuleCallee',
+          value: new SIPDispatchRuleCallee({
+            roomPrefix: rule.roomPrefix,
+            pin: rule.pin || '',
+            randomize: rule.randomize || false,
           }),
         },
       });

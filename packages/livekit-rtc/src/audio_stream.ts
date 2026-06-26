@@ -31,6 +31,7 @@ export interface NoiseCancellationOptions {
   options: Record<string, any>;
 }
 
+/** @internal */
 export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private controller?: ReadableStreamDefaultController<AudioFrame>;
   private ffiHandle: FfiHandle;

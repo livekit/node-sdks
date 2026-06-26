@@ -53,6 +53,7 @@ export {
   SIPDispatchRuleInfo,
   SIPDispatchRuleDirect,
   SIPDispatchRuleIndividual,
+  SIPDispatchRuleCallee,
   SIPParticipantInfo,
   SIPOutboundTrunkInfo,
   SIPInboundTrunkInfo,

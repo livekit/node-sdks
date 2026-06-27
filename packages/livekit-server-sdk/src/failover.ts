@@ -9,47 +9,45 @@
 // request against the next region, with exponential backoff. 4xx responses are
 // returned immediately.
 
-/** Controls when API requests fail over to alternative regions. */
-export type FailoverMode =
-  /** Fail over only for LiveKit Cloud hosts. The default. */
-  | 'auto'
-  /** Always fail over, regardless of host (primarily for tests). */
-  | 'on'
-  /** Never fail over. */
-  | 'off';
-
-/** Tunes the region-failover retry loop. */
+/**
+ * Region-failover tuning, passed as the `failover` option. Omit it (default) to
+ * enable failover for LiveKit Cloud hosts only; pass a config to enable it for
+ * any host.
+ */
 export type FailoverConfig = {
-  /** Defaults to 'auto'. */
-  mode?: FailoverMode;
-  /** Total attempts including the first — the original host plus `maxAttempts - 1` fallback regions. Defaults to 3. */
+  /**
+   * Total number of attempts including the initial request — the original host
+   * plus up to `maxAttempts - 1` fallback regions. Defaults to 3. Set to 1 to
+   * disable failover (a single attempt).
+   */
   maxAttempts?: number;
   /** Milliseconds before the first retry; each subsequent retry doubles it. Defaults to 200. */
   backoffBase?: number;
 };
 
-export type ResolvedFailover = Required<FailoverConfig>;
+const DEFAULT_MAX_ATTEMPTS = 3;
+const DEFAULT_BACKOFF_BASE = 200;
 
-export function resolveFailover(config?: FailoverConfig): ResolvedFailover {
-  return {
-    mode: config?.mode ?? 'auto',
-    maxAttempts: config?.maxAttempts ?? 3,
-    backoffBase: config?.backoffBase ?? 200,
-  };
-}
-
-export function failoverEnabled(config: ResolvedFailover, hostname: string): boolean {
-  switch (config.mode) {
-    case 'off':
-      return false;
-    case 'on':
-      return true;
-    default:
-      return isCloud(hostname);
+/**
+ * Total request attempts including the initial one; 1 means no failover. With no
+ * config (`undefined`) failover is enabled only for LiveKit Cloud hosts; an
+ * explicit config enables it for any host (`maxAttempts: 1` disables it).
+ */
+export function failoverMaxAttempts(
+  config: FailoverConfig | undefined,
+  hostname: string,
+): number {
+  if (config === undefined) {
+    return isCloud(hostname) ? DEFAULT_MAX_ATTEMPTS : 1;
   }
+  return Math.max(1, config.maxAttempts ?? DEFAULT_MAX_ATTEMPTS);
 }
 
-// Auto mode only enables failover for LiveKit Cloud project domains.
+export function failoverBackoffBase(config: FailoverConfig | undefined): number {
+  return config?.backoffBase ?? DEFAULT_BACKOFF_BASE;
+}
+
+// The default (no config) only enables failover for LiveKit Cloud project domains.
 function isCloud(hostname: string): boolean {
   return hostname.endsWith('.livekit.cloud');
 }

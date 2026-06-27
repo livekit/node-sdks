@@ -12,8 +12,9 @@ export type ClientOptions = {
    */
   requestTimeout?: number;
   /**
-   * Region-failover behavior for API requests. Defaults to auto, which fails
-   * over to alternative regions for LiveKit Cloud hosts on retryable errors.
+   * Region-failover tuning for API requests. Omit it (the default) to enable
+   * failover for LiveKit Cloud hosts only; pass a config to enable it for any
+   * host. Set `maxAttempts: 1` to disable.
    */
   failover?: FailoverConfig;
 };

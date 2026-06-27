@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { JsonValue } from '@bufbuild/protobuf';
-import type { FailoverConfig, ResolvedFailover } from './failover.js';
+import type { FailoverConfig } from './failover.js';
 import {
-  failoverEnabled,
+  failoverBackoffBase,
+  failoverMaxAttempts,
   hostKey,
   pickNext,
   regionOrigins,
-  resolveFailover,
   sleep,
 } from './failover.js';
 
@@ -69,7 +69,7 @@ export class TwirpRpc {
 
   requestTimeout: number;
 
-  failover: ResolvedFailover;
+  failover: FailoverConfig | undefined;
 
   constructor(host: string, pkg: string, options?: Options) {
     if (host.startsWith('ws')) {
@@ -79,7 +79,7 @@ export class TwirpRpc {
     this.pkg = pkg;
     this.requestTimeout = options?.requestTimeout ?? defaultTimeoutSeconds;
     this.prefix = options?.prefix || defaultPrefix;
-    this.failover = resolveFailover(options?.failover);
+    this.failover = options?.failover;
   }
 
   /**
@@ -105,8 +105,7 @@ export class TwirpRpc {
     };
 
     const origin = new URL(this.host);
-    const enabled = failoverEnabled(this.failover, origin.hostname);
-    const maxAttempts = enabled ? Math.max(1, this.failover.maxAttempts) : 1;
+    const maxAttempts = failoverMaxAttempts(this.failover, origin.hostname);
     const attempted = new Set([hostKey(origin)]);
     let regions: string[] | undefined;
     let current = this.host;
@@ -153,7 +152,7 @@ export class TwirpRpc {
         throw transportError;
       }
 
-      await sleep(this.failover.backoffBase * 2 ** attempt);
+      await sleep(failoverBackoffBase(this.failover) * 2 ** attempt);
       attempted.add(hostKey(new URL(next)));
       current = next;
     }

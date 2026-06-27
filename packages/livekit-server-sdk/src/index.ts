@@ -82,5 +82,5 @@ export * from './RoomServiceClient.js';
 export * from './SipClient.js';
 export { TwirpError } from './TwirpRPC.js';
 export type { ClientOptions } from './ClientOptions.js';
-export type { FailoverConfig, FailoverMode } from './failover.js';
+export type { FailoverConfig } from './failover.js';
 export * from './WebhookReceiver.js';

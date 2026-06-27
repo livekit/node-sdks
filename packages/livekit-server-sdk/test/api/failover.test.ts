@@ -23,14 +23,15 @@ try {
   reachable = false;
 }
 
-const cfg = (mode: FailoverConfig['mode'] = 'on'): FailoverConfig => ({
-  mode,
-  maxAttempts: 3,
-  backoffBase: 1,
-});
+// An explicit config enables failover on any host (the non-cloud mock) with a
+// tiny backoff so the tests run fast.
+const FORCED: FailoverConfig = { maxAttempts: 3, backoffBase: 1 };
 
-const call = (directives: Record<string, string>, mode: FailoverConfig['mode'] = 'on') => {
-  const rpc = new TwirpRpc(BASE, livekitPackage, { failover: cfg(mode) });
+const call = (
+  directives: Record<string, string>,
+  failover: FailoverConfig | undefined = FORCED,
+) => {
+  const rpc = new TwirpRpc(BASE, livekitPackage, { failover });
   return rpc.request('RoomService', 'CreateRoom', {}, {
     authorization: 'Bearer test-token',
     ...directives,
@@ -72,7 +73,20 @@ const call = (directives: Record<string, string>, mode: FailoverConfig['mode'] =
     ).rejects.toThrow(TwirpError);
   });
 
-  it('does not fail over for a non-cloud host in auto mode', async () => {
-    await expect(call({ 'x-lk-mock-fail-regions': '0' }, 'auto')).rejects.toThrow(TwirpError);
+  it('does not fail over for a non-cloud host by default', async () => {
+    // No failover option => undefined => auto (cloud-only); 127.0.0.1 is not cloud.
+    const rpc = new TwirpRpc(BASE, livekitPackage);
+    await expect(
+      rpc.request('RoomService', 'CreateRoom', {}, {
+        authorization: 'Bearer test-token',
+        'x-lk-mock-fail-regions': '0',
+      }),
+    ).rejects.toThrow(TwirpError);
+  });
+
+  it('does not fail over when disabled with maxAttempts 1', async () => {
+    await expect(call({ 'x-lk-mock-fail-regions': '0' }, { maxAttempts: 1 })).rejects.toThrow(
+      TwirpError,
+    );
   });
 });

@@ -33,10 +33,7 @@ const DEFAULT_BACKOFF_BASE = 200;
  * config (`undefined`) failover is enabled only for LiveKit Cloud hosts; an
  * explicit config enables it for any host (`maxAttempts: 1` disables it).
  */
-export function failoverMaxAttempts(
-  config: FailoverConfig | undefined,
-  hostname: string,
-): number {
+export function failoverMaxAttempts(config: FailoverConfig | undefined, hostname: string): number {
   if (config === undefined) {
     return isCloud(hostname) ? DEFAULT_MAX_ATTEMPTS : 1;
   }

@@ -11,7 +11,6 @@
 // tests drive TwirpRpc.request() directly because the public service methods do
 // not expose per-call headers.
 import { describe, expect, it } from 'vitest';
-import type { FailoverConfig } from '../../src/failover.js';
 import { TwirpError, TwirpRpc, livekitPackage } from '../../src/TwirpRPC.js';
 
 const BASE = process.env.LK_TEST_SERVER_URL ?? 'http://127.0.0.1:9999';
@@ -23,15 +22,17 @@ try {
   reachable = false;
 }
 
-// An explicit config enables failover on any host (the non-cloud mock) with a
-// tiny backoff so the tests run fast.
-const FORCED: FailoverConfig = { maxAttempts: 3, backoffBase: 1 };
-
+// failoverForce bypasses the cloud-host check (the mock is on 127.0.0.1) and a
+// tiny backoff keeps the tests fast — both are internal, test-only knobs.
 const call = (
   directives: Record<string, string>,
-  failover: FailoverConfig | undefined = FORCED,
+  { failover = true, force = true }: { failover?: boolean; force?: boolean } = {},
 ) => {
-  const rpc = new TwirpRpc(BASE, livekitPackage, { failover });
+  const rpc = new TwirpRpc(BASE, livekitPackage, {
+    failover,
+    failoverForce: force,
+    failoverBackoffMs: 1,
+  });
   return rpc.request('RoomService', 'CreateRoom', {}, {
     authorization: 'Bearer test-token',
     ...directives,
@@ -73,19 +74,15 @@ const call = (
     ).rejects.toThrow(TwirpError);
   });
 
-  it('does not fail over for a non-cloud host by default', async () => {
-    // No failover option => undefined => auto (cloud-only); 127.0.0.1 is not cloud.
-    const rpc = new TwirpRpc(BASE, livekitPackage);
-    await expect(
-      rpc.request('RoomService', 'CreateRoom', {}, {
-        authorization: 'Bearer test-token',
-        'x-lk-mock-fail-regions': '0',
-      }),
-    ).rejects.toThrow(TwirpError);
+  it('does not fail over for a non-cloud host (cloud-gated)', async () => {
+    // failover enabled but not forced; 127.0.0.1 is not a cloud host.
+    await expect(call({ 'x-lk-mock-fail-regions': '0' }, { force: false })).rejects.toThrow(
+      TwirpError,
+    );
   });
 
-  it('does not fail over when disabled with maxAttempts 1', async () => {
-    await expect(call({ 'x-lk-mock-fail-regions': '0' }, { maxAttempts: 1 })).rejects.toThrow(
+  it('does not fail over when disabled', async () => {
+    await expect(call({ 'x-lk-mock-fail-regions': '0' }, { failover: false })).rejects.toThrow(
       TwirpError,
     );
   });

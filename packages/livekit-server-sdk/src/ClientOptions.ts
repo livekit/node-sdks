@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { FailoverConfig } from './failover.js';
 
 /**
  * Options common to all clients
@@ -12,9 +11,8 @@ export type ClientOptions = {
    */
   requestTimeout?: number;
   /**
-   * Region-failover tuning for API requests. Omit it (the default) to enable
-   * failover for LiveKit Cloud hosts only; pass a config to enable it for any
-   * host. Set `maxAttempts: 1` to disable.
+   * Whether to fail over to alternative regions on retryable errors (LiveKit
+   * Cloud hosts only). Defaults to true; set to false to disable.
    */
-  failover?: FailoverConfig;
+  failover?: boolean;
 };

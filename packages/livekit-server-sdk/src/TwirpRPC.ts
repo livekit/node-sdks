@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { JsonValue } from '@bufbuild/protobuf';
-import type { FailoverConfig } from './failover.js';
 import {
-  failoverBackoffBase,
-  failoverMaxAttempts,
+  FAILOVER_BACKOFF_BASE_MS,
+  failoverAttempts,
   hostKey,
   pickNext,
   regionOrigins,
@@ -19,8 +18,12 @@ type Options = {
   prefix?: string;
   /** Timeout for fetch requests, in seconds. Must be within the valid range for abort signal timeouts. */
   requestTimeout?: number;
-  /** Region-failover behavior. Defaults to auto (enabled for LiveKit Cloud hosts). */
-  failover?: FailoverConfig;
+  /** Whether region failover is enabled (LiveKit Cloud hosts only). Defaults to true. */
+  failover?: boolean;
+  /** @internal test-only: force failover regardless of host. */
+  failoverForce?: boolean;
+  /** @internal test-only: base retry backoff in ms. */
+  failoverBackoffMs?: number;
 };
 
 const defaultPrefix = '/twirp';
@@ -69,7 +72,11 @@ export class TwirpRpc {
 
   requestTimeout: number;
 
-  failover: FailoverConfig | undefined;
+  failover: boolean;
+
+  private failoverForce: boolean;
+
+  private failoverBackoffMs: number;
 
   constructor(host: string, pkg: string, options?: Options) {
     if (host.startsWith('ws')) {
@@ -79,7 +86,9 @@ export class TwirpRpc {
     this.pkg = pkg;
     this.requestTimeout = options?.requestTimeout ?? defaultTimeoutSeconds;
     this.prefix = options?.prefix || defaultPrefix;
-    this.failover = options?.failover;
+    this.failover = options?.failover ?? true;
+    this.failoverForce = options?.failoverForce ?? false;
+    this.failoverBackoffMs = options?.failoverBackoffMs ?? FAILOVER_BACKOFF_BASE_MS;
   }
 
   /**
@@ -105,7 +114,7 @@ export class TwirpRpc {
     };
 
     const origin = new URL(this.host);
-    const maxAttempts = failoverMaxAttempts(this.failover, origin.hostname);
+    const maxAttempts = failoverAttempts(this.failover, origin.hostname, this.failoverForce);
     const attempted = new Set([hostKey(origin)]);
     let regions: string[] | undefined;
     let current = this.host;
@@ -152,7 +161,11 @@ export class TwirpRpc {
         throw transportError;
       }
 
-      await sleep(failoverBackoffBase(this.failover) * 2 ** attempt);
+      const reason = response ? `status ${response.status}` : transportError;
+      console.warn(
+        `livekit API request to ${new URL(current).host} failed (${reason}), retrying with fallback url ${next}`,
+      );
+      await sleep(this.failoverBackoffMs * 2 ** attempt);
       attempted.add(hostKey(new URL(next)));
       current = next;
     }

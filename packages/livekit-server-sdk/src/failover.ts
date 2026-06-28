@@ -9,42 +9,25 @@
 // request against the next region, with exponential backoff. 4xx responses are
 // returned immediately.
 
-/**
- * Region-failover tuning, passed as the `failover` option. Omit it (default) to
- * enable failover for LiveKit Cloud hosts only; pass a config to enable it for
- * any host.
- */
-export type FailoverConfig = {
-  /**
-   * Total number of attempts including the initial request — the original host
-   * plus up to `maxAttempts - 1` fallback regions. Defaults to 3. Set to 1 to
-   * disable failover (a single attempt).
-   */
-  maxAttempts?: number;
-  /** Milliseconds before the first retry; each subsequent retry doubles it. Defaults to 200. */
-  backoffBase?: number;
-};
-
-const DEFAULT_MAX_ATTEMPTS = 3;
-const DEFAULT_BACKOFF_BASE = 200;
+// Total attempts (the original request + fallback regions) and the base retry
+// backoff are fixed, not user-configurable, so retries can't be tuned to values
+// that could overwhelm the server.
+export const FAILOVER_MAX_ATTEMPTS = 3;
+export const FAILOVER_BACKOFF_BASE_MS = 200;
 
 /**
- * Total request attempts including the initial one; 1 means no failover. With no
- * config (`undefined`) failover is enabled only for LiveKit Cloud hosts; an
- * explicit config enables it for any host (`maxAttempts: 1` disables it).
+ * Total request attempts for a host; 1 means no failover. Failover only engages
+ * when enabled and the host is a LiveKit Cloud domain. `force` bypasses the
+ * cloud-host check and is for internal testing only.
  */
-export function failoverMaxAttempts(config: FailoverConfig | undefined, hostname: string): number {
-  if (config === undefined) {
-    return isCloud(hostname) ? DEFAULT_MAX_ATTEMPTS : 1;
+export function failoverAttempts(enabled: boolean, hostname: string, force = false): number {
+  if (enabled && (force || isCloud(hostname))) {
+    return FAILOVER_MAX_ATTEMPTS;
   }
-  return Math.max(1, config.maxAttempts ?? DEFAULT_MAX_ATTEMPTS);
+  return 1;
 }
 
-export function failoverBackoffBase(config: FailoverConfig | undefined): number {
-  return config?.backoffBase ?? DEFAULT_BACKOFF_BASE;
-}
-
-// The default (no config) only enables failover for LiveKit Cloud project domains.
+// Failover only engages for LiveKit Cloud project domains.
 function isCloud(hostname: string): boolean {
   return hostname.endsWith('.livekit.cloud');
 }
@@ -125,6 +108,9 @@ async function fetchRegions(
   const response = await fetch(new URL('/settings/regions', origin.origin), {
     method: 'GET',
     headers: fetchHeaders,
+    // Short timeout so a slow/unreachable discovery endpoint doesn't stall the
+    // failover path.
+    signal: AbortSignal.timeout(2000),
   });
   if (!response.ok) {
     throw new Error(`region discovery failed: ${response.status}`);

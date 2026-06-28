@@ -123,10 +123,10 @@ export class ConnectorClient extends ServiceBase {
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);
-    const rpcOptions = options?.requestTimeout
-      ? { requestTimeout: options.requestTimeout }
-      : undefined;
-    this.rpc = new TwirpRpc(host, livekitPackage, rpcOptions);
+    this.rpc = new TwirpRpc(host, livekitPackage, {
+      requestTimeout: options?.requestTimeout,
+      failover: options?.failover,
+    });
   }
 
   /**

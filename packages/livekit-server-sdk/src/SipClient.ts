@@ -7,6 +7,7 @@ import type {
   Pagination,
   RoomConfiguration,
   SIPHeaderOptions,
+  SIPMediaConfig,
   SIPMediaEncryption,
   SIPOutboundConfig,
 } from '@livekit/protocol';
@@ -81,7 +82,9 @@ export interface CreateSipInboundTrunkOptions {
   // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
   includeHeaders?: SIPHeaderOptions;
   krispEnabled?: boolean;
+  /** @deprecated - use `media.encryption` instead */
   mediaEncryption?: SIPMediaEncryption;
+  media?: SIPMediaConfig;
   /** Maximum time for a call to ring in seconds. */
   ringingTimeout?: number;
 }
@@ -99,7 +102,9 @@ export interface CreateSipOutboundTrunkOptions {
   headersToAttributes?: { [key: string]: string };
   // Map SIP response headers from INVITE to sip.h.* participant attributes automatically.
   includeHeaders?: SIPHeaderOptions;
+  /** @deprecated - use `media.encryption` instead */
   mediaEncryption?: SIPMediaEncryption;
+  media?: SIPMediaConfig;
 }
 
 export interface SipDispatchRuleDirect {
@@ -167,6 +172,7 @@ export interface CreateSipParticipantOptions {
   waitUntilAnswered?: boolean;
   /** Optional request timeout in seconds. default 60 seconds if waitUntilAnswered is true, otherwise 10 seconds */
   timeout?: number;
+  media?: SIPMediaConfig;
 }
 
 export interface ListSipDispatchRuleOptions {
@@ -203,7 +209,9 @@ export interface SipInboundTrunkUpdateOptions {
   authPassword?: string;
   name?: string;
   metadata?: string;
+  /** @deprecated - use `media.encryption` instead */
   mediaEncryption?: SIPMediaEncryption;
+  media?: SIPMediaConfig;
 }
 
 export interface SipOutboundTrunkUpdateOptions {
@@ -215,7 +223,9 @@ export interface SipOutboundTrunkUpdateOptions {
   destinationCountry?: string;
   name?: string;
   metadata?: string;
+  /** @deprecated - use `media.encryption` instead */
   mediaEncryption?: SIPMediaEncryption;
+  media?: SIPMediaConfig;
 }
 
 export interface TransferSipParticipantOptions {
@@ -325,6 +335,7 @@ export class SipClient extends ServiceBase {
         includeHeaders: opts.includeHeaders,
         krispEnabled: opts.krispEnabled,
         mediaEncryption: opts.mediaEncryption,
+        media: opts.media,
         ringingTimeout: opts.ringingTimeout
           ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
           : undefined,
@@ -375,6 +386,7 @@ export class SipClient extends ServiceBase {
         includeHeaders: opts.includeHeaders,
         destinationCountry: opts.destinationCountry,
         mediaEncryption: opts.mediaEncryption,
+        media: opts.media,
       }),
     }).toJson();
 
@@ -780,6 +792,7 @@ export class SipClient extends ServiceBase {
         : undefined,
       krispEnabled: opts.krispEnabled,
       waitUntilAnswered: opts.waitUntilAnswered,
+      media: opts.media,
     }).toJson();
 
     const data = await this.rpc.request(

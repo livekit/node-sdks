@@ -80,6 +80,11 @@ type CacheEntry = {
 
 // Shared across all clients in the process so the region list is fetched once.
 const regionCache = new Map<string, CacheEntry>();
+// Coalesces concurrent discovery fetches per origin: while one /settings/regions
+// request is in flight, other callers for the same origin await its result
+// rather than issuing their own (avoids a thundering herd when many requests
+// fail over at once).
+const inflight = new Map<string, Promise<string[]>>();
 
 /**
  * Returns alternative region origins for `origin`, fetching /settings/regions
@@ -94,16 +99,27 @@ export async function regionOrigins(origin: URL, headers: unknown): Promise<stri
     return cached.origins;
   }
 
-  try {
-    const { origins, ttl } = await fetchRegions(origin, headers);
-    // A zero TTL (e.g. Cache-Control: max-age=0) means "do not cache".
-    if (ttl > 0) {
-      regionCache.set(key, { origins, fetchedAt: Date.now(), ttl });
-    }
-    return origins;
-  } catch {
-    return cached?.origins ?? [];
+  const existing = inflight.get(key);
+  if (existing) {
+    return existing;
   }
+  const request = (async () => {
+    try {
+      const { origins, ttl } = await fetchRegions(origin, headers);
+      // A zero TTL (e.g. Cache-Control: max-age=0) means "do not cache".
+      if (ttl > 0) {
+        regionCache.set(key, { origins, fetchedAt: Date.now(), ttl });
+      }
+      return origins;
+    } catch {
+      return cached?.origins ?? [];
+    } finally {
+      inflight.delete(key);
+    }
+  })();
+
+  inflight.set(key, request);
+  return request;
 }
 
 async function fetchRegions(
@@ -135,7 +151,13 @@ async function fetchRegions(
   return { origins, ttl };
 }
 
-function parseMaxAge(cacheControl: string | null): number {
+/**
+ * Returns the `max-age` from a Cache-Control header in milliseconds, or 0 when
+ * absent, non-positive, or unparseable (meaning "do not cache"). Only `max-age`
+ * is honored; other directives (including `s-maxage`, which targets shared
+ * proxies) are ignored.
+ */
+export function parseMaxAge(cacheControl: string | null): number {
   if (!cacheControl) return 0;
   for (const directive of cacheControl.split(',')) {
     const trimmed = directive.trim().toLowerCase();

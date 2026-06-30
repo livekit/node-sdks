@@ -165,7 +165,7 @@ export interface CreateSipParticipantOptions {
   krispEnabled?: boolean;
   /** If `true`, this will wait until the call is answered before returning. */
   waitUntilAnswered?: boolean;
-  /** Optional request timeout in seconds. default 60 seconds if waitUntilAnswered is true, otherwise 10 seconds */
+  /** Optional request timeout in seconds. Defaults to 30s when waitUntilAnswered is true (dialing takes time), otherwise the client default. */
   timeout?: number;
 }
 
@@ -752,8 +752,9 @@ export class SipClient extends ServiceBase {
       opts = {};
     }
 
-    if (opts.timeout === undefined) {
-      opts.timeout = opts.waitUntilAnswered ? 60 : 10;
+    // Dialing a phone and waiting for an answer takes longer than a normal call.
+    if (opts.timeout === undefined && opts.waitUntilAnswered) {
+      opts.timeout = 30;
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -826,6 +827,8 @@ export class SipClient extends ServiceBase {
       'TransferSIPParticipant',
       req,
       await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
+      // Transferring a call dials a phone, which takes longer than a normal call.
+      30,
     );
   }
 }

@@ -27,7 +27,7 @@ type Options = {
 };
 
 const defaultPrefix = '/twirp';
-const defaultTimeoutSeconds = 60;
+const defaultTimeoutSeconds = 10;
 
 export const livekitPackage = 'livekit';
 export interface Rpc {
@@ -114,7 +114,12 @@ export class TwirpRpc {
     };
 
     const origin = new URL(this.host);
-    const maxAttempts = failoverAttempts(this.failover, origin.hostname, this.failoverForce);
+    const maxAttempts = failoverAttempts(
+      this.failover,
+      origin.hostname,
+      this.failoverForce,
+      timeout,
+    );
     const attempted = new Set([hostKey(origin)]);
     let regions: string[] | undefined;
     let current = this.host;

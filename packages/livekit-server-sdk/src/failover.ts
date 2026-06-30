@@ -14,17 +14,29 @@
 // that could overwhelm the server.
 export const FAILOVER_MAX_ATTEMPTS = 3;
 export const FAILOVER_BACKOFF_BASE_MS = 200;
+// Below this per-request timeout, a retry is unlikely to help and many clients
+// would retry in lockstep across regions, so a short request gets a single
+// attempt (thundering-herd guard).
+export const MIN_FAILOVER_TIMEOUT_SECONDS = 5;
 
 /**
  * Total request attempts for a host; 1 means no failover. Failover only engages
- * when enabled and the host is a LiveKit Cloud domain. `force` bypasses the
- * cloud-host check and is for internal testing only.
+ * when enabled, the host is a LiveKit Cloud domain, and the request timeout is
+ * long enough to retry. `force` bypasses the cloud-host check (test-only).
  */
-export function failoverAttempts(enabled: boolean, hostname: string, force = false): number {
-  if (enabled && (force || isCloud(hostname))) {
-    return FAILOVER_MAX_ATTEMPTS;
+export function failoverAttempts(
+  enabled: boolean,
+  hostname: string,
+  force = false,
+  timeoutSeconds = 0,
+): number {
+  if (!enabled || !(force || isCloud(hostname))) {
+    return 1;
   }
-  return 1;
+  if (timeoutSeconds > 0 && timeoutSeconds < MIN_FAILOVER_TIMEOUT_SECONDS) {
+    return 1;
+  }
+  return FAILOVER_MAX_ATTEMPTS;
 }
 
 // Failover only engages for LiveKit Cloud project domains.

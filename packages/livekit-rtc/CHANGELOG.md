@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.30
+
+### Patch Changes
+
+- Add initial support for frame processor usage directly on tracks - [#671](https://github.com/livekit/node-sdks/pull/671) ([@1egoman](https://github.com/1egoman))
+
 ## 0.13.29
 
 ### Patch Changes

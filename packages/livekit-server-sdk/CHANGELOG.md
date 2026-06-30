@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.16.0
+
+### Minor Changes
+
+- Support SIP media configs. - [#687](https://github.com/livekit/node-sdks/pull/687) ([@dennwc](https://github.com/dennwc))
+
+### Patch Changes
+
+- Add `callee` dispatch rule support to `createSipDispatchRule` - [#684](https://github.com/livekit/node-sdks/pull/684) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.15.5
 
 ### Patch Changes

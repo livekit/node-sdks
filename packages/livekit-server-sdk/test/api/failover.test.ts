@@ -35,6 +35,8 @@ const call = (
   });
   return rpc.request('RoomService', 'CreateRoom', {}, {
     authorization: 'Bearer test-token',
+    // These tests exercise failover, not authz; skip the mock's permission check.
+    'x-lk-mock-skip-auth': 'true',
     ...directives,
   });
 };

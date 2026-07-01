@@ -69,6 +69,19 @@ describe('AudioSource', () => {
     await source.close();
   });
 
+  it('waitForPlayout resolves immediately when no audio is queued', async () => {
+    const source = new AudioSource(SAMPLE_RATE, 1, QUEUE_MS);
+    // nothing ever captured
+    const before = Date.now();
+    await source.waitForPlayout();
+    // fully drained (drain timer fired and released the waiter)
+    await pushAudio(source, 100);
+    await sleep(QUEUE_MS + 100);
+    await source.waitForPlayout();
+    expect(Date.now() - before).toBeLessThan(QUEUE_MS + 400);
+    await source.close();
+  });
+
   it('close resolves a pending waitForPlayout', async () => {
     const source = new AudioSource(SAMPLE_RATE, 1, QUEUE_MS);
     await pushAudio(source, 600);

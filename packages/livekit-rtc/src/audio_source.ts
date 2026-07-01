@@ -28,10 +28,9 @@ export class AudioSource {
   /** @internal */
   currentQueueSize: number;
   /** @internal */
-  release = () => {};
+  promise?: Promise<void> = undefined;
   /** @internal */
-  released = false;
-  promise = this.newPromise();
+  resolvePromise?: () => void = undefined;
   /** @internal */
   timeout?: ReturnType<typeof setTimeout> = undefined;
   /** @internal */
@@ -86,32 +85,41 @@ export class AudioSource {
       },
     });
 
+    this.releaseWaiter();
+  }
+
+  /**
+   * Resolve the pending waitForPlayout() promise (if any) and reset the queue
+   * bookkeeping. Mirrors python-sdks' AudioSource._release_waiter: the promise is
+   * discarded here and lazily re-created by the next captureFrame, so a later
+   * waitForPlayout() can never consume a stale resolution and report playout
+   * complete while audio is still queued.
+   * @internal
+   */
+  releaseWaiter = () => {
+    if (!this.promise) {
+      return;
+    }
+
+    this.resolvePromise?.();
+    this.lastCapture = 0;
     this.currentQueueSize = 0;
-    this.release();
-  }
-
-  /** @internal */
-  async newPromise() {
-    this.released = false;
-    return new Promise<void>((resolve) => {
-      this.release = () => {
-        this.released = true;
-        resolve();
-      };
-    });
-  }
-
-  async waitForPlayout() {
-    const promise = this.promise;
-    await promise;
-    // Skip the reset if captureFrame re-armed the promise while we were waiting:
-    // the bookkeeping now belongs to audio captured after this playout completed.
-    if (this.promise === promise) {
-      this.lastCapture = 0;
-      this.currentQueueSize = 0;
-      this.promise = this.newPromise();
+    this.promise = undefined;
+    this.resolvePromise = undefined;
+    // cancel the drain timer (e.g. when released early by clearQueue), otherwise
+    // it would fire later and release the waiter of a subsequent segment
+    if (this.timeout) {
+      clearTimeout(this.timeout);
       this.timeout = undefined;
     }
+  };
+
+  async waitForPlayout() {
+    if (!this.promise) {
+      return;
+    }
+
+    await this.promise;
   }
 
   async captureFrame(frame: AudioFrame) {
@@ -134,15 +142,13 @@ export class AudioSource {
       clearTimeout(this.timeout);
     }
 
-    if (this.released) {
-      // The playout promise was already resolved — the drain timer fired during a
-      // gap between captures, or clearQueue() released it. Re-arm it so a later
-      // waitForPlayout() waits for this new audio instead of consuming the stale
-      // resolution and reporting playout complete while audio is still queued.
-      this.promise = this.newPromise();
+    if (!this.promise) {
+      this.promise = new Promise<void>((resolve) => {
+        this.resolvePromise = resolve;
+      });
     }
 
-    this.timeout = setTimeout(this.release, this.currentQueueSize);
+    this.timeout = setTimeout(this.releaseWaiter, this.currentQueueSize);
 
     const req = new CaptureAudioFrameRequest({
       sourceHandle: this.ffiHandle.handle,
@@ -170,7 +176,7 @@ export class AudioSource {
       this.timeout = undefined;
     }
     // Resolve any pending waitForPlayout() promise so callers don't hang.
-    this.release();
+    this.releaseWaiter();
     this.ffiHandle.dispose();
     this.closed = true;
   }

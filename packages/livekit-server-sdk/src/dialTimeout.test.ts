@@ -3,24 +3,27 @@
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from 'vitest';
 import {
-  DIAL_TIMEOUT_SECONDS,
+  DEFAULT_RINGING_TIMEOUT_SECONDS,
   RINGING_TIMEOUT_MARGIN_SECONDS,
   dialRequestTimeout,
 } from './dialTimeout.js';
 
+const DEFAULT_FLOOR = DEFAULT_RINGING_TIMEOUT_SECONDS + RINGING_TIMEOUT_MARGIN_SECONDS;
+
 describe('dialRequestTimeout', () => {
-  it('defaults to the dial timeout when nothing is specified', () => {
-    expect(dialRequestTimeout(undefined, undefined)).toBe(DIAL_TIMEOUT_SECONDS);
+  it('falls back to the default ring window plus margin when nothing is set', () => {
+    // No ringing timeout means the server's default ring applies, so the request
+    // must still outlast it by the margin.
+    expect(dialRequestTimeout(undefined, undefined)).toBe(DEFAULT_FLOOR);
   });
 
-  it('honors a user-supplied timeout when there is no ringing timeout', () => {
+  it('honors a user timeout above the default floor, raises one below it', () => {
     expect(dialRequestTimeout(45, undefined)).toBe(45);
-    expect(dialRequestTimeout(5, undefined)).toBe(5);
+    expect(dialRequestTimeout(5, undefined)).toBe(DEFAULT_FLOOR);
   });
 
-  it('keeps the dial default above a short ringing timeout', () => {
-    // ringing + margin (12) is below the 30s default, so the default wins.
-    expect(dialRequestTimeout(undefined, 10)).toBe(DIAL_TIMEOUT_SECONDS);
+  it('tracks a short ringing timeout (ring + margin), no fixed floor', () => {
+    expect(dialRequestTimeout(undefined, 10)).toBe(10 + RINGING_TIMEOUT_MARGIN_SECONDS);
   });
 
   it('raises the timeout to stay above a long ringing timeout', () => {

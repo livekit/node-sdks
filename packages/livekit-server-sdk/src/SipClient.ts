@@ -45,7 +45,7 @@ import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
-import { dialRequestTimeout } from './dialTimeout.js';
+import { DEFAULT_RINGING_TIMEOUT_SECONDS, dialRequestTimeout } from './dialTimeout.js';
 
 const svc = 'SIP';
 
@@ -756,8 +756,11 @@ export class SipClient extends ServiceBase {
     }
 
     // Dialing a phone and waiting for an answer takes longer than a normal call,
-    // and the request must outlast ringing so the call can be answered.
+    // and the request must outlast ringing so the call can be answered. Pin the
+    // ring window explicitly so our request timeout doesn't depend on the server's
+    // default (which could change out from under us).
     if (opts.waitUntilAnswered) {
+      opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
       opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
     }
 
@@ -816,8 +819,9 @@ export class SipClient extends ServiceBase {
     }
 
     // Transferring a call dials a phone, which takes longer than a normal call,
-    // so default to a longer timeout unless the user specified one, and keep the
-    // request alive past ringing so the transfer destination can answer.
+    // so keep the request alive past ringing. Pin the ring window explicitly so
+    // our request timeout doesn't depend on the server's default.
+    opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
     opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
 
     const req = new TransferSIPParticipantRequest({

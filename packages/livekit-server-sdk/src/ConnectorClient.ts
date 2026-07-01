@@ -23,7 +23,7 @@ import {
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
-import { dialRequestTimeout } from './dialTimeout.js';
+import { DEFAULT_RINGING_TIMEOUT_SECONDS, dialRequestTimeout } from './dialTimeout.js';
 
 const svc = 'Connector';
 
@@ -192,6 +192,12 @@ export class ConnectorClient extends ServiceBase {
     const participantName = options.participantName || '';
     const participantMetadata = options.participantMetadata || '';
     const destinationCountry = options.destinationCountry || '';
+
+    // When waiting for an answer, pin the ring window explicitly so our request
+    // timeout doesn't depend on the server's default (which could change).
+    if (options.waitUntilAnswered) {
+      options.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
+    }
 
     const req = new AcceptWhatsAppCallRequest({
       whatsappPhoneNumberId: options.whatsappPhoneNumberId,

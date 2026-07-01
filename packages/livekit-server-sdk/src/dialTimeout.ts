@@ -7,8 +7,11 @@
 // AcceptWhatsAppCall). These take longer than a normal API call, and the
 // request must outlast ringing or it would abort before the call is answered.
 
-/** Default request timeout (seconds) for calls that dial a phone. */
-export const DIAL_TIMEOUT_SECONDS = 30;
+/**
+ * Ring window (seconds) assumed when a request doesn't set a ringing timeout;
+ * matches the server default. A dialing request must outlast it.
+ */
+export const DEFAULT_RINGING_TIMEOUT_SECONDS = 30;
 
 /**
  * When a call waits on ringing, the request must outlast the ringing window or
@@ -18,17 +21,17 @@ export const DIAL_TIMEOUT_SECONDS = 30;
 export const RINGING_TIMEOUT_MARGIN_SECONDS = 2;
 
 /**
- * Resolves the request timeout for a phone-dialing call: a user-supplied value
- * (or the dial default) raised, when needed, to stay at least
- * {@link RINGING_TIMEOUT_MARGIN_SECONDS} above any ringing timeout.
+ * Resolves the request timeout (seconds) for a phone-dialing call: the ring
+ * window plus a margin, so the request doesn't abort before the call can be
+ * answered. The ring window is the request's `ringingTimeout` when set, else
+ * {@link DEFAULT_RINGING_TIMEOUT_SECONDS}. A longer user-supplied `timeout` is
+ * honored; a shorter one is raised to the floor.
  */
 export function dialRequestTimeout(
   timeout: number | undefined,
   ringingTimeout: number | undefined,
 ): number {
-  let effective = timeout ?? DIAL_TIMEOUT_SECONDS;
-  if (ringingTimeout !== undefined) {
-    effective = Math.max(effective, ringingTimeout + RINGING_TIMEOUT_MARGIN_SECONDS);
-  }
-  return effective;
+  const ring = ringingTimeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS;
+  const floor = ring + RINGING_TIMEOUT_MARGIN_SECONDS;
+  return Math.max(timeout ?? floor, floor);
 }

@@ -29,6 +29,8 @@ export class AudioSource {
   currentQueueSize: number;
   /** @internal */
   release = () => {};
+  /** @internal */
+  released = false;
   promise = this.newPromise();
   /** @internal */
   timeout?: ReturnType<typeof setTimeout> = undefined;
@@ -90,18 +92,26 @@ export class AudioSource {
 
   /** @internal */
   async newPromise() {
+    this.released = false;
     return new Promise<void>((resolve) => {
-      this.release = resolve;
+      this.release = () => {
+        this.released = true;
+        resolve();
+      };
     });
   }
 
   async waitForPlayout() {
-    return this.promise.then(() => {
+    const promise = this.promise;
+    await promise;
+    // Skip the reset if captureFrame re-armed the promise while we were waiting:
+    // the bookkeeping now belongs to audio captured after this playout completed.
+    if (this.promise === promise) {
       this.lastCapture = 0;
       this.currentQueueSize = 0;
       this.promise = this.newPromise();
       this.timeout = undefined;
-    });
+    }
   }
 
   async captureFrame(frame: AudioFrame) {
@@ -122,6 +132,14 @@ export class AudioSource {
 
     if (this.timeout) {
       clearTimeout(this.timeout);
+    }
+
+    if (this.released) {
+      // The playout promise was already resolved — the drain timer fired during a
+      // gap between captures, or clearQueue() released it. Re-arm it so a later
+      // waitForPlayout() waits for this new audio instead of consuming the stale
+      // resolution and reporting playout complete while audio is still queued.
+      this.promise = this.newPromise();
     }
 
     this.timeout = setTimeout(this.release, this.currentQueueSize);

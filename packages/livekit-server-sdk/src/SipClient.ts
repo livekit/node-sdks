@@ -45,31 +45,9 @@ import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
 import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { dialRequestTimeout } from './dialTimeout.js';
 
 const svc = 'SIP';
-
-/** Default request timeout (seconds) for calls that dial a phone. */
-const SIP_DIAL_TIMEOUT_SECONDS = 30;
-
-/**
- * When a call waits on ringing, the request must outlast the ringing window or
- * it would abort before the call can be answered. We keep at least this margin
- * (seconds) of request timeout above the ringing timeout.
- */
-const RINGING_TIMEOUT_MARGIN_SECONDS = 2;
-
-/**
- * Resolves the request timeout for a phone-dialing call: a user-supplied value
- * (or the dial default) raised, when needed, to stay at least
- * {@link RINGING_TIMEOUT_MARGIN_SECONDS} above any ringing timeout.
- */
-function dialRequestTimeout(timeout: number | undefined, ringingTimeout: number | undefined): number {
-  let effective = timeout ?? SIP_DIAL_TIMEOUT_SECONDS;
-  if (ringingTimeout !== undefined) {
-    effective = Math.max(effective, ringingTimeout + RINGING_TIMEOUT_MARGIN_SECONDS);
-  }
-  return effective;
-}
 
 /**
  * @deprecated use CreateSipInboundTrunkOptions or CreateSipOutboundTrunkOptions

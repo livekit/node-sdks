@@ -23,7 +23,7 @@ import {
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
-import { DEFAULT_RINGING_TIMEOUT_SECONDS, dialRequestTimeout } from './dialTimeout.js';
+import { DEFAULT_RINGING_TIMEOUT_SECONDS } from './dialTimeout.js';
 
 const svc = 'Connector';
 
@@ -193,12 +193,6 @@ export class ConnectorClient extends ServiceBase {
     const participantMetadata = options.participantMetadata || '';
     const destinationCountry = options.destinationCountry || '';
 
-    // When waiting for an answer, pin the ring window explicitly so our request
-    // timeout doesn't depend on the server's default (which could change).
-    if (options.waitUntilAnswered) {
-      options.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
-    }
-
     const req = new AcceptWhatsAppCallRequest({
       whatsappPhoneNumberId: options.whatsappPhoneNumberId,
       whatsappApiKey: options.whatsappApiKey,
@@ -219,11 +213,13 @@ export class ConnectorClient extends ServiceBase {
       waitUntilAnswered: options.waitUntilAnswered,
     }).toJson();
 
-    // Waiting for the call to be answered dials a phone, which takes longer than
-    // a normal request and must outlast ringing; otherwise the client default
-    // applies (unless the caller specified a timeout).
+    // Accept can block until the call is answered, so default the request timeout
+    // to the standard ring window. The caller overrides it via `timeout` and
+    // should set it above the ringing_timeout passed to dialWhatsAppCall; the
+    // two calls are separate, so the SDK can't derive it. Non-waiting returns
+    // promptly and uses the client default.
     const timeout = options.waitUntilAnswered
-      ? dialRequestTimeout(options.timeout, options.ringingTimeout)
+      ? (options.timeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS)
       : options.timeout;
 
     const data = await this.rpc.request(

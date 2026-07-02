@@ -29,6 +29,7 @@ export {
   IceTransportType,
   TrackPublishOptions,
 } from '@livekit/rtc-ffi-bindings';
+export { DegradationPreference } from './types.js';
 export {
   SimulateScenarioKind,
   StreamState,

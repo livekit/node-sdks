@@ -12,8 +12,8 @@ importers:
         specifier: ^2.31.0
         version: 2.31.0(@types/node@22.15.29)
       '@livekit/changesets-changelog-github':
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.1.1
+        version: 0.1.1
       '@rushstack/heft':
         specifier: ^0.74.5
         version: 0.74.5(@types/node@22.15.29)
@@ -247,8 +247,8 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@livekit/protocol':
-        specifier: ^1.46.6
-        version: 1.46.6
+        specifier: ^1.48.0
+        version: 1.48.0
       jose:
         specifier: ^5.1.2
         version: 5.9.6
@@ -373,6 +373,9 @@ packages:
 
   '@changesets/get-github-info@0.5.2':
     resolution: {integrity: sha512-JppheLu7S114aEs157fOZDjFqUDpm7eHdq5E8SSR0gUBTEK0cNSHsrSR5a66xs0z3RWuo46QvA3vawp8BxDHvg==}
+
+  '@changesets/get-github-info@0.8.0':
+    resolution: {integrity: sha512-cRnC+xdF0JIik7coko3iUP9qbnfi1iJQ3sAa6dE+Tx3+ET8bjFEm63PA4WEohgjYcmsOikPHWzPsMWWiZmntOQ==}
 
   '@changesets/get-release-plan@4.0.13':
     resolution: {integrity: sha512-DWG1pus72FcNeXkM12tx+xtExyH/c9I1z+2aXlObH3i9YA7+WZEVaiHzHl03thpvAgWTRaH64MpfHxozfF7Dvg==}
@@ -979,14 +982,17 @@ packages:
   '@livekit/changesets-changelog-github@0.0.4':
     resolution: {integrity: sha512-MXaiLYwgkYciZb8G2wkVtZ1pJJzZmVx5cM30Q+ClslrIYyAqQhRbPmZDM79/5CGxb1MTemR/tfOM25tgJgAK0g==}
 
+  '@livekit/changesets-changelog-github@0.1.1':
+    resolution: {integrity: sha512-feSWHwLL37GZZ0ewUR7iA1RVcw9JvjTx0qJw1ILuwE4LqcBvzy2v7d8g2qQeV6nbfvIihVEYSOvVCekz+vaupA==}
+
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
 
   '@livekit/protocol@1.46.3':
     resolution: {integrity: sha512-YvsE4UN5i+wY9vXfwhF6EUrRyUm/YhiFU1jBcsmsLd/xodUJxYTBcWS4OgL4IJffjzIoyxsrbKp1h9qC55mtcQ==}
 
-  '@livekit/protocol@1.46.6':
-    resolution: {integrity: sha512-upzlHP1vi/kZ/QqALZTFskQ0ifqc2f15RKucHYOsIHJsaXvEYanG75mAb7o+Yomfs4XhQ4BaRsdY+TFHXpaqrg==}
+  '@livekit/protocol@1.48.0':
+    resolution: {integrity: sha512-fYHYgltH6YavAsokl3qsHLkBdQeKCl4UORVTub5crS3t8JtKFZ0uinHDFQ+XXdNKS6Ub9gcOjV+UHcDiqnWXoQ==}
 
   '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.60':
     resolution: {integrity: sha512-YHXqybkYfaTc3txJXXWoVogiSP3yKJdkaZlIlZ6IDMGnN9elUoHDYU+ZSn/rbdGu0pp4HUOzffXkbkItN735Bw==}
@@ -3960,6 +3966,13 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  '@changesets/get-github-info@0.8.0':
+    dependencies:
+      dataloader: 1.4.0
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
+
   '@changesets/get-release-plan@4.0.13':
     dependencies:
       '@changesets/assemble-release-plan': 6.0.9
@@ -4419,13 +4432,21 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  '@livekit/changesets-changelog-github@0.1.1':
+    dependencies:
+      '@changesets/get-github-info': 0.8.0
+      '@changesets/types': 6.1.0
+      dotenv: 8.6.0
+    transitivePeerDependencies:
+      - encoding
+
   '@livekit/mutex@1.1.1': {}
 
   '@livekit/protocol@1.46.3':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
-  '@livekit/protocol@1.46.6':
+  '@livekit/protocol@1.48.0':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 

@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2026 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Test API
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  failover:
+    runs-on: ubuntu-latest
+    services:
+      mock-server:
+        image: livekit/test-server:latest
+        ports:
+          - 9999:9999
+          - 10000:10000
+          - 10001:10001
+          - 10002:10002
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Wait for mock server
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:9999/settings/regions >/dev/null && exit 0
+            sleep 1
+          done
+          echo "mock server did not become ready" && exit 1
+
+      - name: Run API tests
+        run: pnpm --filter="livekit-server-sdk" exec vitest --environment node run test/api

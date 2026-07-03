@@ -23,6 +23,7 @@ import {
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import { type Rpc, TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { DEFAULT_RINGING_TIMEOUT_SECONDS } from './dialTimeout.js';
 
 const svc = 'Connector';
 
@@ -87,6 +88,12 @@ export interface AcceptWhatsAppCallOptions {
   ringingTimeout?: number;
   /** Optional - Wait for the call to be answered before returning */
   waitUntilAnswered?: boolean;
+  /**
+   * Optional - Request timeout in seconds. When `waitUntilAnswered` is set,
+   * defaults to a longer value (dialing takes time) and is raised, if needed,
+   * to stay above `ringingTimeout`; otherwise the client default applies.
+   */
+  timeout?: number;
 }
 
 // Twilio types
@@ -123,10 +130,10 @@ export class ConnectorClient extends ServiceBase {
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
     super(apiKey, secret);
-    const rpcOptions = options?.requestTimeout
-      ? { requestTimeout: options.requestTimeout }
-      : undefined;
-    this.rpc = new TwirpRpc(host, livekitPackage, rpcOptions);
+    this.rpc = new TwirpRpc(host, livekitPackage, {
+      requestTimeout: options?.requestTimeout,
+      failover: options?.failover,
+    });
   }
 
   /**
@@ -206,11 +213,21 @@ export class ConnectorClient extends ServiceBase {
       waitUntilAnswered: options.waitUntilAnswered,
     }).toJson();
 
+    // Accept can block until the call is answered, so default the request timeout
+    // to the standard ring window. The caller overrides it via `timeout` and
+    // should set it above the ringing_timeout passed to dialWhatsAppCall; the
+    // two calls are separate, so the SDK can't derive it. Non-waiting returns
+    // promptly and uses the client default.
+    const timeout = options.waitUntilAnswered
+      ? (options.timeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS)
+      : options.timeout;
+
     const data = await this.rpc.request(
       svc,
       'AcceptWhatsAppCall',
       req,
       await this.authHeader({ roomCreate: true }),
+      timeout,
     );
     return AcceptWhatsAppCallResponse.fromJson(data, { ignoreUnknownFields: true });
   }

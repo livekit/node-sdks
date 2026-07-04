@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// Shared request-timeout handling for calls that dial a phone and wait for an
-// answer (SIP CreateSIPParticipant/TransferSIPParticipant, WhatsApp
-// AcceptWhatsAppCall). These take longer than a normal API call, and the
-// request must outlast ringing or it would abort before the call is answered.
+// Shared request-timeout handling for calls that may block until a call is
+// answered (SIP CreateSIPParticipant/TransferSIPParticipant, WhatsApp
+// AcceptWhatsAppCall). These take longer than a normal API call, and the request
+// must outlast the wait or it would abort before the call is answered.
 
 /**
  * Ring window (seconds) assumed when a request doesn't set a ringing timeout;

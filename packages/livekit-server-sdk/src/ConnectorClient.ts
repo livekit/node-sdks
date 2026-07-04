@@ -84,14 +84,11 @@ export interface AcceptWhatsAppCallOptions {
   participantAttributes?: { [key: string]: string };
   /** Optional - Country where the call terminates as ISO 3166-1 alpha-2 */
   destinationCountry?: string;
-  /** Optional - Max time in seconds for the callee to answer the call */
-  ringingTimeout?: number;
-  /** Optional - Wait for the call to be answered before returning */
+  /** Optional - Wait until the inbound party joins before returning. */
   waitUntilAnswered?: boolean;
   /**
-   * Optional - Request timeout in seconds. When `waitUntilAnswered` is set,
-   * defaults to a longer value (dialing takes time) and is raised, if needed,
-   * to stay above `ringingTimeout`; otherwise the client default applies.
+   * Optional - Request timeout in seconds. When `waitUntilAnswered` is set it
+   * defaults to the standard ring window; otherwise the client default applies.
    */
   timeout?: number;
 }
@@ -207,17 +204,12 @@ export class ConnectorClient extends ServiceBase {
       participantMetadata,
       participantAttributes: options.participantAttributes,
       destinationCountry,
-      ringingTimeout: options.ringingTimeout
-        ? new Duration({ seconds: BigInt(options.ringingTimeout) })
-        : undefined,
       waitUntilAnswered: options.waitUntilAnswered,
     }).toJson();
 
-    // Accept can block until the call is answered, so default the request timeout
-    // to the standard ring window. The caller overrides it via `timeout` and
-    // should set it above the ringing_timeout passed to dialWhatsAppCall; the
-    // two calls are separate, so the SDK can't derive it. Non-waiting returns
-    // promptly and uses the client default.
+    // When waiting for the inbound party to join, the request can block, so
+    // default the timeout to the standard ring window; otherwise the client
+    // default applies.
     const timeout = options.waitUntilAnswered
       ? (options.timeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS)
       : options.timeout;

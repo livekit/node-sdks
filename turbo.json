@@ -1,6 +1,6 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "globalEnv": ["LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET", "NODE_ENV", "LIVEKIT_DEBUG_LOG_ROOM_EVENTS", "EXPECT_BUN_RUNTIME"],
+  "globalEnv": ["LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET", "LIVEKIT_TOKEN", "NODE_ENV", "LIVEKIT_DEBUG_LOG_ROOM_EVENTS", "EXPECT_BUN_RUNTIME"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

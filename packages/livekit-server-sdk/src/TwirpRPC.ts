@@ -61,6 +61,63 @@ export class TwirpError extends Error {
 }
 
 /**
+ * A {@link TwirpError} from a SIP dialing call (`createSipParticipant` /
+ * `transferSipParticipant`) that failed with a SIP response status. The SIP code
+ * and reason are exposed as getters; any other error metadata remains available
+ * via {@link TwirpError.metadata}.
+ */
+export class SipCallError extends TwirpError {
+  constructor(
+    name: string,
+    message: string,
+    status: number,
+    code?: string,
+    metadata?: Record<string, string>,
+  ) {
+    super(name, SipCallError.describe(message, code, metadata), status, code, metadata);
+    this.name = 'SipCallError';
+  }
+
+  /** The SIP response code of the failed call, e.g. 486 (Busy Here). */
+  get sipStatusCode(): number | undefined {
+    const raw = this.metadata?.sip_status_code;
+    return raw !== undefined ? Number(raw) : undefined;
+  }
+
+  /** The SIP reason phrase of the failed call, e.g. "Busy Here". */
+  get sipStatus(): string | undefined {
+    return this.metadata?.sip_status;
+  }
+
+  /** Builds a SipCallError from a TwirpError, preserving its code and metadata. */
+  static fromTwirpError(err: TwirpError): SipCallError {
+    return new SipCallError(err.name, err.message, err.status, err.code, err.metadata);
+  }
+
+  // describe renders a clear message: the SIP status, the Twirp code, and any
+  // other metadata the server attached. Falls back to the raw message when the
+  // error carries no SIP status.
+  private static describe(fallback: string, code?: string, metadata?: Record<string, string>) {
+    const sipCode = metadata?.sip_status_code;
+    if (!sipCode) {
+      return fallback;
+    }
+    const reason = metadata?.sip_status;
+    let msg = `SIP call failed: ${sipCode}${reason ? ` ${reason}` : ''}`;
+    if (code) {
+      msg += ` (${code})`;
+    }
+    const extra = Object.entries(metadata ?? {})
+      .filter(([k]) => k !== 'sip_status_code' && k !== 'sip_status' && k !== 'error_details')
+      .map(([k, v]) => `${k}=${v}`);
+    if (extra.length) {
+      msg += ` [${extra.join(', ')}]`;
+    }
+    return msg;
+  }
+}
+
+/**
  * JSON based Twirp V7 RPC
  */
 export class TwirpRpc {

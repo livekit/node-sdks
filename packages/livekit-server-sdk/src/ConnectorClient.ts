@@ -129,7 +129,7 @@ export class ConnectorClient extends ServiceBase {
    * @param options - client options
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
-    super(apiKey, secret);
+    super({ apiKey, secret, token: options?.token });
     this.rpc = new TwirpRpc(host, livekitPackage, {
       requestTimeout: options?.requestTimeout,
       failover: options?.failover,

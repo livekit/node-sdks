@@ -81,6 +81,6 @@ export * from './IngressClient.js';
 export * from './LiveKitAPI.js';
 export * from './RoomServiceClient.js';
 export * from './SipClient.js';
-export { SipCallError, TwirpError } from './TwirpRPC.js';
+export { ServerError, SipCallError, TwirpError } from './TwirpRPC.js';
 export type { ClientOptions } from './ClientOptions.js';
 export * from './WebhookReceiver.js';

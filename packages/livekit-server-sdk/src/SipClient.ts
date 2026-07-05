@@ -45,14 +45,14 @@ import {
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
-import { SipCallError, TwirpError, TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { ServerError, SipCallError, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 import { DEFAULT_RINGING_TIMEOUT_SECONDS, dialRequestTimeout } from './dialTimeout.js';
 
-// A SIP dialing failure carries a SIP status in its Twirp metadata; surface it as
+// A SIP dialing failure carries a SIP status in its error metadata; surface it as
 // a SipCallError so callers can branch on the SIP code.
 function asSipCallError(e: unknown): unknown {
-  if (e instanceof TwirpError && e.metadata && 'sip_status_code' in e.metadata) {
-    return SipCallError.fromTwirpError(e);
+  if (e instanceof ServerError && e.metadata && 'sip_status_code' in e.metadata) {
+    return SipCallError.fromServerError(e);
   }
   return e;
 }

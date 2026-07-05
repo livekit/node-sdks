@@ -37,7 +37,7 @@ import {
   StreamProtocol,
 } from '@livekit/protocol';
 import { describe, expect, it } from 'vitest';
-import { AccessToken, LiveKitAPI, SipCallError, TwirpError } from '../../src/index.js';
+import { AccessToken, LiveKitAPI, SipCallError, ServerError } from '../../src/index.js';
 import { BASE, TEST_API_KEY, TEST_API_SECRET, newApi, reachable, withMock } from './mock.js';
 
 const d = reachable ? describe : describe.skip;
@@ -416,7 +416,7 @@ d('LiveKitAPI', () => {
         }),
       ).catch((e: unknown) => e);
       expect((err as Error).name).toBe('TimeoutError');
-      expect(err).not.toBeInstanceOf(TwirpError);
+      expect(err).not.toBeInstanceOf(ServerError);
     });
 
     it('succeeds within the dial budget', () =>
@@ -436,7 +436,7 @@ d('LiveKitAPI', () => {
       ).catch((e: unknown) => e);
 
       expect(err).toBeInstanceOf(SipCallError);
-      expect(err).toBeInstanceOf(TwirpError);
+      expect(err).toBeInstanceOf(ServerError);
       const sipErr = err as SipCallError;
       expect(sipErr.code).toBe('resource_exhausted');
       expect(sipErr.sipStatusCode).toBe(486);

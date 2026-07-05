@@ -6,7 +6,7 @@
 // TwirpRpc.request() directly because failover relies on internal test-only
 // knobs (failoverForce/failoverBackoffMs) the public methods don't expose.
 import { describe, expect, it } from 'vitest';
-import { TwirpError, TwirpRpc, livekitPackage } from '../../src/TwirpRPC.js';
+import { ServerError, TwirpRpc, livekitPackage } from '../../src/TwirpRPC.js';
 import { BASE, type MockControl, reachable } from './mock.js';
 
 // failoverForce bypasses the cloud-host check (the mock is on 127.0.0.1) and a
@@ -46,7 +46,7 @@ const call = (
   });
 
   it('surfaces an error when all regions are down', async () => {
-    await expect(call({ failRegions: [0, 1, 2, 3] })).rejects.toThrow(TwirpError);
+    await expect(call({ failRegions: [0, 1, 2, 3] })).rejects.toThrow(ServerError);
   });
 
   it('does not retry a 4xx', async () => {
@@ -60,15 +60,15 @@ const call = (
   });
 
   it('surfaces the original error when region discovery is unreachable', async () => {
-    await expect(call({ failRegions: [0], regionsStatus: 500 })).rejects.toThrow(TwirpError);
+    await expect(call({ failRegions: [0], regionsStatus: 500 })).rejects.toThrow(ServerError);
   });
 
   it('does not fail over for a non-cloud host (cloud-gated)', async () => {
     // failover enabled but not forced; 127.0.0.1 is not a cloud host.
-    await expect(call({ failRegions: [0] }, { force: false })).rejects.toThrow(TwirpError);
+    await expect(call({ failRegions: [0] }, { force: false })).rejects.toThrow(ServerError);
   });
 
   it('does not fail over when disabled', async () => {
-    await expect(call({ failRegions: [0] }, { failover: false })).rejects.toThrow(TwirpError);
+    await expect(call({ failRegions: [0] }, { failover: false })).rejects.toThrow(ServerError);
   });
 });

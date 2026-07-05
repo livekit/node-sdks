@@ -10,6 +10,11 @@ import {
   regionOrigins,
   sleep,
 } from './failover.js';
+import { SDK_VERSION } from './version.js';
+
+// Identifies the SDK and version to the server on every request. Browsers forbid
+// setting User-Agent via fetch and silently drop it; Node honors it.
+const USER_AGENT = `livekit-server-sdk-node/${SDK_VERSION}`;
 
 // twirp RPC adapter for client implementation
 
@@ -40,7 +45,7 @@ export interface Rpc {
   ): Promise<string>;
 }
 
-export class TwirpError extends Error {
+export class ServerError extends Error {
   status: number;
   code?: string;
   metadata?: Record<string, string>;
@@ -60,13 +65,18 @@ export class TwirpError extends Error {
   }
 }
 
+/** @deprecated use {@link ServerError} */
+export const TwirpError = ServerError;
+/** @deprecated use {@link ServerError} */
+export type TwirpError = ServerError;
+
 /**
- * A {@link TwirpError} from a SIP dialing call (`createSipParticipant` /
+ * A {@link ServerError} from a SIP dialing call (`createSipParticipant` /
  * `transferSipParticipant`) that failed with a SIP response status. The SIP code
  * and reason are exposed as getters; any other error metadata remains available
- * via {@link TwirpError.metadata}.
+ * via {@link ServerError.metadata}.
  */
-export class SipCallError extends TwirpError {
+export class SipCallError extends ServerError {
   constructor(
     name: string,
     message: string,
@@ -89,12 +99,12 @@ export class SipCallError extends TwirpError {
     return this.metadata?.sip_status;
   }
 
-  /** Builds a SipCallError from a TwirpError, preserving its code and metadata. */
-  static fromTwirpError(err: TwirpError): SipCallError {
+  /** Builds a SipCallError from a ServerError, preserving its code and metadata. */
+  static fromServerError(err: ServerError): SipCallError {
     return new SipCallError(err.name, err.message, err.status, err.code, err.metadata);
   }
 
-  // describe renders a clear message: the SIP status, the Twirp code, and any
+  // describe renders a clear message: the SIP status, the error code, and any
   // other metadata the server attached. Falls back to the raw message when the
   // error carries no SIP status.
   private static describe(fallback: string, code?: string, metadata?: Record<string, string>) {
@@ -167,6 +177,7 @@ export class TwirpRpc {
     const body = JSON.stringify(data);
     const requestHeaders = {
       'Content-Type': 'application/json;charset=UTF-8',
+      'User-Agent': USER_AGENT,
       ...headers,
     };
 

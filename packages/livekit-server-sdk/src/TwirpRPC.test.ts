@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from 'vitest';
-import { SipCallError, TwirpError } from './TwirpRPC.js';
+import { SipCallError, ServerError } from './TwirpRPC.js';
 
 describe('SipCallError', () => {
   it('renders the SIP status, Twirp code, and extra metadata', () => {
-    const err = SipCallError.fromTwirpError(
-      new TwirpError(
+    const err = SipCallError.fromServerError(
+      new ServerError(
         'Too Many Requests',
         'twirp error: sip status 486',
         429,
@@ -21,7 +21,7 @@ describe('SipCallError', () => {
       ),
     );
 
-    expect(err).toBeInstanceOf(TwirpError);
+    expect(err).toBeInstanceOf(ServerError);
     expect(err.name).toBe('SipCallError');
     expect(err.sipStatusCode).toBe(486);
     expect(err.sipStatus).toBe('Busy Here');
@@ -36,7 +36,7 @@ describe('SipCallError', () => {
   });
 
   it('falls back to the original message when there is no SIP status', () => {
-    const err = SipCallError.fromTwirpError(new TwirpError('Internal', 'boom', 500, 'internal'));
+    const err = SipCallError.fromServerError(new ServerError('Internal', 'boom', 500, 'internal'));
     expect(err.message).toBe('boom');
   });
 });

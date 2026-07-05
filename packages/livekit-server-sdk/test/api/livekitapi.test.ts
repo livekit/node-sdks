@@ -403,6 +403,21 @@ d('LiveKitAPI', () => {
     expect(room.name).toBe('token-room');
   });
 
+  // An ambient LIVEKIT_TOKEN must not override an explicitly passed api key and
+  // secret — otherwise those requests would be sent with the (wrong) env token.
+  it('prefers explicit api key/secret over an ambient LIVEKIT_TOKEN', async () => {
+    const prev = process.env.LIVEKIT_TOKEN;
+    process.env.LIVEKIT_TOKEN = 'invalid-ambient-token';
+    try {
+      const keyApi = new LiveKitAPI(BASE, { apiKey: TEST_API_KEY, secret: TEST_API_SECRET });
+      const room = await keyApi.room.createRoom({ name: 'env-token-room' });
+      expect(room.name).toBe('env-token-room');
+    } finally {
+      if (prev === undefined) delete process.env.LIVEKIT_TOKEN;
+      else process.env.LIVEKIT_TOKEN = prev;
+    }
+  });
+
   // SIP dialing must outlast ringing: when the answer takes longer than the dial
   // budget (ringing timeout + margin) the call times out, while a prompt answer
   // within the budget succeeds.

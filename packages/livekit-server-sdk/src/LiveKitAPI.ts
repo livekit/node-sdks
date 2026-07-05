@@ -55,8 +55,10 @@ export class LiveKitAPI {
     if (!host) {
       throw new Error('host is required (pass it or set LIVEKIT_URL)');
     }
-    const token = options.token || process.env.LIVEKIT_TOKEN;
     const { apiKey, secret } = options;
+    // Only fall back to LIVEKIT_TOKEN when no explicit credentials were given, so
+    // an ambient token can't silently override a passed-in api key and secret.
+    const token = options.token || (apiKey || secret ? undefined : process.env.LIVEKIT_TOKEN);
     if (!token && !(apiKey ?? process.env.LIVEKIT_API_KEY)) {
       throw new Error('either a token or an API key and secret are required');
     }

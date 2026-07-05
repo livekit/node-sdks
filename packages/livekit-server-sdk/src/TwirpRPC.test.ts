@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from 'vitest';
-import { SipCallError, ServerError } from './TwirpRPC.js';
+import { ServerError, SipCallError } from './TwirpRPC.js';
 
 describe('SipCallError', () => {
   it('renders the SIP status, Twirp code, and extra metadata', () => {

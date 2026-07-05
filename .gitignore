@@ -140,3 +140,4 @@ packages/*/docs
 
 # generated version file
 packages/livekit-rtc/src/version.ts
+packages/livekit-server-sdk/src/version.ts

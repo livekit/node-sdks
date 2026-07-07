@@ -45,8 +45,17 @@ import {
 import type { ClientOptions } from './ClientOptions.js';
 import { ServiceBase } from './ServiceBase.js';
 import type { Rpc } from './TwirpRPC.js';
-import { TwirpRpc, livekitPackage } from './TwirpRPC.js';
+import { ServerError, SipCallError, TwirpRpc, livekitPackage } from './TwirpRPC.js';
 import { DEFAULT_RINGING_TIMEOUT_SECONDS, dialRequestTimeout } from './dialTimeout.js';
+
+// A SIP dialing failure carries a SIP status in its error metadata; surface it as
+// a SipCallError so callers can branch on the SIP code.
+function asSipCallError(e: unknown): unknown {
+  if (e instanceof ServerError && e.metadata && 'sip_status_code' in e.metadata) {
+    return SipCallError.fromServerError(e);
+  }
+  return e;
+}
 
 const svc = 'SIP';
 
@@ -251,7 +260,7 @@ export class SipClient extends ServiceBase {
    * @param options - client options
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
-    super(apiKey, secret);
+    super({ apiKey, secret, token: options?.token });
     this.rpc = new TwirpRpc(host, livekitPackage, {
       requestTimeout: options?.requestTimeout,
       failover: options?.failover,
@@ -803,14 +812,18 @@ export class SipClient extends ServiceBase {
       media: opts.media,
     }).toJson();
 
-    const data = await this.rpc.request(
-      svc,
-      'CreateSIPParticipant',
-      req,
-      await this.authHeader({}, { call: true }),
-      opts.timeout,
-    );
-    return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
+    try {
+      const data = await this.rpc.request(
+        svc,
+        'CreateSIPParticipant',
+        req,
+        await this.authHeader({}, { call: true }),
+        opts.timeout,
+      );
+      return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
+    } catch (e) {
+      throw asSipCallError(e);
+    }
   }
 
   /**
@@ -848,12 +861,16 @@ export class SipClient extends ServiceBase {
         : undefined,
     }).toJson();
 
-    await this.rpc.request(
-      svc,
-      'TransferSIPParticipant',
-      req,
-      await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
-      opts.timeout,
-    );
+    try {
+      await this.rpc.request(
+        svc,
+        'TransferSIPParticipant',
+        req,
+        await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
+        opts.timeout,
+      );
+    } catch (e) {
+      throw asSipCallError(e);
+    }
   }
 }

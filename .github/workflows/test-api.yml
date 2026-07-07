@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Generate version file
+        run: pnpm --filter="livekit-server-sdk" run prebuild
+
       - name: Wait for mock server
         run: |
           for i in $(seq 1 30); do

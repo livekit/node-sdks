@@ -1,5 +1,12 @@
 # agent-dispatch
 
+## 0.0.31
+
+### Patch Changes
+
+- Updated dependencies [[`a04fabf`](https://github.com/livekit/node-sdks/commit/a04fabf154885f05a3caa05e064d329e4e1cff01), [`a04fabf`](https://github.com/livekit/node-sdks/commit/a04fabf154885f05a3caa05e064d329e4e1cff01), [`0016ecd`](https://github.com/livekit/node-sdks/commit/0016ecd9c244e43a118014dd5e92f6a733477567)]:
+  - livekit-server-sdk@2.17.0
+
 ## 0.0.30
 
 ### Patch Changes

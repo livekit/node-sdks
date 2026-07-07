@@ -9,18 +9,43 @@ import { IngressClient } from './IngressClient.js';
 import { RoomServiceClient } from './RoomServiceClient.js';
 import { SipClient } from './SipClient.js';
 
-/**
- * Options for {@link LiveKitAPI}. Provide either an `apiKey` and `secret`, or a
- * pre-signed `token`. Any omitted value falls back to its environment variable.
- */
-export interface LiveKitAPIOptions extends ClientOptions {
+/** Server host and non-auth options, shared by both authentication modes. */
+interface LiveKitAPICommonOptions {
+  /** Server host, including protocol. Falls back to the `LIVEKIT_URL` env var. */
+  host?: string;
+  /** Optional timeout, in seconds, for all server requests. */
+  requestTimeout?: number;
+  /**
+   * Whether to fail over to alternative regions on retryable errors (LiveKit
+   * Cloud hosts only). Defaults to true; set to false to disable.
+   */
+  failover?: boolean;
+}
+
+/** API key and secret authentication (recommended for backend use). */
+interface ApiKeyAuth {
   /** API key. Falls back to the `LIVEKIT_API_KEY` env var. */
   apiKey?: string;
   /** API secret. Falls back to the `LIVEKIT_API_SECRET` env var. */
   secret?: string;
-  /** Pre-signed token, sent verbatim. Falls back to the `LIVEKIT_TOKEN` env var. */
-  token?: string;
+  token?: never;
 }
+
+/** Pre-signed token authentication (client-side use; no secret required). */
+interface TokenAuth {
+  /** Pre-signed token, sent verbatim. Falls back to the `LIVEKIT_TOKEN` env var. */
+  token: string;
+  apiKey?: never;
+  secret?: never;
+}
+
+/**
+ * Options for {@link LiveKitAPI}. Provide either an `apiKey` and `secret` or a
+ * pre-signed `token` — the two modes are mutually exclusive. Any omitted value
+ * falls back to its environment variable (`LIVEKIT_URL`, `LIVEKIT_API_KEY`,
+ * `LIVEKIT_API_SECRET`, `LIVEKIT_TOKEN`).
+ */
+export type LiveKitAPIOptions = LiveKitAPICommonOptions & (ApiKeyAuth | TokenAuth);
 
 /**
  * A single entry point to every LiveKit server API, exposing each service
@@ -28,30 +53,29 @@ export interface LiveKitAPIOptions extends ClientOptions {
  *
  * @example
  * ```ts
- * const api = new LiveKitAPI('https://my.livekit.cloud', { apiKey, secret });
+ * const api = new LiveKitAPI({ apiKey, secret }); // or new LiveKitAPI() to read from env
  * await api.room.createRoom({ name: 'my-room' });
  * ```
  */
 export class LiveKitAPI {
-  readonly #room: RoomServiceClient;
+  private readonly _room: RoomServiceClient;
 
-  readonly #egress: EgressClient;
+  private readonly _egress: EgressClient;
 
-  readonly #ingress: IngressClient;
+  private readonly _ingress: IngressClient;
 
-  readonly #sip: SipClient;
+  private readonly _sip: SipClient;
 
-  readonly #agentDispatch: AgentDispatchClient;
+  private readonly _agentDispatch: AgentDispatchClient;
 
-  readonly #connector: ConnectorClient;
+  private readonly _connector: ConnectorClient;
 
   /**
-   * @param host - server host, including protocol. Falls back to the
-   *   `LIVEKIT_URL` env var.
-   * @param options - credentials and client options
+   * @param options - server host, credentials, and client options; each value
+   *   falls back to its environment variable when omitted.
    */
-  constructor(host?: string, options: LiveKitAPIOptions = {}) {
-    host = host || process.env.LIVEKIT_URL;
+  constructor(options: LiveKitAPIOptions = {}) {
+    const host = options.host || process.env.LIVEKIT_URL;
     if (!host) {
       throw new Error('host is required (pass it or set LIVEKIT_URL)');
     }
@@ -68,35 +92,35 @@ export class LiveKitAPI {
       failover: options.failover,
       token,
     };
-    this.#room = new RoomServiceClient(host, apiKey, secret, clientOptions);
-    this.#egress = new EgressClient(host, apiKey, secret, clientOptions);
-    this.#ingress = new IngressClient(host, apiKey, secret, clientOptions);
-    this.#sip = new SipClient(host, apiKey, secret, clientOptions);
-    this.#agentDispatch = new AgentDispatchClient(host, apiKey, secret, clientOptions);
-    this.#connector = new ConnectorClient(host, apiKey, secret, clientOptions);
+    this._room = new RoomServiceClient(host, apiKey, secret, clientOptions);
+    this._egress = new EgressClient(host, apiKey, secret, clientOptions);
+    this._ingress = new IngressClient(host, apiKey, secret, clientOptions);
+    this._sip = new SipClient(host, apiKey, secret, clientOptions);
+    this._agentDispatch = new AgentDispatchClient(host, apiKey, secret, clientOptions);
+    this._connector = new ConnectorClient(host, apiKey, secret, clientOptions);
   }
 
   get room(): RoomServiceClient {
-    return this.#room;
+    return this._room;
   }
 
   get egress(): EgressClient {
-    return this.#egress;
+    return this._egress;
   }
 
   get ingress(): IngressClient {
-    return this.#ingress;
+    return this._ingress;
   }
 
   get sip(): SipClient {
-    return this.#sip;
+    return this._sip;
   }
 
   get agentDispatch(): AgentDispatchClient {
-    return this.#agentDispatch;
+    return this._agentDispatch;
   }
 
   get connector(): ConnectorClient {
-    return this.#connector;
+    return this._connector;
   }
 }

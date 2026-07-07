@@ -39,7 +39,7 @@ export interface MockControl {
 }
 
 export function newApi(): LiveKitAPI {
-  return new LiveKitAPI(BASE, { apiKey: TEST_API_KEY, secret: TEST_API_SECRET });
+  return new LiveKitAPI({ host: BASE, apiKey: TEST_API_KEY, secret: TEST_API_SECRET });
 }
 
 /**

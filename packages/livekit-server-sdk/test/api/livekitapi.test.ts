@@ -398,7 +398,7 @@ d('LiveKitAPI', () => {
     at.addGrant({ roomCreate: true });
     const token = await at.toJwt();
 
-    const tokenApi = new LiveKitAPI(BASE, { token });
+    const tokenApi = new LiveKitAPI({ host: BASE, token });
     const room = await tokenApi.room.createRoom({ name: 'token-room' });
     expect(room.name).toBe('token-room');
   });
@@ -409,7 +409,7 @@ d('LiveKitAPI', () => {
     const prev = process.env.LIVEKIT_TOKEN;
     process.env.LIVEKIT_TOKEN = 'invalid-ambient-token';
     try {
-      const keyApi = new LiveKitAPI(BASE, { apiKey: TEST_API_KEY, secret: TEST_API_SECRET });
+      const keyApi = new LiveKitAPI({ host: BASE, apiKey: TEST_API_KEY, secret: TEST_API_SECRET });
       const room = await keyApi.room.createRoom({ name: 'env-token-room' });
       expect(room.name).toBe('env-token-room');
     } finally {

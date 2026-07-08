@@ -42,6 +42,8 @@ You may store credentials in environment variables. If api-key or api-secret is 
 - `LIVEKIT_API_KEY`
 - `LIVEKIT_API_SECRET`
 
+`LiveKitAPI` additionally falls back to `LIVEKIT_URL` for the host and `LIVEKIT_TOKEN` for a pre-signed token.
+
 ### Creating Access Tokens
 
 Creating a token for participant to join a room.
@@ -86,36 +88,93 @@ at.addGrant({
 
 This will allow the participant to subscribe to tracks, but not publish their own to the room.
 
-### Managing Rooms
+### Authentication
 
-`RoomServiceClient` gives you APIs to list, create, and delete rooms. It also requires a pair of api key/secret key to operate.
+Every request to the server APIs is authenticated. `LiveKitAPI` (and each service client) supports two modes:
+
+- **API key & secret** — recommended for backend use. The SDK signs a short-lived token per request from your key and secret. Keep your API secret on the server; never ship it to a client.
+- **Access token** — for frontend / client-side use, where the API secret must not be exposed. Pass a pre-signed [access token](https://docs.livekit.io/frontends/reference/tokens-grants/) that already carries the grants for the operations you'll perform; the SDK sends it verbatim. Mint it on your backend and hand it to the client.
 
 ```typescript
-import { Room, RoomServiceClient } from 'livekit-server-sdk';
+// backend: API key & secret
+const api = new LiveKitAPI('https://my.livekit.host', { apiKey: 'api-key', secret: 'secret-key' });
 
-const livekitHost = 'https://my.livekit.host';
-const svc = new RoomServiceClient(livekitHost, 'api-key', 'secret-key');
+// frontend: a pre-signed access token
+const api = new LiveKitAPI('https://my.livekit.host', { token });
+```
+
+### Managing Rooms
+
+`LiveKitAPI` is a single entry point to every server API, exposing each service as a property: `room`, `egress`, `ingress`, `sip`, `agentDispatch`, and `connector`. Construct it with your credentials (see [Authentication](#authentication)).
+
+`RoomServiceClient`, reached via `api.room`, gives you APIs to list, create, and delete rooms and to moderate their participants.
+
+```typescript
+import { LiveKitAPI } from 'livekit-server-sdk';
+
+// authenticate with an API key and secret, or `{ token }` for a pre-signed token
+const api = new LiveKitAPI('https://my.livekit.host', {
+  apiKey: 'api-key',
+  secret: 'secret-key',
+});
 
 // list rooms
-svc.listRooms().then((rooms: Room[]) => {
-  console.log('existing rooms', rooms);
-});
+const rooms = await api.room.listRooms();
+console.log('existing rooms', rooms);
 
 // create a new room
-const opts = {
+const room = await api.room.createRoom({
   name: 'myroom',
-  // timeout in seconds
-  emptyTimeout: 10 * 60,
+  emptyTimeout: 10 * 60, // timeout in seconds
   maxParticipants: 20,
-};
-svc.createRoom(opts).then((room: Room) => {
-  console.log('room created', room);
 });
+console.log('room created', room);
 
 // delete a room
-svc.deleteRoom('myroom').then(() => {
-  console.log('room deleted');
+await api.room.deleteRoom('myroom');
+
+// other services are reached the same way, e.g. api.egress, api.sip
+await api.egress.listEgress({});
+```
+
+### Agent dispatch
+
+[Agent dispatch](https://docs.livekit.io/agents/server/agent-dispatch/) assigns an agent to a room. Explicit dispatch, via `api.agentDispatch`, gives you full control over when and how agents join and lets you pass job-specific metadata. The target agent is selected by its `agentName`, and the room is created if it doesn't exist. The example below reuses the `api` from above.
+
+```typescript
+// dispatch an agent into a room
+const dispatch = await api.agentDispatch.createDispatch('myroom', 'my-agent', {
+  metadata: '{}',
 });
+
+// list dispatches in a room
+const dispatches = await api.agentDispatch.listDispatch('myroom');
+
+// delete a dispatch
+await api.agentDispatch.deleteDispatch(dispatch.id, 'myroom');
+```
+
+### Error handling
+
+A failed server API call throws a `ServerError`, which carries the error `code`, `message`, and any server-provided `metadata`. SIP dialing calls throw a `SipCallError` (a `ServerError` subclass) that also exposes the SIP response status:
+
+```typescript
+import { ServerError, SipCallError } from 'livekit-server-sdk';
+
+try {
+  await api.sip.createSipParticipant('trunk-id', '+15105550100', 'my-room', {
+    waitUntilAnswered: true,
+  });
+} catch (e) {
+  if (e instanceof SipCallError) {
+    console.log(e.message); // e.g. "SIP call failed: 486 Busy Here (resource_exhausted)"
+    if (e.sipStatusCode === 486) {
+      // callee is busy
+    }
+  } else if (e instanceof ServerError) {
+    console.log(e.code, e.message); // any other API error
+  }
+}
 ```
 
 ## Webhooks

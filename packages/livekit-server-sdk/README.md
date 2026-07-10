@@ -42,7 +42,7 @@ You may store credentials in environment variables. If api-key or api-secret is 
 - `LIVEKIT_API_KEY`
 - `LIVEKIT_API_SECRET`
 
-`LiveKitAPI` additionally falls back to `LIVEKIT_URL` for the host and `LIVEKIT_TOKEN` for a pre-signed token.
+`LiveKitAPI` additionally falls back to `LIVEKIT_URL` for the host and `LIVEKIT_TOKEN` for a pre-signed token. Values you pass explicitly take precedence; the environment variables are used only as a fallback for arguments you omit — an ambient `LIVEKIT_TOKEN`, for example, won't override an explicitly-provided API key and secret.
 
 ### Creating Access Tokens
 
@@ -96,11 +96,18 @@ Every request to the server APIs is authenticated. `LiveKitAPI` (and each servic
 - **Access token** — for frontend / client-side use, where the API secret must not be exposed. Pass a pre-signed [access token](https://docs.livekit.io/frontends/reference/tokens-grants/) that already carries the grants for the operations you'll perform; the SDK sends it verbatim. Mint it on your backend and hand it to the client.
 
 ```typescript
-// backend: API key & secret
-const api = new LiveKitAPI('https://my.livekit.host', { apiKey: 'api-key', secret: 'secret-key' });
+import { LiveKitAPI } from 'livekit-server-sdk';
 
-// frontend: a pre-signed access token
-const api = new LiveKitAPI('https://my.livekit.host', { token });
+// Backend (API key & secret): set LIVEKIT_URL, LIVEKIT_API_KEY, and
+// LIVEKIT_API_SECRET as env vars, then construct with no arguments:
+const api = new LiveKitAPI();
+
+// ...or pass any of them explicitly to override the corresponding env var:
+const api = new LiveKitAPI({ host: 'https://my.livekit.host', apiKey: 'api-key', secret: 'secret-key' });
+
+// Frontend (pre-signed access token): with LIVEKIT_URL set, pass just the token
+// (or override the host too). Its grants must cover the calls you make.
+const api = new LiveKitAPI({ token });
 ```
 
 ### Managing Rooms
@@ -113,7 +120,8 @@ const api = new LiveKitAPI('https://my.livekit.host', { token });
 import { LiveKitAPI } from 'livekit-server-sdk';
 
 // authenticate with an API key and secret, or `{ token }` for a pre-signed token
-const api = new LiveKitAPI('https://my.livekit.host', {
+const api = new LiveKitAPI({
+  host: 'https://my.livekit.host',
   apiKey: 'api-key',
   secret: 'secret-key',
 });

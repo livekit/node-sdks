@@ -9,12 +9,10 @@ import type {
   GetSessionStatsResponse,
 } from '@livekit/rtc-ffi-bindings';
 import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
-import type {
-  DataStream_Trailer,
-  DisconnectCallback,
-  TrackPublicationInfo,
-} from '@livekit/rtc-ffi-bindings';
+import { type DisconnectCallback, type TrackPublicationInfo } from '@livekit/rtc-ffi-bindings';
 import {
+  ByteStreamReaderReadIncrementalRequest,
+  type ByteStreamReaderReadIncrementalResponse,
   type ConnectCallback,
   ConnectRequest,
   type ConnectResponse,
@@ -22,29 +20,26 @@ import {
   ConnectionState,
   ContinualGatheringPolicy,
   type DataPacketKind,
-  type DataStream_Chunk,
-  type DataStream_Header,
+  DataStream_Chunk,
   type DisconnectResponse,
   RoomOptions as FfiRoomOptions,
   type IceServer,
   IceTransportType,
+  type OwnedByteStreamReader,
+  type OwnedTextStreamReader,
   type ReadyForRoomEventResponse,
   type RoomInfo,
   type SimulateScenarioCallback,
   type SimulateScenarioKind,
   type SimulateScenarioResponse,
+  TextStreamReaderReadIncrementalRequest,
+  type TextStreamReaderReadIncrementalResponse,
 } from '@livekit/rtc-ffi-bindings';
 import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
-import type {
-  ByteStreamHandler,
-  ByteStreamInfo,
-  StreamController,
-  TextStreamHandler,
-  TextStreamInfo,
-} from './data_streams/types.js';
+import { type ByteStreamHandler, type TextStreamHandler } from './data_streams/types.js';
 import type { E2EEOptions } from './e2ee.js';
 import { E2EEManager, defaultE2EEOptions } from './e2ee.js';
 import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
@@ -56,7 +51,12 @@ import { RemoteAudioTrack, RemoteVideoTrack } from './track.js';
 import type { LocalTrackPublication, TrackPublication } from './track_publication.js';
 import { RemoteTrackPublication } from './track_publication.js';
 import type { ChatMessage } from './types.js';
-import { bigIntToNumber } from './utils.js';
+import {
+  bigIntToNumber,
+  byteStreamInfoFromProto,
+  numberToBigInt,
+  textStreamInfoFromProto,
+} from './utils.js';
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -101,8 +101,15 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
    */
   private ffiEventLock = new Mutex();
 
-  private byteStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
-  private textStreamControllers = new Map<string, StreamController<DataStream_Chunk>>();
+  // Active incoming stream readers keyed by their FFI reader handle id. Each entry
+  // owns the FfiClient listener feeding reader events into the ReadableStream.
+  private streamReaders = new Map<
+    bigint,
+    {
+      controller: ReadableStreamDefaultController<DataStream_Chunk>;
+      listener: (ev: FfiEvent) => void;
+    }
+  >();
   private byteStreamHandlers = new Map<string, ByteStreamHandler>();
   private textStreamHandlers = new Map<string, TextStreamHandler>();
 
@@ -421,28 +428,20 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     if (this.hasCleanedUp) return;
     this.hasCleanedUp = true;
 
-    // Error all in-progress stream controllers to prevent FD leaks.
-    // Streams that were receiving data but never got a trailer (e.g. the sender
-    // disconnected mid-transfer) would otherwise keep their ReadableStream open
-    // indefinitely, leaking the underlying controller and any buffered chunks.
+    // Error all in-progress stream readers to prevent FD leaks.
+    // Streams that were receiving data but never reached end-of-stream (e.g. the
+    // sender disconnected mid-transfer) would otherwise keep their ReadableStream
+    // open indefinitely, leaking the underlying controller and any buffered chunks.
     // Using error() instead of close() signals an abnormal termination to consumers.
-    for (const [, streamController] of this.byteStreamControllers) {
+    for (const [, { controller, listener }] of this.streamReaders) {
+      FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
       try {
-        streamController.controller.error(new Error('Disconnected while receiving'));
+        controller.error(new Error('Disconnected while receiving'));
       } catch {
         // controller may already be closed or errored
       }
     }
-    this.byteStreamControllers.clear();
-
-    for (const [, streamController] of this.textStreamControllers) {
-      try {
-        streamController.controller.error(new Error('Disconnected while receiving'));
-      } catch {
-        // controller may already be closed or errored
-      }
-    }
-    this.textStreamControllers.clear();
+    this.streamReaders.clear();
 
     // Detach every track from this room so attached FrameProcessors receive
     // onStreamInfoCleared/onCredentialsCleared and the tokenRefreshed listener
@@ -836,12 +835,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       this.emit(RoomEvent.Reconnected);
     } else if (ev.case == 'roomSidChanged') {
       this.emit(RoomEvent.RoomSidChanged, ev.value.sid!);
-    } else if (ev.case === 'streamHeaderReceived' && ev.value.header) {
-      this.handleStreamHeader(ev.value.header, ev.value.participantIdentity!);
-    } else if (ev.case === 'streamChunkReceived' && ev.value.chunk) {
-      this.handleStreamChunk(ev.value.chunk);
-    } else if (ev.case === 'streamTrailerReceived' && ev.value.trailer) {
-      this.handleStreamTrailer(ev.value.trailer);
+    } else if (ev.case === 'byteStreamOpened' && ev.value.reader) {
+      this.handleByteStreamOpened(ev.value.reader, ev.value.participantIdentity!);
+    } else if (ev.case === 'textStreamOpened' && ev.value.reader) {
+      this.handleTextStreamOpened(ev.value.reader, ev.value.participantIdentity!);
     } else if (ev.case === 'roomUpdated') {
       this.info = ev.value;
       this.emit(RoomEvent.RoomUpdated);
@@ -926,104 +923,125 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return participant;
   }
 
-  private handleStreamHeader(streamHeader: DataStream_Header, participantIdentity: string) {
-    if (streamHeader.contentHeader.case === 'byteHeader') {
-      const streamHandlerCallback = this.byteStreamHandlers.get(streamHeader.topic ?? '');
+  private handleByteStreamOpened(ownedReader: OwnedByteStreamReader, participantIdentity: string) {
+    const info = byteStreamInfoFromProto(ownedReader.info!);
+    const readerHandle = ownedReader.handle!.id!;
 
-      if (!streamHandlerCallback) {
-        log.debug(
-          'ignoring incoming byte stream due to no handler for topic: %s',
-          streamHeader.topic ?? 'undefined',
-        );
-        return;
-      }
-      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
-      const stream = new ReadableStream({
-        start: (controller) => {
-          streamController = controller;
-          this.byteStreamControllers.set(streamHeader.streamId!, {
-            header: streamHeader,
-            controller: streamController,
-            startTime: Date.now(),
-          });
-        },
-      });
-      const info: ByteStreamInfo = {
-        streamId: streamHeader.streamId!,
-        name: streamHeader.contentHeader.value.name ?? 'unknown',
-        mimeType: streamHeader.mimeType!,
-        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
-        topic: streamHeader.topic!,
-        timestamp: bigIntToNumber(streamHeader.timestamp!),
-        attributes: streamHeader.attributes,
-      };
-      streamHandlerCallback(
-        new ByteStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
-        { identity: participantIdentity },
-      );
-    } else if (streamHeader.contentHeader.case === 'textHeader') {
-      const streamHandlerCallback = this.textStreamHandlers.get(streamHeader.topic ?? '');
-
-      if (!streamHandlerCallback) {
-        log.debug(
-          'ignoring incoming text stream due to no handler for topic: %s',
-          streamHeader.topic ?? 'undefined',
-        );
-        return;
-      }
-      let streamController: ReadableStreamDefaultController<DataStream_Chunk>;
-      const stream = new ReadableStream<DataStream_Chunk>({
-        start: (controller) => {
-          streamController = controller;
-          this.textStreamControllers.set(streamHeader.streamId!, {
-            header: streamHeader,
-            controller: streamController,
-            startTime: Date.now(),
-          });
-        },
-      });
-      const info: TextStreamInfo = {
-        streamId: streamHeader.streamId!,
-        mimeType: streamHeader.mimeType!,
-        totalSize: streamHeader.totalLength ? Number(streamHeader.totalLength) : undefined,
-        topic: streamHeader.topic!,
-        timestamp: Number(streamHeader.timestamp),
-        attributes: streamHeader.attributes,
-      };
-      streamHandlerCallback(
-        new TextStreamReader(info, stream, bigIntToNumber(streamHeader.totalLength)),
-        { identity: participantIdentity },
-      );
+    const streamHandlerCallback = this.byteStreamHandlers.get(info.topic);
+    if (!streamHandlerCallback) {
+      log.debug('ignoring incoming byte stream due to no handler for topic: %s', info.topic);
+      // The native reader was never consumed — dispose it to free the handle
+      // and any chunks it has buffered.
+      new FfiHandle(readerHandle).dispose();
+      return;
     }
+
+    const stream = new ReadableStream<DataStream_Chunk>({
+      start: (controller) => {
+        let nextChunkIndex = 0;
+        const listener = (ev: FfiEvent) => {
+          if (
+            ev.message.case !== 'byteStreamReaderEvent' ||
+            ev.message.value.readerHandle !== readerHandle
+          ) {
+            return;
+          }
+          const detail = ev.message.value.detail;
+          if (detail.case === 'chunkReceived') {
+            const content = detail.value.content!;
+            if (content.length > 0) {
+              controller.enqueue(
+                new DataStream_Chunk({ content, chunkIndex: numberToBigInt(nextChunkIndex++) }),
+              );
+            }
+          } else if (detail.case === 'eos') {
+            // End-of-stream (including a remote abort carrying an error) closes the
+            // stream normally so consumers see EOF, matching the trailer behavior of
+            // the previous implementation.
+            FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
+            this.streamReaders.delete(readerHandle);
+            controller.close();
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, listener);
+        this.streamReaders.set(readerHandle, { controller, listener });
+
+        // Start the incremental read; the native reader buffers chunks received
+        // before this request, so nothing is lost. This consumes the FFI handle.
+        FfiClient.instance.request<ByteStreamReaderReadIncrementalResponse>({
+          message: {
+            case: 'byteReadIncremental',
+            value: new ByteStreamReaderReadIncrementalRequest({ readerHandle }),
+          },
+        });
+      },
+    });
+
+    streamHandlerCallback(
+      new ByteStreamReader(info, stream, bigIntToNumber(ownedReader.info!.totalLength)),
+      { identity: participantIdentity },
+    );
   }
 
-  private handleStreamChunk(chunk: DataStream_Chunk) {
-    const fileBuffer = this.byteStreamControllers.get(chunk.streamId!);
-    if (fileBuffer) {
-      if (chunk.content!.length > 0) {
-        fileBuffer.controller.enqueue(chunk);
-      }
-    }
-    const textBuffer = this.textStreamControllers.get(chunk.streamId!);
-    if (textBuffer) {
-      if (chunk.content!.length > 0) {
-        textBuffer.controller.enqueue(chunk);
-      }
-    }
-  }
+  private handleTextStreamOpened(ownedReader: OwnedTextStreamReader, participantIdentity: string) {
+    const info = textStreamInfoFromProto(ownedReader.info!);
+    const readerHandle = ownedReader.handle!.id!;
 
-  private handleStreamTrailer(trailer: DataStream_Trailer) {
-    const streamId = trailer.streamId!;
-    const fileBuffer = this.byteStreamControllers.get(streamId);
-    if (fileBuffer) {
-      fileBuffer.controller.close();
-      this.byteStreamControllers.delete(streamId);
+    const streamHandlerCallback = this.textStreamHandlers.get(info.topic);
+    if (!streamHandlerCallback) {
+      log.debug('ignoring incoming text stream due to no handler for topic: %s', info.topic);
+      // The native reader was never consumed — dispose it to free the handle
+      // and any chunks it has buffered.
+      new FfiHandle(readerHandle).dispose();
+      return;
     }
-    const textBuffer = this.textStreamControllers.get(streamId);
-    if (textBuffer) {
-      textBuffer.controller.close();
-      this.textStreamControllers.delete(streamId);
-    }
+
+    const textEncoder = new TextEncoder();
+    const stream = new ReadableStream<DataStream_Chunk>({
+      start: (controller) => {
+        let nextChunkIndex = 0;
+        const listener = (ev: FfiEvent) => {
+          if (
+            ev.message.case !== 'textStreamReaderEvent' ||
+            ev.message.value.readerHandle !== readerHandle
+          ) {
+            return;
+          }
+          const detail = ev.message.value.detail;
+          if (detail.case === 'chunkReceived') {
+            const content = textEncoder.encode(detail.value.content!);
+            if (content.length > 0) {
+              controller.enqueue(
+                new DataStream_Chunk({ content, chunkIndex: numberToBigInt(nextChunkIndex++) }),
+              );
+            }
+          } else if (detail.case === 'eos') {
+            // End-of-stream (including a remote abort carrying an error) closes the
+            // stream normally so consumers see EOF, matching the trailer behavior of
+            // the previous implementation.
+            FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
+            this.streamReaders.delete(readerHandle);
+            controller.close();
+          }
+        };
+        FfiClient.instance.on(FfiClientEvent.FfiEvent, listener);
+        this.streamReaders.set(readerHandle, { controller, listener });
+
+        // Start the incremental read; the native reader buffers chunks received
+        // before this request, so nothing is lost. This consumes the FFI handle.
+        FfiClient.instance.request<TextStreamReaderReadIncrementalResponse>({
+          message: {
+            case: 'textReadIncremental',
+            value: new TextStreamReaderReadIncrementalRequest({ readerHandle }),
+          },
+        });
+      },
+    });
+
+    streamHandlerCallback(
+      new TextStreamReader(info, stream, bigIntToNumber(ownedReader.info!.totalLength)),
+      { identity: participantIdentity },
+    );
   }
 }
 

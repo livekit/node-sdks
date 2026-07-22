@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import type {
+  ByteStreamInfo as ProtoByteStreamInfo,
+  TextStreamInfo as ProtoTextStreamInfo,
+} from '@livekit/rtc-ffi-bindings';
+import type { ByteStreamInfo, TextStreamInfo } from './data_streams/types.js';
 
 /** convert bigints to numbers preserving undefined values */
 export function bigIntToNumber<T extends bigint | undefined>(
@@ -39,4 +44,29 @@ export function splitUtf8(s: string, n: number): Uint8Array[] {
     result.push(encoded);
   }
   return result;
+}
+
+/** @internal */
+export function textStreamInfoFromProto(info: ProtoTextStreamInfo): TextStreamInfo {
+  return {
+    streamId: info.streamId!,
+    mimeType: info.mimeType!,
+    topic: info.topic!,
+    timestamp: bigIntToNumber(info.timestamp!),
+    totalSize: info.totalLength !== undefined ? bigIntToNumber(info.totalLength) : undefined,
+    attributes: info.attributes,
+  };
+}
+
+/** @internal */
+export function byteStreamInfoFromProto(info: ProtoByteStreamInfo): ByteStreamInfo {
+  return {
+    streamId: info.streamId!,
+    name: info.name ?? 'unknown',
+    mimeType: info.mimeType!,
+    topic: info.topic!,
+    timestamp: bigIntToNumber(info.timestamp!),
+    totalSize: info.totalLength !== undefined ? bigIntToNumber(info.totalLength) : undefined,
+    attributes: info.attributes,
+  };
 }

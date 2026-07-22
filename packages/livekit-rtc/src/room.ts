@@ -22,13 +22,13 @@ import {
   type DataPacketKind,
   DataStream_Chunk,
   type DisconnectResponse,
+  RoomDataStreamOptions as FfiRoomDataStreamOptions,
   RoomOptions as FfiRoomOptions,
   type IceServer,
   IceTransportType,
   type OwnedByteStreamReader,
   type OwnedTextStreamReader,
   type ReadyForRoomEventResponse,
-  RoomDataStreamOptions,
   type RoomInfo,
   type SimulateScenarioCallback,
   type SimulateScenarioKind,
@@ -59,8 +59,6 @@ import {
   textStreamInfoFromProto,
 } from './utils.js';
 
-export { RoomDataStreamOptions };
-
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
   continualGatheringPolicy: ContinualGatheringPolicy;
@@ -73,6 +71,15 @@ export const defaultRtcConfiguration: RtcConfiguration = {
   iceServers: [],
 };
 
+export interface RoomDataStreamOptions {
+  /**
+   * Maximum decompressed payload size in bytes accepted for a single incoming
+   * data stream. Incoming streams exceeding this limit terminate with an error
+   * on the receiving side. Unset falls back to the SDK default.
+   */
+  maxPayloadByteLength?: number;
+}
+
 export interface RoomOptions {
   autoSubscribe: boolean;
   dynacast: boolean;
@@ -82,6 +89,8 @@ export interface RoomOptions {
   e2ee?: E2EEOptions;
   encryption?: E2EEOptions;
   rtcConfig?: RtcConfiguration;
+  /** Options controlling data stream behavior for this room. */
+  dataStream?: RoomDataStreamOptions;
 }
 
 export const defaultRoomOptions = new FfiRoomOptions({
@@ -282,14 +291,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
    * @throws ConnectError - if connection fails
    */
   async connect(url: string, token: string, opts?: RoomOptions) {
-    const options = { ...defaultRoomOptions, ...opts };
-    // The Node SDK still implements data streams in TypeScript on top of raw FFI
-    // packets, so always advertise only legacy (v1) data stream support to other
-    // clients, preserving any other data stream options provided by the user.
-    options.dataStream = new RoomDataStreamOptions({
-      ...options.dataStream,
-      useLegacyClientImplementation: true,
-    });
+    // dataStream is a plain user-facing object; convert it to its proto
+    // message separately instead of spreading it into the FFI options.
+    const { dataStream, ...restOpts } = opts ?? {};
+    const options = { ...defaultRoomOptions, ...restOpts };
     const e2eeEnabled = options.encryption || options.e2ee;
     const userE2EEOptions = options.encryption ?? options.e2ee;
     const e2eeOptions: E2EEOptions = {
@@ -307,6 +312,12 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       mergedOptions.encryption = e2eeOptions;
     } else if (options.e2ee) {
       mergedOptions.e2ee = e2eeOptions;
+    }
+
+    if (dataStream) {
+      mergedOptions.dataStream = new FfiRoomDataStreamOptions({
+        maxPayloadByteLength: numberToBigInt(dataStream.maxPayloadByteLength),
+      });
     }
 
     const req = new ConnectRequest({

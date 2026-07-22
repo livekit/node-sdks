@@ -285,7 +285,6 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>;
     streamId?: string;
     senderIdentity?: string;
-    totalSize?: number;
   }): Promise<TextStreamWriter> {
     const req = new TextStreamOpenRequest({
       localParticipantHandle: this.ffi_handle.handle,
@@ -295,7 +294,6 @@ export class LocalParticipant extends Participant {
         destinationIdentities: options?.destinationIdentities,
         id: options?.streamId,
         senderIdentity: options?.senderIdentity ?? this.identity,
-        totalSize: options?.totalSize,
       }),
     });
 
@@ -354,6 +352,12 @@ export class LocalParticipant extends Participant {
       attributes?: Record<string, string>;
       destinationIdentities?: Array<string>;
       streamId?: string;
+      /**
+       * Whether the payload may be compressed on the wire. Defaults to true;
+       * compression is only applied when it actually reduces the payload size
+       * and every recipient supports it.
+       */
+      compress?: boolean;
     },
   ) {
     const req = new StreamSendTextRequest({
@@ -364,6 +368,7 @@ export class LocalParticipant extends Participant {
         destinationIdentities: options?.destinationIdentities,
         id: options?.streamId,
         senderIdentity: this.identity,
+        compress: options?.compress,
       }),
       text,
     });
@@ -467,6 +472,7 @@ export class LocalParticipant extends Participant {
         name: options?.name ?? 'unknown',
         mimeType: options?.mimeType ?? 'application/octet-stream',
         senderIdentity: this.identity,
+        compress: options?.compress,
       }),
       filePath,
     });

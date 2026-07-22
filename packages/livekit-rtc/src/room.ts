@@ -977,12 +977,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
               );
             }
           } else if (detail.case === 'eos') {
-            // End-of-stream (including a remote abort carrying an error) closes the
-            // stream normally so consumers see EOF, matching the trailer behavior of
-            // the previous implementation.
             FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
             this.streamReaders.delete(readerHandle);
-            controller.close();
+            const error = detail.value.error;
+            if (error) {
+              // Abnormal termination (e.g. remote abort, payload over the
+              // receiver's size limit): surface the error to the consumer
+              // instead of presenting a truncated payload as a clean EOF.
+              controller.error(new Error(error.description ?? 'stream terminated'));
+            } else {
+              controller.close();
+            }
           }
         };
         FfiClient.instance.on(FfiClientEvent.FfiEvent, listener);
@@ -1038,12 +1043,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
               );
             }
           } else if (detail.case === 'eos') {
-            // End-of-stream (including a remote abort carrying an error) closes the
-            // stream normally so consumers see EOF, matching the trailer behavior of
-            // the previous implementation.
             FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
             this.streamReaders.delete(readerHandle);
-            controller.close();
+            const error = detail.value.error;
+            if (error) {
+              // Abnormal termination (e.g. remote abort, payload over the
+              // receiver's size limit): surface the error to the consumer
+              // instead of presenting a truncated payload as a clean EOF.
+              controller.error(new Error(error.description ?? 'stream terminated'));
+            } else {
+              controller.close();
+            }
           }
         };
         FfiClient.instance.on(FfiClientEvent.FfiEvent, listener);

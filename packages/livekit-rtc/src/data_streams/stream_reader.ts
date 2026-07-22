@@ -66,7 +66,10 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
           // consumer never calls return() (e.g. breaking out of for-await).
           reader.releaseLock();
           log.error('error processing stream update: %s', error);
-          return { done: true, value: undefined as unknown };
+          // Propagate abnormal termination (e.g. remote abort, payload over
+          // the receiver's size limit) instead of presenting the truncated
+          // payload as a clean EOF.
+          throw error;
         }
       },
 
@@ -153,7 +156,10 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
           reader.releaseLock();
           receivedChunks.clear();
           log.error('error processing stream update: %s', error);
-          return { done: true, value: undefined };
+          // Propagate abnormal termination (e.g. remote abort, payload over
+          // the receiver's size limit) instead of presenting the truncated
+          // payload as a clean EOF.
+          throw error;
         }
       },
 

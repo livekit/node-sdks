@@ -22,6 +22,7 @@ import {
   type DataPacketKind,
   DataStream_Chunk,
   type DisconnectResponse,
+  RoomDataStreamOptions as FfiRoomDataStreamOptions,
   RoomOptions as FfiRoomOptions,
   type IceServer,
   IceTransportType,
@@ -70,6 +71,15 @@ export const defaultRtcConfiguration: RtcConfiguration = {
   iceServers: [],
 };
 
+export interface RoomDataStreamOptions {
+  /**
+   * Maximum decompressed payload size in bytes accepted for a single incoming
+   * data stream. Incoming streams exceeding this limit terminate with an error
+   * on the receiving side. Unset falls back to the SDK default.
+   */
+  maxPayloadByteLength?: number;
+}
+
 export interface RoomOptions {
   autoSubscribe: boolean;
   dynacast: boolean;
@@ -79,6 +89,8 @@ export interface RoomOptions {
   e2ee?: E2EEOptions;
   encryption?: E2EEOptions;
   rtcConfig?: RtcConfiguration;
+  /** Options controlling data stream behavior for this room. */
+  dataStream?: RoomDataStreamOptions;
 }
 
 export const defaultRoomOptions = new FfiRoomOptions({
@@ -279,7 +291,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
    * @throws ConnectError - if connection fails
    */
   async connect(url: string, token: string, opts?: RoomOptions) {
-    const options = { ...defaultRoomOptions, ...opts };
+    // dataStream is a plain user-facing object; convert it to its proto
+    // message separately instead of spreading it into the FFI options.
+    const { dataStream, ...restOpts } = opts ?? {};
+    const options = { ...defaultRoomOptions, ...restOpts };
     const e2eeEnabled = options.encryption || options.e2ee;
     const e2eeOptions = options.encryption
       ? { ...defaultE2EEOptions, ...options.encryption }
@@ -288,7 +303,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     const req = new ConnectRequest({
       url: url,
       token: token,
-      options,
+      options: {
+        ...options,
+        dataStream: dataStream
+          ? new FfiRoomDataStreamOptions({
+              maxPayloadByteLength: numberToBigInt(dataStream.maxPayloadByteLength),
+            })
+          : undefined,
+      },
     });
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);

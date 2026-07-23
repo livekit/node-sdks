@@ -29,6 +29,7 @@ import {
   type IceServer,
   IceTransportType,
   type ReadyForRoomEventResponse,
+  RoomDataStreamOptions,
   type RoomInfo,
   type SimulateScenarioCallback,
   type SimulateScenarioKind,
@@ -57,6 +58,8 @@ import type { LocalTrackPublication, TrackPublication } from './track_publicatio
 import { RemoteTrackPublication } from './track_publication.js';
 import type { ChatMessage } from './types.js';
 import { bigIntToNumber } from './utils.js';
+
+export { RoomDataStreamOptions };
 
 export interface RtcConfiguration {
   iceTransportType: IceTransportType;
@@ -273,6 +276,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
    */
   async connect(url: string, token: string, opts?: RoomOptions) {
     const options = { ...defaultRoomOptions, ...opts };
+    // The Node SDK still implements data streams in TypeScript on top of raw FFI
+    // packets, so always advertise only legacy (v1) data stream support to other
+    // clients, preserving any other data stream options provided by the user.
+    options.dataStream = new RoomDataStreamOptions({
+      ...options.dataStream,
+      useLegacyClientImplementation: true,
+    });
     const e2eeEnabled = options.encryption || options.e2ee;
     const e2eeOptions = options.encryption
       ? { ...defaultE2EEOptions, ...options.encryption }

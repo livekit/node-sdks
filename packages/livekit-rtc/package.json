@@ -54,6 +54,7 @@
     "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
     "test": "vitest run src",
+    "test:dual-package": "node scripts/verify-dual-package-instanceof.mjs",
     "test:e2e": "node scripts/run-e2e.mjs"
   }
 }

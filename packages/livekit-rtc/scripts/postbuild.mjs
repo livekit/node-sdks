@@ -1,11 +1,8 @@
-// SPDX-FileCopyrightText: 2024 LiveKit, Inc.
+// SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
 
 // Runs after `tsup` (which emits the single CJS build + `.d.cts` declarations).
-// Must NOT be wired into tsup's `onSuccess`: that hook fires before tsup's own
-// DTS build, which then clobbers the declaration output — so any `.d.ts` emitted
-// there gets wiped. Running here, after tsup has fully exited, is safe.
 //
 // 1. Emit the ESM-facing `.d.ts` declarations via tsc (tsup only produces the
 //    `.d.cts` files for the `require` condition).

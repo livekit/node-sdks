@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 // Runs after `tsup` (which emits the single CJS build + `.d.cts` declarations).
 // Must NOT be wired into tsup's `onSuccess`: that hook fires before tsup's own
 // DTS build, which then clobbers the declaration output — so any `.d.ts` emitted
@@ -22,3 +21,5 @@ import { writeFileSync } from 'node:fs';
 execSync('tsc --declaration --emitDeclarationOnly', { stdio: 'inherit' });
 
 writeFileSync(new URL('../dist/index.js', import.meta.url), "export * from './index.cjs';\n");
+
+await import('./assertPackageEquality.mjs');

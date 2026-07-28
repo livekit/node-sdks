@@ -130,10 +130,14 @@ function waitForRoomEvent<R>(
   event: RoomEvent,
   timeoutMs: number,
   take: (...args: any[]) => R,
+  match?: (...args: unknown[]) => boolean,
 ): Promise<R> {
   return withTimeout(
     new Promise<R>((resolve) => {
       const handler = (...args: any[]) => {
+        if (match && !match(...args)) {
+          return;
+        }
         // typed-emitter doesn't expose `.once` in the type surface, so do manual once+cleanup.
         room.off(event as any, handler as any);
         resolve(take(...args));
@@ -143,6 +147,39 @@ function waitForRoomEvent<R>(
     timeoutMs,
     `Timed out waiting for ${event}`,
   );
+}
+
+/**
+ * Only tracks published by `identity` are the test's business. Anything else in
+ * the room — an agent the project dispatches, a stray participant — publishes
+ * audio that would otherwise be analyzed alongside the tone and read as
+ * corruption.
+ */
+function publishedBy(identity: string) {
+  return (...args: unknown[]) =>
+    (args[2] as { identity?: string } | undefined)?.identity === identity;
+}
+
+/**
+ * A stream header's `timestamp` is stamped when the send begins, so a valid one
+ * sits between "just before the call" and "now".
+ *
+ * @remarks
+ * Comparing it to `Date.now()` after awaiting the send would instead assert that
+ * the send finished within the tolerance — a latency budget, and the first send
+ * on a connection also waits for the data channel to open. Bracketing keeps the
+ * sanity check (the timestamp is real, current, and from this call) without
+ * depending on how long the send took. The tolerance covers the FFI stamping
+ * from a different clock source.
+ */
+function expectTimestampFromCall(timestamp: number, calledAt: number, what: string): void {
+  const clockToleranceMs = 1_000;
+  const now = Date.now();
+  const detail =
+    `${what} timestamp=${timestamp} not bracketed by call window [${calledAt}, ${now}] ` +
+    `(offset from call start: ${timestamp - calledAt}ms)`;
+  expect(timestamp, detail).toBeGreaterThanOrEqual(calledAt - clockToleranceMs);
+  expect(timestamp, detail).toBeLessThanOrEqual(now + clockToleranceMs);
 }
 
 function concatUint8(chunks: Uint8Array[]): Uint8Array {
@@ -200,6 +237,19 @@ function estimateFreqHz(samples: Int16Array, sampleRate: number): number {
   }
 
   return bestLag > 0 ? sampleRate / bestLag : 0;
+}
+
+/**
+ * Fraction of a buffer that is digital silence. A tone that arrives with holes
+ * in it defeats the frequency estimator, so reporting this alongside a failed
+ * detection distinguishes "wrong frequency" from "not enough audio".
+ */
+function silentFraction(samples: Int16Array): number {
+  let zeros = 0;
+  for (let i = 0; i < samples.length; i++) {
+    if (samples[i] === 0) zeros++;
+  }
+  return samples.length ? zeros / samples.length : 1;
 }
 
 describeE2E('livekit-rtc e2e', () => {
@@ -272,7 +322,12 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  // Sequential, like the reconnect scenarios below. This test produces audio in
+  // real time from the event loop, and `AudioSource.captureFrame` awaits each
+  // frame's consumption, so the publisher never gets more than one frame ahead:
+  // sharing the loop with the rest of the suite turns scheduling jitter into
+  // transmitted silence, which the detector reads as a wrong frequency.
+  itRaw(
     'transfers audio between two participants (sine detection)',
     async () => {
       const cases = [
@@ -286,11 +341,13 @@ describeE2E('livekit-rtc e2e', () => {
         const { rooms } = await connectTestRooms(2);
         const [subRoom, pubRoom] = rooms;
 
+        const publisherIdentity = pubRoom!.localParticipant!.identity;
         const subscribed = waitForRoomEvent(
           subRoom!,
           RoomEvent.TrackSubscribed,
           15_000,
           (track: unknown) => track,
+          publishedBy(publisherIdentity),
         );
 
         const source = new AudioSource(params.pubRateHz, params.pubChannels);
@@ -313,6 +370,13 @@ describeE2E('livekit-rtc e2e', () => {
           () => new Int16Array(0),
         );
 
+        // The subscription goes live before the publisher's first frame reaches
+        // it, so the stream opens with silence. Analyzing the first N frames
+        // blind measures that silence and reads it as a bogus frequency, so skip
+        // ahead to where the tone actually starts.
+        const silenceFloor = 0.05 * 32767;
+        let skippedSilentFrames = 0;
+        let toneStarted = false;
         const readTask = (async () => {
           let frames = 0;
           while (frames < framesToAnalyze) {
@@ -320,6 +384,18 @@ describeE2E('livekit-rtc e2e', () => {
             if (done) break;
             expect(value.sampleRate).toBe(params.subRateHz);
             expect(value.channels).toBe(params.subChannels);
+
+            if (!toneStarted) {
+              const probe = channelSamples(value, 0);
+              let peak = 0;
+              for (let i = 0; i < probe.length; i++) peak = Math.max(peak, Math.abs(probe[i]!));
+              if (peak < silenceFloor) {
+                skippedSilentFrames++;
+                continue;
+              }
+              toneStarted = true;
+            }
+
             for (let ch = 0; ch < params.subChannels; ch++) {
               const s = channelSamples(value, ch);
               const prev = collected[ch]!;
@@ -330,14 +406,21 @@ describeE2E('livekit-rtc e2e', () => {
             }
             frames++;
           }
-          expect(frames).toBe(framesToAnalyze);
+          expect(
+            frames,
+            `stream ended after ${frames}/${framesToAnalyze} tone frames ` +
+              `(skipped ${skippedSilentFrames} leading silent frames)`,
+          ).toBe(framesToAnalyze);
         })();
 
+        // Publish until the subscriber has its window rather than a fixed
+        // count, so however much silence has to be skipped, enough tone follows.
         const samplesPer10ms = Math.floor(params.pubRateHz / 100);
         const amplitude = 0.8 * 32767;
+        let toneRunning = true;
         const publishTask = (async () => {
           let t = 0;
-          for (let i = 0; i < framesToAnalyze + 20; i++) {
+          while (toneRunning) {
             const frame = AudioFrame.create(params.pubRateHz, params.pubChannels, samplesPer10ms);
             for (let s = 0; s < samplesPer10ms; s++) {
               const v = Math.round(
@@ -350,18 +433,27 @@ describeE2E('livekit-rtc e2e', () => {
             }
             await source.captureFrame(frame);
           }
-          await source.waitForPlayout();
         })();
 
-        await withTimeout(
-          Promise.all([readTask, publishTask]),
-          20_000,
-          'Timed out during audio test',
-        );
+        try {
+          await withTimeout(readTask, 20_000, 'Timed out during audio test');
+        } finally {
+          // Let the tone loop finish its in-flight frame before the track and
+          // rooms are torn down, so a late capture can't reject after the test
+          // has moved on. Swallow its error: this is a `finally`, so throwing
+          // here would mask the assertion or timeout that actually failed.
+          toneRunning = false;
+          await publishTask.catch(() => {});
+        }
 
         for (let ch = 0; ch < params.subChannels; ch++) {
           const detected = estimateFreqHz(collected[ch]!, params.subRateHz);
-          expect(Math.abs(detected - sineHz)).toBeLessThan(20);
+          expect(
+            Math.abs(detected - sineHz),
+            `${JSON.stringify(params)} ch${ch}: detected ${detected.toFixed(2)}Hz, ` +
+              `${(silentFraction(collected[ch]!) * 100).toFixed(0)}% of the analyzed audio is ` +
+              `silence (skipped ${skippedSilentFrames} leading silent frames)`,
+          ).toBeLessThan(20);
         }
 
         reader.releaseLock();
@@ -433,9 +525,10 @@ describeE2E('livekit-rtc e2e', () => {
         'Timed out waiting for text stream',
       );
 
+      const textSentAt = Date.now();
       const textInfo = await sendingRoom!.localParticipant!.sendText(textToSend, { topic });
       expect(textInfo.streamId).toBeTruthy();
-      expect(Math.abs(textInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
+      expectTimestampFromCall(textInfo.timestamp, textSentAt, 'text stream');
       expect(textInfo.mimeType).toBe('text/plain');
       expect(textInfo.topic).toBe(topic);
 
@@ -454,6 +547,7 @@ describeE2E('livekit-rtc e2e', () => {
         'Timed out waiting for byte stream',
       );
 
+      const bytesSentAt = Date.now();
       const writer = await sendingRoom!.localParticipant!.streamBytes({
         topic,
         totalSize: bytesToSend.byteLength,
@@ -463,7 +557,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       const byteInfo = writer.info;
       expect(byteInfo.streamId).toBeTruthy();
-      expect(Math.abs(byteInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
+      expectTimestampFromCall(byteInfo.timestamp, bytesSentAt, 'byte stream');
       expect(byteInfo.mimeType).toBe('application/octet-stream');
       expect(byteInfo.topic).toBe(topic);
 
@@ -485,12 +579,25 @@ describeE2E('livekit-rtc e2e', () => {
 
       calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => data.payload);
 
+      // `room.connect()` resolves on the signal handshake, so the first
+      // data-channel message still waits on ICE/DTLS/SCTP setup — seconds, on a
+      // small runner. Warm the channel up untimed so the assertions below
+      // measure RPC behavior rather than connection setup.
+      await callerRoom!.localParticipant!.performRpc({
+        destinationIdentity: calleeRoom!.localParticipant!.identity,
+        method,
+        payload,
+        responseTimeout: testTimeoutMs,
+      });
+
+      const rpcResponseTimeoutMs = 1_000;
+
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method,
           payload,
-          responseTimeout: 500,
+          responseTimeout: rpcResponseTimeoutMs,
         }),
       ).resolves.toBe(payload);
 
@@ -499,10 +606,12 @@ describeE2E('livekit-rtc e2e', () => {
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method: 'unregistered-method',
           payload,
-          responseTimeout: 500,
+          responseTimeout: rpcResponseTimeoutMs,
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.UNSUPPORTED_METHOD });
 
+      // Short by design: no ack ever arrives for an absent participant, so the
+      // timeout expiring *is* the behavior under test.
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: 'unknown-participant',
@@ -752,7 +861,15 @@ describeE2E('livekit-rtc e2e', () => {
         }
       })();
     };
-    subRoom!.on(RoomEvent.TrackSubscribed, (t) => attach(t));
+    const publisherIdentity = pubRoom!.localParticipant!.identity;
+    subRoom!.on(RoomEvent.TrackSubscribed, (t, _pub, participant) => {
+      // Ignore anything the test didn't publish (e.g. an agent the project
+      // dispatches into the room) — its audio would be analyzed as the tone.
+      if (participant.identity !== publisherIdentity) {
+        return;
+      }
+      attach(t);
+    });
 
     try {
       await waitFor(() => sub.lastFrameAt > 0 && Date.now() - sub.lastFrameAt < 500, {
@@ -791,7 +908,11 @@ describeE2E('livekit-rtc e2e', () => {
       // audio has brief discontinuities, and the autocorrelation is
       // integer-lag (next neighbors to 60Hz are exactly 80Hz/40Hz), so
       // ±20Hz lands right on the failure boundary under CI load.
-      expect(Math.abs(detected - sineHz)).toBeLessThan(25);
+      expect(
+        Math.abs(detected - sineHz),
+        `scenario=${scenario}: detected ${detected.toFixed(2)}Hz across ${sub.readers.length} ` +
+          `stream(s), ${(silentFraction(concat) * 100).toFixed(0)}% silence`,
+      ).toBeLessThan(25);
 
       return { rooms, subRoom: subRoom!, pubRoom: pubRoom! };
     } finally {

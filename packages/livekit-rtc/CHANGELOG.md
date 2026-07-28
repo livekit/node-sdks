@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.32
+
+### Patch Changes
+
+- Close audio streams when their track is unsubscribed. An unsubscribed track never receives `eos` from the FFI, so any `AudioStream` attached to it kept delivering frames — after a reconnect that meant the stale stream and the new subscription's stream both delivered the publisher's audio. - [#701](https://github.com/livekit/node-sdks/pull/701) ([@davidzhao](https://github.com/davidzhao))
+
+- bump FFI to 0.12.68 - [#701](https://github.com/livekit/node-sdks/pull/701) ([@davidzhao](https://github.com/davidzhao))
+
 ## 0.13.31
 
 ### Patch Changes

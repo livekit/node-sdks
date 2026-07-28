@@ -483,17 +483,36 @@ describeE2E('livekit-rtc e2e', () => {
           () => new Int16Array(0),
         );
 
-        // Arrival wall-clock vs. audio duration: 100 frames is 1000ms of audio,
-        // so a materially longer wall-clock means audio went missing on the way.
+        // The subscription is live before the publisher's first frame reaches
+        // it, so the stream opens with silence — and on a loaded runner the FFI
+        // hands that over in a burst (CI has delivered 1000ms of audio in 156ms,
+        // 90% zeros). Analyzing the first N frames blind measures the silence
+        // instead of the tone, which reads as a bogus frequency, so skip ahead
+        // to where the tone actually starts.
+        const silenceFloor = 0.05 * 32767;
+        let skippedSilentFrames = 0;
+        let toneStarted = false;
         const arrivals: number[] = [];
         const readTask = (async () => {
           let frames = 0;
           while (frames < framesToAnalyze) {
             const { done, value } = await reader.read();
-            arrivals.push(Date.now());
             if (done) break;
             expect(value.sampleRate).toBe(params.subRateHz);
             expect(value.channels).toBe(params.subChannels);
+
+            if (!toneStarted) {
+              const probe = channelSamples(value, 0);
+              let peak = 0;
+              for (let i = 0; i < probe.length; i++) peak = Math.max(peak, Math.abs(probe[i]!));
+              if (peak < silenceFloor) {
+                skippedSilentFrames++;
+                continue;
+              }
+              toneStarted = true;
+            }
+
+            arrivals.push(Date.now());
             for (let ch = 0; ch < params.subChannels; ch++) {
               const s = channelSamples(value, ch);
               const prev = collected[ch]!;
@@ -504,14 +523,21 @@ describeE2E('livekit-rtc e2e', () => {
             }
             frames++;
           }
-          expect(frames).toBe(framesToAnalyze);
+          expect(
+            frames,
+            `stream ended after ${frames}/${framesToAnalyze} tone frames ` +
+              `(skipped ${skippedSilentFrames} leading silent frames)`,
+          ).toBe(framesToAnalyze);
         })();
 
+        // Publish until the subscriber has its window rather than a fixed
+        // count, so however much silence has to be skipped, enough tone follows.
         const samplesPer10ms = Math.floor(params.pubRateHz / 100);
         const amplitude = 0.8 * 32767;
+        let toneRunning = true;
         const publishTask = (async () => {
           let t = 0;
-          for (let i = 0; i < framesToAnalyze + 20; i++) {
+          while (toneRunning) {
             const frame = AudioFrame.create(params.pubRateHz, params.pubChannels, samplesPer10ms);
             for (let s = 0; s < samplesPer10ms; s++) {
               const v = Math.round(
@@ -524,14 +550,16 @@ describeE2E('livekit-rtc e2e', () => {
             }
             await source.captureFrame(frame);
           }
-          await source.waitForPlayout();
         })();
 
-        await withTimeout(
-          Promise.all([readTask, publishTask]),
-          20_000,
-          'Timed out during audio test',
-        );
+        try {
+          await withTimeout(readTask, 20_000, 'Timed out during audio test');
+        } finally {
+          toneRunning = false;
+          await publishTask.catch(() => {
+            // the tone loop only fails once the source is closed below
+          });
+        }
 
         const wallMs = arrivals.length > 1 ? arrivals[arrivals.length - 1]! - arrivals[0]! : 0;
         let maxArrivalGapMs = 0;
@@ -546,6 +574,7 @@ describeE2E('livekit-rtc e2e', () => {
             `${JSON.stringify(params)} ch${ch}: detected=${detected.toFixed(2)}Hz ` +
               `${describeToneBuffer(collected[ch]!, params.subRateHz)} ` +
               `wallMs=${wallMs} maxArrivalGapMs=${maxArrivalGapMs} ` +
+              `skippedSilentFrames=${skippedSilentFrames} ` +
               `subscribed=${JSON.stringify(subscribedTracks)}`,
           ).toBeLessThan(20);
         }
@@ -734,6 +763,11 @@ describeE2E('livekit-rtc e2e', () => {
         `event-loop lag max=${lag.maxMs}ms mean=${lag.meanMs}ms over ${lag.samples} samples` +
         (rpcError ? `; error: ${String(rpcError)}` : '') +
         transports;
+
+      // Emit on success too: a run that passes in 10s is as interesting as one
+      // that fails, and the numbers are invisible otherwise. Drop this line once
+      // the data-channel latency question is settled.
+      process.stderr.write(`[rpc-timing] ${rpcDiag}\n`);
 
       expect(rpcError, rpcDiag).toBeUndefined();
       expect(rpcResult, rpcDiag).toBe(payload);

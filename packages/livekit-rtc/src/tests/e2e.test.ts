@@ -438,10 +438,12 @@ describeE2E('livekit-rtc e2e', () => {
         try {
           await withTimeout(readTask, 20_000, 'Timed out during audio test');
         } finally {
+          // Let the tone loop finish its in-flight frame before the track and
+          // rooms are torn down, so a late capture can't reject after the test
+          // has moved on. Swallow its error: this is a `finally`, so throwing
+          // here would mask the assertion or timeout that actually failed.
           toneRunning = false;
-          await publishTask.catch(() => {
-            // the tone loop only fails once the source is closed below
-          });
+          await publishTask.catch(() => {});
         }
 
         for (let ch = 0; ch < params.subChannels; ch++) {

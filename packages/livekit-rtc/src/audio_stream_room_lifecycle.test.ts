@@ -125,10 +125,23 @@ function makeLocalAudioTrack(sid: string): LocalAudioTrack {
 
 function makeStream(processor: FrameProcessor<AudioFrame> | null): AudioStreamSource {
   // Minimal stub exercising only the surface the Track touches: the `processor`
-  // getter and a no-op `cancel()`. Keeping cancel inert isolates the
-  // metadata-push assertions from the real teardown path, which is covered
+  // getter and no-op `cancel()` / `teardown()`. Keeping teardown inert isolates
+  // the metadata-push assertions from the real teardown path, which is covered
   // separately via simulateStreamClose.
-  return { processor, cancel: () => {} } as unknown as AudioStreamSource;
+  return { processor, cancel: () => {}, teardown: () => {} } as unknown as AudioStreamSource;
+}
+
+/** A stream stub that records whether the room tore it down. */
+function makeEndTrackingStream(): { stream: AudioStreamSource; endCount: () => number } {
+  let ended = 0;
+  const stream = {
+    processor: null,
+    cancel: () => {},
+    teardown: () => {
+      ended += 1;
+    },
+  } as unknown as AudioStreamSource;
+  return { stream, endCount: () => ended };
 }
 
 function makeLocalParticipant(identity: string): LocalParticipant {
@@ -575,6 +588,40 @@ describe('AudioStream room lifecycle', () => {
       participantIdentity: 'agent',
       publicationSid: 'NEW',
     });
+  });
+
+  it('trackUnsubscribed ends the audio streams attached to the track', async () => {
+    // Regression: an unsubscribed track never receives `eos` from the FFI, so
+    // its AudioStreams kept delivering frames. After a reconnect that means the
+    // stale stream and the new subscription's stream both deliver the
+    // publisher's audio.
+    const room = makeRoom({ name: 'room-1', token: 'tok-1', serverUrl: 'wss://r' });
+    attachRemoteParticipant(room, 'alice', [{ publicationSid: TRACK_SID, trackSid: TRACK_SID }]);
+    const track = makeTrack(TRACK_SID);
+    const publication = room.remoteParticipants.get('alice')!.trackPublications.get(TRACK_SID)!;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (publication as any).track = track;
+    track.setRoom(room);
+
+    const first = makeEndTrackingStream();
+    const second = makeEndTrackingStream();
+    track.registerAudioStream(first.stream);
+    track.registerAudioStream(second.stream);
+
+    // The handler still sees a live track — teardown happens after the event.
+    const seenDuringEvent: Array<number> = [];
+    room.on('trackUnsubscribed', () => seenDuringEvent.push(first.endCount()));
+
+    await dispatchRoomEvent(room, {
+      case: 'trackUnsubscribed',
+      value: { participantIdentity: 'alice', trackSid: TRACK_SID },
+    });
+
+    expect(seenDuringEvent).toEqual([0]);
+    expect(first.endCount()).toBe(1);
+    expect(second.endCount()).toBe(1);
+    expect(publication.track).toBeUndefined();
+    expect(publication.subscribed).toBe(false);
   });
 
   it('localTrackUnpublished event nulls publication track', async () => {

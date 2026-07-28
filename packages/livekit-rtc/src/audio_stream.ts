@@ -123,20 +123,9 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
         this.controller.enqueue(frame);
         break;
       case 'eos':
-        FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-        this.controller.close();
-        // Dispose the native handle so the FD is released on stream end,
-        // not just when cancel() is called explicitly by the consumer.
-        // Guard against double-dispose if cancel() is called after EOS
-        // while buffered frames are still in the ReadableStream queue.
-        if (!this.disposed) {
-          this.disposed = true;
-          this.track.unregisterAudioStream(this);
-          this.ffiHandle.dispose();
-          if (this.frameProcessor && this.autoCloseProcessor) {
-            this.frameProcessor.close();
-          }
-        }
+        // Disposes the native handle so the FD is released on stream end, not
+        // just when cancel() is called explicitly by the consumer.
+        this.teardown();
         break;
     }
   };
@@ -145,18 +134,42 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
     this.controller = controller;
   }
 
-  cancel() {
+  /**
+   * Detach from the FFI and release resources: on `eos`, on `cancel()`, or
+   * because the track went away (e.g. it was unsubscribed — which never
+   * produces an `eos`, so without this the stream would keep delivering
+   * frames). Already-buffered frames stay readable and the consumer sees `done`
+   * after draining them.
+   *
+   * @remarks
+   * Idempotent, so `eos` arriving after a `cancel()` (or vice versa) doesn't
+   * double-dispose the handle while buffered frames are still queued.
+   *
+   * @internal
+   */
+  teardown() {
     FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
-    if (!this.disposed) {
-      this.disposed = true;
-      this.track.unregisterAudioStream(this);
-      this.ffiHandle.dispose();
-      // Also close the frame processor on cancel for symmetry with the EOS path,
-      // so resources are released regardless of how the stream ends.
-      if (this.frameProcessor && this.autoCloseProcessor) {
-        this.frameProcessor.close();
-      }
+    if (this.disposed) {
+      return;
     }
+    this.disposed = true;
+    this.track.unregisterAudioStream(this);
+    this.ffiHandle.dispose();
+    // Close the frame processor on every teardown path so resources are
+    // released regardless of how the stream ended.
+    if (this.frameProcessor && this.autoCloseProcessor) {
+      this.frameProcessor.close();
+    }
+    try {
+      this.controller?.close();
+    } catch {
+      // Already closed — e.g. cancel(), where the consumer has torn the
+      // ReadableStream down before the underlying source is notified.
+    }
+  }
+
+  cancel() {
+    this.teardown();
   }
 }
 

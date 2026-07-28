@@ -182,6 +182,32 @@ function expectTimestampFromCall(timestamp: number, calledAt: number, what: stri
   expect(timestamp, detail).toBeLessThanOrEqual(now + clockToleranceMs);
 }
 
+/**
+ * Sample how late a fixed-interval timer actually fires, i.e. how long this
+ * process was unable to run its own callbacks. Distinguishes "we were blocked"
+ * from "the other side was slow" when an operation misses its budget.
+ */
+function startEventLoopLagSampler(intervalMs = 50) {
+  let maxMs = 0;
+  let totalMs = 0;
+  let samples = 0;
+  let last = Date.now();
+  const timer = setInterval(() => {
+    const now = Date.now();
+    const lag = Math.max(0, now - last - intervalMs);
+    last = now;
+    maxMs = Math.max(maxMs, lag);
+    totalMs += lag;
+    samples += 1;
+  }, intervalMs);
+  return {
+    stop() {
+      clearInterval(timer);
+      return { maxMs, meanMs: samples ? Math.round(totalMs / samples) : 0, samples };
+    },
+  };
+}
+
 function concatUint8(chunks: Uint8Array[]): Uint8Array {
   const len = chunks.reduce((acc, c) => acc + c.byteLength, 0);
   const out = new Uint8Array(len);
@@ -593,20 +619,47 @@ describeE2E('livekit-rtc e2e', () => {
       const method = 'test-method';
       const payload = 'test-payload';
 
-      calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => data.payload);
+      // Caller and callee are both in this process, so the round trip can be
+      // split at the handler: that separates a slow request path from a slow
+      // response path, and the event-loop lag says whether this process was
+      // simply too busy to run either. This has timed out in CI at budgets an
+      // idle machine covers in ~100ms, on 0.12.60 as well as 0.12.71.
+      let handlerInvokedAt = 0;
+      calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => {
+        handlerInvokedAt = Date.now();
+        return data.payload;
+      });
 
       // give the round trip room to complete: it is the first data-channel
       // traffic on the connection.
       const rpcResponseTimeoutMs = 1_000;
 
-      await expect(
-        callerRoom!.localParticipant!.performRpc({
+      const lagSampler = startEventLoopLagSampler();
+      const rpcStartedAt = Date.now();
+      let rpcResult: string | undefined;
+      let rpcError: unknown;
+      try {
+        rpcResult = await callerRoom!.localParticipant!.performRpc({
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method,
           payload,
           responseTimeout: rpcResponseTimeoutMs,
-        }),
-      ).resolves.toBe(payload);
+        });
+      } catch (e: unknown) {
+        rpcError = e;
+      }
+      const rpcMs = Date.now() - rpcStartedAt;
+      const lag = lagSampler.stop();
+      const rpcDiag =
+        `first RPC took ${rpcMs}ms (responseTimeout=${rpcResponseTimeoutMs}ms); ` +
+        `callee handler invoked at ${
+          handlerInvokedAt ? `+${handlerInvokedAt - rpcStartedAt}ms` : 'never'
+        } (request path), remainder is the response path; ` +
+        `event-loop lag max=${lag.maxMs}ms mean=${lag.meanMs}ms over ${lag.samples} samples` +
+        (rpcError ? `; error: ${String(rpcError)}` : '');
+
+      expect(rpcError, rpcDiag).toBeUndefined();
+      expect(rpcResult, rpcDiag).toBe(payload);
 
       await expect(
         callerRoom!.localParticipant!.performRpc({

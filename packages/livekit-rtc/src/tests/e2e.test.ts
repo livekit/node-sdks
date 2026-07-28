@@ -182,84 +182,6 @@ function expectTimestampFromCall(timestamp: number, calledAt: number, what: stri
   expect(timestamp, detail).toBeLessThanOrEqual(now + clockToleranceMs);
 }
 
-/**
- * ICE/SCTP state for the room's transports, plus how loaded this host is.
- *
- * @remarks
- * Answers, for an operation that took far longer than the path should allow:
- * was the path itself slow (`rtt`), was the sender starved of bandwidth
- * (`availOutBitrate`, `discardedOnSend`), or was the machine simply
- * oversubscribed (`load` vs `cpus`)?
- */
-async function describeTransports(room: Room): Promise<string> {
-  try {
-    const os = await import('node:os');
-    const host = `cpus=${os.cpus().length} load=${os
-      .loadavg()
-      .map((l) => l.toFixed(1))
-      .join('/')}`;
-    const stats = await room.getRtcStats();
-    const describe = (label: string, list: unknown[]): string => {
-      const parts: string[] = [];
-      for (const entry of list) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const stat = (entry as any)?.stats;
-        const pair = stat?.case === 'candidatePair' ? stat.value?.candidatePair : undefined;
-        const dc = stat?.case === 'dataChannel' ? stat.value?.dc : undefined;
-        if (pair?.nominated) {
-          parts.push(
-            `pair(rtt=${pair.currentRoundTripTime ?? '?'}s ` +
-              `state=${pair.state ?? '?'} ` +
-              `availOutBitrate=${pair.availableOutgoingBitrate ?? '?'} ` +
-              `packetsSent=${pair.packetsSent ?? '?'} ` +
-              `discardedOnSend=${pair.packetsDiscardedOnSend ?? 0})`,
-          );
-        } else if (dc) {
-          parts.push(
-            `dc(${dc.label ?? '?'} ${dc.state ?? '?'} ` +
-              `sent=${dc.messagesSent ?? 0}/${dc.bytesSent ?? 0}B ` +
-              `recv=${dc.messagesReceived ?? 0}/${dc.bytesReceived ?? 0}B)`,
-          );
-        }
-      }
-      return `${label}[${parts.join(' ') || 'none'}]`;
-    };
-    return (
-      `${host} ` +
-      `${describe('publisher', stats.publisherStats)} ` +
-      `${describe('subscriber', stats.subscriberStats)}`
-    );
-  } catch (e: unknown) {
-    return `transport stats unavailable: ${String(e)}`;
-  }
-}
-
-/**
- * Sample how late a fixed-interval timer actually fires, i.e. how long this
- * process was unable to run its own callbacks. Distinguishes "we were blocked"
- * from "the other side was slow" when an operation misses its budget.
- */
-function startEventLoopLagSampler(intervalMs = 50) {
-  let maxMs = 0;
-  let totalMs = 0;
-  let samples = 0;
-  let last = Date.now();
-  const timer = setInterval(() => {
-    const now = Date.now();
-    const lag = Math.max(0, now - last - intervalMs);
-    last = now;
-    maxMs = Math.max(maxMs, lag);
-    totalMs += lag;
-    samples += 1;
-  }, intervalMs);
-  return {
-    stop() {
-      clearInterval(timer);
-      return { maxMs, meanMs: samples ? Math.round(totalMs / samples) : 0, samples };
-    },
-  };
-}
-
 function concatUint8(chunks: Uint8Array[]): Uint8Array {
   const len = chunks.reduce((acc, c) => acc + c.byteLength, 0);
   const out = new Uint8Array(len);
@@ -318,52 +240,16 @@ function estimateFreqHz(samples: Int16Array, sampleRate: number): number {
 }
 
 /**
- * Diagnostics for a tone buffer, attached to the detection assertions so a CI
- * failure is self-explanatory. The estimator collapses very different problems
- * into one number, and the per-window breakdown separates them:
- *
- * - every window ~60Hz but the whole buffer higher: audio was lost between
- *   frames and the concatenation spliced across the gaps (time-compressed)
- * - every window equally wrong: the playout rate itself is wrong
- * - exactly `sampleRate/lagStart` (120Hz at 48kHz): the buffer is silent, so
- *   autocorrelation is flat and the lowest lag wins
- * - exactly 40Hz at 48kHz: two interleaved copies of the tone, i.e. frames from
- *   two streams merged into one buffer
+ * Fraction of a buffer that is digital silence. A tone that arrives with holes
+ * in it defeats the frequency estimator, so reporting this alongside a failed
+ * detection distinguishes "wrong frequency" from "not enough audio".
  */
-function describeToneBuffer(samples: Int16Array, sampleRate: number): string {
-  const windowSamples = Math.floor(sampleRate / 5); // 200ms, above the 100ms floor
-  const windowFreqs: string[] = [];
-  for (let off = 0; off + windowSamples <= samples.length; off += windowSamples) {
-    windowFreqs.push(
-      estimateFreqHz(samples.subarray(off, off + windowSamples), sampleRate).toFixed(1),
-    );
-  }
-
+function silentFraction(samples: Int16Array): number {
   let zeros = 0;
-  let runStart = -1;
-  const silentRuns: string[] = [];
-  for (let i = 0; i <= samples.length; i++) {
-    const silent = i < samples.length && samples[i] === 0;
-    if (silent) {
-      zeros++;
-      if (runStart < 0) runStart = i;
-    } else if (runStart >= 0) {
-      const lengthMs = ((i - runStart) / sampleRate) * 1000;
-      if (lengthMs >= 10) {
-        silentRuns.push(
-          `@${((runStart / sampleRate) * 1000).toFixed(0)}ms+${lengthMs.toFixed(0)}ms`,
-        );
-      }
-      runStart = -1;
-    }
+  for (let i = 0; i < samples.length; i++) {
+    if (samples[i] === 0) zeros++;
   }
-
-  return [
-    `audioMs=${((samples.length / sampleRate) * 1000).toFixed(0)}`,
-    `per200msFreq=[${windowFreqs.join(' ')}]`,
-    `zeroFrac=${(zeros / Math.max(1, samples.length)).toFixed(3)}`,
-    `silentRuns=[${silentRuns.join(' ') || 'none'}]`,
-  ].join(' ');
+  return samples.length ? zeros / samples.length : 1;
 }
 
 describeE2E('livekit-rtc e2e', () => {
@@ -436,7 +322,13 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  it(
+  // Sequential, like the reconnect scenarios below: this test produces audio in
+  // real time from the event loop, and `AudioSource.captureFrame` awaits each
+  // frame's consumption, so the publisher never gets more than ~10ms ahead. Run
+  // concurrently with the rest of the suite, event-loop jitter on a small runner
+  // turns straight into transmitted silence — CI has produced 79% zeros with a
+  // 394ms hole, which the detector reads as ~93Hz.
+  itRaw(
     'transfers audio between two participants (sine detection)',
     async () => {
       const cases = [
@@ -451,10 +343,6 @@ describeE2E('livekit-rtc e2e', () => {
         const [subRoom, pubRoom] = rooms;
 
         const publisherIdentity = pubRoom!.localParticipant!.identity;
-        const subscribedTracks: string[] = [];
-        subRoom!.on(RoomEvent.TrackSubscribed, (t, _pub, participant) =>
-          subscribedTracks.push(`${participant.identity}/${t.sid}`),
-        );
         const subscribed = waitForRoomEvent(
           subRoom!,
           RoomEvent.TrackSubscribed,
@@ -483,16 +371,13 @@ describeE2E('livekit-rtc e2e', () => {
           () => new Int16Array(0),
         );
 
-        // The subscription is live before the publisher's first frame reaches
-        // it, so the stream opens with silence — and on a loaded runner the FFI
-        // hands that over in a burst (CI has delivered 1000ms of audio in 156ms,
-        // 90% zeros). Analyzing the first N frames blind measures the silence
-        // instead of the tone, which reads as a bogus frequency, so skip ahead
-        // to where the tone actually starts.
+        // The subscription goes live before the publisher's first frame reaches
+        // it, so the stream opens with silence. Analyzing the first N frames
+        // blind measures that silence and reads it as a bogus frequency, so skip
+        // ahead to where the tone actually starts.
         const silenceFloor = 0.05 * 32767;
         let skippedSilentFrames = 0;
         let toneStarted = false;
-        const arrivals: number[] = [];
         const readTask = (async () => {
           let frames = 0;
           while (frames < framesToAnalyze) {
@@ -512,7 +397,6 @@ describeE2E('livekit-rtc e2e', () => {
               toneStarted = true;
             }
 
-            arrivals.push(Date.now());
             for (let ch = 0; ch < params.subChannels; ch++) {
               const s = channelSamples(value, ch);
               const prev = collected[ch]!;
@@ -561,21 +445,13 @@ describeE2E('livekit-rtc e2e', () => {
           });
         }
 
-        const wallMs = arrivals.length > 1 ? arrivals[arrivals.length - 1]! - arrivals[0]! : 0;
-        let maxArrivalGapMs = 0;
-        for (let i = 1; i < arrivals.length; i++) {
-          maxArrivalGapMs = Math.max(maxArrivalGapMs, arrivals[i]! - arrivals[i - 1]!);
-        }
-
         for (let ch = 0; ch < params.subChannels; ch++) {
           const detected = estimateFreqHz(collected[ch]!, params.subRateHz);
           expect(
             Math.abs(detected - sineHz),
-            `${JSON.stringify(params)} ch${ch}: detected=${detected.toFixed(2)}Hz ` +
-              `${describeToneBuffer(collected[ch]!, params.subRateHz)} ` +
-              `wallMs=${wallMs} maxArrivalGapMs=${maxArrivalGapMs} ` +
-              `skippedSilentFrames=${skippedSilentFrames} ` +
-              `subscribed=${JSON.stringify(subscribedTracks)}`,
+            `${JSON.stringify(params)} ch${ch}: detected ${detected.toFixed(2)}Hz, ` +
+              `${(silentFraction(collected[ch]!) * 100).toFixed(0)}% of the analyzed audio is ` +
+              `silence (skipped ${skippedSilentFrames} leading silent frames)`,
           ).toBeLessThan(20);
         }
 
@@ -700,77 +576,29 @@ describeE2E('livekit-rtc e2e', () => {
       const method = 'test-method';
       const payload = 'test-payload';
 
-      // Caller and callee are both in this process, so the round trip can be
-      // split at the handler: that separates a slow request path from a slow
-      // response path, and the event-loop lag says whether this process was
-      // simply too busy to run either.
-      let handlerInvokedAt = 0;
-      calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => {
-        handlerInvokedAt = Date.now();
-        return data.payload;
-      });
+      calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => data.payload);
 
       // `room.connect()` resolves on the signal handshake, so the first
-      // data-channel message still pays for ICE/DTLS/SCTP setup. CI has taken
-      // 1261ms to deliver it (with this process idle — event-loop lag stayed at
-      // 30ms), which blows any per-call budget. Warm the channel up untimed so
-      // the assertions below measure RPC behavior instead of connection setup.
-      const warmupStartedAt = Date.now();
-      let warmupError: unknown;
-      try {
-        await callerRoom!.localParticipant!.performRpc({
-          destinationIdentity: calleeRoom!.localParticipant!.identity,
-          method,
-          payload,
-          responseTimeout: testTimeoutMs,
-        });
-      } catch (e: unknown) {
-        warmupError = e;
-      }
-      const warmupMs = Date.now() - warmupStartedAt;
-      handlerInvokedAt = 0;
+      // data-channel message still waits on ICE/DTLS/SCTP setup — seconds, on a
+      // small runner. Warm the channel up untimed so the assertions below
+      // measure RPC behavior rather than connection setup.
+      await callerRoom!.localParticipant!.performRpc({
+        destinationIdentity: calleeRoom!.localParticipant!.identity,
+        method,
+        payload,
+        responseTimeout: testTimeoutMs,
+      });
 
       const rpcResponseTimeoutMs = 1_000;
 
-      const lagSampler = startEventLoopLagSampler();
-      const rpcStartedAt = Date.now();
-      let rpcResult: string | undefined;
-      let rpcError: unknown;
-      try {
-        rpcResult = await callerRoom!.localParticipant!.performRpc({
+      await expect(
+        callerRoom!.localParticipant!.performRpc({
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method,
           payload,
           responseTimeout: rpcResponseTimeoutMs,
-        });
-      } catch (e: unknown) {
-        rpcError = e;
-      }
-      const rpcMs = Date.now() - rpcStartedAt;
-      const lag = lagSampler.stop();
-      // Only pay for stats when we're about to fail.
-      const transports =
-        rpcError || rpcResult !== payload
-          ? ` | caller ${await describeTransports(callerRoom!)}`
-          : '';
-      const rpcDiag =
-        `warm-up RPC (first data-channel traffic) took ${warmupMs}ms` +
-        (warmupError ? ` and failed: ${String(warmupError)}` : '') +
-        `; warmed RPC took ${rpcMs}ms (responseTimeout=${rpcResponseTimeoutMs}ms); ` +
-        `callee handler invoked at ${
-          handlerInvokedAt ? `+${handlerInvokedAt - rpcStartedAt}ms` : 'never'
-        } (request path), remainder is the response path; ` +
-        `event-loop lag max=${lag.maxMs}ms mean=${lag.meanMs}ms over ${lag.samples} samples` +
-        (rpcError ? `; error: ${String(rpcError)}` : '') +
-        transports;
-
-      // Emit on success too: a run that passes in 10s is as interesting as one
-      // that fails, and the numbers are invisible otherwise. Drop this line once
-      // the data-channel latency question is settled.
-      process.stderr.write(`[rpc-timing] ${rpcDiag}\n`);
-
-      expect(rpcError, rpcDiag).toBeUndefined();
-      expect(rpcResult, rpcDiag).toBe(payload);
+        }),
+      ).resolves.toBe(payload);
 
       await expect(
         callerRoom!.localParticipant!.performRpc({
@@ -1009,12 +837,6 @@ describeE2E('livekit-rtc e2e', () => {
       collectFromMs: Number.POSITIVE_INFINITY,
       collected: [] as Int16Array[],
       readers: [] as ReturnType<AudioStream['getReader']>[],
-      // Per-reader accounting: frames collected into the analysis window, and
-      // whether the reader ended. A stale reader that keeps delivering is the
-      // failure mode that made this test read the tone as 40Hz.
-      framesInWindow: [] as number[],
-      ended: [] as boolean[],
-      subscriptions: [] as string[],
     };
     const attach = (remoteTrack: unknown) => {
       const stream = new AudioStream(remoteTrack as any, {
@@ -1023,9 +845,6 @@ describeE2E('livekit-rtc e2e', () => {
       });
       const reader = stream.getReader();
       sub.readers.push(reader);
-      const readerIdx = sub.readers.length - 1;
-      sub.framesInWindow.push(0);
-      sub.ended.push(false);
       (async () => {
         try {
           while (true) {
@@ -1034,18 +853,15 @@ describeE2E('livekit-rtc e2e', () => {
             sub.lastFrameAt = Date.now();
             if (sub.lastFrameAt >= sub.collectFromMs) {
               sub.collected.push(channelSamples(value, 0));
-              sub.framesInWindow[readerIdx]! += 1;
             }
           }
         } catch {
           // reader released
         }
-        sub.ended[readerIdx] = true;
       })();
     };
     const publisherIdentity = pubRoom!.localParticipant!.identity;
     subRoom!.on(RoomEvent.TrackSubscribed, (t, _pub, participant) => {
-      sub.subscriptions.push(`${participant.identity}/${t.sid}`);
       // Ignore anything the test didn't publish (e.g. an agent the project
       // dispatches into the room) — its audio would be analyzed as the tone.
       if (participant.identity !== publisherIdentity) {
@@ -1091,14 +907,10 @@ describeE2E('livekit-rtc e2e', () => {
       // audio has brief discontinuities, and the autocorrelation is
       // integer-lag (next neighbors to 60Hz are exactly 80Hz/40Hz), so
       // ±20Hz lands right on the failure boundary under CI load.
-      const liveReaders = sub.ended.filter((e) => !e).length;
       expect(
         Math.abs(detected - sineHz),
-        `scenario=${scenario} detected=${detected.toFixed(2)}Hz ` +
-          `${describeToneBuffer(concat, pubRateHz)} ` +
-          `readers=${sub.readers.length} liveReaders=${liveReaders} ` +
-          `framesInWindow=${JSON.stringify(sub.framesInWindow)} ` +
-          `subscriptions=${JSON.stringify(sub.subscriptions)}`,
+        `scenario=${scenario}: detected ${detected.toFixed(2)}Hz across ${sub.readers.length} ` +
+          `stream(s), ${(silentFraction(concat) * 100).toFixed(0)}% silence`,
       ).toBeLessThan(25);
 
       return { rooms, subRoom: subRoom!, pubRoom: pubRoom! };

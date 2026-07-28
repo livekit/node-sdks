@@ -622,16 +622,33 @@ describeE2E('livekit-rtc e2e', () => {
       // Caller and callee are both in this process, so the round trip can be
       // split at the handler: that separates a slow request path from a slow
       // response path, and the event-loop lag says whether this process was
-      // simply too busy to run either. This has timed out in CI at budgets an
-      // idle machine covers in ~100ms, on 0.12.60 as well as 0.12.71.
+      // simply too busy to run either.
       let handlerInvokedAt = 0;
       calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => {
         handlerInvokedAt = Date.now();
         return data.payload;
       });
 
-      // give the round trip room to complete: it is the first data-channel
-      // traffic on the connection.
+      // `room.connect()` resolves on the signal handshake, so the first
+      // data-channel message still pays for ICE/DTLS/SCTP setup. CI has taken
+      // 1261ms to deliver it (with this process idle — event-loop lag stayed at
+      // 30ms), which blows any per-call budget. Warm the channel up untimed so
+      // the assertions below measure RPC behavior instead of connection setup.
+      const warmupStartedAt = Date.now();
+      let warmupError: unknown;
+      try {
+        await callerRoom!.localParticipant!.performRpc({
+          destinationIdentity: calleeRoom!.localParticipant!.identity,
+          method,
+          payload,
+          responseTimeout: testTimeoutMs,
+        });
+      } catch (e: unknown) {
+        warmupError = e;
+      }
+      const warmupMs = Date.now() - warmupStartedAt;
+      handlerInvokedAt = 0;
+
       const rpcResponseTimeoutMs = 1_000;
 
       const lagSampler = startEventLoopLagSampler();
@@ -651,7 +668,9 @@ describeE2E('livekit-rtc e2e', () => {
       const rpcMs = Date.now() - rpcStartedAt;
       const lag = lagSampler.stop();
       const rpcDiag =
-        `first RPC took ${rpcMs}ms (responseTimeout=${rpcResponseTimeoutMs}ms); ` +
+        `warm-up RPC (first data-channel traffic) took ${warmupMs}ms` +
+        (warmupError ? ` and failed: ${String(warmupError)}` : '') +
+        `; warmed RPC took ${rpcMs}ms (responseTimeout=${rpcResponseTimeoutMs}ms); ` +
         `callee handler invoked at ${
           handlerInvokedAt ? `+${handlerInvokedAt - rpcStartedAt}ms` : 'never'
         } (request path), remainder is the response path; ` +

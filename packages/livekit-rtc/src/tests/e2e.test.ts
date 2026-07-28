@@ -183,6 +183,58 @@ function expectTimestampFromCall(timestamp: number, calledAt: number, what: stri
 }
 
 /**
+ * ICE/SCTP state for the room's transports, plus how loaded this host is.
+ *
+ * @remarks
+ * Answers, for an operation that took far longer than the path should allow:
+ * was the path itself slow (`rtt`), was the sender starved of bandwidth
+ * (`availOutBitrate`, `discardedOnSend`), or was the machine simply
+ * oversubscribed (`load` vs `cpus`)?
+ */
+async function describeTransports(room: Room): Promise<string> {
+  try {
+    const os = await import('node:os');
+    const host = `cpus=${os.cpus().length} load=${os
+      .loadavg()
+      .map((l) => l.toFixed(1))
+      .join('/')}`;
+    const stats = await room.getRtcStats();
+    const describe = (label: string, list: unknown[]): string => {
+      const parts: string[] = [];
+      for (const entry of list) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const stat = (entry as any)?.stats;
+        const pair = stat?.case === 'candidatePair' ? stat.value?.candidatePair : undefined;
+        const dc = stat?.case === 'dataChannel' ? stat.value?.dc : undefined;
+        if (pair?.nominated) {
+          parts.push(
+            `pair(rtt=${pair.currentRoundTripTime ?? '?'}s ` +
+              `state=${pair.state ?? '?'} ` +
+              `availOutBitrate=${pair.availableOutgoingBitrate ?? '?'} ` +
+              `packetsSent=${pair.packetsSent ?? '?'} ` +
+              `discardedOnSend=${pair.packetsDiscardedOnSend ?? 0})`,
+          );
+        } else if (dc) {
+          parts.push(
+            `dc(${dc.label ?? '?'} ${dc.state ?? '?'} ` +
+              `sent=${dc.messagesSent ?? 0}/${dc.bytesSent ?? 0}B ` +
+              `recv=${dc.messagesReceived ?? 0}/${dc.bytesReceived ?? 0}B)`,
+          );
+        }
+      }
+      return `${label}[${parts.join(' ') || 'none'}]`;
+    };
+    return (
+      `${host} ` +
+      `${describe('publisher', stats.publisherStats)} ` +
+      `${describe('subscriber', stats.subscriberStats)}`
+    );
+  } catch (e: unknown) {
+    return `transport stats unavailable: ${String(e)}`;
+  }
+}
+
+/**
  * Sample how late a fixed-interval timer actually fires, i.e. how long this
  * process was unable to run its own callbacks. Distinguishes "we were blocked"
  * from "the other side was slow" when an operation misses its budget.
@@ -667,6 +719,11 @@ describeE2E('livekit-rtc e2e', () => {
       }
       const rpcMs = Date.now() - rpcStartedAt;
       const lag = lagSampler.stop();
+      // Only pay for stats when we're about to fail.
+      const transports =
+        rpcError || rpcResult !== payload
+          ? ` | caller ${await describeTransports(callerRoom!)}`
+          : '';
       const rpcDiag =
         `warm-up RPC (first data-channel traffic) took ${warmupMs}ms` +
         (warmupError ? ` and failed: ${String(warmupError)}` : '') +
@@ -675,7 +732,8 @@ describeE2E('livekit-rtc e2e', () => {
           handlerInvokedAt ? `+${handlerInvokedAt - rpcStartedAt}ms` : 'never'
         } (request path), remainder is the response path; ` +
         `event-loop lag max=${lag.maxMs}ms mean=${lag.meanMs}ms over ${lag.samples} samples` +
-        (rpcError ? `; error: ${String(rpcError)}` : '');
+        (rpcError ? `; error: ${String(rpcError)}` : '') +
+        transports;
 
       expect(rpcError, rpcDiag).toBeUndefined();
       expect(rpcResult, rpcDiag).toBe(payload);

@@ -207,8 +207,8 @@ importers:
         specifier: ^1.0.0
         version: 1.1.1
       '@livekit/rtc-ffi-bindings':
-        specifier: 0.12.71
-        version: 0.12.71
+        specifier: 0.12.72
+        version: 0.12.72
       '@livekit/typed-emitter':
         specifier: ^3.0.0
         version: 3.0.0
@@ -994,40 +994,40 @@ packages:
   '@livekit/protocol@1.48.0':
     resolution: {integrity: sha512-fYHYgltH6YavAsokl3qsHLkBdQeKCl4UORVTub5crS3t8JtKFZ0uinHDFQ+XXdNKS6Ub9gcOjV+UHcDiqnWXoQ==}
 
-  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.71':
-    resolution: {integrity: sha512-dBAsy4cdBVODL490p6d1yu2Y0bcG1EoY4iXPJ0iGiI79bUEiM51eXKMd9uteq479aJzvvnJ3nDUSTbYTzt03oQ==}
+  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.72':
+    resolution: {integrity: sha512-f0ohgY+0+5+ibpJY1lPdtPUaYZkOkAy5jMLZUr5JhtqE7+nFVs45/tfTnQNZWeG18KCOl2ziILUxGn137ZqqDg==}
     engines: {node: '>= 18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.71':
-    resolution: {integrity: sha512-+3vqQS6knmXEUPRcQ4gY7b4zxJavcFMb2S7sNHJ+KiRU8jAAgQU8BKZoEHn8kyj6ilT86dQm//62hMb5Grt/ng==}
+  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.72':
+    resolution: {integrity: sha512-7xss6AaN/GdJZ/Jp4j5fiFf+ZrKHIOOBUjNXt3E6qCdvULf/syVci5t6pMQOP3KizxcY+7Z7Js26RRmZ9+5Y5A==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [darwin]
 
-  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.71':
-    resolution: {integrity: sha512-GZNJ5roycWy7YQmpZU0rX2YP+jwlaPvO04Jet4dg+v4TnAGkbsGqj62p9F7Obl9KWlIrP4BR/wdg/Pjt0vebTQ==}
+  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.72':
+    resolution: {integrity: sha512-35Sf58JAaQ5P/ZxvKi2Lr2aiZ5NzGknvdRCYLTINI6sWFr5wm35nWp/Z487fK/CUcrCdCgpJl1bBNGH+8zWJlQ==}
     engines: {node: '>= 18'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.71':
-    resolution: {integrity: sha512-RuduuWm4j7gyQEJFT10x44bJ19Y4+mG+VTEnTotRMcI1tNYhGjNmLaokwxHqYLJnxllOq0TpmsFfbXzcazOWtg==}
+  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.72':
+    resolution: {integrity: sha512-iMyjKValPtRhTEJrRSlzdyqdMaCMF8FfNfC0PMf8u3mWfpwOiP7ebRSPp4ewkwnyzpM7x68fx91PtsCoAdK3LA==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.71':
-    resolution: {integrity: sha512-80v4pmJ5bt8YM7dZswRLksp1ezSgBEDhdKTPKEEfs1GHi4WugRdwE94jgqUifG1zQT14qWWK8W0YigP/tnKtpg==}
+  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.72':
+    resolution: {integrity: sha512-PHKTn+PQkRYvFiVud9FKSt/o7wvUefCiZfv9Dq4uKgWAgcvisvm7HlKUhF0ZooOoDkY+TMKNgNN6VSzgK9VXSw==}
     engines: {node: '>= 18'}
     cpu: [x64]
     os: [win32]
 
-  '@livekit/rtc-ffi-bindings@0.12.71':
-    resolution: {integrity: sha512-J5ITMGTTnDFne5VLx8rRyEfungyKKGkxj82ihoC6QHZ8BqSe53Af2DZnFs8Q7LMVcd8X1EP/ppn11LD5oVOBaw==}
+  '@livekit/rtc-ffi-bindings@0.12.72':
+    resolution: {integrity: sha512-aORSQss9iaFq0cYjor6OXsmeg3+Wf/ImDWxkN4NdFcLHuwL5Rbk23hESyDO7DdtvEU5DLJFPLVkA8Srbi/GyuQ==}
     engines: {node: '>= 18'}
 
   '@livekit/typed-emitter@3.0.0':
@@ -4450,30 +4450,30 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
-  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.71':
+  '@livekit/rtc-ffi-bindings-darwin-arm64@0.12.72':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.71':
+  '@livekit/rtc-ffi-bindings-darwin-x64@0.12.72':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.71':
+  '@livekit/rtc-ffi-bindings-linux-arm64-gnu@0.12.72':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.71':
+  '@livekit/rtc-ffi-bindings-linux-x64-gnu@0.12.72':
     optional: true
 
-  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.71':
+  '@livekit/rtc-ffi-bindings-win32-x64-msvc@0.12.72':
     optional: true
 
-  '@livekit/rtc-ffi-bindings@0.12.71':
+  '@livekit/rtc-ffi-bindings@0.12.72':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
     optionalDependencies:
-      '@livekit/rtc-ffi-bindings-darwin-arm64': 0.12.71
-      '@livekit/rtc-ffi-bindings-darwin-x64': 0.12.71
-      '@livekit/rtc-ffi-bindings-linux-arm64-gnu': 0.12.71
-      '@livekit/rtc-ffi-bindings-linux-x64-gnu': 0.12.71
-      '@livekit/rtc-ffi-bindings-win32-x64-msvc': 0.12.71
+      '@livekit/rtc-ffi-bindings-darwin-arm64': 0.12.72
+      '@livekit/rtc-ffi-bindings-darwin-x64': 0.12.72
+      '@livekit/rtc-ffi-bindings-linux-arm64-gnu': 0.12.72
+      '@livekit/rtc-ffi-bindings-linux-x64-gnu': 0.12.72
+      '@livekit/rtc-ffi-bindings-win32-x64-msvc': 0.12.72
 
   '@livekit/typed-emitter@3.0.0': {}
 

@@ -165,12 +165,12 @@ function publishedBy(identity: string) {
  * sits between "just before the call" and "now".
  *
  * @remarks
- * Comparing it to `Date.now()` after awaiting the send instead asserts that the
- * send finished within the tolerance, which is a latency budget: the first send
- * on a connection also waits for the data channel to open, and on a loaded CI
- * runner that has taken 1.5s+. Bracketing keeps the sanity check (the timestamp
- * is real, current, and from this call) without depending on how long the send
- * took. The tolerance covers the FFI stamping from a different clock source.
+ * Comparing it to `Date.now()` after awaiting the send would instead assert that
+ * the send finished within the tolerance — a latency budget, and the first send
+ * on a connection also waits for the data channel to open. Bracketing keeps the
+ * sanity check (the timestamp is real, current, and from this call) without
+ * depending on how long the send took. The tolerance covers the FFI stamping
+ * from a different clock source.
  */
 function expectTimestampFromCall(timestamp: number, calledAt: number, what: string): void {
   const clockToleranceMs = 1_000;
@@ -322,12 +322,11 @@ describeE2E('livekit-rtc e2e', () => {
     testTimeoutMs,
   );
 
-  // Sequential, like the reconnect scenarios below: this test produces audio in
+  // Sequential, like the reconnect scenarios below. This test produces audio in
   // real time from the event loop, and `AudioSource.captureFrame` awaits each
-  // frame's consumption, so the publisher never gets more than ~10ms ahead. Run
-  // concurrently with the rest of the suite, event-loop jitter on a small runner
-  // turns straight into transmitted silence — CI has produced 79% zeros with a
-  // 394ms hole, which the detector reads as ~93Hz.
+  // frame's consumption, so the publisher never gets more than one frame ahead:
+  // sharing the loop with the rest of the suite turns scheduling jitter into
+  // transmitted silence, which the detector reads as a wrong frequency.
   itRaw(
     'transfers audio between two participants (sine detection)',
     async () => {

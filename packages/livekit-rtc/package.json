@@ -4,9 +4,8 @@
   "license": "Apache-2.0",
   "author": "LiveKit",
   "version": "0.13.32",
-  "main": "dist/index.js",
-  "require": "dist/index.cjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -51,7 +50,7 @@
   },
   "scripts": {
     "prebuild": "node -p \"'export const SDK_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "build": "pnpm prebuild && tsup --onSuccess \"tsc --declaration --emitDeclarationOnly\"",
+    "build": "pnpm prebuild && tsup && node scripts/postbuild.mjs",
     "lint": "eslint -f unix \"src/**/*.ts\" --ignore-pattern \"src/proto/*\"",
     "test": "vitest run src",
     "test:e2e": "node scripts/run-e2e.mjs"

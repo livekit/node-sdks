@@ -160,6 +160,28 @@ function publishedBy(identity: string) {
     (args[2] as { identity?: string } | undefined)?.identity === identity;
 }
 
+/**
+ * A stream header's `timestamp` is stamped when the send begins, so a valid one
+ * sits between "just before the call" and "now".
+ *
+ * @remarks
+ * Comparing it to `Date.now()` after awaiting the send instead asserts that the
+ * send finished within the tolerance, which is a latency budget: the first send
+ * on a connection also waits for the data channel to open, and on a loaded CI
+ * runner that has taken 1.5s+. Bracketing keeps the sanity check (the timestamp
+ * is real, current, and from this call) without depending on how long the send
+ * took. The tolerance covers the FFI stamping from a different clock source.
+ */
+function expectTimestampFromCall(timestamp: number, calledAt: number, what: string): void {
+  const clockToleranceMs = 1_000;
+  const now = Date.now();
+  const detail =
+    `${what} timestamp=${timestamp} not bracketed by call window [${calledAt}, ${now}] ` +
+    `(offset from call start: ${timestamp - calledAt}ms)`;
+  expect(timestamp, detail).toBeGreaterThanOrEqual(calledAt - clockToleranceMs);
+  expect(timestamp, detail).toBeLessThanOrEqual(now + clockToleranceMs);
+}
+
 function concatUint8(chunks: Uint8Array[]): Uint8Array {
   const len = chunks.reduce((acc, c) => acc + c.byteLength, 0);
   const out = new Uint8Array(len);
@@ -519,9 +541,10 @@ describeE2E('livekit-rtc e2e', () => {
         'Timed out waiting for text stream',
       );
 
+      const textSentAt = Date.now();
       const textInfo = await sendingRoom!.localParticipant!.sendText(textToSend, { topic });
       expect(textInfo.streamId).toBeTruthy();
-      expect(Math.abs(textInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
+      expectTimestampFromCall(textInfo.timestamp, textSentAt, 'text stream');
       expect(textInfo.mimeType).toBe('text/plain');
       expect(textInfo.topic).toBe(topic);
 
@@ -540,6 +563,7 @@ describeE2E('livekit-rtc e2e', () => {
         'Timed out waiting for byte stream',
       );
 
+      const bytesSentAt = Date.now();
       const writer = await sendingRoom!.localParticipant!.streamBytes({
         topic,
         totalSize: bytesToSend.byteLength,
@@ -549,7 +573,7 @@ describeE2E('livekit-rtc e2e', () => {
 
       const byteInfo = writer.info;
       expect(byteInfo.streamId).toBeTruthy();
-      expect(Math.abs(byteInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
+      expectTimestampFromCall(byteInfo.timestamp, bytesSentAt, 'byte stream');
       expect(byteInfo.mimeType).toBe('application/octet-stream');
       expect(byteInfo.topic).toBe(topic);
 
@@ -571,12 +595,16 @@ describeE2E('livekit-rtc e2e', () => {
 
       calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => data.payload);
 
+      // give the round trip room to complete: it is the first data-channel
+      // traffic on the connection.
+      const rpcResponseTimeoutMs = 1_000;
+
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method,
           payload,
-          responseTimeout: 500,
+          responseTimeout: rpcResponseTimeoutMs,
         }),
       ).resolves.toBe(payload);
 
@@ -585,10 +613,12 @@ describeE2E('livekit-rtc e2e', () => {
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method: 'unregistered-method',
           payload,
-          responseTimeout: 500,
+          responseTimeout: rpcResponseTimeoutMs,
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.UNSUPPORTED_METHOD });
 
+      // Short by design: no ack ever arrives for an absent participant, so the
+      // timeout expiring *is* the behavior under test.
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: 'unknown-participant',

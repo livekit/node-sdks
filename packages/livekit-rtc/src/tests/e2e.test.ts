@@ -130,10 +130,14 @@ function waitForRoomEvent<R>(
   event: RoomEvent,
   timeoutMs: number,
   take: (...args: any[]) => R,
+  match?: (...args: unknown[]) => boolean,
 ): Promise<R> {
   return withTimeout(
     new Promise<R>((resolve) => {
       const handler = (...args: any[]) => {
+        if (match && !match(...args)) {
+          return;
+        }
         // typed-emitter doesn't expose `.once` in the type surface, so do manual once+cleanup.
         room.off(event as any, handler as any);
         resolve(take(...args));
@@ -143,6 +147,17 @@ function waitForRoomEvent<R>(
     timeoutMs,
     `Timed out waiting for ${event}`,
   );
+}
+
+/**
+ * Only tracks published by `identity` are the test's business. Anything else in
+ * the room — an agent the project dispatches, a stray participant — publishes
+ * audio that would otherwise be analyzed alongside the tone and read as
+ * corruption.
+ */
+function publishedBy(identity: string) {
+  return (...args: unknown[]) =>
+    (args[2] as { identity?: string } | undefined)?.identity === identity;
 }
 
 function concatUint8(chunks: Uint8Array[]): Uint8Array {
@@ -200,6 +215,55 @@ function estimateFreqHz(samples: Int16Array, sampleRate: number): number {
   }
 
   return bestLag > 0 ? sampleRate / bestLag : 0;
+}
+
+/**
+ * Diagnostics for a tone buffer, attached to the detection assertions so a CI
+ * failure is self-explanatory. The estimator collapses very different problems
+ * into one number, and the per-window breakdown separates them:
+ *
+ * - every window ~60Hz but the whole buffer higher: audio was lost between
+ *   frames and the concatenation spliced across the gaps (time-compressed)
+ * - every window equally wrong: the playout rate itself is wrong
+ * - exactly `sampleRate/lagStart` (120Hz at 48kHz): the buffer is silent, so
+ *   autocorrelation is flat and the lowest lag wins
+ * - exactly 40Hz at 48kHz: two interleaved copies of the tone, i.e. frames from
+ *   two streams merged into one buffer
+ */
+function describeToneBuffer(samples: Int16Array, sampleRate: number): string {
+  const windowSamples = Math.floor(sampleRate / 5); // 200ms, above the 100ms floor
+  const windowFreqs: string[] = [];
+  for (let off = 0; off + windowSamples <= samples.length; off += windowSamples) {
+    windowFreqs.push(
+      estimateFreqHz(samples.subarray(off, off + windowSamples), sampleRate).toFixed(1),
+    );
+  }
+
+  let zeros = 0;
+  let runStart = -1;
+  const silentRuns: string[] = [];
+  for (let i = 0; i <= samples.length; i++) {
+    const silent = i < samples.length && samples[i] === 0;
+    if (silent) {
+      zeros++;
+      if (runStart < 0) runStart = i;
+    } else if (runStart >= 0) {
+      const lengthMs = ((i - runStart) / sampleRate) * 1000;
+      if (lengthMs >= 10) {
+        silentRuns.push(
+          `@${((runStart / sampleRate) * 1000).toFixed(0)}ms+${lengthMs.toFixed(0)}ms`,
+        );
+      }
+      runStart = -1;
+    }
+  }
+
+  return [
+    `audioMs=${((samples.length / sampleRate) * 1000).toFixed(0)}`,
+    `per200msFreq=[${windowFreqs.join(' ')}]`,
+    `zeroFrac=${(zeros / Math.max(1, samples.length)).toFixed(3)}`,
+    `silentRuns=[${silentRuns.join(' ') || 'none'}]`,
+  ].join(' ');
 }
 
 describeE2E('livekit-rtc e2e', () => {
@@ -286,11 +350,17 @@ describeE2E('livekit-rtc e2e', () => {
         const { rooms } = await connectTestRooms(2);
         const [subRoom, pubRoom] = rooms;
 
+        const publisherIdentity = pubRoom!.localParticipant!.identity;
+        const subscribedTracks: string[] = [];
+        subRoom!.on(RoomEvent.TrackSubscribed, (t, _pub, participant) =>
+          subscribedTracks.push(`${participant.identity}/${t.sid}`),
+        );
         const subscribed = waitForRoomEvent(
           subRoom!,
           RoomEvent.TrackSubscribed,
           15_000,
           (track: unknown) => track,
+          publishedBy(publisherIdentity),
         );
 
         const source = new AudioSource(params.pubRateHz, params.pubChannels);
@@ -313,10 +383,14 @@ describeE2E('livekit-rtc e2e', () => {
           () => new Int16Array(0),
         );
 
+        // Arrival wall-clock vs. audio duration: 100 frames is 1000ms of audio,
+        // so a materially longer wall-clock means audio went missing on the way.
+        const arrivals: number[] = [];
         const readTask = (async () => {
           let frames = 0;
           while (frames < framesToAnalyze) {
             const { done, value } = await reader.read();
+            arrivals.push(Date.now());
             if (done) break;
             expect(value.sampleRate).toBe(params.subRateHz);
             expect(value.channels).toBe(params.subChannels);
@@ -359,9 +433,21 @@ describeE2E('livekit-rtc e2e', () => {
           'Timed out during audio test',
         );
 
+        const wallMs = arrivals.length > 1 ? arrivals[arrivals.length - 1]! - arrivals[0]! : 0;
+        let maxArrivalGapMs = 0;
+        for (let i = 1; i < arrivals.length; i++) {
+          maxArrivalGapMs = Math.max(maxArrivalGapMs, arrivals[i]! - arrivals[i - 1]!);
+        }
+
         for (let ch = 0; ch < params.subChannels; ch++) {
           const detected = estimateFreqHz(collected[ch]!, params.subRateHz);
-          expect(Math.abs(detected - sineHz)).toBeLessThan(20);
+          expect(
+            Math.abs(detected - sineHz),
+            `${JSON.stringify(params)} ch${ch}: detected=${detected.toFixed(2)}Hz ` +
+              `${describeToneBuffer(collected[ch]!, params.subRateHz)} ` +
+              `wallMs=${wallMs} maxArrivalGapMs=${maxArrivalGapMs} ` +
+              `subscribed=${JSON.stringify(subscribedTracks)}`,
+          ).toBeLessThan(20);
         }
 
         reader.releaseLock();
@@ -729,6 +815,12 @@ describeE2E('livekit-rtc e2e', () => {
       collectFromMs: Number.POSITIVE_INFINITY,
       collected: [] as Int16Array[],
       readers: [] as ReturnType<AudioStream['getReader']>[],
+      // Per-reader accounting: frames collected into the analysis window, and
+      // whether the reader ended. A stale reader that keeps delivering is the
+      // failure mode that made this test read the tone as 40Hz.
+      framesInWindow: [] as number[],
+      ended: [] as boolean[],
+      subscriptions: [] as string[],
     };
     const attach = (remoteTrack: unknown) => {
       const stream = new AudioStream(remoteTrack as any, {
@@ -737,6 +829,9 @@ describeE2E('livekit-rtc e2e', () => {
       });
       const reader = stream.getReader();
       sub.readers.push(reader);
+      const readerIdx = sub.readers.length - 1;
+      sub.framesInWindow.push(0);
+      sub.ended.push(false);
       (async () => {
         try {
           while (true) {
@@ -745,14 +840,25 @@ describeE2E('livekit-rtc e2e', () => {
             sub.lastFrameAt = Date.now();
             if (sub.lastFrameAt >= sub.collectFromMs) {
               sub.collected.push(channelSamples(value, 0));
+              sub.framesInWindow[readerIdx]! += 1;
             }
           }
         } catch {
           // reader released
         }
+        sub.ended[readerIdx] = true;
       })();
     };
-    subRoom!.on(RoomEvent.TrackSubscribed, (t) => attach(t));
+    const publisherIdentity = pubRoom!.localParticipant!.identity;
+    subRoom!.on(RoomEvent.TrackSubscribed, (t, _pub, participant) => {
+      sub.subscriptions.push(`${participant.identity}/${t.sid}`);
+      // Ignore anything the test didn't publish (e.g. an agent the project
+      // dispatches into the room) — its audio would be analyzed as the tone.
+      if (participant.identity !== publisherIdentity) {
+        return;
+      }
+      attach(t);
+    });
 
     try {
       await waitFor(() => sub.lastFrameAt > 0 && Date.now() - sub.lastFrameAt < 500, {
@@ -791,7 +897,15 @@ describeE2E('livekit-rtc e2e', () => {
       // audio has brief discontinuities, and the autocorrelation is
       // integer-lag (next neighbors to 60Hz are exactly 80Hz/40Hz), so
       // ±20Hz lands right on the failure boundary under CI load.
-      expect(Math.abs(detected - sineHz)).toBeLessThan(25);
+      const liveReaders = sub.ended.filter((e) => !e).length;
+      expect(
+        Math.abs(detected - sineHz),
+        `scenario=${scenario} detected=${detected.toFixed(2)}Hz ` +
+          `${describeToneBuffer(concat, pubRateHz)} ` +
+          `readers=${sub.readers.length} liveReaders=${liveReaders} ` +
+          `framesInWindow=${JSON.stringify(sub.framesInWindow)} ` +
+          `subscriptions=${JSON.stringify(sub.subscriptions)}`,
+      ).toBeLessThan(25);
 
       return { rooms, subRoom: subRoom!, pubRoom: pubRoom! };
     } finally {

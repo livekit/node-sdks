@@ -679,6 +679,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         publication.track = undefined;
         publication.subscribed = false;
         this.emit(RoomEvent.TrackUnsubscribed, track, publication, participant);
+        // An unsubscribed track never gets an `eos`, so any AudioStream on it
+        // keeps delivering frames
+        // Emit first so handlers still see a live track, then tear the streams
+        // down.
+        track.closeAudioStreams();
       } catch (e: unknown) {
         log.warn(`RoomEvent.TrackUnsubscribed: ${(e as Error).message}`);
       }

@@ -99,6 +99,23 @@ export abstract class Track {
     }
   }
 
+  /**
+   * End every {@link AudioStream} attached to this track.
+   *
+   * @remarks
+   * The FFI keeps feeding an audio stream until the stream's own handle is
+   * dropped, so streams on a track that is no longer subscribed would otherwise
+   * go on delivering audio for the lifetime of the process.
+   *
+   * @internal
+   */
+  closeAudioStreams(): void {
+    for (const stream of [...this.iterateStreams()]) {
+      stream.teardown();
+    }
+    this.audioStreams.clear();
+  }
+
   private *iterateStreams(): Generator<AudioStreamSource> {
     const dead: Array<WeakRef<AudioStreamSource>> = [];
     for (const ref of this.audioStreams) {

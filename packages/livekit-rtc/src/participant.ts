@@ -497,8 +497,7 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<TextStreamWriterWriteCallback>(
-      (ev) =>
-        ev.message.case == 'textStreamWriterWrite' && ev.message.value.asyncId == res.asyncId,
+      (ev) => ev.message.case == 'textStreamWriterWrite' && ev.message.value.asyncId == res.asyncId,
       { signal: this.disconnectSignal },
     );
 
@@ -513,8 +512,7 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<TextStreamWriterCloseCallback>(
-      (ev) =>
-        ev.message.case == 'textStreamWriterClose' && ev.message.value.asyncId == res.asyncId,
+      (ev) => ev.message.case == 'textStreamWriterClose' && ev.message.value.asyncId == res.asyncId,
       { signal: this.disconnectSignal },
     );
 
@@ -529,8 +527,7 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<ByteStreamWriterWriteCallback>(
-      (ev) =>
-        ev.message.case == 'byteStreamWriterWrite' && ev.message.value.asyncId == res.asyncId,
+      (ev) => ev.message.case == 'byteStreamWriterWrite' && ev.message.value.asyncId == res.asyncId,
       { signal: this.disconnectSignal },
     );
 
@@ -545,8 +542,7 @@ export class LocalParticipant extends Participant {
     });
 
     const cb = await FfiClient.instance.waitFor<ByteStreamWriterCloseCallback>(
-      (ev) =>
-        ev.message.case == 'byteStreamWriterClose' && ev.message.value.asyncId == res.asyncId,
+      (ev) => ev.message.case == 'byteStreamWriterClose' && ev.message.value.asyncId == res.asyncId,
       { signal: this.disconnectSignal },
     );
 

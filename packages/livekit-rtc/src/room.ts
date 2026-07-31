@@ -485,6 +485,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     // listener until GC. setRoom(null) is idempotent, so this is safe even if a
     // track was already detached (e.g. via unsubscribe/unpublish).
     if (this.localParticipant) {
+      // Data stream writers that were never closed (abandoned by the caller, or
+      // left errored by a failed write) keep their native writer alive until
+      // their handle is dropped.
+      this.localParticipant.disposeOpenStreamWriters();
+
       for (const pub of this.localParticipant.trackPublications.values()) {
         pub.track?.setRoom(null);
       }

@@ -277,6 +277,7 @@ export class LocalParticipant extends Participant {
     destinationIdentities?: Array<string>;
     streamId?: string;
     senderIdentity?: string;
+    totalSize?: number;
   }): Promise<TextStreamWriter> {
     const senderIdentity = options?.senderIdentity ?? this.identity;
     const streamId = options?.streamId ?? crypto.randomUUID();
@@ -287,6 +288,7 @@ export class LocalParticipant extends Participant {
       mimeType: 'text/plain',
       topic: options?.topic ?? '',
       timestamp: Date.now(),
+      totalSize: options?.totalSize,
     };
 
     const headerReq = new SendStreamHeaderRequest({
@@ -298,6 +300,7 @@ export class LocalParticipant extends Participant {
         mimeType: info.mimeType,
         topic: info.topic,
         timestamp: numberToBigInt(info.timestamp),
+        totalLength: numberToBigInt(info.totalSize),
         attributes: options?.attributes,
         contentHeader: {
           case: 'textHeader',
@@ -384,7 +387,10 @@ export class LocalParticipant extends Participant {
       streamId?: string;
     },
   ) {
-    const writer = await this.streamText(options);
+    const writer = await this.streamText({
+      ...options,
+      totalSize: new TextEncoder().encode(text).byteLength,
+    });
     await writer.write(text);
     await writer.close();
     return writer.info;

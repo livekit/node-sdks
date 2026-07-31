@@ -967,10 +967,21 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return;
     }
 
+    // Assigned by start(); unsubscribe() drops it once the stream is done with,
+    // whether that's end-of-stream or the consumer walking away early.
+    let listener: ((ev: FfiEvent) => void) | null = null;
+    const unsubscribe = () => {
+      if (!listener) {
+        return;
+      }
+      FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
+      listener = null;
+      this.streamReaders.delete(readerHandle);
+    };
+
     const stream = new ReadableStream<DataStream_Chunk>({
       start: (controller) => {
-        let nextChunkIndex = 0;
-        const listener = (ev: FfiEvent) => {
+        listener = (ev: FfiEvent) => {
           if (
             ev.message.case !== 'byteStreamReaderEvent' ||
             ev.message.value.readerHandle !== readerHandle
@@ -981,13 +992,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           if (detail.case === 'chunkReceived') {
             const content = detail.value.content!;
             if (content.length > 0) {
-              controller.enqueue(
-                new DataStream_Chunk({ content, chunkIndex: numberToBigInt(nextChunkIndex++) }),
-              );
+              controller.enqueue(new DataStream_Chunk({ content }));
             }
           } else if (detail.case === 'eos') {
-            FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
-            this.streamReaders.delete(readerHandle);
+            unsubscribe();
             const error = detail.value.error;
             if (error) {
               // Abnormal termination (e.g. remote abort, payload over the
@@ -1011,6 +1019,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           },
         });
       },
+      // The consumer stopped reading before end-of-stream — ByteStreamReader
+      // .close(), or breaking out of a for-await. The eos event that would have
+      // unsubscribed is never consumed, so the listener would otherwise be run
+      // against every FFI event for the rest of the process. Only the
+      // subscription is released: the reader handle was consumed by the
+      // readIncremental request above, so there is nothing left to dispose.
+      cancel: () => unsubscribe(),
     });
 
     streamHandlerCallback(
@@ -1033,10 +1048,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     }
 
     const textEncoder = new TextEncoder();
+
+    // Assigned by start(); unsubscribe() drops it once the stream is done with,
+    // whether that's end-of-stream or the consumer walking away early.
+    let listener: ((ev: FfiEvent) => void) | null = null;
+    const unsubscribe = () => {
+      if (!listener) {
+        return;
+      }
+      FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
+      listener = null;
+      this.streamReaders.delete(readerHandle);
+    };
+
     const stream = new ReadableStream<DataStream_Chunk>({
       start: (controller) => {
-        let nextChunkIndex = 0;
-        const listener = (ev: FfiEvent) => {
+        listener = (ev: FfiEvent) => {
           if (
             ev.message.case !== 'textStreamReaderEvent' ||
             ev.message.value.readerHandle !== readerHandle
@@ -1047,13 +1074,10 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           if (detail.case === 'chunkReceived') {
             const content = textEncoder.encode(detail.value.content!);
             if (content.length > 0) {
-              controller.enqueue(
-                new DataStream_Chunk({ content, chunkIndex: numberToBigInt(nextChunkIndex++) }),
-              );
+              controller.enqueue(new DataStream_Chunk({ content }));
             }
           } else if (detail.case === 'eos') {
-            FfiClient.instance.off(FfiClientEvent.FfiEvent, listener);
-            this.streamReaders.delete(readerHandle);
+            unsubscribe();
             const error = detail.value.error;
             if (error) {
               // Abnormal termination (e.g. remote abort, payload over the
@@ -1077,6 +1101,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
           },
         });
       },
+      // The consumer stopped reading before end-of-stream — TextStreamReader
+      // .close(), or breaking out of a for-await. The eos event that would have
+      // unsubscribed is never consumed, so the listener would otherwise be run
+      // against every FFI event for the rest of the process. Only the
+      // subscription is released: the reader handle was consumed by the
+      // readIncremental request above, so there is nothing left to dispose.
+      cancel: () => unsubscribe(),
     });
 
     streamHandlerCallback(

@@ -19,41 +19,27 @@ import {
 // use concurrent testing if available on the runner (currently not supported by bun's api)
 const it = typeof itRaw.concurrent === 'function' ? itRaw.concurrent : itRaw;
 
-/** Deterministic pseudo-random lowercase text (mulberry32 PRNG).
+/** Pseudo-random lowercase text.
  *
  * Counterpart of rust's `pseudo_random_text`: random lowercase carries
  * ~4.7 bits of entropy per 8-bit byte, so deflate compresses it well under
  * its raw size — exercising the chunked-compressed wire path. */
-function pseudoRandomText(length: number, seed = 0x5eed): string {
-  let a = seed >>> 0;
-  const next = () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+function pseudoRandomText(length: number): string {
   const chars = new Array<string>(length);
   for (let i = 0; i < length; i++) {
-    chars[i] = String.fromCharCode(97 + Math.floor(next() * 26));
+    chars[i] = String.fromCharCode(97 + Math.floor(Math.random() * 26));
   }
   return chars.join('');
 }
 
-/** Deterministic pseudo-random bytes (mulberry32 PRNG).
+/** Pseudo-random bytes.
  *
  * Uniform random bytes are genuinely incompressible: deflate cannot shrink
- * them, so the send path must fall back to an uncompressed wire format.
- * Seeded for a deterministic, reproducible test. */
-function pseudoRandomBytes(length: number, seed = 0xc0ffee): Uint8Array {
-  let a = seed >>> 0;
+ * them, so the send path must fall back to an uncompressed wire format. */
+function pseudoRandomBytes(length: number): Uint8Array {
   const out = new Uint8Array(length);
   for (let i = 0; i < length; i++) {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    out[i] = (t ^ (t >>> 14)) & 0xff;
+    out[i] = Math.floor(Math.random() * 256);
   }
   return out;
 }

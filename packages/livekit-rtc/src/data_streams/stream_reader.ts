@@ -26,7 +26,13 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
     this.bytesReceived = 0;
   }
 
-  protected abstract handleChunkReceived(chunk: DataStream_Chunk): void;
+  protected handleChunkReceived(chunk: DataStream_Chunk) {
+    this.bytesReceived += chunk.content!.byteLength;
+    const currentProgress = this.totalByteSize
+      ? this.bytesReceived / this.totalByteSize
+      : undefined;
+    this.onProgress?.(currentProgress);
+  }
 
   onProgress?: (progress: number | undefined) => void;
 
@@ -37,14 +43,6 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
  * A class to read chunks from a ReadableStream and provide them in a structured format.
  */
 export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
-  protected handleChunkReceived(chunk: DataStream_Chunk) {
-    this.bytesReceived += chunk.content!.byteLength;
-    const currentProgress = this.totalByteSize
-      ? this.bytesReceived / this.totalByteSize
-      : undefined;
-    this.onProgress?.(currentProgress);
-  }
-
   [Symbol.asyncIterator]() {
     const reader = this.reader.getReader();
 
@@ -102,9 +100,9 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
   constructor(
     info: TextStreamInfo,
     stream: ReadableStream<DataStream_Chunk>,
-    totalChunkCount?: number,
+    totalByteSize?: number,
   ) {
-    super(info, stream, totalChunkCount);
+    super(info, stream, totalByteSize);
     this.receivedChunks = new Map();
   }
 
@@ -116,10 +114,10 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
       return;
     }
     this.receivedChunks.set(index, chunk);
-    const currentProgress = this.totalByteSize
-      ? this.receivedChunks.size / this.totalByteSize
-      : undefined;
-    this.onProgress?.(currentProgress);
+    // Progress is reported against the payload's total byte length, so it has
+    // to be measured in received bytes too — a chunk count would report e.g.
+    // 1/50000 for a payload that arrived as a single chunk.
+    super.handleChunkReceived(chunk);
   }
 
   /**

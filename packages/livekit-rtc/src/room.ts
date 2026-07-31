@@ -75,7 +75,7 @@ export interface RoomDataStreamOptions {
   /**
    * Maximum decompressed payload size in bytes accepted for a single incoming
    * data stream. Incoming streams exceeding this limit terminate with an error
-   * on the receiving side. Unset falls back to the SDK default.
+   * on the receiving side. Unset falls back to the SDK default of 5gb.
    */
   maxPayloadByteLength?: number;
 }

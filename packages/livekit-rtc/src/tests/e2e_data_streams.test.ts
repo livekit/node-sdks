@@ -7,17 +7,38 @@
 // where the node API surface allows; see comments on individual tests for
 // intentional deviations.
 import { afterAll, expect, it as itRaw } from 'vitest';
+import type { Room, TextStreamReader } from '../index.js';
 import { dispose } from '../index.js';
 import {
   concatUint8,
   connectTestRooms,
   describeE2E,
   testTimeoutMs,
+  waitFor,
   withTimeout,
 } from './e2e_common.js';
 
 // use concurrent testing if available on the runner (currently not supported by bun's api)
 const it = typeof itRaw.concurrent === 'function' ? itRaw.concurrent : itRaw;
+
+/** How many of this room's incoming stream readers are still subscribed to FFI
+ * events.
+ *
+ * Reads the room's private reader registry rather than counting FfiClient
+ * listeners: an entry is added when a reader subscribes and removed when it
+ * unsubscribes, so the count is specific to this room and unaffected by the
+ * other tests running concurrently. */
+function subscribedReaderCount(room: Room): number {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((room as any).streamReaders as Map<unknown, unknown>).size;
+}
+
+async function waitForNoSubscribedReaders(room: Room): Promise<void> {
+  await waitFor(() => subscribedReaderCount(room) === 0, {
+    timeoutMs: 5000,
+    debugName: 'stream reader to unsubscribe from FFI events',
+  });
+}
 
 /** Pseudo-random lowercase text.
  *
@@ -313,6 +334,201 @@ describeE2E('livekit-rtc data streams e2e', () => {
 
       // If we got here without hanging or throwing, the stream controller
       // was properly cleaned up on disconnect.
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'releases the FFI subscription when a reader is abandoned mid-iteration',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'abandon-topic';
+
+      // Unlike python, walking out of the loop is enough: `break` runs the
+      // async iterator's return(), which closes the reader for us.
+      const abandoned = withTimeout(
+        new Promise<{ reader: TextStreamReader; firstChunk: string }>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            for await (const chunk of reader) {
+              resolve({ reader, firstChunk: chunk });
+              break; // walk away without draining to end-of-stream
+            }
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the reader to be abandoned',
+      );
+
+      await sendingRoom!.localParticipant!.sendText(pseudoRandomText(50_000), { topic });
+      const { reader, firstChunk } = await abandoned;
+      expect(firstChunk.length).toBeGreaterThan(0);
+
+      await waitForNoSubscribedReaders(receivingRoom!);
+
+      // Closing an already-closed reader is a no-op.
+      await reader.close();
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'releases the FFI subscription when a reader is never read',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'noread-topic';
+
+      const handed = withTimeout(
+        new Promise<TextStreamReader>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            resolve(reader); // never read
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the stream handler to be called',
+      );
+
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('some data');
+
+      const reader = await handed;
+      expect(subscribedReaderCount(receivingRoom!)).toBe(1);
+
+      await reader.close();
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+      await reader.close(); // idempotent
+
+      await writer.close();
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'ends an in-flight read when the reader is closed mid-stream',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'close-during-read-topic';
+
+      const reading = withTimeout(
+        new Promise<{ reader: TextStreamReader; read: Promise<string> }>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            // readAll() blocks on a stream that is deliberately left open.
+            resolve({ reader, read: reader.readAll() });
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the stream handler to be called',
+      );
+
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('first chunk');
+
+      const { reader, read } = await reading;
+      // Let the read consume the first chunk and block waiting for more.
+      await waitFor(() => subscribedReaderCount(receivingRoom!) === 1, {
+        timeoutMs: 5000,
+        debugName: 'reader to subscribe',
+      });
+
+      await reader.close();
+
+      // The blocked read ends rather than hanging, with what it had so far.
+      const text = await withTimeout(read, testTimeoutMs, 'Timed out on the in-flight read');
+      expect('first chunk'.startsWith(text)).toBe(true);
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+
+      await writer.close();
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'drops the subscription of an unread reader when the room disconnects',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'disconnect-unread-topic';
+
+      const handed = withTimeout(
+        new Promise<TextStreamReader>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            resolve(reader); // never read
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the stream handler to be called',
+      );
+
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('buffered ');
+      await writer.write('data');
+
+      const reader = await handed;
+      expect(subscribedReaderCount(receivingRoom!)).toBe(1);
+
+      await receivingRoom!.disconnect();
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+
+      // The read settles rather than hanging. Which way it settles is a race
+      // the SDK doesn't control: the native side emits a clean end-of-stream
+      // when the room drops the stream (livekit-ffi `read_incremental` sends
+      // `eos { error: None }` once the channel closes), so either that lands
+      // first and the read returns the chunks buffered so far, or disconnect
+      // cleanup errors the stream first and the read reports that. Python is
+      // deterministic here because it injects a synthetic error end-of-stream.
+      const readResult = await withTimeout(
+        reader.readAll().then(
+          (text) => ({ text }),
+          (err: unknown) => ({ err }),
+        ),
+        testTimeoutMs,
+        'Timed out reading a reader whose room disconnected',
+      );
+      if ('err' in readResult) {
+        expect(String(readResult.err)).toMatch(/Disconnected while receiving/);
+      } else {
+        expect('buffered data'.startsWith(readResult.text)).toBe(true);
+      }
+
+      await writer.close();
+      await sendingRoom!.disconnect();
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'needs no close once a reader has been read to completion',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'drain-topic';
+
+      const drained = withTimeout(
+        new Promise<{ reader: TextStreamReader; text: string }>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            resolve({ reader, text: await reader.readAll() });
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the text stream',
+      );
+
+      await sendingRoom!.localParticipant!.sendText('hello', { topic });
+      const { reader, text } = await drained;
+      expect(text).toBe('hello');
+
+      await waitForNoSubscribedReaders(receivingRoom!);
+      await reader.close(); // no-op
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+
+      await Promise.all(rooms.map((r) => r.disconnect()));
     },
     testTimeoutMs,
   );

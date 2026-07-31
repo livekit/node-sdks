@@ -53,7 +53,7 @@ export function textStreamInfoFromProto(info: ProtoTextStreamInfo): TextStreamIn
     mimeType: info.mimeType!,
     topic: info.topic!,
     timestamp: bigIntToNumber(info.timestamp!),
-    totalSize: info.totalLength !== undefined ? bigIntToNumber(info.totalLength) : undefined,
+    totalSize: info.totalLength ? bigIntToNumber(info.totalLength) : undefined,
     attributes: info.attributes,
   };
 }

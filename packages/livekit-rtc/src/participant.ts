@@ -174,6 +174,14 @@ export class LocalParticipant extends Participant {
   // pending FfiClient.waitFor() listeners so they don't leak.
   private disconnectSignal: AbortSignal;
 
+  // Handle ids of data stream writers that have been opened but not yet
+  // closed. The FFI close request consumes the handle (take_handle), so an
+  // entry is removed as soon as a close is sent for it; whatever is left when
+  // the room disconnects is dropped by disposeOpenStreamWriters(). Only the
+  // ids are kept — wrapping them in FfiHandle would make GC drop a handle the
+  // close request already consumed.
+  private openStreamWriters = new Set<bigint>();
+
   trackPublications: Map<string, LocalTrackPublication> = new Map();
 
   constructor(info: OwnedParticipant, ffiEventLock: Mutex, disconnectSignal: AbortSignal) {
@@ -312,28 +320,44 @@ export class LocalParticipant extends Participant {
 
     const writerHandle = cb.result.value.handle!.id!;
     const info = textStreamInfoFromProto(cb.result.value.info!);
-    const writeText = this.textStreamWriterWrite;
-    const closeWriter = this.textStreamWriterClose;
+    this.openStreamWriters.add(writerHandle);
+
+    // Sends the close request at most once: it consumes the writer handle on
+    // the native side, so a second one would fail and, worse, the handle must
+    // no longer be dropped by disconnect cleanup.
+    const closeWriter = async (reason?: string) => {
+      if (!this.openStreamWriters.delete(writerHandle)) {
+        return;
+      }
+      await this.textStreamWriterClose(new TextStreamWriterCloseRequest({ writerHandle, reason }));
+    };
 
     const writableStream = new WritableStream<string>({
       // Implement the sink
-      async write(text) {
-        await writeText(new TextStreamWriterWriteRequest({ writerHandle, text }));
+      write: async (text) => {
+        try {
+          await this.textStreamWriterWrite(
+            new TextStreamWriterWriteRequest({ writerHandle, text }),
+          );
+        } catch (err) {
+          // A rejected write leaves the writable stream errored, and an errored
+          // stream never runs the sink's close()/abort() — a later close() just
+          // rejects with this error. Close the native writer here so its handle
+          // isn't held for the lifetime of the process and peers get an
+          // end-of-stream instead of a stream that never terminates.
+          await closeWriter(err instanceof Error ? err.message : String(err ?? '')).catch(() => {
+            // Best-effort: the connection may already be gone.
+          });
+          throw err;
+        }
       },
-      async close() {
-        await closeWriter(new TextStreamWriterCloseRequest({ writerHandle }));
-      },
+      close: () => closeWriter(),
       // Close the stream with the error reason so the remote side's stream
       // controller is closed instead of waiting for data that won't arrive.
-      async abort(err) {
+      abort: async (err) => {
         log.error(err, 'Sink Error');
         try {
-          await closeWriter(
-            new TextStreamWriterCloseRequest({
-              writerHandle,
-              reason: err instanceof Error ? err.message : String(err ?? ''),
-            }),
-          );
+          await closeWriter(err instanceof Error ? err.message : String(err ?? ''));
         } catch {
           // Best-effort: the connection may already be gone.
         }
@@ -427,27 +451,43 @@ export class LocalParticipant extends Participant {
 
     const writerHandle = cb.result.value.handle!.id!;
     const info = byteStreamInfoFromProto(cb.result.value.info!);
-    const writeBytes = this.byteStreamWriterWrite;
-    const closeWriter = this.byteStreamWriterClose;
+    this.openStreamWriters.add(writerHandle);
+
+    // Sends the close request at most once: it consumes the writer handle on
+    // the native side, so a second one would fail and, worse, the handle must
+    // no longer be dropped by disconnect cleanup.
+    const closeWriter = async (reason?: string) => {
+      if (!this.openStreamWriters.delete(writerHandle)) {
+        return;
+      }
+      await this.byteStreamWriterClose(new ByteStreamWriterCloseRequest({ writerHandle, reason }));
+    };
 
     const writableStream = new WritableStream<Uint8Array>({
-      async write(chunk) {
-        await writeBytes(new ByteStreamWriterWriteRequest({ writerHandle, bytes: chunk }));
+      write: async (chunk) => {
+        try {
+          await this.byteStreamWriterWrite(
+            new ByteStreamWriterWriteRequest({ writerHandle, bytes: chunk }),
+          );
+        } catch (err) {
+          // A rejected write leaves the writable stream errored, and an errored
+          // stream never runs the sink's close()/abort() — a later close() just
+          // rejects with this error. Close the native writer here so its handle
+          // isn't held for the lifetime of the process and peers get an
+          // end-of-stream instead of a stream that never terminates.
+          await closeWriter(err instanceof Error ? err.message : String(err ?? '')).catch(() => {
+            // Best-effort: the connection may already be gone.
+          });
+          throw err;
+        }
       },
-      async close() {
-        await closeWriter(new ByteStreamWriterCloseRequest({ writerHandle }));
-      },
+      close: () => closeWriter(),
       // Close the stream with the error reason so the remote side's stream
       // controller is closed instead of waiting for data that won't arrive.
-      async abort(err) {
+      abort: async (err) => {
         log.error(err, 'Sink error');
         try {
-          await closeWriter(
-            new ByteStreamWriterCloseRequest({
-              writerHandle,
-              reason: err instanceof Error ? err.message : String(err ?? ''),
-            }),
-          );
+          await closeWriter(err instanceof Error ? err.message : String(err ?? ''));
         } catch {
           // Best-effort: the connection may already be gone.
         }
@@ -550,6 +590,26 @@ export class LocalParticipant extends Participant {
       throw new Error(cb.error.description);
     }
   };
+
+  /**
+   * Drops the native writers of any data streams that were opened but never
+   * closed — a writer the caller abandoned, or one whose write failed. Their
+   * handles would otherwise be held by the FFI server for the lifetime of the
+   * process. The room is already gone at this point, so the handles are dropped
+   * directly rather than closed: there is no end-of-stream left to deliver.
+   *
+   * @internal
+   */
+  disposeOpenStreamWriters() {
+    for (const writerHandle of this.openStreamWriters) {
+      try {
+        new FfiHandle(writerHandle).dispose();
+      } catch (err) {
+        log.warn('failed to dispose data stream writer handle: %s', err);
+      }
+    }
+    this.openStreamWriters.clear();
+  }
 
   /**
    * Sends a chat message to participants in the room

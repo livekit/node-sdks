@@ -3,7 +3,7 @@
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
   "author": "LiveKit",
-  "version": "0.13.32",
+  "version": "0.13.33",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "exports": {

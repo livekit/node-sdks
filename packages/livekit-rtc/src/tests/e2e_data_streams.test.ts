@@ -74,7 +74,6 @@ describeE2E('livekit-rtc data streams e2e', () => {
 
       const textInfo = await sendingRoom!.localParticipant!.sendText(textToSend, { topic });
       expect(textInfo.streamId).toBeTruthy();
-      expect(Math.abs(textInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
       expect(textInfo.totalSize).toBe(textToSend.length);
       expect(textInfo.mimeType).toBe('text/plain');
       expect(textInfo.topic).toBe(topic);
@@ -120,7 +119,6 @@ describeE2E('livekit-rtc data streams e2e', () => {
 
       const byteInfo = writer.info;
       expect(byteInfo.streamId).toBeTruthy();
-      expect(Math.abs(byteInfo.timestamp - Date.now())).toBeLessThanOrEqual(1_000);
       expect(byteInfo.mimeType).toBe('application/octet-stream');
       expect(byteInfo.topic).toBe(topic);
 

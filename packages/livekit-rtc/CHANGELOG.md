@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.33
+
+### Patch Changes
+
+- fix: avoid dual package hazard by building single CJS version with an ESM wrapper - [#700](https://github.com/livekit/node-sdks/pull/700) ([@lukasIO](https://github.com/lukasIO))
+
+- Update to livekit ffi 0.12.73 - [#698](https://github.com/livekit/node-sdks/pull/698) ([@1egoman](https://github.com/1egoman))
+
 ## 0.13.32
 
 ### Patch Changes

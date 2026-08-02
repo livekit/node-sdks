@@ -13,12 +13,14 @@ import {
   DisconnectWhatsAppCallRequest_DisconnectReason,
   EncodedFileOutput,
   EncodedFileType,
+  FileOutput,
   IngressAudioEncodingPreset,
   IngressAudioOptions,
   IngressInput,
   IngressVideoEncodingPreset,
   IngressVideoOptions,
   JobRestartPolicy,
+  Output,
   RoomAgentDispatch,
   S3Upload,
   SIPDispatchRule,
@@ -33,8 +35,11 @@ import {
   SegmentedFileOutput,
   SegmentedFileProtocol,
   SessionDescription,
+  StartEgressRequest,
+  StorageConfig,
   StreamOutput,
   StreamProtocol,
+  WebSource,
 } from '@livekit/protocol';
 import { describe, expect, it } from 'vitest';
 import { AccessToken, LiveKitAPI, SipCallError, ServerError } from '../../src/index.js';
@@ -154,6 +159,22 @@ d('LiveKitAPI', () => {
         'test-room',
         new DirectFileOutput({ filepath: 'track.mp4', output: s3() }),
         'TR_video1',
+      ));
+    it('startEgress', () =>
+      api.egress.startEgress(
+        new StartEgressRequest({
+          roomName: 'test-room',
+          source: { case: 'web', value: new WebSource({ url: 'https://example.com/scene' }) },
+          outputs: [
+            new Output({
+              config: {
+                case: 'file',
+                value: new FileOutput({ fileType: EncodedFileType.MP4, filepath: 'egress.mp4' }),
+              },
+            }),
+          ],
+          storage: new StorageConfig({ provider: s3() }),
+        }),
       ));
     it('updateLayout', () => api.egress.updateLayout('EG_abc123', 'speaker'));
     it('updateStream', () =>

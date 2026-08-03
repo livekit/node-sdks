@@ -1,5 +1,15 @@
 # livekit-server-sdk
 
+## 2.18.0
+
+### Minor Changes
+
+- Add `EgressClient.startEgress()`, a unified convenience method that calls the v2 `Egress.StartEgress` RPC with a `StartEgressRequest` (or a partial init object). The existing per-type start helpers are unchanged. - [#706](https://github.com/livekit/node-sdks/pull/706) ([@frostbyte73](https://github.com/frostbyte73))
+
+### Patch Changes
+
+- update e2ee defaults to confirm to required FFI fields and update protocol - [#708](https://github.com/livekit/node-sdks/pull/708) ([@lukasIO](https://github.com/lukasIO))
+
 ## 2.17.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.34
+
+### Patch Changes
+
+- update e2ee defaults to confirm to required FFI fields and update protocol - [#708](https://github.com/livekit/node-sdks/pull/708) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.33
 
 ### Patch Changes

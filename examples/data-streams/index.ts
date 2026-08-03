@@ -21,7 +21,7 @@ const greetParticipant = async (room: Room, recipient: RemoteParticipant) => {
   const greeting = 'Hi this is just a text sample';
   const streamWriter = await room.localParticipant?.streamText({
     destinationIdentities: [recipient.identity],
-    topic: 'chat',
+    topic: 'lk.chat',
   });
 
   for (const c of greeting) {
@@ -53,7 +53,7 @@ const main = async () => {
     room.on(RoomEvent.ParticipantDisconnected, resolve);
   });
 
-  room.registerTextStreamHandler('chat', async (reader: TextStreamReader, { identity }) => {
+  room.registerTextStreamHandler('lk.chat', async (reader: TextStreamReader, { identity }) => {
     console.log(`chat message from ${identity}: ${await reader.readAll()}`);
     // for await (const { collected } of reader) {
     //   console.log(collected);
@@ -62,7 +62,7 @@ const main = async () => {
 
   room.registerByteStreamHandler('files', async (reader: ByteStreamReader, { identity }) => {
     console.log(`welcome image received from ${identity}: ${reader.info.name}`);
-
+    console.time('receiving file');
     // create write stream and write received file to disk, make sure ./temp folder exists
     const writer = fs.createWriteStream(`./temp/${reader.info.name}`, {});
 
@@ -70,6 +70,8 @@ const main = async () => {
       writer.write(chunk);
     }
     writer.close();
+    console.timeEnd('receiving file');
+    console.log('received a total of', writer.bytesWritten);
   });
 
   room.on(RoomEvent.ParticipantConnected, async (participant) => {

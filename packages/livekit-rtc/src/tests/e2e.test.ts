@@ -13,6 +13,7 @@ import {
   LocalAudioTrack,
   ParticipantKind,
   Room,
+  type RoomOptions,
   RoomEvent,
   RpcError,
   SimulateScenarioKind,
@@ -99,7 +100,10 @@ async function createJoinToken(params: {
   return await token.toJwt();
 }
 
-async function connectTestRooms(count: number): Promise<{ roomName: string; rooms: Room[] }> {
+async function connectTestRooms(
+  count: number,
+  extraOptions?: Partial<RoomOptions>,
+): Promise<{ roomName: string; rooms: Room[] }> {
   const env = getTestEnv();
   const roomName = `test_room_${randomUUID()}`;
   const rooms = await Promise.all(
@@ -111,7 +115,11 @@ async function connectTestRooms(count: number): Promise<{ roomName: string; room
         name: `Participant ${i}`,
       });
       const room = new Room();
-      await room.connect(env.url, token, { autoSubscribe: true, dynacast: false });
+      await room.connect(env.url, token, {
+        autoSubscribe: true,
+        dynacast: false,
+        ...extraOptions,
+      });
       return room;
     }),
   );
@@ -290,6 +298,46 @@ describeE2E('livekit-rtc e2e', () => {
       expect(second?.name).toBe(roomName);
       expect(first?.remoteParticipants.get(second!.localParticipant!.identity)).toBeTruthy();
       expect(second?.remoteParticipants.get(first!.localParticipant!.identity)).toBeTruthy();
+
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  it(
+    'sends and receives a data message between participants sharing a key',
+    async () => {
+      // A shared-key `keyProviderOptions` with only `sharedKey` set relies on
+      // the SDK filling in the remaining (proto-required) provider defaults;
+      // regression guard for connect failing to encode KeyProviderOptions.
+      const encryption = {
+        keyProviderOptions: { sharedKey: new TextEncoder().encode('test-shared-key') },
+      };
+      const { rooms } = await connectTestRooms(2, { encryption });
+      const [receivingRoom, sendingRoom] = rooms;
+      const senderIdentity = sendingRoom!.localParticipant!.identity;
+      const receiverIdentity = receivingRoom!.localParticipant!.identity;
+
+      const payload = new TextEncoder().encode('e2ee-hello');
+      const received = withTimeout(
+        new Promise<Uint8Array>((resolve) => {
+          receivingRoom!.on(RoomEvent.DataReceived, (data, participant) => {
+            if (participant?.identity !== senderIdentity) return;
+            resolve(data);
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for encrypted data message',
+      );
+
+      await sendingRoom!.localParticipant!.publishData(payload, {
+        reliable: true,
+        destination_identities: [receiverIdentity],
+      });
+
+      // The message round-trips intact only if both sides brought a working
+      // shared-key provider through connect and encrypt/decrypt lined up.
+      expect(await received).toEqual(payload);
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },

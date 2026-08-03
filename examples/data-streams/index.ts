@@ -1,8 +1,5 @@
 import {
   type ByteStreamReader,
-  E2EEManager,
-  EncryptionType,
-  KeyProvider,
   type RemoteParticipant,
   Room,
   RoomEvent,

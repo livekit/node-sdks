@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@livekit/protocol':
+      specifier: 1.48.0
+      version: 1.48.0
+
 importers:
 
   .:
@@ -75,8 +81,8 @@ importers:
   examples/agent-dispatch:
     dependencies:
       '@livekit/protocol':
-        specifier: ^1.46.3
-        version: 1.46.3
+        specifier: 'catalog:'
+        version: 1.48.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -247,7 +253,7 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@livekit/protocol':
-        specifier: ^1.48.0
+        specifier: 'catalog:'
         version: 1.48.0
       jose:
         specifier: ^5.1.2
@@ -987,9 +993,6 @@ packages:
 
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
-
-  '@livekit/protocol@1.46.3':
-    resolution: {integrity: sha512-YvsE4UN5i+wY9vXfwhF6EUrRyUm/YhiFU1jBcsmsLd/xodUJxYTBcWS4OgL4IJffjzIoyxsrbKp1h9qC55mtcQ==}
 
   '@livekit/protocol@1.48.0':
     resolution: {integrity: sha512-fYHYgltH6YavAsokl3qsHLkBdQeKCl4UORVTub5crS3t8JtKFZ0uinHDFQ+XXdNKS6Ub9gcOjV+UHcDiqnWXoQ==}
@@ -4441,10 +4444,6 @@ snapshots:
       - encoding
 
   '@livekit/mutex@1.1.1': {}
-
-  '@livekit/protocol@1.46.3':
-    dependencies:
-      '@bufbuild/protobuf': 1.10.1
 
   '@livekit/protocol@1.48.0':
     dependencies:

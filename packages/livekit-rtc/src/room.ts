@@ -284,14 +284,28 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       useLegacyClientImplementation: true,
     });
     const e2eeEnabled = options.encryption || options.e2ee;
-    const e2eeOptions = options.encryption
-      ? { ...defaultE2EEOptions, ...options.encryption }
-      : { ...defaultE2EEOptions, ...options.e2ee };
+    const userE2EEOptions = options.encryption ?? options.e2ee;
+    const e2eeOptions: E2EEOptions = {
+      ...defaultE2EEOptions,
+      ...userE2EEOptions,
+      keyProviderOptions: {
+        ...defaultE2EEOptions.keyProviderOptions,
+        ...userE2EEOptions?.keyProviderOptions,
+      },
+    };
+
+    const mergedOptions = { ...options };
+
+    if (options.encryption) {
+      mergedOptions.encryption = e2eeOptions;
+    } else if (options.e2ee) {
+      mergedOptions.e2ee = e2eeOptions;
+    }
 
     const req = new ConnectRequest({
       url: url,
       token: token,
-      options,
+      options: mergedOptions,
     });
 
     FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onFfiEvent);

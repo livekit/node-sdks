@@ -16,6 +16,7 @@ const PORT = 7880;
 const URL = `ws://${HOST}:${PORT}`;
 const API_KEY = 'devkey';
 const API_SECRET = 'secret';
+const TEST_FILES = ['src/tests/e2e.test.ts', 'src/tests/e2e_data_streams.test.ts'];
 
 async function tcpReady(host, port, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
@@ -77,7 +78,7 @@ process.on('SIGTERM', () => onSignal('SIGTERM'));
 try {
   await tcpReady(HOST, PORT, 15_000);
 
-  const args = ['exec', 'vitest', 'run', 'src/tests/e2e.test.ts', ...process.argv.slice(2)];
+  const args = ['exec', 'vitest', 'run', ...TEST_FILES, ...process.argv.slice(2)];
   testProc = spawn('pnpm', args, {
     env: {
       ...process.env,

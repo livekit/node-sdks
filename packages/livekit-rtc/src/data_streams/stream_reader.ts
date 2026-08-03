@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { DataStream_Chunk } from '@livekit/rtc-ffi-bindings';
 import { log } from '../log.js';
-import { bigIntToNumber } from '../utils.js';
 import type { BaseStreamInfo, ByteStreamInfo, TextStreamInfo } from './types.js';
 
 abstract class BaseStreamReader<T extends BaseStreamInfo> {
@@ -14,6 +13,12 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
   protected _info: T;
 
   protected bytesReceived: number;
+
+  private closed = false;
+
+  // The reader held by an in-progress iteration. Cancelling has to go through
+  // it, since it holds the stream's lock.
+  private activeReader: ReadableStreamDefaultReader<DataStream_Chunk> | null = null;
 
   get info() {
     return this._info;
@@ -26,7 +31,64 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
     this.bytesReceived = 0;
   }
 
-  protected abstract handleChunkReceived(chunk: DataStream_Chunk): void;
+  protected handleChunkReceived(chunk: DataStream_Chunk) {
+    this.bytesReceived += chunk.content!.byteLength;
+    const currentProgress = this.totalByteSize
+      ? this.bytesReceived / this.totalByteSize
+      : undefined;
+    this.onProgress?.(currentProgress);
+  }
+
+  /** Takes the stream's reader for an iteration, remembering it so that
+   * close() can cancel a read that is still in flight. */
+  protected acquireReader(): ReadableStreamDefaultReader<DataStream_Chunk> {
+    const reader = this.reader.getReader();
+    this.activeReader = reader;
+    return reader;
+  }
+
+  /** Releases the stream lock after an iteration ended on its own — at
+   * end-of-stream or on a stream error. The FFI subscription behind the stream
+   * was already dropped by that terminal event, so there is nothing to cancel. */
+  protected finishIteration(reader: ReadableStreamDefaultReader<DataStream_Chunk>) {
+    this.closed = true;
+    if (this.activeReader === reader) {
+      this.activeReader = null;
+    }
+    reader.releaseLock();
+  }
+
+  /**
+   * Stops receiving this stream and releases the resources behind it.
+   *
+   * A reader is subscribed to FFI events from the moment it is handed to a
+   * stream handler, and only unsubscribes once a read consumes the stream's
+   * end-of-stream event. So a reader that is abandoned part-way through, or
+   * that a handler never reads at all, has to be closed here or its
+   * subscription lives for the rest of the process. Reading to completion — or
+   * breaking out of a `for await` — closes the reader for you, and closing an
+   * already-closed reader is a no-op.
+   */
+  async close(): Promise<void> {
+    if (this.closed) {
+      return;
+    }
+    this.closed = true;
+    const active = this.activeReader;
+    this.activeReader = null;
+    try {
+      if (active) {
+        await active.cancel();
+        active.releaseLock();
+      } else {
+        await this.reader.cancel();
+      }
+    } catch (error: unknown) {
+      // The stream was already closed or errored (e.g. the room disconnected
+      // mid-stream), in which case its subscription is already gone.
+      log.debug('error closing stream reader: %s', error);
+    }
+  }
 
   onProgress?: (progress: number | undefined) => void;
 
@@ -37,16 +99,8 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
  * A class to read chunks from a ReadableStream and provide them in a structured format.
  */
 export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
-  protected handleChunkReceived(chunk: DataStream_Chunk) {
-    this.bytesReceived += chunk.content!.byteLength;
-    const currentProgress = this.totalByteSize
-      ? this.bytesReceived / this.totalByteSize
-      : undefined;
-    this.onProgress?.(currentProgress);
-  }
-
   [Symbol.asyncIterator]() {
-    const reader = this.reader.getReader();
+    const reader = this.acquireReader();
 
     return {
       next: async (): Promise<IteratorResult<Uint8Array>> => {
@@ -55,7 +109,7 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
           if (done) {
             // Release the lock when the stream is exhausted so the
             // underlying ReadableStream can be garbage-collected.
-            reader.releaseLock();
+            this.finishIteration(reader);
             return { done: true, value: undefined as unknown };
           } else {
             this.handleChunkReceived(value);
@@ -64,14 +118,17 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
         } catch (error: unknown) {
           // Release the lock on error so it doesn't stay held when the
           // consumer never calls return() (e.g. breaking out of for-await).
-          reader.releaseLock();
+          this.finishIteration(reader);
           log.error('error processing stream update: %s', error);
-          return { done: true, value: undefined as unknown };
+          // Propagate abnormal termination (e.g. remote abort, payload over
+          // the receiver's size limit) instead of presenting the truncated
+          // payload as a clean EOF.
+          throw error;
         }
       },
 
-      return(): IteratorResult<Uint8Array> {
-        reader.releaseLock();
+      return: async (): Promise<IteratorResult<Uint8Array>> => {
+        await this.close();
         return { done: true, value: undefined };
       },
     };
@@ -90,44 +147,14 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
  * A class to read chunks from a ReadableStream and provide them in a structured format.
  */
 export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
-  private receivedChunks: Map<number, DataStream_Chunk>;
-
-  /**
-   * A TextStreamReader instance can be used as an AsyncIterator that returns the entire string
-   * that has been received up to the current point in time.
-   */
-  constructor(
-    info: TextStreamInfo,
-    stream: ReadableStream<DataStream_Chunk>,
-    totalChunkCount?: number,
-  ) {
-    super(info, stream, totalChunkCount);
-    this.receivedChunks = new Map();
-  }
-
-  protected handleChunkReceived(chunk: DataStream_Chunk) {
-    const index = bigIntToNumber(chunk.chunkIndex!);
-    const previousChunkAtIndex = this.receivedChunks.get(index!);
-    if (previousChunkAtIndex && previousChunkAtIndex.version! > chunk.version!) {
-      // we have a newer version already, dropping the old one
-      return;
-    }
-    this.receivedChunks.set(index, chunk);
-    const currentProgress = this.totalByteSize
-      ? this.receivedChunks.size / this.totalByteSize
-      : undefined;
-    this.onProgress?.(currentProgress);
-  }
-
   /**
    * Async iterator implementation to allow usage of `for await...of` syntax.
    * Yields structured chunks from the stream.
    *
    */
   [Symbol.asyncIterator]() {
-    const reader = this.reader.getReader();
+    const reader = this.acquireReader();
     const decoder = new TextDecoder();
-    const receivedChunks = this.receivedChunks;
 
     return {
       next: async (): Promise<IteratorResult<string>> => {
@@ -136,9 +163,7 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
           if (done) {
             // Release the lock when the stream is exhausted so the
             // underlying ReadableStream can be garbage-collected.
-            reader.releaseLock();
-            // Clear received chunks so the buffered data can be GC'd.
-            receivedChunks.clear();
+            this.finishIteration(reader);
             return { done: true, value: undefined };
           } else {
             this.handleChunkReceived(value);
@@ -150,17 +175,17 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
         } catch (error: unknown) {
           // Release the lock on error so it doesn't stay held when the
           // consumer never calls return() (e.g. breaking out of for-await).
-          reader.releaseLock();
-          receivedChunks.clear();
+          this.finishIteration(reader);
           log.error('error processing stream update: %s', error);
-          return { done: true, value: undefined };
+          // Propagate abnormal termination (e.g. remote abort, payload over
+          // the receiver's size limit) instead of presenting the truncated
+          // payload as a clean EOF.
+          throw error;
         }
       },
 
-      return(): IteratorResult<string> {
-        reader.releaseLock();
-        // Clear received chunks so the buffered data can be GC'd.
-        receivedChunks.clear();
+      return: async (): Promise<IteratorResult<string>> => {
+        await this.close();
         return { done: true, value: undefined };
       },
     };

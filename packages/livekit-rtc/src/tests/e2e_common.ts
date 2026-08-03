@@ -5,7 +5,7 @@ import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { describe } from 'vitest';
-import { Room, type RoomEvent } from '../index.js';
+import { Room, type RoomDataStreamOptions, type RoomEvent } from '../index.js';
 
 export const hasE2EEnv =
   !!process.env.LIVEKIT_URL && !!process.env.LIVEKIT_API_KEY && !!process.env.LIVEKIT_API_SECRET;
@@ -91,6 +91,8 @@ export async function createJoinToken(params: {
 
 export async function connectTestRooms(
   count: number,
+  /** Extra room options applied to every room, e.g. data stream limits. */
+  options?: { dataStream?: RoomDataStreamOptions },
 ): Promise<{ roomName: string; rooms: Room[] }> {
   const env = getTestEnv();
   const roomName = `test_room_${randomUUID()}`;
@@ -103,7 +105,11 @@ export async function connectTestRooms(
         name: `Participant ${i}`,
       });
       const room = new Room();
-      await room.connect(env.url, token, { autoSubscribe: true, dynacast: false });
+      await room.connect(env.url, token, {
+        autoSubscribe: true,
+        dynacast: false,
+        ...options,
+      });
       return room;
     }),
   );

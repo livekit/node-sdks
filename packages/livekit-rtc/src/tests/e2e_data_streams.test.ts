@@ -532,4 +532,73 @@ describeE2E('livekit-rtc data streams e2e', () => {
     },
     testTimeoutMs,
   );
+
+  it(
+    'reads a closed reader as an empty stream',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'read-after-close-topic';
+
+      const handed = withTimeout(
+        new Promise<TextStreamReader>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, async (reader) => {
+            resolve(reader); // never read
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the stream handler to be called',
+      );
+
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('never consumed');
+
+      const reader = await handed;
+      await reader.close();
+
+      const text = await withTimeout(
+        reader.readAll(),
+        testTimeoutMs,
+        'Timed out reading a closed reader',
+      );
+      expect(text).toBe('');
+
+      await writer.close();
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  // `dataStream.maxPayloadByteLength` caps what a receiver will accept (5gb by
+  // default). The native side emits the stream to the handler first and then
+  // fails it, so the error surfaces on the read rather than as a missing stream.
+  it(
+    'fails the read when an incoming stream exceeds maxPayloadByteLength',
+    async () => {
+      const maxPayloadByteLength = 1000;
+      const { rooms } = await connectTestRooms(2, { dataStream: { maxPayloadByteLength } });
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'oversized-topic';
+
+      const handed = withTimeout(
+        new Promise<TextStreamReader>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, resolve);
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the oversized stream to be handed to the handler',
+      );
+
+      // sendText declares the payload's total length up front, so the receiver
+      // rejects the stream on the header without reading any of it.
+      await sendingRoom!.localParticipant!.sendText(pseudoRandomText(maxPayloadByteLength * 5), {
+        topic,
+      });
+
+      const reader = await handed;
+      await expect(reader.readAll()).rejects.toThrow(/payload exceeds maximum size/);
+
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
 });

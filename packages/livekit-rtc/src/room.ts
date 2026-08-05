@@ -38,6 +38,7 @@ import {
 import { TrackKind } from '@livekit/rtc-ffi-bindings';
 import type { TypedEventEmitter as TypedEmitter } from '@livekit/typed-emitter';
 import EventEmitter from 'events';
+import { brandDataClass } from './brand.js';
 import { ByteStreamReader, TextStreamReader } from './data_streams/stream_reader.js';
 import type {
   ByteStreamHandler,
@@ -1060,6 +1061,11 @@ export class ConnectError extends Error {
     super(message);
   }
 }
+
+// Callers catch this around `Room.connect`, so it crosses into user code the same way RpcError
+// does. Note this brands the error, not Room itself: Room owns an FFI handle and is deliberately
+// left alone. See ./brand.ts.
+brandDataClass(ConnectError, Symbol.for('lk.rtc-node.ConnectError'));
 
 export type RoomCallbacks = {
   participantConnected: (participant: RemoteParticipant) => void;

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { RpcError as RpcError_Proto } from '@livekit/rtc-ffi-bindings';
+import { brandDataClass } from './brand.js';
 
 /** Parameters for initiating an RPC call */
 export interface PerformRpcParams {
@@ -119,3 +120,8 @@ export class RpcError extends Error {
     return new RpcError(RpcError.ErrorCode[key], RpcError.ErrorMessage[key], data);
   }
 }
+
+// RpcError is thrown by application RPC handlers and matched with `instanceof` in
+// LocalParticipant.handleRpcMethodInvocation. The handler lives in user code, which is exactly
+// where a second copy of this package shows up, so the match has to survive it. See ./brand.ts.
+brandDataClass(RpcError, Symbol.for('lk.rtc-node.RpcError'));

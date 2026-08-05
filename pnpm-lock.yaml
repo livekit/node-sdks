@@ -256,8 +256,8 @@ importers:
         specifier: 'catalog:'
         version: 1.48.0
       jose:
-        specifier: ^5.1.2
-        version: 5.9.6
+        specifier: ^6.0.0
+        version: 6.2.7
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1
@@ -2670,8 +2670,8 @@ packages:
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
-  jose@5.9.6:
-    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
+  jose@6.2.7:
+    resolution: {integrity: sha512-hq1OB1bALKfydZNoViyg6hPVGV4i93ny9Op+n4zP5RSf7SCZEXa/TsG2O3IEr7+WlHRTPnpqDmHfMH6qXAD60w==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -6239,7 +6239,7 @@ snapshots:
 
   jju@1.4.0: {}
 
-  jose@5.9.6: {}
+  jose@6.2.7: {}
 
   joycon@3.1.1: {}
 

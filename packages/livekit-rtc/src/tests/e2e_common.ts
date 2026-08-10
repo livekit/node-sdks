@@ -5,7 +5,7 @@ import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { describe } from 'vitest';
-import { Room, type RoomDataStreamOptions, type RoomEvent } from '../index.js';
+import { Room, type RoomEvent, type RoomOptions } from '../index.js';
 
 export const hasE2EEnv =
   !!process.env.LIVEKIT_URL && !!process.env.LIVEKIT_API_KEY && !!process.env.LIVEKIT_API_SECRET;
@@ -91,8 +91,11 @@ export async function createJoinToken(params: {
 
 export async function connectTestRooms(
   count: number,
-  /** Extra room options applied to every room, e.g. data stream limits. */
-  options?: { dataStream?: RoomDataStreamOptions },
+  /**
+   * Extra room options applied to every room, e.g. data stream limits or
+   * `encryption` to bring up the whole set with a shared e2ee key.
+   */
+  options?: Partial<RoomOptions>,
 ): Promise<{ roomName: string; rooms: Room[] }> {
   const env = getTestEnv();
   const roomName = `test_room_${randomUUID()}`;
@@ -128,10 +131,15 @@ export function waitForRoomEvent<R>(
   event: RoomEvent,
   timeoutMs: number,
   take: (...args: any[]) => R,
+  /** Ignore emissions that don't match, e.g. events for another participant. */
+  match?: (...args: unknown[]) => boolean,
 ): Promise<R> {
   return withTimeout(
     new Promise<R>((resolve) => {
       const handler = (...args: any[]) => {
+        if (match && !match(...args)) {
+          return;
+        }
         // typed-emitter doesn't expose `.once` in the type surface, so do manual once+cleanup.
         room.off(event as any, handler as any);
         resolve(take(...args));

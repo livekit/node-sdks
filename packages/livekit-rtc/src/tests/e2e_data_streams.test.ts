@@ -601,4 +601,39 @@ describeE2E('livekit-rtc data streams e2e', () => {
     },
     testTimeoutMs,
   );
+
+  it(
+    'releases the FFI subscription when a progress callback throws',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const topic = 'throwing-progress-topic';
+
+      const handed = withTimeout(
+        new Promise<TextStreamReader>((resolve) => {
+          receivingRoom!.registerTextStreamHandler(topic, resolve);
+        }),
+        testTimeoutMs,
+        'Timed out waiting for the stream handler to be called',
+      );
+
+      // Left open so the stream is still live when the callback throws: the
+      // reader has to cancel it, rather than assume a terminal stream event
+      // already dropped the FFI subscription.
+      const writer = await sendingRoom!.localParticipant!.streamText({ topic });
+      await writer.write('first chunk');
+
+      const reader = await handed;
+      reader.onProgress = () => {
+        throw new Error('progress callback exploded');
+      };
+
+      await expect(reader.readAll()).rejects.toThrow(/progress callback exploded/);
+      expect(subscribedReaderCount(receivingRoom!)).toBe(0);
+
+      await writer.close();
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
 });

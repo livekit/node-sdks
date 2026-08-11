@@ -47,9 +47,13 @@ abstract class BaseStreamReader<T extends BaseStreamInfo> {
     return reader;
   }
 
-  /** Releases the stream lock after an iteration ended on its own — at
-   * end-of-stream or on a stream error. The FFI subscription behind the stream
-   * was already dropped by that terminal event, so there is nothing to cancel. */
+  /** Releases the stream lock after an iteration ended on its own — because a
+   * read reported end-of-stream, or because the stream itself errored. Either
+   * way the stream is in a terminal state and the FFI subscription behind it
+   * was already dropped by that terminal event, so there is nothing to cancel.
+   *
+   * An error raised *around* a read rather than by it — a chunk that failed to
+   * process — leaves the stream live, so it has to go through close() instead. */
   protected finishIteration(reader: ReadableStreamDefaultReader<DataStream_Chunk>) {
     this.closed = true;
     if (this.activeReader === reader) {
@@ -104,25 +108,37 @@ export class ByteStreamReader extends BaseStreamReader<ByteStreamInfo> {
 
     return {
       next: async (): Promise<IteratorResult<Uint8Array>> => {
+        let read: Awaited<ReturnType<typeof reader.read>>;
         try {
-          const { done, value } = await reader.read();
-          if (done) {
-            // Release the lock when the stream is exhausted so the
-            // underlying ReadableStream can be garbage-collected.
-            this.finishIteration(reader);
-            return { done: true, value: undefined as unknown };
-          } else {
-            this.handleChunkReceived(value);
-            return { done: false, value: value.content! };
-          }
+          read = await reader.read();
         } catch (error: unknown) {
-          // Release the lock on error so it doesn't stay held when the
-          // consumer never calls return() (e.g. breaking out of for-await).
+          // The stream errored, which is terminal: release the lock so it
+          // doesn't stay held when the consumer never calls return() (a
+          // rejecting next() doesn't trigger it).
           this.finishIteration(reader);
-          log.error('error processing stream update: %s', error);
+          log.error('error reading stream: %s', error);
           // Propagate abnormal termination (e.g. remote abort, payload over
           // the receiver's size limit) instead of presenting the truncated
           // payload as a clean EOF.
+          throw error;
+        }
+
+        if (read.done) {
+          // Release the lock when the stream is exhausted so the
+          // underlying ReadableStream can be garbage-collected.
+          this.finishIteration(reader);
+          return { done: true, value: undefined as unknown };
+        }
+
+        try {
+          this.handleChunkReceived(read.value);
+          return { done: false, value: read.value.content! };
+        } catch (error: unknown) {
+          // The chunk arrived fine but handling it threw (e.g. a consumer's
+          // onProgress callback). The stream is still live, so it has to be
+          // cancelled to release its FFI subscription.
+          await this.close();
+          log.error('error processing stream update: %s', error);
           throw error;
         }
       },
@@ -158,28 +174,37 @@ export class TextStreamReader extends BaseStreamReader<TextStreamInfo> {
 
     return {
       next: async (): Promise<IteratorResult<string>> => {
+        let read: Awaited<ReturnType<typeof reader.read>>;
         try {
-          const { done, value } = await reader.read();
-          if (done) {
-            // Release the lock when the stream is exhausted so the
-            // underlying ReadableStream can be garbage-collected.
-            this.finishIteration(reader);
-            return { done: true, value: undefined };
-          } else {
-            this.handleChunkReceived(value);
-            return {
-              done: false,
-              value: decoder.decode(value.content!),
-            };
-          }
+          read = await reader.read();
         } catch (error: unknown) {
-          // Release the lock on error so it doesn't stay held when the
-          // consumer never calls return() (e.g. breaking out of for-await).
+          // The stream errored, which is terminal: release the lock so it
+          // doesn't stay held when the consumer never calls return() (a
+          // rejecting next() doesn't trigger it).
           this.finishIteration(reader);
-          log.error('error processing stream update: %s', error);
+          log.error('error reading stream: %s', error);
           // Propagate abnormal termination (e.g. remote abort, payload over
           // the receiver's size limit) instead of presenting the truncated
           // payload as a clean EOF.
+          throw error;
+        }
+
+        if (read.done) {
+          // Release the lock when the stream is exhausted so the
+          // underlying ReadableStream can be garbage-collected.
+          this.finishIteration(reader);
+          return { done: true, value: undefined };
+        }
+
+        try {
+          this.handleChunkReceived(read.value);
+          return { done: false, value: decoder.decode(read.value.content!) };
+        } catch (error: unknown) {
+          // The chunk arrived fine but handling it threw (e.g. a consumer's
+          // onProgress callback). The stream is still live, so it has to be
+          // cancelled to release its FFI subscription.
+          await this.close();
+          log.error('error processing stream update: %s', error);
           throw error;
         }
       },

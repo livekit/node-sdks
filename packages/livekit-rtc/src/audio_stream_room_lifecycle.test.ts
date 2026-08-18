@@ -146,12 +146,15 @@ function makeEndTrackingStream(): { stream: AudioStreamSource; endCount: () => n
 
 function makeLocalParticipant(identity: string): LocalParticipant {
   // Bypass the FFI-touching constructor; set only the fields the lifecycle
-  // paths read (identity getter + trackPublications map).
+  // paths read (identity getter, trackPublications map, and the open data
+  // stream writers that disconnect cleanup disposes).
   const p = Object.create(LocalParticipant.prototype) as LocalParticipant;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (p as any).info = { identity };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (p as any).trackPublications = new Map();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (p as any).openStreamWriters = new Set();
   return p;
 }
 

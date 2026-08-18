@@ -42,6 +42,12 @@ export interface TextStreamOptions extends DataStreamOptions {
 export interface ByteStreamOptions extends DataStreamOptions {
   name?: string;
   onProgress?: (progress: number) => void;
+  /**
+   * Whether the payload may be compressed on the wire. Defaults to true;
+   * compression is only applied when it actually reduces the payload size
+   * and every recipient supports it.
+   */
+  compress?: boolean;
 }
 
 export type ByteStreamHandler = (

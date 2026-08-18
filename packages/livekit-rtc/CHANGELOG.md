@@ -1,5 +1,13 @@
 # @livekit/rtc-node
 
+## 0.13.34
+
+### Patch Changes
+
+- Convert data streams to use livekit-ffi exposed data streams interface - [#697](https://github.com/livekit/node-sdks/pull/697) ([@1egoman](https://github.com/1egoman))
+
+- update e2ee defaults to confirm to required FFI fields and update protocol - [#708](https://github.com/livekit/node-sdks/pull/708) ([@lukasIO](https://github.com/lukasIO))
+
 ## 0.13.33
 
 ### Patch Changes

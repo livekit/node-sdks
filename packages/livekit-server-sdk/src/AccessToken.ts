@@ -231,6 +231,9 @@ export class TokenVerifier {
     const { payload } = await jose.jwtVerify(token, secret, {
       issuer: this.apiKey,
       clockTolerance,
+      // First-party minters always set exp. Without this, a hand-rolled token
+      // with a valid signature and no exp verifies forever (livekit/protocol#1706).
+      requiredClaims: ['exp'],
     });
     if (!payload) {
       throw Error('invalid token');

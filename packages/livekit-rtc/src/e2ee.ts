@@ -17,6 +17,7 @@ import {
   FrameCryptorSetKeyIndexRequest,
   GetKeyRequest,
   GetSharedKeyRequest,
+  KeyDerivationFunction,
   RatchetKeyRequest,
   RatchetSharedKeyRequest,
   SetKeyRequest,
@@ -27,18 +28,24 @@ import { FfiClient } from './ffi_client.js';
 const DEFAULT_RATCHET_SALT = new TextEncoder().encode('LKFrameEncryptionKey');
 const DEFAULT_RATCHET_WINDOW_SIZE = 16;
 const DEFAULT_FAILURE_TOLERANCE = -1;
+const DEFAULT_KEY_RING_SIZE = 16;
+const DEFAULT_KEY_DERIVATION_FUNCTION = KeyDerivationFunction.PBKDF2;
 
 export interface KeyProviderOptions {
   sharedKey?: Uint8Array;
   ratchetSalt?: Uint8Array;
   ratchetWindowSize?: number;
   failureTolerance?: number;
+  keyRingSize?: number;
+  keyDerivationFunction?: KeyDerivationFunction;
 }
 
 export const defaultKeyProviderOptions: KeyProviderOptions = {
   ratchetSalt: DEFAULT_RATCHET_SALT,
   ratchetWindowSize: DEFAULT_RATCHET_WINDOW_SIZE,
   failureTolerance: DEFAULT_FAILURE_TOLERANCE,
+  keyRingSize: DEFAULT_KEY_RING_SIZE,
+  keyDerivationFunction: DEFAULT_KEY_DERIVATION_FUNCTION,
 };
 
 export interface E2EEOptions {

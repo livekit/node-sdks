@@ -18,6 +18,7 @@ import {
   ListEgressResponse,
   ParticipantEgressRequest,
   RoomCompositeEgressRequest,
+  StartEgressRequest,
   StopEgressRequest,
   TrackCompositeEgressRequest,
   TrackEgressRequest,
@@ -575,6 +576,21 @@ export class EgressClient extends ServiceBase {
       svc,
       'StartTrackEgress',
       req,
+      await this.authHeader({ roomRecord: true }),
+    );
+    return EgressInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+
+  /**
+   * Starts an egress using the unified v2 request.
+   *
+   * @param request - the egress request
+   */
+  async startEgress(request: StartEgressRequest): Promise<EgressInfo> {
+    const data = await this.rpc.request(
+      svc,
+      'StartEgress',
+      request.toJson(),
       await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJson(data, { ignoreUnknownFields: true });

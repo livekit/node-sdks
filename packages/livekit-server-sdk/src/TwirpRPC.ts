@@ -186,9 +186,7 @@ export class TwirpRpc {
       'User-Agent': USER_AGENT,
       ...headers,
     };
-    if (!hasHeader(requestHeaders, REQUEST_ID_HEADER)) {
-      requestHeaders[REQUEST_ID_HEADER] = await randomUUID();
-    }
+    requestHeaders[REQUEST_ID_HEADER] = await randomUUID();
 
     const origin = new URL(this.host);
     const maxAttempts = failoverAttempts(
@@ -254,11 +252,6 @@ export class TwirpRpc {
 
     throw new Error('failover loop exited without returning'); // unreachable
   }
-}
-
-function hasHeader(headers: Record<string, string>, name: string): boolean {
-  const lower = name.toLowerCase();
-  return Object.keys(headers).some((k) => k.toLowerCase() === lower);
 }
 
 /** Builds a TwirpError from a non-2xx response, mirroring Twirp's JSON error shape. */

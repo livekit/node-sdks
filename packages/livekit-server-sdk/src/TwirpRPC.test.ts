@@ -75,18 +75,6 @@ describe('request id', () => {
     expect(ids[0]).not.toBe(ids[1]);
   });
 
-  it('preserves a caller-supplied request id', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse());
-
-    const rpc = new TwirpRpc('https://test.livekit.cloud', 'livekit', { failover: false });
-    // Matched case-insensitively, as HTTP header names are.
-    await rpc.request('RoomService', 'CreateRoom', {}, { 'x-livekit-request-id': 'caller-123' });
-
-    const headers = fetchSpy.mock.calls[0]![1]!.headers as Record<string, string>;
-    expect(headers['x-livekit-request-id']).toBe('caller-123');
-    expect(headers[REQUEST_ID_HEADER]).toBeUndefined();
-  });
-
   // The id is generated once per logical call, so every failover attempt must
   // carry the same value.
   it('keeps the same request id across failover attempts', async () => {

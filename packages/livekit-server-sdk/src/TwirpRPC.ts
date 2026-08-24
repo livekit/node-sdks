@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { JsonValue } from '@bufbuild/protobuf';
+import { randomUUID } from './crypto/uuid.js';
 import {
   FAILOVER_BACKOFF_BASE_MS,
   failoverAttempts,
@@ -15,6 +16,11 @@ import { SDK_VERSION } from './version.js';
 // Identifies the SDK and version to the server on every request. Browsers forbid
 // setting User-Agent via fetch and silently drop it; Node honors it.
 const USER_AGENT = `livekit-server-sdk-node/${SDK_VERSION}`;
+
+// Carries a per-request idempotency key. The SDK's auto-retries (see failover)
+// keep the same key across attempts, so the server can identify and deduplicate
+// repeated requests.
+export const REQUEST_ID_HEADER = 'X-Livekit-Request-Id';
 
 // twirp RPC adapter for client implementation
 
@@ -175,11 +181,12 @@ export class TwirpRpc {
   ): Promise<any> {
     const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
     const body = JSON.stringify(data);
-    const requestHeaders = {
+    const requestHeaders: Record<string, string> = {
       'Content-Type': 'application/json;charset=UTF-8',
       'User-Agent': USER_AGENT,
       ...headers,
     };
+    requestHeaders[REQUEST_ID_HEADER] = await randomUUID();
 
     const origin = new URL(this.host);
     const maxAttempts = failoverAttempts(

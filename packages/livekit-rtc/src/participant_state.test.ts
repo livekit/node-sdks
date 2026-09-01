@@ -254,3 +254,98 @@ describe('participant state on room disconnect', () => {
     expect(room.localParticipant!.state).toBe(ParticipantState.ACTIVE);
   });
 });
+
+describe('participant state vs. queued FFI events', () => {
+  /**
+   * onFfiEvent is dispatched synchronously by FfiClient but immediately awaits
+   * ffiEventLock, so events delivered before disconnect() removes the listener
+   * are still pending when cleanup runs. These drive that interleaving directly:
+   * the callback is invoked (entering the lock queue) but not awaited before
+   * disconnect() is called.
+   */
+
+  function mockDisconnectRoundTrip() {
+    const requestSpy = vi
+      .spyOn(FfiClient.instance, 'request')
+      .mockReturnValue({ asyncId: BigInt(1) } as never);
+    const waitForSpy = vi
+      .spyOn(FfiClient.instance, 'waitFor')
+      .mockResolvedValue({ error: undefined } as never);
+    return () => {
+      requestSpy.mockRestore();
+      waitForSpy.mockRestore();
+    };
+  }
+
+  it('does not let a queued participantActive resurrect state after disconnect()', async () => {
+    const room = makeConnectedRoom();
+    await connectParticipant(room, 'alice');
+    const alice = room.remoteParticipants.get('alice')!;
+
+    // Queued but deliberately not awaited: it is now waiting on ffiEventLock.
+    const queued = emitRoomEvent(room, {
+      case: 'participantActive',
+      value: { participantIdentity: 'alice' },
+    });
+
+    const restore = mockDisconnectRoundTrip();
+    try {
+      await room.disconnect();
+    } finally {
+      restore();
+    }
+    await queued;
+
+    expect(alice.state).toBe(ParticipantState.DISCONNECTED);
+    expect(room.localParticipant!.state).toBe(ParticipantState.DISCONNECTED);
+  });
+
+  it('does not let a queued participantsUpdated resurrect state after disconnect()', async () => {
+    const room = makeConnectedRoom();
+    await connectParticipant(room, 'alice');
+    const alice = room.remoteParticipants.get('alice')!;
+
+    // participantsUpdated replaces `info` wholesale, so it overwrites state too.
+    const queued = emitRoomEvent(room, {
+      case: 'participantsUpdated',
+      value: {
+        participants: [{ identity: 'alice', state: ParticipantState.ACTIVE }],
+      },
+    });
+
+    const restore = mockDisconnectRoundTrip();
+    try {
+      await room.disconnect();
+    } finally {
+      restore();
+    }
+    await queued;
+
+    expect(alice.state).toBe(ParticipantState.DISCONNECTED);
+  });
+
+  it('drains queued events before cleanup rather than dropping them', async () => {
+    const room = makeConnectedRoom();
+    await connectParticipant(room, 'alice');
+
+    const seen: string[] = [];
+    room.on(RoomEvent.ParticipantActive, () => seen.push('active'));
+    room.on(RoomEvent.Disconnected, () => seen.push('disconnected'));
+
+    const queued = emitRoomEvent(room, {
+      case: 'participantActive',
+      value: { participantIdentity: 'alice' },
+    });
+
+    const restore = mockDisconnectRoundTrip();
+    try {
+      await room.disconnect();
+    } finally {
+      restore();
+    }
+    await queued;
+
+    // The queued event still ran; it simply ran first.
+    expect(seen).toEqual(['active', 'disconnected']);
+  });
+});

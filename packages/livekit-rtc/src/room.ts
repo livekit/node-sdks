@@ -416,8 +416,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
-    this.cleanupOnDisconnect(DisconnectReason.CLIENT_INITIATED);
+    // Stop accepting new events, then queue behind the ones already in flight.
+    // An onFfiEvent callback that fired before removeListener is already waiting
+    // on ffiEventLock, and processing it after cleanup would resurrect state the
+    // cleanup just tore down (participantActive and participantsUpdated both
+    // write participant info). Taking the lock here drains those first — the FIFO
+    // mirror of the Python SDK awaiting its listen task before flipping state.
+    // cleanupOnDisconnect must not take the lock itself: the FFI-driven path
+    // reaches it from inside onFfiEvent, which already holds it.
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
+
+    const unlock = await this.ffiEventLock.lock();
+    try {
+      this.cleanupOnDisconnect(DisconnectReason.CLIENT_INITIATED);
+    } finally {
+      unlock();
+    }
 
     this.removeAllListeners();
   }

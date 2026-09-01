@@ -8,6 +8,7 @@ import {
   type ParticipantInfo,
   ParticipantKind,
   type ParticipantKindDetail,
+  ParticipantState,
 } from '@livekit/rtc-ffi-bindings';
 import {
   type ByteStreamOpenCallback,
@@ -139,6 +140,18 @@ export abstract class Participant {
 
   get kindDetails(): ParticipantKindDetail[] {
     return this.info.kindDetails ?? [];
+  }
+
+  /**
+   * The participant's lifecycle state.
+   *
+   * A remote participant is only able to receive data messages once it reaches
+   * {@link ParticipantState.ACTIVE}. Between {@link RoomEvent.ParticipantConnected} and
+   * {@link RoomEvent.ParticipantActive} the participant is visible in `remoteParticipants`
+   * but not yet reachable.
+   */
+  get state(): ParticipantState {
+    return this.info.state ?? ParticipantState.JOINING;
   }
 
   get disconnectReason(): DisconnectReason | undefined {

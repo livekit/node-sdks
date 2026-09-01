@@ -8,7 +8,11 @@ import type {
   GetSessionStatsCallback,
   GetSessionStatsResponse,
 } from '@livekit/rtc-ffi-bindings';
-import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
+import {
+  DisconnectReason,
+  type OwnedParticipant,
+  ParticipantState,
+} from '@livekit/rtc-ffi-bindings';
 import { type DisconnectCallback, type TrackPublicationInfo } from '@livekit/rtc-ffi-bindings';
 import {
   ByteStreamReaderReadIncrementalRequest,
@@ -602,11 +606,20 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.createRemoteParticipant(ev.value.info!);
       this.remoteParticipants.set(participant.identity!, participant);
       this.emit(RoomEvent.ParticipantConnected, participant);
+    } else if (ev.case == 'participantActive') {
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
+      if (participant) {
+        participant.info.state = ParticipantState.ACTIVE;
+        this.emit(RoomEvent.ParticipantActive, participant);
+      } else {
+        log.warn(`RoomEvent.ParticipantActive: Could not find participant`);
+      }
     } else if (ev.case == 'participantDisconnected') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
       if (participant) {
         this.remoteParticipants.delete(participant.identity);
         participant.info.disconnectReason = ev.value.disconnectReason;
+        participant.info.state = ParticipantState.DISCONNECTED;
         this.emit(RoomEvent.ParticipantDisconnected, participant);
       } else {
         log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);
@@ -1138,6 +1151,11 @@ export class ConnectError extends Error {
 
 export type RoomCallbacks = {
   participantConnected: (participant: RemoteParticipant) => void;
+  /**
+   * Fired when a remote participant becomes active and is able to receive data
+   * messages. Always follows `participantConnected` for the same participant.
+   */
+  participantActive: (participant: RemoteParticipant) => void;
   participantDisconnected: (participant: RemoteParticipant) => void;
   localTrackPublished: (publication: LocalTrackPublication, participant: LocalParticipant) => void;
   localTrackUnpublished: (
@@ -1210,6 +1228,7 @@ export type RoomCallbacks = {
 
 export enum RoomEvent {
   ParticipantConnected = 'participantConnected',
+  ParticipantActive = 'participantActive',
   ParticipantDisconnected = 'participantDisconnected',
   LocalTrackPublished = 'localTrackPublished',
   LocalTrackUnpublished = 'localTrackUnpublished',

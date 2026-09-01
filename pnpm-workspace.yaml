@@ -8,4 +8,4 @@ minimumReleaseAgeExclude:
   - '@livekit/*'
 
 catalog:
-  '@livekit/protocol': 1.48.0
+  '@livekit/protocol': 1.51.0

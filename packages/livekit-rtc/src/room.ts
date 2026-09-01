@@ -504,6 +504,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     }
 
+    // A room-level disconnect isn't reported as each participant departing, so
+    // nothing else moves them off ACTIVE. Callers hold on to participant objects
+    // past the disconnect (the maps aren't cleared, and `Disconnected` listeners
+    // routinely capture them), and a retained participant claiming to be ACTIVE
+    // reads as reachable when it no longer is. Transition them here, before any
+    // disconnect event fires, so a handler observing `state` sees the truth.
+    if (this.localParticipant) {
+      this.localParticipant.info.state = ParticipantState.DISCONNECTED;
+    }
+    for (const participant of this.remoteParticipants.values()) {
+      participant.info.state = ParticipantState.DISCONNECTED;
+    }
+
     // Clear sidPromise before removing listeners so that a reconnect
     // doesn't return a stale, permanently-pending promise.
     this.sidPromise = undefined;

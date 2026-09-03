@@ -466,7 +466,7 @@ d('LiveKitAPI', () => {
   // A failed dial surfaces the SIP response status as a SipCallError, whose
   // getters expose the SIP code/reason while the generic Twirp code is preserved.
   describe('sip call errors', () => {
-    it('surfaces a busy signal (resource_exhausted)', async () => {
+    it('surfaces a busy signal (failed_precondition)', async () => {
       const err = await withMock({ sipStatus: { code: 486, status: 'Busy Here' } }, () =>
         api.sip.createSipParticipant('ST_abc123', '+15105550100', 'test-room'),
       ).catch((e: unknown) => e);
@@ -474,7 +474,7 @@ d('LiveKitAPI', () => {
       expect(err).toBeInstanceOf(SipCallError);
       expect(err).toBeInstanceOf(ServerError);
       const sipErr = err as SipCallError;
-      expect(sipErr.code).toBe('resource_exhausted');
+      expect(sipErr.code).toBe('failed_precondition');
       expect(sipErr.sipStatusCode).toBe(486);
       expect(sipErr.sipStatus).toBe('Busy Here');
       // printable representation makes the failure clear

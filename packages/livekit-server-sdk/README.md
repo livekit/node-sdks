@@ -175,7 +175,7 @@ try {
   });
 } catch (e) {
   if (e instanceof SipCallError) {
-    console.log(e.message); // e.g. "SIP call failed: 486 Busy Here (resource_exhausted)"
+    console.log(e.message); // e.g. "SIP call failed: 486 Busy Here (failed_precondition)"
     if (e.sipStatusCode === 486) {
       // callee is busy
     }

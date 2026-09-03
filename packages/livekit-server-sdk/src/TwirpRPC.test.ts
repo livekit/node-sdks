@@ -11,7 +11,7 @@ describe('SipCallError', () => {
         'Too Many Requests',
         'twirp error: sip status 486',
         429,
-        'resource_exhausted',
+        'failed_precondition',
         {
           sip_status_code: '486',
           sip_status: 'Busy Here',
@@ -30,7 +30,7 @@ describe('SipCallError', () => {
     expect(printed).toContain('SipCallError');
     expect(printed).toContain('486');
     expect(printed).toContain('Busy Here');
-    expect(printed).toContain('resource_exhausted');
+    expect(printed).toContain('failed_precondition');
     expect(printed).toContain('region=us-east'); // other metadata is surfaced
     expect(printed).not.toContain('error_details'); // opaque blob is omitted
   });

@@ -1,5 +1,17 @@
 # livekit-server-sdk
 
+## 2.19.0
+
+### Minor Changes
+
+- Support the `PASSTHROUGH` encoding preset on `startEgress`, for single-track `MediaSource` egress that skips transcoding - [#713](https://github.com/livekit/node-sdks/pull/713) ([@frostbyte73](https://github.com/frostbyte73))
+
+- Send an `X-Livekit-Request-Id` idempotency key on every server API request. The same id is replayed on each region failover attempt, so the server can identify and deduplicate a retried request. - [#711](https://github.com/livekit/node-sdks/pull/711) ([@cnderrauber](https://github.com/cnderrauber))
+
+### Patch Changes
+
+- Update @livekit/protocol to 1.51.0 - [#714](https://github.com/livekit/node-sdks/pull/714) ([@anunaym14](https://github.com/anunaym14))
+
 ## 2.18.0
 
 ### Minor Changes

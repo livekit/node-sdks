@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { OwnedTrack } from '@livekit/rtc-ffi-bindings';
-import { TrackPublishOptions } from '@livekit/rtc-ffi-bindings';
+import { ParticipantState, TrackPublishOptions } from '@livekit/rtc-ffi-bindings';
 import { describe, expect, it, vi } from 'vitest';
 import type { AudioFrame } from './audio_frame.js';
 import type { AudioStreamSource } from './audio_stream.js';
@@ -87,6 +87,9 @@ function makeRoom(opts: { name: string; token?: string; serverUrl?: string }): R
 
 interface StubParticipant {
   identity: string;
+  // Real participants always carry an `info` (createRemoteParticipant sets it
+  // unconditionally); cleanupOnDisconnect writes the disconnected state into it.
+  info: { identity: string; state: ParticipantState };
   trackPublications: Map<string, { sid: string }>;
 }
 
@@ -99,7 +102,11 @@ function attachRemoteParticipant(
   for (const pub of publications) {
     map.set(pub.trackSid, { sid: pub.publicationSid });
   }
-  const participant: StubParticipant = { identity, trackPublications: map };
+  const participant: StubParticipant = {
+    identity,
+    info: { identity, state: ParticipantState.ACTIVE },
+    trackPublications: map,
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   room.remoteParticipants.set(identity, participant as any);
 }
@@ -738,6 +745,7 @@ describe('AudioStream room lifecycle', () => {
     const remoteTrack = makeTrack('TR_REMOTE');
     const remoteParticipant = {
       identity: 'bob',
+      info: { identity: 'bob', state: ParticipantState.ACTIVE },
       trackPublications: new Map([['TR_REMOTE', { sid: 'PUB_REMOTE', track: remoteTrack }]]),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

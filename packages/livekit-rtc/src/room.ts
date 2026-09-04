@@ -8,7 +8,11 @@ import type {
   GetSessionStatsCallback,
   GetSessionStatsResponse,
 } from '@livekit/rtc-ffi-bindings';
-import { DisconnectReason, type OwnedParticipant } from '@livekit/rtc-ffi-bindings';
+import {
+  DisconnectReason,
+  type OwnedParticipant,
+  ParticipantState,
+} from '@livekit/rtc-ffi-bindings';
 import { type DisconnectCallback, type TrackPublicationInfo } from '@livekit/rtc-ffi-bindings';
 import {
   ByteStreamReaderReadIncrementalRequest,
@@ -412,8 +416,22 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
-    this.cleanupOnDisconnect(DisconnectReason.CLIENT_INITIATED);
+    // Stop accepting new events, then queue behind the ones already in flight.
+    // An onFfiEvent callback that fired before removeListener is already waiting
+    // on ffiEventLock, and processing it after cleanup would resurrect state the
+    // cleanup just tore down (participantActive and participantsUpdated both
+    // write participant info). Taking the lock here drains those first — the FIFO
+    // mirror of the Python SDK awaiting its listen task before flipping state.
+    // cleanupOnDisconnect must not take the lock itself: the FFI-driven path
+    // reaches it from inside onFfiEvent, which already holds it.
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
+
+    const unlock = await this.ffiEventLock.lock();
+    try {
+      this.cleanupOnDisconnect(DisconnectReason.CLIENT_INITIATED);
+    } finally {
+      unlock();
+    }
 
     this.removeAllListeners();
   }
@@ -498,6 +516,19 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       for (const pub of participant.trackPublications.values()) {
         pub.track?.setRoom(null);
       }
+    }
+
+    // A room-level disconnect isn't reported as each participant departing, so
+    // nothing else moves them off ACTIVE. Callers hold on to participant objects
+    // past the disconnect (the maps aren't cleared, and `Disconnected` listeners
+    // routinely capture them), and a retained participant claiming to be ACTIVE
+    // reads as reachable when it no longer is. Transition them here, before any
+    // disconnect event fires, so a handler observing `state` sees the truth.
+    if (this.localParticipant) {
+      this.localParticipant.info.state = ParticipantState.DISCONNECTED;
+    }
+    for (const participant of this.remoteParticipants.values()) {
+      participant.info.state = ParticipantState.DISCONNECTED;
     }
 
     // Clear sidPromise before removing listeners so that a reconnect
@@ -602,11 +633,20 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       const participant = this.createRemoteParticipant(ev.value.info!);
       this.remoteParticipants.set(participant.identity!, participant);
       this.emit(RoomEvent.ParticipantConnected, participant);
+    } else if (ev.case == 'participantActive') {
+      const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
+      if (participant) {
+        participant.info.state = ParticipantState.ACTIVE;
+        this.emit(RoomEvent.ParticipantActive, participant);
+      } else {
+        log.warn(`RoomEvent.ParticipantActive: Could not find participant`);
+      }
     } else if (ev.case == 'participantDisconnected') {
       const participant = this.remoteParticipants.get(ev.value.participantIdentity!);
       if (participant) {
         this.remoteParticipants.delete(participant.identity);
         participant.info.disconnectReason = ev.value.disconnectReason;
+        participant.info.state = ParticipantState.DISCONNECTED;
         this.emit(RoomEvent.ParticipantDisconnected, participant);
       } else {
         log.warn(`RoomEvent.ParticipantDisconnected: Could not find participant`);
@@ -1138,6 +1178,11 @@ export class ConnectError extends Error {
 
 export type RoomCallbacks = {
   participantConnected: (participant: RemoteParticipant) => void;
+  /**
+   * Fired when a remote participant becomes active and is able to receive data
+   * messages. Always follows `participantConnected` for the same participant.
+   */
+  participantActive: (participant: RemoteParticipant) => void;
   participantDisconnected: (participant: RemoteParticipant) => void;
   localTrackPublished: (publication: LocalTrackPublication, participant: LocalParticipant) => void;
   localTrackUnpublished: (
@@ -1210,6 +1255,7 @@ export type RoomCallbacks = {
 
 export enum RoomEvent {
   ParticipantConnected = 'participantConnected',
+  ParticipantActive = 'participantActive',
   ParticipantDisconnected = 'participantDisconnected',
   LocalTrackPublished = 'localTrackPublished',
   LocalTrackUnpublished = 'localTrackUnpublished',

@@ -2,14 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// Use the Web Crypto API if available, otherwise fallback to Node.js crypto
+// Web Crypto only — no import('node:crypto') so isolate/edge bundlers can resolve this module
 export async function getRandomBytes(size: number = 16): Promise<Uint8Array> {
-  if (globalThis.crypto) {
-    return crypto.getRandomValues(new Uint8Array(size));
-  } else {
-    const nodeCrypto = await import('node:crypto');
-    return nodeCrypto.getRandomValues(new Uint8Array(size));
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new Error('Web Crypto API is required (globalThis.crypto.getRandomValues)');
   }
+  return crypto.getRandomValues(new Uint8Array(size));
 }
 
 // A random RFC 4122 v4 UUID. Prefers the platform's randomUUID (Node 19+, edge

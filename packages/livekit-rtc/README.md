@@ -11,11 +11,6 @@ SPDX-License-Identifier: Apache-2.0
 
 Use this SDK to add realtime video, audio and data features to your Node app. By connecting to a self- or cloud-hosted <a href="https://livekit.io/">LiveKit</a> server, you can quickly build applications like interactive live streaming or video calls with just a few lines of code.
 
-
-> This SDK is currently in Developer Preview mode and not ready for production use. There will be bugs and APIs may change during this period.
->
-> We welcome and appreciate any feedback or contributions. You can create issues here or chat live with us in the #dev channel within the [LiveKit Community Slack](https://livekit.io/join-slack).
-
 ### Warning
 
 Avoid running this with hot reloads (ex. [bun's hot reload](https://bun.sh/guides/http/hot)). This is known to cause issues with WebRTC connectivity.

@@ -501,7 +501,11 @@ describeE2E('livekit-rtc e2e', () => {
         responseTimeout: testTimeoutMs,
       });
 
-      const rpcResponseTimeoutMs = 1_000;
+      // A successful response travels back as a v2 data stream (header + chunk +
+      // trailer), which measures 20-50x the single-packet error response below:
+      // tens of ms warm, but several hundred on the first calls after connect.
+      // 1s left no margin for that.
+      const rpcResponseTimeoutMs = 5_000;
 
       await expect(
         callerRoom!.localParticipant!.performRpc({

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 1.0.0
+
+### Major Changes
+
+- Bump major version to mark package as stable - [#720](https://github.com/livekit/node-sdks/pull/720) ([@1egoman](https://github.com/1egoman))
+
 ## 0.13.35
 
 ### Patch Changes

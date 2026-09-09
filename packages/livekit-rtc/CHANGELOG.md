@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 0.13.35
+
+### Patch Changes
+
+- Remove the outdated "Developer Preview / not ready for production" notice from the README - [#718](https://github.com/livekit/node-sdks/pull/718) ([@xianshijing-lk](https://github.com/xianshijing-lk))
+
 ## 0.13.34
 
 ### Patch Changes

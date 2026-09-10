@@ -64,6 +64,19 @@ describe('identity is required for only join grants', () => {
 });
 
 describe('verify token is valid', () => {
+  it('rejects a token that omits exp', async () => {
+    const secret = new TextEncoder().encode(testSecret);
+    const token = await new jose.SignJWT({ video: { roomCreate: true } })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuer(testApiKey)
+      .setSubject('me')
+      .setNotBefore(new Date())
+      .sign(secret);
+
+    const v = new TokenVerifier(testApiKey, testSecret);
+    await expect(v.verify(token)).rejects.toThrow();
+  });
+
   it('can decode encoded token', async () => {
     const t = new AccessToken(testApiKey, testSecret);
     t.sha256 = 'abcdefg';

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { OwnedAudioFrameBuffer } from '@livekit/rtc-ffi-bindings';
 import { AudioFrameBufferInfo } from '@livekit/rtc-ffi-bindings';
+import { brandDataClass } from './brand.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 
 export class AudioFrame {
@@ -71,6 +72,10 @@ export class AudioFrame {
     return this._userdata;
   }
 }
+
+// An AudioFrame is nothing but its fields, so it stays usable across a dual-loaded copy of this
+// package. See ./brand.ts.
+brandDataClass(AudioFrame, Symbol.for('lk.rtc-node.AudioFrame'));
 
 /**
  * Combines one or more `rtc.AudioFrame` objects into a single `rtc.AudioFrame`.

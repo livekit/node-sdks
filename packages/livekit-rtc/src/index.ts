@@ -19,6 +19,7 @@ export {
   DisconnectReason,
   ParticipantKind,
   ParticipantKindDetail,
+  ParticipantState,
 } from '@livekit/rtc-ffi-bindings';
 export {
   ConnectionQuality,

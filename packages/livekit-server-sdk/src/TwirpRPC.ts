@@ -7,6 +7,7 @@ import {
   FAILOVER_BACKOFF_BASE_MS,
   failoverAttempts,
   hostKey,
+  isCloudApi,
   pickNext,
   regionOrigins,
   sleep,
@@ -196,7 +197,8 @@ export class TwirpRpc {
       timeout,
     );
     const attempted = new Set([hostKey(origin)]);
-    let regions: string[] | undefined;
+    // A Cloud API host has a single origin; region discovery is never consulted.
+    let regions: string[] | undefined = isCloudApi(origin.hostname) ? [] : undefined;
     let current = this.host;
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -231,7 +233,8 @@ export class TwirpRpc {
         if (!regions) {
           regions = await regionOrigins(origin, headers);
         }
-        next = pickNext(regions, attempted);
+        // With no fallback origin, a retryable failure is retried against the same host.
+        next = pickNext(regions, attempted) ?? current;
       }
 
       if (!retryable || next === undefined) {

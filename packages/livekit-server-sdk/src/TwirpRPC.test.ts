@@ -159,6 +159,26 @@ describe('failover without a fallback origin', () => {
     ]);
   });
 
+  it('a Cloud API host retries without consulting region discovery', async () => {
+    let attempt = 0;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (isDiscovery(input)) {
+        return errorResponse(404);
+      }
+      attempt += 1;
+      if (attempt === 1) {
+        throw new Error('read: connection reset by peer');
+      }
+      return okResponse();
+    });
+
+    const rpc = new TwirpRpc('https://cloud-api.livekit.io', 'livekit', { failoverBackoffMs: 0 });
+    await expect(rpc.request('RoomService', 'CreateRoom', {}, {})).resolves.toEqual({});
+
+    expect(fetchSpy.mock.calls.filter(([input]) => isDiscovery(input))).toHaveLength(0);
+    expect(fetchSpy.mock.calls.filter(([input]) => !isDiscovery(input))).toHaveLength(2);
+  });
+
   it('without a fallback origin, a 5xx retries the same host', async () => {
     let attempt = 0;
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {

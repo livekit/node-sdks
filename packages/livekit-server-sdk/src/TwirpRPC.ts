@@ -231,7 +231,8 @@ export class TwirpRpc {
         if (!regions) {
           regions = await regionOrigins(origin, headers);
         }
-        next = pickNext(regions, attempted);
+        // With no fallback origin, a retryable failure is retried against the same host.
+        next = pickNext(regions, attempted) ?? current;
       }
 
       if (!retryable || next === undefined) {

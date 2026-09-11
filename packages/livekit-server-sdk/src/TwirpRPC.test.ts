@@ -112,3 +112,66 @@ describe('request id', () => {
     expect(new Set(ids).size).toBe(1);
   });
 });
+
+describe('failover without a fallback origin', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  // No /settings/regions, so no fallback origin ever exists.
+  const host = 'https://cloud-api.example.com';
+
+  const okResponse = () =>
+    ({ ok: true, status: 200, json: async () => ({}) }) as unknown as Response;
+
+  const errorResponse = (status: number) =>
+    ({
+      ok: false,
+      status,
+      statusText: 'Bad Gateway',
+      headers: { get: () => null },
+      text: async () => 'bad gateway',
+    }) as unknown as Response;
+
+  const isDiscovery = (input: unknown) => `${input}`.endsWith('/settings/regions');
+
+  it('without a fallback origin, a transport error retries the same host', async () => {
+    let attempt = 0;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (isDiscovery(input)) {
+        return errorResponse(404);
+      }
+      attempt += 1;
+      if (attempt === 1) {
+        throw new Error('read: connection reset by peer');
+      }
+      return okResponse();
+    });
+
+    const rpc = new TwirpRpc(host, 'livekit', { failoverForce: true, failoverBackoffMs: 0 });
+    await expect(rpc.request('RoomService', 'CreateRoom', {}, {})).resolves.toEqual({});
+
+    const attempts = fetchSpy.mock.calls.filter(([input]) => !isDiscovery(input));
+    expect(attempts).toHaveLength(2);
+    expect(attempts.map(([input]) => new URL(`${input}`).host)).toEqual([
+      'cloud-api.example.com',
+      'cloud-api.example.com',
+    ]);
+  });
+
+  it('without a fallback origin, a 5xx retries the same host', async () => {
+    let attempt = 0;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (isDiscovery(input)) {
+        return errorResponse(404);
+      }
+      attempt += 1;
+      return attempt === 1 ? errorResponse(502) : okResponse();
+    });
+
+    const rpc = new TwirpRpc(host, 'livekit', { failoverForce: true, failoverBackoffMs: 0 });
+    await expect(rpc.request('RoomService', 'CreateRoom', {}, {})).resolves.toEqual({});
+
+    expect(fetchSpy.mock.calls.filter(([input]) => !isDiscovery(input))).toHaveLength(2);
+  });
+});

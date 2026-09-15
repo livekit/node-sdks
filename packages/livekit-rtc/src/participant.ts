@@ -90,7 +90,15 @@ import {
 } from './data_streams/index.js';
 import { FfiClient, FfiHandle } from './ffi_client.js';
 import { log } from './log.js';
-import { type PerformRpcParams, RpcError, type RpcInvocationData } from './rpc.js';
+import {
+  type PerformRpcParams,
+  type RpcCallInfo,
+  RpcError,
+  type RpcInterceptor,
+  type RpcInvocationData,
+  chainIncoming,
+  chainOutgoing,
+} from './rpc.js';
 import type { LocalTrack } from './track.js';
 import type { RemoteTrackPublication, TrackPublication } from './track_publication.js';
 import { LocalTrackPublication } from './track_publication.js';
@@ -167,6 +175,7 @@ export type DataPublishOptions = {
 
 export class LocalParticipant extends Participant {
   private rpcHandlers: Map<string, (data: RpcInvocationData) => Promise<string>> = new Map();
+  private rpcInterceptors: RpcInterceptor[] = [];
 
   private ffiEventLock: Mutex;
 
@@ -833,6 +842,18 @@ export class LocalParticipant extends Participant {
     payload,
     responseTimeout,
   }: PerformRpcParams): Promise<string> {
+    const call: RpcCallInfo = { destinationIdentity, method, payload, responseTimeout };
+    // snapshot the interceptor list so add/remove during a call is well defined
+    const perform = chainOutgoing([...this.rpcInterceptors], (c) => this.performRpcFfi(c));
+    return await perform(call);
+  }
+
+  private async performRpcFfi({
+    destinationIdentity,
+    method,
+    payload,
+    responseTimeout,
+  }: RpcCallInfo): Promise<string> {
     const req = new PerformRpcRequest({
       localParticipantHandle: this.ffi_handle.handle,
       destinationIdentity,
@@ -855,6 +876,29 @@ export class LocalParticipant extends Participant {
     }
 
     return cb.payload!;
+  }
+
+  /**
+   * Add an {@link RpcInterceptor} that wraps every RPC this participant performs or handles.
+   * Interceptors run in the order they were added, the first being outermost. Adding the same
+   * instance twice is a no-op.
+   *
+   * @param interceptor - The interceptor to add
+   */
+  addRpcInterceptor(interceptor: RpcInterceptor) {
+    if (!this.rpcInterceptors.includes(interceptor)) {
+      this.rpcInterceptors.push(interceptor);
+    }
+  }
+
+  /**
+   * Remove a previously added {@link RpcInterceptor}. Calls already in flight keep the chain
+   * they started with.
+   *
+   * @param interceptor - The interceptor to remove
+   */
+  removeRpcInterceptor(interceptor: RpcInterceptor) {
+    this.rpcInterceptors = this.rpcInterceptors.filter((existing) => existing !== interceptor);
   }
 
   /**
@@ -928,23 +972,28 @@ export class LocalParticipant extends Participant {
     let responseError: RpcError | null = null;
     let responsePayload: string | null = null;
 
-    const handler = this.rpcHandlers.get(method);
-
-    if (!handler) {
-      responseError = RpcError.builtIn('UNSUPPORTED_METHOD');
-    } else {
-      try {
-        responsePayload = await handler({ requestId, callerIdentity, payload, responseTimeout });
-      } catch (error) {
-        if (error instanceof RpcError) {
-          responseError = error;
-        } else {
-          console.warn(
-            `Uncaught error returned by RPC handler for ${method}. Returning APPLICATION_ERROR instead.`,
-            error,
-          );
-          responseError = RpcError.builtIn('APPLICATION_ERROR');
-        }
+    const invocation: RpcInvocationData = {
+      requestId,
+      callerIdentity,
+      payload,
+      responseTimeout,
+      method,
+    };
+    // the chain sees the handler's outcome unchanged, including UNSUPPORTED_METHOD for a method
+    // nothing is registered for; only after it settles is a non-RpcError turned into
+    // APPLICATION_ERROR for the caller
+    const handle = chainIncoming([...this.rpcInterceptors], (inv) => this.invokeRpcHandler(inv));
+    try {
+      responsePayload = (await handle(invocation)) ?? null;
+    } catch (error) {
+      if (error instanceof RpcError) {
+        responseError = error;
+      } else {
+        console.warn(
+          `Uncaught error returned by RPC handler for ${method}. Returning APPLICATION_ERROR instead.`,
+          error,
+        );
+        responseError = RpcError.builtIn('APPLICATION_ERROR');
       }
     }
 
@@ -962,6 +1011,15 @@ export class LocalParticipant extends Participant {
     if (res.error) {
       console.warn(`error sending rpc method invocation response: ${res.error}`);
     }
+  }
+
+  /** The innermost step of the incoming chain: run the registered handler, if any. */
+  private async invokeRpcHandler(invocation: RpcInvocationData): Promise<string> {
+    const handler = this.rpcHandlers.get(invocation.method);
+    if (!handler) {
+      throw RpcError.builtIn('UNSUPPORTED_METHOD');
+    }
+    return await handler(invocation);
   }
 }
 

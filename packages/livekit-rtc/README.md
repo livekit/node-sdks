@@ -79,7 +79,7 @@ await track.close();
 
 ### RPC
 
-Perform your own predefined method calls from one participant to another. 
+Perform your own predefined method calls from one participant to another.
 
 This feature is especially powerful when used with [Agents](https://docs.livekit.io/agents), for instance to forward LLM function calls to your client application.
 
@@ -89,14 +89,14 @@ The participant who implements the method and will receive its calls must first 
 
 ```typescript
 room.localParticipant?.registerRpcMethod(
-   // method name - can be any string that makes sense for your application
+  // method name - can be any string that makes sense for your application
   'greet',
 
   // method handler - will be called when the method is invoked by a RemoteParticipant
   async (data: RpcInvocationData) => {
     console.log(`Received greeting from ${data.callerIdentity}: ${data.payload}`);
     return `Hello, ${data.callerIdentity}!`;
-  }
+  },
 );
 ```
 
@@ -121,9 +121,40 @@ try {
 
 You may find it useful to adjust the `responseTimeout` parameter, which indicates the amount of time you will wait for a response. We recommend keeping this value as low as possible while still satisfying the constraints of your application.
 
+#### Intercepting RPC calls
+
+An `RpcInterceptor` wraps every RPC the local participant performs or handles, which is useful for logging, tracing, or attaching metadata to payloads. Each method receives the call and a `next` continuation; return what `next` returns. Interceptors run in the order they were added, the first being outermost, and errors from the remote side or from your handler flow through them unchanged. Implement only the direction you care about.
+
+```typescript
+const timing: RpcInterceptor = {
+  async interceptOutgoing(call, next) {
+    const start = performance.now();
+    try {
+      return await next(call);
+    } finally {
+      console.log(
+        `call ${call.method} -> ${call.destinationIdentity}: ${performance.now() - start}ms`,
+      );
+    }
+  },
+  async interceptIncoming(invocation, next) {
+    const start = performance.now();
+    try {
+      return await next(invocation);
+    } finally {
+      console.log(
+        `handled ${invocation.method} from ${invocation.callerIdentity}: ${performance.now() - start}ms`,
+      );
+    }
+  },
+};
+
+room.localParticipant!.addRpcInterceptor(timing);
+```
+
 #### Errors
 
-LiveKit is a dynamic realtime environment and calls can fail for various reasons. 
+LiveKit is a dynamic realtime environment and calls can fail for various reasons.
 
 You may throw errors of the type `RpcError` with a string `message` in an RPC method handler and they will be received on the caller's side with the message intact. Other errors will not be transmitted and will instead arrive to the caller as `1500` ("Application Error"). Other built-in errors are detailed in `RpcError`.
 
@@ -131,7 +162,6 @@ You may throw errors of the type `RpcError` with a string `message` in an RPC me
 
 - [`publish-wav`](https://github.com/livekit/node-sdks/tree/main/examples/publish-wav): connect to a room and publish a .wave file
 - [`rpc`](https://github.com/livekit/node-sdks/tree/main/examples/rpc): simple back-and-forth RPC interaction
-
 
 ## Getting help / Contributing
 

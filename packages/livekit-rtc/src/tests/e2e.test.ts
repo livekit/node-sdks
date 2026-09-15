@@ -546,11 +546,11 @@ describeE2E('livekit-rtc e2e', () => {
         `${method}:${payload}->${payload}`,
         `${method}:${payload}->${payload}`,
       ]);
-      // the unregistered method reached the callee's chain too, with next throwing
+      // the unregistered method never reached the callee's chain: the FFI layer rejects a
+      // method nobody registered before the SDK's handler is invoked
       expect(incoming).toEqual([
         `${method}:${callerRoom!.localParticipant!.identity}`,
         `${method}:${callerRoom!.localParticipant!.identity}`,
-        `unregistered-method:${callerRoom!.localParticipant!.identity}`,
       ]);
 
       // Short by design: no ack ever arrives for an absent participant, so the

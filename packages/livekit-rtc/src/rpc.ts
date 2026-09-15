@@ -80,8 +80,9 @@ export type IncomingRpcNext = (invocation: RpcInvocationData) => Promise<string>
  * Errors flow through the chain unchanged: an {@link RpcError} thrown by the remote side
  * (outgoing) or by the handler (incoming) is visible to every interceptor before it reaches the
  * caller. On the incoming side, any other error thrown by the handler is also visible; the SDK
- * converts it to `APPLICATION_ERROR` only after the chain settles, and a call for an
- * unregistered method reaches the chain with `next` throwing `UNSUPPORTED_METHOD`.
+ * converts it to `APPLICATION_ERROR` only after the chain settles. Calls for methods nobody
+ * registered are normally rejected by the transport before the SDK is involved; should one
+ * reach the chain anyway, `next` throws `UNSUPPORTED_METHOD`.
  *
  * @example
  * Time every RPC in both directions:

@@ -38,6 +38,123 @@ export interface RpcInvocationData {
    * The maximum time the caller will wait for a response.
    */
   responseTimeout: number;
+
+  /**
+   * The name of the invoked RPC method.
+   */
+  method: string;
+}
+
+/**
+ * An outgoing RPC call, as passed to {@link RpcInterceptor.interceptOutgoing}.
+ *
+ * Mirrors the parameters of `LocalParticipant.performRpc`. An interceptor may pass a modified
+ * copy to `next` (for example to add a header to a JSON payload).
+ */
+export interface RpcCallInfo {
+  /** The identity of the participant being called. */
+  destinationIdentity: string;
+  /** The method name. */
+  method: string;
+  /** The request payload. */
+  payload: string;
+  /** Milliseconds to wait for a response, or `undefined` for the default. */
+  responseTimeout?: number;
+}
+
+/** Continuation handed to {@link RpcInterceptor.interceptOutgoing}: performs the call. */
+export type OutgoingRpcNext = (call: RpcCallInfo) => Promise<string>;
+
+/** Continuation handed to {@link RpcInterceptor.interceptIncoming}: runs the handler. */
+export type IncomingRpcNext = (invocation: RpcInvocationData) => Promise<string>;
+
+/**
+ * Observe or wrap RPC calls made and handled by a `LocalParticipant`.
+ *
+ * Register with `LocalParticipant.addRpcInterceptor`. Each method receives the call and a `next`
+ * continuation and must return (or throw) what `next` returns (or throws), unless it
+ * deliberately short-circuits the call. Interceptors run in registration order: the first one
+ * added is the outermost. Both methods are optional, so implement only the direction you care
+ * about.
+ *
+ * Errors flow through the chain unchanged: an {@link RpcError} thrown by the remote side
+ * (outgoing) or by the handler (incoming) is visible to every interceptor before it reaches the
+ * caller. On the incoming side, any other error thrown by the handler is also visible; the SDK
+ * converts it to `APPLICATION_ERROR` only after the chain settles. Calls for methods nobody
+ * registered are normally rejected by the transport before the SDK is involved; should one
+ * reach the chain anyway, `next` throws `UNSUPPORTED_METHOD`.
+ *
+ * @example
+ * Time every RPC in both directions:
+ * ```typescript
+ * const timing: RpcInterceptor = {
+ *   async interceptOutgoing(call, next) {
+ *     const start = performance.now();
+ *     try {
+ *       return await next(call);
+ *     } finally {
+ *       console.log(`call ${call.method} -> ${call.destinationIdentity}: ${performance.now() - start}ms`);
+ *     }
+ *   },
+ *   async interceptIncoming(invocation, next) {
+ *     const start = performance.now();
+ *     try {
+ *       return await next(invocation);
+ *     } finally {
+ *       console.log(`handled ${invocation.method} from ${invocation.callerIdentity}: ${performance.now() - start}ms`);
+ *     }
+ *   },
+ * };
+ * room.localParticipant!.addRpcInterceptor(timing);
+ * ```
+ */
+export interface RpcInterceptor {
+  /** Wrap an outgoing `LocalParticipant.performRpc`. Return the response payload. */
+  interceptOutgoing?(call: RpcCallInfo, next: OutgoingRpcNext): Promise<string>;
+  /** Wrap the handling of an incoming invocation. Return the response payload. */
+  interceptIncoming?(invocation: RpcInvocationData, next: IncomingRpcNext): Promise<string>;
+}
+
+/**
+ * Compose `interceptors` around `terminal`; the first interceptor is outermost. Interceptors
+ * without an `interceptOutgoing` method are pass-through.
+ *
+ * @internal
+ */
+export function chainOutgoing(
+  interceptors: readonly RpcInterceptor[],
+  terminal: OutgoingRpcNext,
+): OutgoingRpcNext {
+  let callNext = terminal;
+  for (let i = interceptors.length - 1; i >= 0; i--) {
+    const interceptor = interceptors[i]!;
+    const intercept = interceptor.interceptOutgoing;
+    if (!intercept) continue;
+    const inner = callNext;
+    callNext = (call) => intercept.call(interceptor, call, inner);
+  }
+  return callNext;
+}
+
+/**
+ * Compose `interceptors` around `terminal`; the first interceptor is outermost. Interceptors
+ * without an `interceptIncoming` method are pass-through.
+ *
+ * @internal
+ */
+export function chainIncoming(
+  interceptors: readonly RpcInterceptor[],
+  terminal: IncomingRpcNext,
+): IncomingRpcNext {
+  let callNext = terminal;
+  for (let i = interceptors.length - 1; i >= 0; i--) {
+    const interceptor = interceptors[i]!;
+    const intercept = interceptor.interceptIncoming;
+    if (!intercept) continue;
+    const inner = callNext;
+    callNext = (invocation) => intercept.call(interceptor, invocation, inner);
+  }
+  return callNext;
 }
 
 /**

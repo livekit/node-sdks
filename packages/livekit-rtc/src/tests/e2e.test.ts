@@ -490,6 +490,27 @@ describeE2E('livekit-rtc e2e', () => {
 
       calleeRoom!.localParticipant!.registerRpcMethod(method, async (data) => data.payload);
 
+      // interceptors see every call on both sides, with the method name attached to the
+      // invocation; the payload is what they see on the way in
+      const outgoing: string[] = [];
+      const incoming: string[] = [];
+      callerRoom!.localParticipant!.addRpcInterceptor({
+        async interceptOutgoing(call, next) {
+          const response = await next(call);
+          outgoing.push(`${call.method}:${call.payload}->${response}`);
+          return response;
+        },
+      });
+      calleeRoom!.localParticipant!.addRpcInterceptor({
+        async interceptIncoming(invocation, next) {
+          try {
+            return await next(invocation);
+          } finally {
+            incoming.push(`${invocation.method}:${invocation.callerIdentity}`);
+          }
+        },
+      });
+
       // `room.connect()` resolves on the signal handshake, so the first
       // data-channel message still waits on ICE/DTLS/SCTP setup — seconds, on a
       // small runner. Warm the channel up untimed so the assertions below
@@ -520,6 +541,17 @@ describeE2E('livekit-rtc e2e', () => {
           responseTimeout: rpcResponseTimeoutMs,
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.UNSUPPORTED_METHOD });
+
+      expect(outgoing).toEqual([
+        `${method}:${payload}->${payload}`,
+        `${method}:${payload}->${payload}`,
+      ]);
+      // the unregistered method never reached the callee's chain: the FFI layer rejects a
+      // method nobody registered before the SDK's handler is invoked
+      expect(incoming).toEqual([
+        `${method}:${callerRoom!.localParticipant!.identity}`,
+        `${method}:${callerRoom!.localParticipant!.identity}`,
+      ]);
 
       // Short by design: no ack ever arrives for an absent participant, so the
       // timeout expiring *is* the behavior under test.

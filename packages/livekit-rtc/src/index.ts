@@ -44,7 +44,15 @@ export {
   type RoomOptions,
   type RtcConfiguration,
 } from './room.js';
-export { RpcError, type PerformRpcParams, type RpcInvocationData } from './rpc.js';
+export {
+  RpcError,
+  type IncomingRpcNext,
+  type OutgoingRpcNext,
+  type PerformRpcParams,
+  type RpcCallInfo,
+  type RpcInterceptor,
+  type RpcInvocationData,
+} from './rpc.js';
 export {
   LocalAudioTrack,
   LocalVideoTrack,

@@ -19,8 +19,15 @@ describe('failoverAttempts', () => {
     expect(failoverAttempts(true, 'myproject.region.livekit.cloud')).toBe(FAILOVER_MAX_ATTEMPTS);
   });
 
+  it('fails over for the LiveKit Cloud API hosts', () => {
+    expect(failoverAttempts(true, 'cloud-api.livekit.io')).toBe(FAILOVER_MAX_ATTEMPTS);
+    expect(failoverAttempts(true, 'cloud-api.staging.livekit.io')).toBe(FAILOVER_MAX_ATTEMPTS);
+    expect(failoverAttempts(true, 'CLOUD-API.LIVEKIT.IO')).toBe(FAILOVER_MAX_ATTEMPTS);
+  });
+
   it('does not fail over for non-cloud hosts', () => {
     expect(failoverAttempts(true, 'myproject.livekit.io')).toBe(1);
+    expect(failoverAttempts(true, 'cloud-api.example.com')).toBe(1);
     expect(failoverAttempts(true, 'example.com')).toBe(1);
     expect(failoverAttempts(true, '127.0.0.1')).toBe(1);
     expect(failoverAttempts(true, 'notlivekit.cloud')).toBe(1);

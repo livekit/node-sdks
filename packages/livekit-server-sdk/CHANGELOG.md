@@ -1,5 +1,13 @@
 # livekit-server-sdk
 
+## 2.19.1
+
+### Patch Changes
+
+- Add `enabled` option to `createIngress` and `updateIngress`. Setting `enabled: false` lets you disable an ingress session (reject new connection attempts) without deleting it, so the stream key is preserved. The field already exists on the protobuf `CreateIngressRequest`/`UpdateIngressRequest`; this exposes it through the typed `CreateIngressOptions`/`UpdateIngressOptions`. - [#692](https://github.com/livekit/node-sdks/pull/692) ([@stefanking-difference](https://github.com/stefanking-difference))
+
+- Require the exp claim when verifying access tokens, matching livekit/protocol#1706. - [#710](https://github.com/livekit/node-sdks/pull/710) ([@SashaMIT](https://github.com/SashaMIT))
+
 ## 2.19.0
 
 ### Minor Changes

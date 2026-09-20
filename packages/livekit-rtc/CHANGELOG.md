@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `RpcInterceptor` support: `LocalParticipant.addRpcInterceptor()` wraps every RPC the participant performs or handles, for logging, tracing, or payload metadata. `RpcInvocationData` now carries the invoked `method`. - [#724](https://github.com/livekit/node-sdks/pull/724) ([@davidzhao](https://github.com/davidzhao))
+
 ## 1.0.0
 
 ### Major Changes

@@ -53,6 +53,11 @@ export interface CreateIngressOptions {
    */
   url?: string;
   /**
+   * whether the ingress is enabled. When set to false, new connection attempts are rejected
+   * while the stream key is preserved. The default is true.
+   */
+  enabled?: boolean;
+  /**
    * custom audio encoding parameters. optional
    */
   audio?: IngressAudioOptions;
@@ -93,6 +98,11 @@ export interface UpdateIngressOptions {
    * Transcoding is required for all input types except WHIP. For WHIP, the default is to not transcode.
    */
   enableTranscoding?: boolean | undefined;
+  /**
+   * whether the ingress is enabled. When set to false, new connection attempts are rejected
+   * while the stream key is preserved. The default is true.
+   */
+  enabled?: boolean;
   /**
    * custom audio encoding parameters. optional
    */
@@ -152,6 +162,7 @@ export class IngressClient extends ServiceBase {
 
     const roomName: string | undefined = opts.roomName;
     const enableTranscoding: boolean | undefined = opts.enableTranscoding;
+    const enabled: boolean | undefined = opts.enabled;
     const audio: IngressAudioOptions | undefined = opts.audio;
     const video: IngressVideoOptions | undefined = opts.video;
     const participantMetadata: string | undefined = opts.participantMetadata;
@@ -180,6 +191,7 @@ export class IngressClient extends ServiceBase {
       bypassTranscoding,
       enableTranscoding,
       url,
+      enabled,
       audio,
       video,
     }).toJson();
@@ -203,7 +215,7 @@ export class IngressClient extends ServiceBase {
     const participantName: string = opts.participantName || '';
     const participantIdentity: string = opts.participantIdentity || '';
     const { participantMetadata } = opts;
-    const { audio, video, bypassTranscoding, enableTranscoding } = opts;
+    const { audio, video, bypassTranscoding, enableTranscoding, enabled } = opts;
 
     const req = new UpdateIngressRequest({
       ingressId,
@@ -214,6 +226,7 @@ export class IngressClient extends ServiceBase {
       participantMetadata,
       bypassTranscoding,
       enableTranscoding,
+      enabled,
       audio,
       video,
     }).toJson();

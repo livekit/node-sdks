@@ -30,6 +30,9 @@ import {
 
 // use concurrent testing if available on the runner (currently not supported by bun's api)
 const it = typeof itRaw.concurrent === 'function' ? itRaw.concurrent : itRaw;
+// Test bodies take `expect` from the test context. With concurrent tests the module-level
+// `expect` records `.resolves`/`.rejects` promises against whichever test vitest considers
+// current, so one test's rejection gets reported as a failure of an unrelated test.
 
 /**
  * Only tracks published by `identity` are the test's business. Anything else in
@@ -130,7 +133,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'connects to a room',
-    async () => {
+    async ({ expect }) => {
       const { roomName, rooms } = await connectTestRooms(1);
       const room = rooms[0]!;
 
@@ -153,7 +156,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'connects multiple participants to the same room',
-    async () => {
+    async ({ expect }) => {
       const { roomName, rooms } = await connectTestRooms(2);
       const [first, second] = rooms;
 
@@ -169,7 +172,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'sends and receives a data message between participants sharing a key',
-    async () => {
+    async ({ expect }) => {
       // A shared-key `keyProviderOptions` with only `sharedKey` set relies on
       // the SDK filling in the remaining (proto-required) provider defaults;
       // regression guard for connect failing to encode KeyProviderOptions.
@@ -209,7 +212,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'emits participantDisconnected when a participant leaves',
-    async () => {
+    async ({ expect }) => {
       const { rooms } = await connectTestRooms(2);
       const [first, second] = rooms;
       const secondIdentity = second!.localParticipant!.identity;
@@ -240,7 +243,7 @@ describeE2E('livekit-rtc e2e', () => {
   // transmitted silence, which the detector reads as a wrong frequency.
   itRaw(
     'transfers audio between two participants (sine detection)',
-    async () => {
+    async ({ expect }) => {
       const cases = [
         { pubRateHz: 48_000, pubChannels: 1, subRateHz: 48_000, subChannels: 1 },
         { pubRateHz: 48_000, pubChannels: 2, subRateHz: 48_000, subChannels: 2 },
@@ -417,7 +420,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'sends and receives text and byte streams',
-    async () => {
+    async ({ expect }) => {
       const { rooms } = await connectTestRooms(2);
       const [receivingRoom, sendingRoom] = rooms;
       const senderIdentity = sendingRoom!.localParticipant!.identity;
@@ -481,7 +484,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'invokes RPC methods and returns structured errors',
-    async () => {
+    async ({ expect }) => {
       const { rooms } = await connectTestRooms(2);
       const [callerRoom, calleeRoom] = rooms;
 
@@ -511,25 +514,17 @@ describeE2E('livekit-rtc e2e', () => {
         },
       });
 
-      // `room.connect()` resolves on the signal handshake, so the first
-      // data-channel message still waits on ICE/DTLS/SCTP setup — seconds, on a
-      // small runner. Warm the channel up untimed so the assertions below
-      // measure RPC behavior rather than connection setup.
-      await callerRoom!.localParticipant!.performRpc({
-        destinationIdentity: calleeRoom!.localParticipant!.identity,
-        method,
-        payload,
-        responseTimeout: testTimeoutMs,
-      });
-
-      const rpcResponseTimeoutMs = 1_000;
-
+      // These calls assert on RPC semantics, not latency, so they get the full
+      // test budget. `room.connect()` resolves on the signal handshake, so the
+      // first data-channel message still waits on ICE/DTLS/SCTP setup, and the
+      // suite runs concurrently in one process on a small runner: a tight
+      // responseTimeout here was the most frequent flake on main.
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method,
           payload,
-          responseTimeout: rpcResponseTimeoutMs,
+          responseTimeout: testTimeoutMs,
         }),
       ).resolves.toBe(payload);
 
@@ -538,35 +533,31 @@ describeE2E('livekit-rtc e2e', () => {
           destinationIdentity: calleeRoom!.localParticipant!.identity,
           method: 'unregistered-method',
           payload,
-          responseTimeout: rpcResponseTimeoutMs,
+          responseTimeout: testTimeoutMs,
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.UNSUPPORTED_METHOD });
 
-      expect(outgoing).toEqual([
-        `${method}:${payload}->${payload}`,
-        `${method}:${payload}->${payload}`,
-      ]);
+      expect(outgoing).toEqual([`${method}:${payload}->${payload}`]);
       // the unregistered method never reached the callee's chain: the FFI layer rejects a
       // method nobody registered before the SDK's handler is invoked
-      expect(incoming).toEqual([
-        `${method}:${callerRoom!.localParticipant!.identity}`,
-        `${method}:${callerRoom!.localParticipant!.identity}`,
-      ]);
+      expect(incoming).toEqual([`${method}:${callerRoom!.localParticipant!.identity}`]);
 
-      // Short by design: no ack ever arrives for an absent participant, so the
-      // timeout expiring *is* the behavior under test.
+      // No ack ever arrives for an absent participant, so the ack budget
+      // expiring *is* the behavior under test. Bound it explicitly: the FFI's
+      // default is 7s, which used to be most of this test's runtime.
       await expect(
         callerRoom!.localParticipant!.performRpc({
           destinationIdentity: 'unknown-participant',
           method,
           payload,
-          responseTimeout: 500,
+          responseTimeout: testTimeoutMs,
+          maxRoundTripLatency: 500,
         }),
       ).rejects.toMatchObject({ code: RpcError.ErrorCode.CONNECTION_TIMEOUT });
 
       await Promise.all(rooms.map((r) => r.disconnect()));
     },
-    testTimeoutMs * 2,
+    testTimeoutMs,
   );
 
   it(
@@ -611,7 +602,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'cleans up track publications when a remote participant disconnects',
-    async () => {
+    async ({ expect }) => {
       const { rooms } = await connectTestRooms(2);
       const [stayingRoom, leavingRoom] = rooms;
 
@@ -664,7 +655,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'cleans up resources when multiple participants disconnect simultaneously',
-    async () => {
+    async ({ expect }) => {
       // Connect 4 participants to stress-test concurrent disconnection cleanup
       const { rooms } = await connectTestRooms(4);
 
@@ -719,7 +710,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   it(
     'concurrent getSid() calls share a single listener and resolve consistently',
-    async () => {
+    async ({ expect }) => {
       const { rooms } = await connectTestRooms(1);
       const room = rooms[0]!;
 
@@ -883,7 +874,7 @@ describeE2E('livekit-rtc e2e', () => {
 
   itRaw(
     'full reconnect keeps audio flowing and ends with one publication on the subscriber',
-    async () => {
+    async ({ expect }) => {
       const { rooms, subRoom, pubRoom } = await runReconnectScenario(
         SimulateScenarioKind.SIMULATE_FULL_RECONNECT,
       );

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 1.1.1
+
+### Patch Changes
+
+- `performRpc` accepts `maxRoundTripLatency`, the time to wait for the destination to acknowledge the request before failing with `CONNECTION_TIMEOUT` (default 7s). `RpcCallInfo` carries it so interceptors can adjust it. - [#727](https://github.com/livekit/node-sdks/pull/727) ([@davidzhao](https://github.com/davidzhao))
+
 ## 1.1.0
 
 ### Minor Changes

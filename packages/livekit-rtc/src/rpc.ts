@@ -13,6 +13,11 @@ export interface PerformRpcParams {
   payload: string;
   /** Timeout for receiving a response after initial connection (milliseconds). Default: 10000 */
   responseTimeout?: number;
+  /**
+   * Maximum time to wait for the destination to acknowledge the request (milliseconds).
+   * If no ack arrives in time the call fails with `CONNECTION_TIMEOUT`. Default: 7000
+   */
+  maxRoundTripLatency?: number;
 }
 
 /**
@@ -60,6 +65,8 @@ export interface RpcCallInfo {
   payload: string;
   /** Milliseconds to wait for a response, or `undefined` for the default. */
   responseTimeout?: number;
+  /** Milliseconds to wait for the destination's ack, or `undefined` for the default. */
+  maxRoundTripLatency?: number;
 }
 
 /** Continuation handed to {@link RpcInterceptor.interceptOutgoing}: performs the call. */

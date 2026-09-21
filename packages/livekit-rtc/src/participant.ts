@@ -841,8 +841,15 @@ export class LocalParticipant extends Participant {
     method,
     payload,
     responseTimeout,
+    maxRoundTripLatency,
   }: PerformRpcParams): Promise<string> {
-    const call: RpcCallInfo = { destinationIdentity, method, payload, responseTimeout };
+    const call: RpcCallInfo = {
+      destinationIdentity,
+      method,
+      payload,
+      responseTimeout,
+      maxRoundTripLatency,
+    };
     // snapshot the interceptor list so add/remove during a call is well defined
     const perform = chainOutgoing([...this.rpcInterceptors], (c) => this.performRpcFfi(c));
     return await perform(call);
@@ -853,6 +860,7 @@ export class LocalParticipant extends Participant {
     method,
     payload,
     responseTimeout,
+    maxRoundTripLatency,
   }: RpcCallInfo): Promise<string> {
     const req = new PerformRpcRequest({
       localParticipantHandle: this.ffi_handle.handle,
@@ -860,6 +868,7 @@ export class LocalParticipant extends Participant {
       method,
       payload,
       responseTimeoutMs: responseTimeout,
+      maxRoundTripLatencyMs: maxRoundTripLatency,
     });
 
     const res = FfiClient.instance.request<PerformRpcResponse>({

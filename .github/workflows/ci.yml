@@ -64,6 +64,9 @@ jobs:
         run: pnpm install
       - name: Test build
         run: pnpm --filter="*livekit*" run build
+      - name: Test rtc-node dual package instanceof
+        # Needs the built dist/, since it loads both published entry points at once.
+        run: pnpm --filter="@livekit/rtc-node" run test:dual-package
       - name: Test livekit-server-sdk (Node)
         run: pnpm --filter="livekit-server-sdk" test
       - name: Test livekit-server-sdk (Browser)

@@ -12,4 +12,4 @@ minimumReleaseAgeExclude:
   - vitest@4.1.11
 
 catalog:
-  '@livekit/protocol': 1.51.0
+  '@livekit/protocol': 1.52.1

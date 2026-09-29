@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ChatMessage as ProtoChatMessage } from '@livekit/rtc-ffi-bindings';
 import { describe, expect, it } from 'vitest';
-import { splitUtf8 } from './utils.js';
+import { chatMessageFromProto, splitUtf8 } from './utils.js';
 
 describe('splitUtf8', () => {
   it('splits a string into chunks of the given size', () => {
@@ -47,5 +48,36 @@ describe('splitUtf8', () => {
 
   it('handles an empty string', () => {
     expect(splitUtf8('', 5)).toEqual([]);
+  });
+});
+
+describe('chatMessageFromProto', () => {
+  it('leaves editTimestamp undefined for a message that was never edited', () => {
+    const message = chatMessageFromProto(
+      new ProtoChatMessage({ id: 'msg-1', message: 'hello', timestamp: 1700000000000n }),
+    );
+
+    expect(message).toEqual({
+      id: 'msg-1',
+      message: 'hello',
+      timestamp: 1700000000000,
+      editTimestamp: undefined,
+      generated: undefined,
+    });
+  });
+
+  it('converts editTimestamp and generated for an edited message', () => {
+    const message = chatMessageFromProto(
+      new ProtoChatMessage({
+        id: 'msg-2',
+        message: 'hello again',
+        timestamp: 1700000000000n,
+        editTimestamp: 1700000005000n,
+        generated: true,
+      }),
+    );
+
+    expect(message.editTimestamp).toBe(1700000005000);
+    expect(message.generated).toBe(true);
   });
 });

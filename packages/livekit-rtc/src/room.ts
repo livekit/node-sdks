@@ -55,6 +55,7 @@ import type { ChatMessage } from './types.js';
 import {
   bigIntToNumber,
   byteStreamInfoFromProto,
+  chatMessageFromProto,
   numberToBigInt,
   textStreamInfoFromProto,
 } from './utils.js';
@@ -825,14 +826,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       }
     } else if (ev.case == 'chatMessage') {
       const participant = this.retrieveParticipantByIdentity(ev.value.participantIdentity!);
-      const { id, message: messageText, timestamp, editTimestamp, generated } = ev.value.message!;
-      const message: ChatMessage = {
-        id: id!,
-        message: messageText!,
-        timestamp: Number(timestamp),
-        editTimestamp: Number(editTimestamp),
-        generated,
-      };
+      const message: ChatMessage = chatMessageFromProto(ev.value.message!);
       this.emit(RoomEvent.ChatMessage, message, participant);
     } else if (ev.case == 'dataPacketReceived') {
       // Can be undefined if the data is sent from a Server SDK

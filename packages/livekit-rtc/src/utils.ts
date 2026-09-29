@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import type {
   ByteStreamInfo as ProtoByteStreamInfo,
+  ChatMessage as ProtoChatMessage,
   TextStreamInfo as ProtoTextStreamInfo,
 } from '@livekit/rtc-ffi-bindings';
 import type { ByteStreamInfo, TextStreamInfo } from './data_streams/types.js';
+import type { ChatMessage } from './types.js';
 
 /** convert bigints to numbers preserving undefined values */
 export function bigIntToNumber<T extends bigint | undefined>(
@@ -68,5 +70,16 @@ export function byteStreamInfoFromProto(info: ProtoByteStreamInfo): ByteStreamIn
     timestamp: bigIntToNumber(info.timestamp!),
     totalSize: info.totalLength !== undefined ? bigIntToNumber(info.totalLength) : undefined,
     attributes: info.attributes,
+  };
+}
+
+/** @internal */
+export function chatMessageFromProto(info: ProtoChatMessage): ChatMessage {
+  return {
+    id: info.id!,
+    message: info.message!,
+    timestamp: bigIntToNumber(info.timestamp!),
+    editTimestamp: bigIntToNumber(info.editTimestamp),
+    generated: info.generated,
   };
 }

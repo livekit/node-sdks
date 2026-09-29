@@ -104,7 +104,7 @@ import type { RemoteTrackPublication, TrackPublication } from './track_publicati
 import { LocalTrackPublication } from './track_publication.js';
 import type { Transcription } from './transcription.js';
 import type { ChatMessage } from './types.js';
-import { byteStreamInfoFromProto, textStreamInfoFromProto } from './utils.js';
+import { byteStreamInfoFromProto, chatMessageFromProto, textStreamInfoFromProto } from './utils.js';
 import { numberToBigInt } from './utils.js';
 
 export abstract class Participant {
@@ -651,13 +651,7 @@ export class LocalParticipant extends Participant {
 
     switch (cb.message.case) {
       case 'chatMessage':
-        const { id, timestamp, editTimestamp, message } = cb.message.value!;
-        return {
-          id: id!,
-          timestamp: Number(timestamp),
-          editTimestamp: Number(editTimestamp),
-          message: message!,
-        };
+        return chatMessageFromProto(cb.message.value!);
       case 'error':
       default:
         throw new Error(cb.message.value);
@@ -698,13 +692,7 @@ export class LocalParticipant extends Participant {
 
     switch (cb.message.case) {
       case 'chatMessage':
-        const { id, timestamp, editTimestamp, message } = cb.message.value!;
-        return {
-          id: id!,
-          timestamp: Number(timestamp),
-          editTimestamp: Number(editTimestamp),
-          message: message!,
-        };
+        return chatMessageFromProto(cb.message.value!);
       case 'error':
       default:
         throw new Error(cb.message.value);

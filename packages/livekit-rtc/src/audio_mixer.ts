@@ -70,6 +70,9 @@ export class AudioMixer {
   private streams: Set<AudioStream>;
   private buffers: Map<AudioStream, Int16Array>;
   private streamIterators: Map<AudioStream, { next(): Promise<IteratorResult<AudioFrame>> }>;
+  // A read that timed out is still in flight. It is kept here and awaited again on the next
+  // pass, so the frame it eventually resolves with is not lost.
+  private pendingReads: Map<AudioStream, Promise<IteratorResult<AudioFrame>>>;
   private sampleRate: number;
   private numChannels: number;
   private chunkSize: number;
@@ -91,6 +94,7 @@ export class AudioMixer {
     this.streams = new Set();
     this.buffers = new Map();
     this.streamIterators = new Map();
+    this.pendingReads = new Map();
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
     this.chunkSize =
@@ -141,6 +145,7 @@ export class AudioMixer {
     this.streams.delete(stream);
     this.buffers.delete(stream);
     this.streamIterators.delete(stream);
+    this.pendingReads.delete(stream);
   }
 
   /**
@@ -311,11 +316,22 @@ export class AudioMixer {
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
       try {
-        const result = await this.timeoutRace(iterator.next(), this.streamTimeoutMs);
+        let read = this.pendingReads.get(stream);
+        if (!read) {
+          read = iterator.next();
+          this.pendingReads.set(stream, read);
+        }
+        const result = await this.timeoutRace(read, this.streamTimeoutMs);
 
         if (result === 'timeout') {
+          // Keep the pending read: issuing another next() would leave this one to resolve
+          // unobserved and its frame would be dropped.
           console.warn(`AudioMixer: stream timeout after ${this.streamTimeoutMs}ms`);
           break;
+        }
+
+        if (this.pendingReads.get(stream) === read) {
+          this.pendingReads.delete(stream);
         }
 
         if (result.done) {
@@ -339,6 +355,7 @@ export class AudioMixer {
           buf = combined;
         }
       } catch (error) {
+        this.pendingReads.delete(stream);
         console.error(`AudioMixer: Error reading from stream:`, error);
         exhausted = true;
         break;

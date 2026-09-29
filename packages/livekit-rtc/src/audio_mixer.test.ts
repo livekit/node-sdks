@@ -266,4 +266,49 @@ describe('AudioMixer', () => {
       console.warn = originalWarn;
     }
   });
+
+  it('does not drop a frame that arrives after a read timeout', async () => {
+    const sampleRate = 48000;
+    const numChannels = 1;
+    const samplesPerChannel = 480;
+    const mixer = new AudioMixer(sampleRate, numChannels, {
+      blocksize: samplesPerChannel,
+      streamTimeoutMs: 20,
+    });
+
+    const makeFrame = (value: number) =>
+      new AudioFrame(
+        new Int16Array(numChannels * samplesPerChannel).fill(value),
+        sampleRate,
+        numChannels,
+        samplesPerChannel,
+      );
+
+    // The first frame arrives well after the mixer's read timeout.
+    async function* lateStream(): AsyncGenerator<AudioFrame> {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      yield makeFrame(111);
+      yield makeFrame(222);
+    }
+
+    const originalWarn = console.warn;
+    console.warn = () => {};
+
+    try {
+      mixer.addStream(lateStream());
+
+      const values: number[] = [];
+      for await (const frame of mixer) {
+        const value = frame.data[0]!;
+        if (value !== 0) {
+          values.push(value);
+        }
+      }
+
+      expect(values).toEqual([111, 222]);
+    } finally {
+      console.warn = originalWarn;
+      await mixer.aclose();
+    }
+  });
 });

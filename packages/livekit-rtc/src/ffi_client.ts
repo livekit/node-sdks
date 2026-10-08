@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type CaptureAudioFrameCallback,
   FfiEvent,
   FfiHandle,
   FfiRequest,
@@ -43,6 +44,17 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
 
   private _nextRequestAsyncId = BigInt(0);
 
+  // Audio frames are most of the events and each has exactly one reader, its stream; emitting them
+  // would make every stream and room in the process check every other call's frames.
+  private audioStreamListeners = new Map<bigint, (event: FfiEvent) => void>();
+
+  // Every audio frame an agent speaks gets its own callback. Waiting on the emitter would add and
+  // remove a listener per frame and make every other waiter test it.
+  private captureAudioFrameWaiters = new Map<
+    bigint,
+    (callback: CaptureAudioFrameCallback) => void
+  >();
+
   constructor() {
     super();
     this.setMaxListeners(0);
@@ -50,11 +62,41 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
     livekitInitialize(
       (event_data: Uint8Array) => {
         const event = FfiEvent.fromBinary(event_data);
+        if (event.message.case === 'audioStreamEvent') {
+          this.audioStreamListeners.get(event.message.value.streamHandle!)?.(event);
+          return;
+        }
+        if (event.message.case === 'captureAudioFrame') {
+          const asyncId = event.message.value.asyncId!;
+          const waiter = this.captureAudioFrameWaiters.get(asyncId);
+          if (waiter) {
+            this.captureAudioFrameWaiters.delete(asyncId);
+            waiter(event.message.value);
+            return;
+          }
+        }
         this.emit(FfiClientEvent.FfiEvent, event);
       },
       true,
       SDK_VERSION,
     );
+  }
+
+  /** @internal */
+  onAudioStreamEvent(streamHandle: bigint, listener: (event: FfiEvent) => void) {
+    this.audioStreamListeners.set(streamHandle, listener);
+  }
+
+  /** @internal */
+  offAudioStreamEvent(streamHandle: bigint) {
+    this.audioStreamListeners.delete(streamHandle);
+  }
+
+  /** @internal Call in the same tick as the request, so its callback cannot arrive first. */
+  waitForCaptureAudioFrame(asyncId: bigint): Promise<CaptureAudioFrameCallback> {
+    return new Promise((resolve) => {
+      this.captureAudioFrameWaiters.set(asyncId, resolve);
+    });
   }
 
   request<T>(req: PartialMessage<FfiRequest>): T {

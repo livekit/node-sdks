@@ -6,7 +6,7 @@ import { AudioStreamType, NewAudioStreamRequest } from '@livekit/rtc-ffi-binding
 import type { UnderlyingSource } from 'node:stream/web';
 import { AudioFrame } from './audio_frame.js';
 import type { FfiEvent } from './ffi_client.js';
-import { FfiClient, FfiClientEvent, FfiHandle } from './ffi_client.js';
+import { FfiClient, FfiHandle } from './ffi_client.js';
 import { type FrameProcessor, isFrameProcessor } from './frame_processor.js';
 import { log } from './log.js';
 import type { Track } from './track.js';
@@ -35,6 +35,9 @@ export interface NoiseCancellationOptions {
 export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
   private controller?: ReadableStreamDefaultController<AudioFrame>;
   private ffiHandle: FfiHandle;
+  // The plain value events carry, which routes them here; the native `handle` getter costs a call
+  // across into native code on every read.
+  private ffiHandleId: bigint;
   private disposed = false;
   private sampleRate: number;
   private numChannels: number;
@@ -86,9 +89,10 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
       },
     });
 
-    this.ffiHandle = new FfiHandle(res.stream!.handle!.id!);
+    this.ffiHandleId = res.stream!.handle!.id!;
+    this.ffiHandle = new FfiHandle(this.ffiHandleId);
 
-    FfiClient.instance.on(FfiClientEvent.FfiEvent, this.onEvent);
+    FfiClient.instance.onAudioStreamEvent(this.ffiHandleId, this.onEvent);
     track.registerAudioStream(this);
   }
 
@@ -104,7 +108,7 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
 
     if (
       ev.message.case != 'audioStreamEvent' ||
-      ev.message.value.streamHandle != this.ffiHandle.handle
+      ev.message.value.streamHandle != this.ffiHandleId
     ) {
       return;
     }
@@ -148,7 +152,7 @@ export class AudioStreamSource implements UnderlyingSource<AudioFrame> {
    * @internal
    */
   teardown() {
-    FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onEvent);
+    FfiClient.instance.offAudioStreamEvent(this.ffiHandleId);
     if (this.disposed) {
       return;
     }

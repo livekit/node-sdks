@@ -69,6 +69,9 @@ export class WebhookReceiver {
         throw new Error('authorization header is empty');
       }
       const claims = await this.verifier.verify(authHeader, clockTolerance);
+      if (!claims.sha256) {
+        throw new Error('sha256 was not found in the token');
+      }
       // confirm sha
       const hash = await digest(body);
       const hashDecoded = btoa(

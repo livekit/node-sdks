@@ -5,9 +5,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   FAILOVER_MAX_ATTEMPTS,
   MIN_FAILOVER_TIMEOUT_SECONDS,
+  backoffMs,
   failoverAttempts,
   hostKey,
   parseMaxAge,
+  parseRetryAfter,
   pickNext,
   regionOrigins,
   sleep,
@@ -19,8 +21,15 @@ describe('failoverAttempts', () => {
     expect(failoverAttempts(true, 'myproject.region.livekit.cloud')).toBe(FAILOVER_MAX_ATTEMPTS);
   });
 
+  it('fails over for the LiveKit Cloud API hosts', () => {
+    expect(failoverAttempts(true, 'cloud-api.livekit.io')).toBe(FAILOVER_MAX_ATTEMPTS);
+    expect(failoverAttempts(true, 'cloud-api.staging.livekit.io')).toBe(FAILOVER_MAX_ATTEMPTS);
+    expect(failoverAttempts(true, 'CLOUD-API.LIVEKIT.IO')).toBe(FAILOVER_MAX_ATTEMPTS);
+  });
+
   it('does not fail over for non-cloud hosts', () => {
     expect(failoverAttempts(true, 'myproject.livekit.io')).toBe(1);
+    expect(failoverAttempts(true, 'cloud-api.example.com')).toBe(1);
     expect(failoverAttempts(true, 'example.com')).toBe(1);
     expect(failoverAttempts(true, '127.0.0.1')).toBe(1);
     expect(failoverAttempts(true, 'notlivekit.cloud')).toBe(1);
@@ -69,6 +78,44 @@ describe('pickNext', () => {
     expect(pickNext(['not a url', 'https://c.livekit.cloud'], new Set())).toBe(
       'https://c.livekit.cloud',
     );
+  });
+});
+
+describe('backoffMs', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('draws uniformly from [0, base * 2^attempt)', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    expect(backoffMs(2, 200)).toBe(0);
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    expect(backoffMs(0, 200)).toBe(100);
+    expect(backoffMs(1, 200)).toBe(200);
+    expect(backoffMs(2, 200)).toBe(400);
+  });
+});
+
+describe('parseRetryAfter', () => {
+  it('returns undefined when the header is absent or invalid', () => {
+    expect(parseRetryAfter(null)).toBeUndefined();
+    expect(parseRetryAfter('')).toBeUndefined();
+    expect(parseRetryAfter('soon')).toBeUndefined();
+  });
+
+  it('parses delay-seconds to milliseconds', () => {
+    expect(parseRetryAfter('0')).toBe(0);
+    expect(parseRetryAfter(' 2 ')).toBe(2000);
+  });
+
+  it('parses an HTTP-date relative to now, clamped at zero', () => {
+    vi.useFakeTimers({ now: Date.parse('Wed, 21 Oct 2026 07:28:00 GMT') });
+    try {
+      expect(parseRetryAfter('Wed, 21 Oct 2026 07:28:03 GMT')).toBe(3000);
+      expect(parseRetryAfter('Wed, 21 Oct 2026 07:27:00 GMT')).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

@@ -4,9 +4,10 @@
 
 // Region failover for the Twirp API clients.
 //
-// On a retryable failure (any transport error or HTTP 5xx) the client discovers
+// On a retryable failure (any transport error, or an HTTP 5xx other than a 503
+// without Retry-After) the client discovers
 // alternative LiveKit Cloud regions via /settings/regions and replays the
-// request against the next region, with exponential backoff. 4xx responses are
+// request against the next region, with jittered exponential backoff. 4xx responses are
 // returned immediately.
 
 // Total attempts (the original request + fallback regions) and the base retry
@@ -21,8 +22,8 @@ export const MIN_FAILOVER_TIMEOUT_SECONDS = 5;
 
 /**
  * Total request attempts for a host; 1 means no failover. Failover only engages
- * when enabled, the host is a LiveKit Cloud domain, and the request timeout is
- * long enough to retry. `force` bypasses the cloud-host check (test-only).
+ * when enabled, the host is a LiveKit Cloud project or Cloud API domain, and the
+ * request timeout is long enough to retry. `force` bypasses the cloud-host check (test-only).
  */
 export function failoverAttempts(
   enabled: boolean,
@@ -30,7 +31,7 @@ export function failoverAttempts(
   force = false,
   timeoutSeconds = 0,
 ): number {
-  if (!enabled || !(force || isCloud(hostname))) {
+  if (!enabled || !(force || isCloud(hostname) || isCloudApi(hostname))) {
     return 1;
   }
   if (timeoutSeconds > 0 && timeoutSeconds < MIN_FAILOVER_TIMEOUT_SECONDS) {
@@ -42,6 +43,12 @@ export function failoverAttempts(
 // Failover only engages for LiveKit Cloud project domains.
 function isCloud(hostname: string): boolean {
   return hostname.endsWith('.livekit.cloud');
+}
+
+// The LiveKit Cloud API hosts: cloud-api.livekit.io and cloud-api.<env>.livekit.io.
+export function isCloudApi(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return host.startsWith('cloud-api.') && host.endsWith('.livekit.io');
 }
 
 /** Normalizes a region URL to an http(s) scheme (ws -> http, wss -> https). */
@@ -66,6 +73,25 @@ export function pickNext(regionOrigins: string[], attempted: Set<string>): strin
     }
   }
   return undefined;
+}
+
+// Full jitter: a uniform delay in [0, base * 2^attempt) so clients that failed
+// together don't retry in lockstep.
+export function backoffMs(attempt: number, baseMs: number): number {
+  return Math.random() * baseMs * 2 ** attempt;
+}
+
+/** Parses a Retry-After header (delay-seconds or an HTTP-date) to milliseconds. */
+export function parseRetryAfter(header: string | null): number | undefined {
+  const value = header?.trim();
+  if (!value) {
+    return undefined;
+  }
+  if (/^\d+$/.test(value)) {
+    return Number(value) * 1000;
+  }
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - Date.now());
 }
 
 export function sleep(ms: number): Promise<void> {

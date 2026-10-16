@@ -9,6 +9,7 @@ import {
   failoverAttempts,
   hostKey,
   isCloudApi,
+  parseRetryAfter,
   pickNext,
   regionOrigins,
   sleep,
@@ -168,7 +169,8 @@ export class TwirpRpc {
 
   /**
    * Issues a Twirp request, failing over to alternative regions on retryable
-   * errors. On any transport error or HTTP 5xx it discovers regions via
+   * errors. On any transport error or HTTP 5xx (a 503 only with Retry-After,
+   * which then sets the delay) it discovers regions via
    * /settings/regions and replays the request — body and headers intact —
    * against the next untried region, with jittered exponential backoff. A 4xx is
    * returned immediately.
@@ -226,9 +228,17 @@ export class TwirpRpc {
         return (await response.json()) as Record<string, unknown>;
       }
 
-      // Only retryable failures (a transport error or HTTP 5xx) continue;
-      // a 4xx is terminal.
-      const retryable = transportError !== undefined || (!!response && response.status >= 500);
+      const retryAfter = response
+        ? parseRetryAfter(response.headers.get('retry-after'))
+        : undefined;
+      // Only retryable failures (a transport error or HTTP 5xx) continue; a 4xx
+      // is terminal. A 503 is the server shedding load, so it is retried only
+      // when Retry-After says when.
+      const retryable =
+        transportError !== undefined ||
+        (!!response &&
+          response.status >= 500 &&
+          (response.status !== 503 || retryAfter !== undefined));
       let next: string | undefined;
       if (retryable && !isLast) {
         if (!regions) {
@@ -249,7 +259,7 @@ export class TwirpRpc {
       console.warn(
         `livekit API request to ${new URL(current).host} failed (${reason}), retrying with fallback url ${next}`,
       );
-      await sleep(backoffMs(attempt, this.failoverBackoffMs));
+      await sleep(retryAfter ?? backoffMs(attempt, this.failoverBackoffMs));
       attempted.add(hostKey(new URL(next)));
       current = next;
     }

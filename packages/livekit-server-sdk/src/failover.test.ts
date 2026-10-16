@@ -9,6 +9,7 @@ import {
   failoverAttempts,
   hostKey,
   parseMaxAge,
+  parseRetryAfter,
   pickNext,
   regionOrigins,
   sleep,
@@ -92,6 +93,29 @@ describe('backoffMs', () => {
     expect(backoffMs(0, 200)).toBe(100);
     expect(backoffMs(1, 200)).toBe(200);
     expect(backoffMs(2, 200)).toBe(400);
+  });
+});
+
+describe('parseRetryAfter', () => {
+  it('returns undefined when the header is absent or invalid', () => {
+    expect(parseRetryAfter(null)).toBeUndefined();
+    expect(parseRetryAfter('')).toBeUndefined();
+    expect(parseRetryAfter('soon')).toBeUndefined();
+  });
+
+  it('parses delay-seconds to milliseconds', () => {
+    expect(parseRetryAfter('0')).toBe(0);
+    expect(parseRetryAfter(' 2 ')).toBe(2000);
+  });
+
+  it('parses an HTTP-date relative to now, clamped at zero', () => {
+    vi.useFakeTimers({ now: Date.parse('Wed, 21 Oct 2026 07:28:00 GMT') });
+    try {
+      expect(parseRetryAfter('Wed, 21 Oct 2026 07:28:03 GMT')).toBe(3000);
+      expect(parseRetryAfter('Wed, 21 Oct 2026 07:27:00 GMT')).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

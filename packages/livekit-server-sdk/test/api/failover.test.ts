@@ -27,7 +27,8 @@ const call = (
     {
       authorization: 'Bearer test-token',
       // These tests exercise failover, not authz; skip the mock's permission check.
-      'X-Lk-Mock': JSON.stringify({ skipAuth: true, ...mock }),
+      // The mock fails with a 503 by default, which is retried only with Retry-After.
+      'X-Lk-Mock': JSON.stringify({ skipAuth: true, failStatus: 502, ...mock }),
     },
   );
 };

@@ -4,7 +4,8 @@
 
 // Region failover for the Twirp API clients.
 //
-// On a retryable failure (any transport error or HTTP 5xx) the client discovers
+// On a retryable failure (any transport error, or an HTTP 5xx other than a 503
+// without Retry-After) the client discovers
 // alternative LiveKit Cloud regions via /settings/regions and replays the
 // request against the next region, with jittered exponential backoff. 4xx responses are
 // returned immediately.
@@ -78,6 +79,19 @@ export function pickNext(regionOrigins: string[], attempted: Set<string>): strin
 // together don't retry in lockstep.
 export function backoffMs(attempt: number, baseMs: number): number {
   return Math.random() * baseMs * 2 ** attempt;
+}
+
+/** Parses a Retry-After header (delay-seconds or an HTTP-date) to milliseconds. */
+export function parseRetryAfter(header: string | null): number | undefined {
+  const value = header?.trim();
+  if (!value) {
+    return undefined;
+  }
+  if (/^\d+$/.test(value)) {
+    return Number(value) * 1000;
+  }
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - Date.now());
 }
 
 export function sleep(ms: number): Promise<void> {

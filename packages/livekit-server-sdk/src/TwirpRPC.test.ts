@@ -95,7 +95,7 @@ describe('request id', () => {
         } as unknown as Response;
       }
       attempt += 1;
-      return attempt < 3 ? errorResponse(503) : okResponse();
+      return attempt < 3 ? errorResponse(502) : okResponse();
     });
 
     const rpc = new TwirpRpc('https://primary.retryid.livekit.cloud', 'livekit', {
@@ -124,12 +124,12 @@ describe('failover without a fallback origin', () => {
   const okResponse = () =>
     ({ ok: true, status: 200, json: async () => ({}) }) as unknown as Response;
 
-  const errorResponse = (status: number) =>
+  const errorResponse = (status: number, retryAfter: string | null = null) =>
     ({
       ok: false,
       status,
       statusText: 'Bad Gateway',
-      headers: { get: () => null },
+      headers: { get: (name: string) => (name === 'retry-after' ? retryAfter : null) },
       text: async () => 'bad gateway',
     }) as unknown as Response;
 
@@ -187,6 +187,31 @@ describe('failover without a fallback origin', () => {
       }
       attempt += 1;
       return attempt === 1 ? errorResponse(502) : okResponse();
+    });
+
+    const rpc = new TwirpRpc(host, 'livekit', { failoverForce: true, failoverBackoffMs: 0 });
+    await expect(rpc.request('RoomService', 'CreateRoom', {}, {})).resolves.toEqual({});
+
+    expect(fetchSpy.mock.calls.filter(([input]) => !isDiscovery(input))).toHaveLength(2);
+  });
+
+  it('a 503 without Retry-After is not retried', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(errorResponse(503));
+
+    const rpc = new TwirpRpc(host, 'livekit', { failoverForce: true, failoverBackoffMs: 0 });
+    await expect(rpc.request('RoomService', 'CreateRoom', {}, {})).rejects.toThrow();
+
+    expect(fetchSpy.mock.calls.filter(([input]) => !isDiscovery(input))).toHaveLength(1);
+  });
+
+  it('a 503 with Retry-After is retried', async () => {
+    let attempt = 0;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (isDiscovery(input)) {
+        return errorResponse(404);
+      }
+      attempt += 1;
+      return attempt === 1 ? errorResponse(503, '0') : okResponse();
     });
 
     const rpc = new TwirpRpc(host, 'livekit', { failoverForce: true, failoverBackoffMs: 0 });

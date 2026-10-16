@@ -5,6 +5,7 @@ import type { JsonValue } from '@bufbuild/protobuf';
 import { randomUUID } from './crypto/uuid.js';
 import {
   FAILOVER_BACKOFF_BASE_MS,
+  backoffMs,
   failoverAttempts,
   hostKey,
   isCloudApi,
@@ -169,7 +170,7 @@ export class TwirpRpc {
    * Issues a Twirp request, failing over to alternative regions on retryable
    * errors. On any transport error or HTTP 5xx it discovers regions via
    * /settings/regions and replays the request — body and headers intact —
-   * against the next untried region, with exponential backoff. A 4xx is
+   * against the next untried region, with jittered exponential backoff. A 4xx is
    * returned immediately.
    */
   async request(
@@ -248,7 +249,7 @@ export class TwirpRpc {
       console.warn(
         `livekit API request to ${new URL(current).host} failed (${reason}), retrying with fallback url ${next}`,
       );
-      await sleep(this.failoverBackoffMs * 2 ** attempt);
+      await sleep(backoffMs(attempt, this.failoverBackoffMs));
       attempted.add(hostKey(new URL(next)));
       current = next;
     }

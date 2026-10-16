@@ -6,7 +6,7 @@
 //
 // On a retryable failure (any transport error or HTTP 5xx) the client discovers
 // alternative LiveKit Cloud regions via /settings/regions and replays the
-// request against the next region, with exponential backoff. 4xx responses are
+// request against the next region, with jittered exponential backoff. 4xx responses are
 // returned immediately.
 
 // Total attempts (the original request + fallback regions) and the base retry
@@ -72,6 +72,12 @@ export function pickNext(regionOrigins: string[], attempted: Set<string>): strin
     }
   }
   return undefined;
+}
+
+// Full jitter: a uniform delay in [0, base * 2^attempt) so clients that failed
+// together don't retry in lockstep.
+export function backoffMs(attempt: number, baseMs: number): number {
+  return Math.random() * baseMs * 2 ** attempt;
 }
 
 export function sleep(ms: number): Promise<void> {

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   FAILOVER_MAX_ATTEMPTS,
   MIN_FAILOVER_TIMEOUT_SECONDS,
+  backoffMs,
   failoverAttempts,
   hostKey,
   parseMaxAge,
@@ -76,6 +77,21 @@ describe('pickNext', () => {
     expect(pickNext(['not a url', 'https://c.livekit.cloud'], new Set())).toBe(
       'https://c.livekit.cloud',
     );
+  });
+});
+
+describe('backoffMs', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('draws uniformly from [0, base * 2^attempt)', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    expect(backoffMs(2, 200)).toBe(0);
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    expect(backoffMs(0, 200)).toBe(100);
+    expect(backoffMs(1, 200)).toBe(200);
+    expect(backoffMs(2, 200)).toBe(400);
   });
 });
 

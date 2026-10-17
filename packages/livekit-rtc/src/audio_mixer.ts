@@ -185,6 +185,10 @@ export class AudioMixer {
    */
   endInput(): void {
     this.ending = true;
+    // No more streams will be added, so close the signal queue. If the mixer is
+    // parked waiting for a stream (none left), this wakes it so it can see it is
+    // ending, exit, and close the output queue for any waiting consumer.
+    this.streamSignal.close();
   }
 
   private async getNextFrame(): Promise<AudioFrame | null> {

@@ -7,6 +7,7 @@
 // where the node API surface allows; see comments on individual tests for
 // intentional deviations.
 import { afterAll, expect, it as itRaw } from 'vitest';
+import { FfiClient, FfiClientEvent } from '../ffi_client.js';
 import type { Room, TextStreamReader } from '../index.js';
 import { dispose } from '../index.js';
 import {
@@ -473,7 +474,51 @@ describeE2E('livekit-rtc data streams e2e', () => {
       const reader = await handed;
       expect(subscribedReaderCount(receivingRoom!)).toBe(1);
 
+      // DEBUG(eos): trace every FFI event for this reader, plus native
+      // data-stream logs, to find where a clean eos comes from on CI.
+      const t0 = performance.now();
+      const ts = () => Math.round((performance.now() - t0) * 100) / 100;
+      const trace: Array<Record<string, unknown>> = [];
+      const readerHandle = [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...((receivingRoom as any).streamReaders as Map<bigint, unknown>).keys(),
+      ][0];
+      const streamId = reader.info.streamId;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const roomHandle = (receivingRoom as any).ffiHandle?.handle;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const debugListener = (ev: any) => {
+        const msg = ev.message;
+        if (msg.case === 'textStreamReaderEvent' && msg.value.readerHandle === readerHandle) {
+          const detail = msg.value.detail;
+          trace.push({
+            t: ts(),
+            ev: detail.case,
+            len: detail.case === 'chunkReceived' ? detail.value.content?.length : undefined,
+            error: detail.case === 'eos' ? (detail.value.error?.description ?? null) : undefined,
+          });
+        } else if (msg.case === 'roomEvent' && msg.value.roomHandle === roomHandle) {
+          trace.push({ t: ts(), ev: `room:${msg.value.message.case}` });
+        } else if (msg.case === 'logs') {
+          for (const r of msg.value.records ?? []) {
+            const text = `${r.target ?? ''} ${r.message ?? ''}`;
+            if (text.includes(streamId) || /data_stream|incoming/i.test(r.target ?? '')) {
+              trace.push({
+                t: ts(),
+                ev: 'log',
+                level: r.level,
+                target: r.target,
+                message: r.message,
+              });
+            }
+          }
+        }
+      };
+      FfiClient.instance.on(FfiClientEvent.FfiEvent, debugListener);
+
+      trace.push({ t: ts(), ev: 'disconnect:start' });
       await receivingRoom!.disconnect();
+      trace.push({ t: ts(), ev: 'disconnect:done' });
       expect(subscribedReaderCount(receivingRoom!)).toBe(0);
 
       // The read settles rather than hanging. Which way it settles is a race
@@ -492,6 +537,16 @@ describeE2E('livekit-rtc data streams e2e', () => {
         testTimeoutMs,
         'Timed out reading a reader whose room disconnected',
       );
+      trace.push({ t: ts(), ev: 'read:settled' });
+      // Let any eos that lands after the read settled show up in the trace.
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      FfiClient.instance.off(FfiClientEvent.FfiEvent, debugListener);
+      const outcome =
+        'err' in readResult
+          ? `err:${String(readResult.err)}`
+          : `clean:${JSON.stringify(readResult.text)}`;
+      process.stdout.write(`[eos-debug] ${JSON.stringify({ outcome, streamId, trace })}\n`);
+
       if ('err' in readResult) {
         expect(String(readResult.err)).toMatch(
           /Disconnected while receiving|stream closed abnormally: Data stream connection closed/,

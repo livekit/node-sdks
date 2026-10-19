@@ -1,0 +1,73 @@
+# TEMPORARY: repeatedly runs the data streams e2e suite to catch which FFI
+# events precede a clean eos on a reader whose room disconnected. Delete this
+# workflow (and the debug/data-stream-eos branch) once the cause is found.
+name: Debug data stream eos
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - debug/data-stream-eos
+
+jobs:
+  repeat:
+    name: Repeat (node ${{ matrix.node-version }}, shard ${{ matrix.shard }})
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24, latest]
+        shard: [1, 2, 3]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm --filter="*livekit*" run build
+      - name: Run data streams e2e repeatedly
+        working-directory: packages/livekit-rtc
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+          RUST_LOG: livekit=debug,livekit_ffi=debug,livekit_data_stream=trace
+        run: |
+          mkdir -p eos-debug
+          for i in $(seq 1 20); do
+            if npx vitest run src/tests/e2e_data_streams.test.ts > eos-debug/run-$i.log 2>&1; then
+              echo "run $i: vitest passed"
+            else
+              echo "run $i: vitest FAILED"
+            fi
+            grep -h '^\[eos-debug\]' eos-debug/run-$i.log >> eos-debug/traces.jsonl || echo "run $i: no trace line"
+          done
+      - name: Summarize outcomes
+        if: always()
+        working-directory: packages/livekit-rtc
+        run: |
+          {
+            echo "### node ${{ matrix.node-version }}, shard ${{ matrix.shard }}"
+            echo '```'
+            sed 's/^\[eos-debug\] //' eos-debug/traces.jsonl \
+              | node -e 'const lines=require("fs").readFileSync(0,"utf8").trim().split("\n").filter(Boolean);const c={};for(const l of lines){const o=JSON.parse(l).outcome;c[o]=(c[o]||0)+1;}console.log(JSON.stringify(c,null,2));'
+            echo '```'
+            echo "#### Clean-outcome traces"
+            echo '```'
+            grep '"outcome":"clean' eos-debug/traces.jsonl || echo "(none)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          grep '"outcome":"clean' eos-debug/traces.jsonl || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: eos-debug-node-${{ matrix.node-version }}-shard-${{ matrix.shard }}
+          path: packages/livekit-rtc/eos-debug/

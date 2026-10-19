@@ -476,13 +476,11 @@ describeE2E('livekit-rtc data streams e2e', () => {
       await receivingRoom!.disconnect();
       expect(subscribedReaderCount(receivingRoom!)).toBe(0);
 
-      // The read settles rather than hanging. Which way it settles is a race
-      // the SDK doesn't control: the native side emits a clean end-of-stream
-      // when the room drops the stream (livekit-ffi `read_incremental` sends
-      // `eos { error: None }` once the channel closes), so either that lands
-      // first and the read returns the chunks buffered so far, or disconnect
-      // cleanup errors the stream first and the read reports that. Python is
-      // deterministic here because it injects a synthetic error end-of-stream.
+      // The read rejects rather than hanging or returning truncated content.
+      // Which error it reports is a race the SDK doesn't control: the native
+      // side aborts in-flight streams when the room shuts down (livekit-ffi
+      // sends `eos` with a `StreamError::AbnormalEnd`), while disconnect
+      // cleanup errors the stream from the JS side. Whichever lands first wins.
       const readResult = await withTimeout(
         reader.readAll().then(
           (text) => ({ text }),
@@ -491,11 +489,10 @@ describeE2E('livekit-rtc data streams e2e', () => {
         testTimeoutMs,
         'Timed out reading a reader whose room disconnected',
       );
-      if ('err' in readResult) {
-        expect(String(readResult.err)).toMatch(/Disconnected while receiving/);
-      } else {
-        expect('buffered data'.startsWith(readResult.text)).toBe(true);
-      }
+      expect(readResult).toHaveProperty('err');
+      expect(String((readResult as { err: unknown }).err)).toMatch(
+        /Disconnected while receiving|stream closed abnormally: Data stream connection closed/,
+      );
 
       await writer.close();
       await sendingRoom!.disconnect();

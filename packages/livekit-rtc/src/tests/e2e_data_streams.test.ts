@@ -174,10 +174,13 @@ describeE2E('livekit-rtc data streams e2e', () => {
         'Timed out waiting for byte stream',
       );
 
+      const progress: Array<number> = [];
       const info = await sendingRoom!.localParticipant!.sendBytes(bytesToSend, {
         topic,
         name: 'hello.bin',
+        onProgress: (p) => progress.push(p),
       });
+      expect(progress).toEqual([1]);
       expect(info.streamId).toBeTruthy();
       expect(info.topic).toBe(topic);
       expect(info.name).toBe('hello.bin');

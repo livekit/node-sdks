@@ -579,6 +579,9 @@ export class LocalParticipant extends Participant {
       throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
     }
 
+    // The payload is sent in one call, so the only progress to report is completion.
+    options?.onProgress?.(1);
+
     return byteStreamInfoFromProto(cb.result.value);
   }
 

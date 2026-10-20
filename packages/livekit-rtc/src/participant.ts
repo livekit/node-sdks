@@ -550,7 +550,10 @@ export class LocalParticipant extends Participant {
    * payloads can be sent as a single packet and larger ones compressed, when every recipient
    * supports it. `name` defaults to "unknown" and `mimeType` to "application/octet-stream".
    */
-  async sendBytes(data: Uint8Array, options?: ByteStreamOptions & { streamId?: string }) {
+  async sendBytes(
+    data: Uint8Array,
+    options?: Omit<ByteStreamOptions, 'onProgress'> & { streamId?: string },
+  ) {
     const req = new StreamSendBytesRequest({
       localParticipantHandle: this.ffi_handle.handle,
       options: new StreamByteOptions({
@@ -578,9 +581,6 @@ export class LocalParticipant extends Participant {
     if (cb.result.case !== 'info') {
       throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
     }
-
-    // The payload is sent in one call, so the only progress to report is completion.
-    options?.onProgress?.(1);
 
     return byteStreamInfoFromProto(cb.result.value);
   }

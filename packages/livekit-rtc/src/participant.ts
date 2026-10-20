@@ -47,6 +47,9 @@ import {
   SetLocalNameRequest,
   type SetLocalNameResponse,
   StreamByteOptions,
+  type StreamSendBytesCallback,
+  StreamSendBytesRequest,
+  type StreamSendBytesResponse,
   type StreamSendFileCallback,
   StreamSendFileRequest,
   type StreamSendFileResponse,
@@ -538,6 +541,61 @@ export class LocalParticipant extends Participant {
     if (cb.result.case === 'error') {
       throw new Error(cb.result.value.description);
     }
+  }
+
+  /**
+   * Sends an in-memory buffer as a complete byte stream in one call.
+   *
+   * Unlike {@link LocalParticipant.streamBytes}, the whole payload is known up front, so short
+   * payloads can be sent as a single packet and larger ones compressed, when every recipient
+   * supports it. `name` defaults to "unknown" and `mimeType` to "application/octet-stream".
+   */
+  async sendBytes(
+    data: Uint8Array,
+    options?: {
+      topic?: string;
+      name?: string;
+      mimeType?: string;
+      attributes?: Record<string, string>;
+      destinationIdentities?: Array<string>;
+      streamId?: string;
+      /**
+       * Whether the payload may be compressed on the wire. Defaults to true;
+       * compression is only applied when it actually reduces the payload size
+       * and every recipient supports it.
+       */
+      compress?: boolean;
+    },
+  ) {
+    const req = new StreamSendBytesRequest({
+      localParticipantHandle: this.ffi_handle.handle,
+      options: new StreamByteOptions({
+        topic: options?.topic ?? '',
+        attributes: options?.attributes,
+        destinationIdentities: options?.destinationIdentities,
+        id: options?.streamId,
+        name: options?.name ?? 'unknown',
+        mimeType: options?.mimeType ?? 'application/octet-stream',
+        senderIdentity: this.identity,
+        compress: options?.compress,
+      }),
+      bytes: data,
+    });
+
+    const res = FfiClient.instance.request<StreamSendBytesResponse>({
+      message: { case: 'sendBytes', value: req },
+    });
+
+    const cb = await FfiClient.instance.waitFor<StreamSendBytesCallback>(
+      (ev) => ev.message.case == 'sendBytes' && ev.message.value.asyncId == res.asyncId,
+      { signal: this.disconnectSignal },
+    );
+
+    if (cb.result.case !== 'info') {
+      throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
+    }
+
+    return byteStreamInfoFromProto(cb.result.value);
   }
 
   private textStreamWriterWrite = async (req: TextStreamWriterWriteRequest) => {

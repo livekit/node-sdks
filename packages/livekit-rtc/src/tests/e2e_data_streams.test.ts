@@ -106,9 +106,9 @@ describeE2E('livekit-rtc data streams e2e', () => {
     testTimeoutMs,
   );
 
-  // Port of rust `test_send_bytes`. Node has no `sendBytes` (in-memory one-shot)
-  // wrapper yet, so this uses the incremental `streamBytes` writer — which by
-  // design is never inlined or compressed on the wire.
+  // Port of rust `test_send_bytes` using the incremental `streamBytes` writer,
+  // which by design is never inlined or compressed on the wire. See the
+  // `sendBytes` test below for the one-shot path.
   it(
     'sends and receives a small byte stream',
     async () => {
@@ -142,6 +142,47 @@ describeE2E('livekit-rtc data streams e2e', () => {
       expect(byteInfo.streamId).toBeTruthy();
       expect(byteInfo.mimeType).toBe('application/octet-stream');
       expect(byteInfo.topic).toBe(topic);
+
+      expect(await receivedBytes).toEqual(bytesToSend);
+
+      await Promise.all(rooms.map((r) => r.disconnect()));
+    },
+    testTimeoutMs,
+  );
+
+  // Port of rust `test_send_bytes` using the one-shot `sendBytes` path, which
+  // (unlike `streamBytes`) may inline or compress the payload on the wire.
+  it(
+    'sends and receives a small in-memory buffer via sendBytes',
+    async () => {
+      const { rooms } = await connectTestRooms(2);
+      const [receivingRoom, sendingRoom] = rooms;
+      const senderIdentity = sendingRoom!.localParticipant!.identity;
+
+      const topic = 'some-topic';
+      const bytesToSend = new TextEncoder().encode('hello world');
+
+      const receivedBytes = withTimeout(
+        new Promise<Uint8Array>((resolve) => {
+          receivingRoom!.registerByteStreamHandler(topic, async (reader, sender) => {
+            expect(sender.identity).toBe(senderIdentity);
+            const chunks = await reader.readAll();
+            resolve(concatUint8(chunks));
+          });
+        }),
+        testTimeoutMs,
+        'Timed out waiting for byte stream',
+      );
+
+      const info = await sendingRoom!.localParticipant!.sendBytes(bytesToSend, {
+        topic,
+        name: 'hello.bin',
+      });
+      expect(info.streamId).toBeTruthy();
+      expect(info.topic).toBe(topic);
+      expect(info.name).toBe('hello.bin');
+      expect(info.totalSize).toBe(bytesToSend.byteLength);
+      expect(info.mimeType).toBe('application/octet-stream');
 
       expect(await receivedBytes).toEqual(bytesToSend);
 

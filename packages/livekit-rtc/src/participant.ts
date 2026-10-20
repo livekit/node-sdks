@@ -550,23 +550,7 @@ export class LocalParticipant extends Participant {
    * payloads can be sent as a single packet and larger ones compressed, when every recipient
    * supports it. `name` defaults to "unknown" and `mimeType` to "application/octet-stream".
    */
-  async sendBytes(
-    data: Uint8Array,
-    options?: {
-      topic?: string;
-      name?: string;
-      mimeType?: string;
-      attributes?: Record<string, string>;
-      destinationIdentities?: Array<string>;
-      streamId?: string;
-      /**
-       * Whether the payload may be compressed on the wire. Defaults to true;
-       * compression is only applied when it actually reduces the payload size
-       * and every recipient supports it.
-       */
-      compress?: boolean;
-    },
-  ) {
+  async sendBytes(data: Uint8Array, options?: ByteStreamOptions & { streamId?: string }) {
     const req = new StreamSendBytesRequest({
       localParticipantHandle: this.ffi_handle.handle,
       options: new StreamByteOptions({

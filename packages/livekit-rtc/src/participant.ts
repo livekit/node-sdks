@@ -326,8 +326,15 @@ export class LocalParticipant extends Participant {
       { signal: this.disconnectSignal },
     );
 
-    if (cb.result.case !== 'writer') {
-      throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
+    switch (cb.result.case) {
+      case 'writer':
+        break;
+      case 'error':
+        throw new Error(cb.result.value.description);
+      default:
+        throw new Error(
+          `LocalParticipant.streamText - unknown error, cb.result.case expected to be writer or error, found ${cb.result.case}`,
+        );
     }
 
     const writerHandle = cb.result.value.handle!.id!;
@@ -418,11 +425,16 @@ export class LocalParticipant extends Participant {
       { signal: this.disconnectSignal },
     );
 
-    if (cb.result.case !== 'info') {
-      throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
+    switch (cb.result.case) {
+      case 'info':
+        return textStreamInfoFromProto(cb.result.value);
+      case 'error':
+        throw new Error(cb.result.value.description);
+      default:
+        throw new Error(
+          `LocalParticipant.sendText - unknown error, cb.result.case expected to be info or error, found ${cb.result.case}`,
+        );
     }
-
-    return textStreamInfoFromProto(cb.result.value);
   }
 
   async streamBytes(options?: {
@@ -457,8 +469,15 @@ export class LocalParticipant extends Participant {
       { signal: this.disconnectSignal },
     );
 
-    if (cb.result.case !== 'writer') {
-      throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
+    switch (cb.result.case) {
+      case 'writer':
+        break;
+      case 'error':
+        throw new Error(cb.result.value.description);
+      default:
+        throw new Error(
+          `LocalParticipant.streamBytes - unknown error, cb.result.case expected to be writer or error, found ${cb.result.case}`,
+        );
     }
 
     const writerHandle = cb.result.value.handle!.id!;
@@ -578,11 +597,16 @@ export class LocalParticipant extends Participant {
       { signal: this.disconnectSignal },
     );
 
-    if (cb.result.case !== 'info') {
-      throw new Error(cb.result.case === 'error' ? cb.result.value.description : 'unknown error');
+    switch (cb.result.case) {
+      case 'info':
+        return byteStreamInfoFromProto(cb.result.value);
+      case 'error':
+        throw new Error(cb.result.value.description);
+      default:
+        throw new Error(
+          `LocalParticipant.sendBytes - unknown error, cb.result.case expected to be info or error, found ${cb.result.case}`,
+        );
     }
-
-    return byteStreamInfoFromProto(cb.result.value);
   }
 
   private textStreamWriterWrite = async (req: TextStreamWriterWriteRequest) => {

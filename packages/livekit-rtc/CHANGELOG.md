@@ -1,5 +1,17 @@
 # @livekit/rtc-node
 
+## 1.2.0
+
+### Minor Changes
+
+- bump rtc-ffi-bindings to 0.13.1(libwebrtc m150, with WARP enabled by default). - [#748](https://github.com/livekit/node-sdks/pull/748) ([@cloudwebrtc](https://github.com/cloudwebrtc))
+
+### Patch Changes
+
+- `performRpc` accepts `maxRoundTripLatency`, the time to wait for the destination to acknowledge the request before failing with `CONNECTION_TIMEOUT` (default 7s). `RpcCallInfo` carries it so interceptors can adjust it. - [#727](https://github.com/livekit/node-sdks/pull/727) ([@davidzhao](https://github.com/davidzhao))
+
+- Add `LocalParticipant.sendBytes` to send an in-memory buffer as a complete byte stream in one call, letting short payloads be inlined and larger ones compressed. - [#750](https://github.com/livekit/node-sdks/pull/750) ([@1egoman](https://github.com/1egoman))
+
 ## 1.1.0
 
 ### Minor Changes

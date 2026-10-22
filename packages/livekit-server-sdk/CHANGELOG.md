@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.19.2
+
+### Patch Changes
+
+- update dependencies - [#752](https://github.com/livekit/node-sdks/pull/752) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.19.1
 
 ### Patch Changes

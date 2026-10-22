@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 1.2.1
+
+### Patch Changes
+
+- update dependencies - [#752](https://github.com/livekit/node-sdks/pull/752) ([@davidzhao](https://github.com/davidzhao))
+
 ## 1.2.0
 
 ### Minor Changes

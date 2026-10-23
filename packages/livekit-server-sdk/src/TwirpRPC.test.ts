@@ -112,3 +112,89 @@ describe('request id', () => {
     expect(new Set(ids).size).toBe(1);
   });
 });
+
+describe('request url', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const requestedUrl = async (host: string, prefix?: string) => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue({ ok: true, status: 200, json: async () => ({}) } as unknown as Response);
+    const rpc = new TwirpRpc(host, 'livekit', { failover: false, prefix });
+    await rpc.request('RoomService', 'ListRooms', {}, {});
+    return `${fetchSpy.mock.calls[0][0]}`;
+  };
+
+  // A server behind a reverse proxy is often reached under a path.
+  it.each([
+    ['https://example.com', 'https://example.com/twirp/livekit.RoomService/ListRooms'],
+    ['https://example.com/', 'https://example.com/twirp/livekit.RoomService/ListRooms'],
+    [
+      'https://example.com/livekit',
+      'https://example.com/livekit/twirp/livekit.RoomService/ListRooms',
+    ],
+    [
+      'https://example.com/livekit/',
+      'https://example.com/livekit/twirp/livekit.RoomService/ListRooms',
+    ],
+    [
+      'wss://example.com/livekit',
+      'https://example.com/livekit/twirp/livekit.RoomService/ListRooms',
+    ],
+  ])('keeps the base path of %s', async (host, expected) => {
+    expect(await requestedUrl(host)).toBe(expected);
+  });
+
+  it('joins a custom prefix with or without a leading slash', async () => {
+    const expected = 'https://example.com/livekit/rpc/livekit.RoomService/ListRooms';
+    expect(await requestedUrl('https://example.com/livekit', '/rpc')).toBe(expected);
+    vi.restoreAllMocks();
+    expect(await requestedUrl('https://example.com/livekit', 'rpc')).toBe(expected);
+  });
+
+  it('drops a query string or fragment on the host', async () => {
+    expect(await requestedUrl('https://example.com/livekit?region=x#y')).toBe(
+      'https://example.com/livekit/twirp/livekit.RoomService/ListRooms',
+    );
+  });
+
+  // Fallback regions are bare origins, so a retry goes to the region's root.
+  it('sends a failover attempt to the region origin', async () => {
+    let attempt = 0;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (`${input}`.endsWith('/settings/regions')) {
+        return {
+          ok: true,
+          status: 200,
+          headers: { get: () => 'max-age=0' },
+          json: async () => ({ regions: [{ url: 'https://r1.basepath.livekit.cloud' }] }),
+        } as unknown as Response;
+      }
+      attempt += 1;
+      return (attempt < 2
+        ? {
+            ok: false,
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { get: () => null },
+            text: async () => 'unavailable',
+          }
+        : { ok: true, status: 200, json: async () => ({}) }) as unknown as Response;
+    });
+
+    const rpc = new TwirpRpc('https://primary.basepath.livekit.cloud/livekit', 'livekit', {
+      failoverBackoffMs: 0,
+    });
+    await rpc.request('RoomService', 'ListRooms', {}, {});
+
+    const urls = fetchSpy.mock.calls
+      .map(([input]) => `${input}`)
+      .filter((url) => !url.endsWith('/settings/regions'));
+    expect(urls).toEqual([
+      'https://primary.basepath.livekit.cloud/livekit/twirp/livekit.RoomService/ListRooms',
+      'https://r1.basepath.livekit.cloud/twirp/livekit.RoomService/ListRooms',
+    ]);
+  });
+});

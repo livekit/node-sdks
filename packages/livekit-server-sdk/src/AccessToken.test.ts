@@ -6,6 +6,7 @@ import {
   RoomCompositeEgressRequest,
   RoomConfiguration,
   RoomEgress,
+  TrackSource,
 } from '@livekit/protocol';
 import * as jose from 'jose';
 import { describe, expect, it } from 'vitest';
@@ -159,5 +160,25 @@ describe('room configuration with agents and egress', () => {
     expect(decoded.roomConfig?.agents?.[1]?.agentName).toEqual('agent2');
     expect(decoded.roomConfig?.agents?.[1]?.metadata).toEqual('metadata-2');
     expect(decoded.roomConfig?.egress?.room?.roomName).toEqual('test-room');
+  });
+});
+
+describe('a token can be encoded more than once', () => {
+  it('keeps canPublishSources when toJwt is called twice', async () => {
+    const t = new AccessToken(testApiKey, testSecret, { identity: 'me' });
+    t.addGrant({
+      roomJoin: true,
+      room: 'myroom',
+      canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE],
+    });
+
+    const first = await t.toJwt();
+    const second = await t.toJwt();
+
+    const v = new TokenVerifier(testApiKey, testSecret);
+    for (const jwt of [first, second]) {
+      const decoded = await v.verify(jwt);
+      expect(decoded.video?.canPublishSources).toEqual(['camera', 'microphone']);
+    }
   });
 });

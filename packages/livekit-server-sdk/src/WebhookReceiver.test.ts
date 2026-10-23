@@ -24,6 +24,20 @@ describe('webhook receiver', () => {
     expect(event.room?.name).toBe('mytestroom');
     expect(event.event).toBe('room_started');
   });
+
+  it('rejects a body that does not match the token hash', async () => {
+    const token = await t.toJwt();
+    await expect(receiver.receive(`${body} `, token)).rejects.toThrow(
+      'sha256 checksum of body does not match',
+    );
+  });
+
+  it('reports a token without a sha256 claim as such', async () => {
+    const token = await new AccessToken(testApiKey, testSecret).toJwt();
+    await expect(receiver.receive(body, token)).rejects.toThrow(
+      'sha256 was not found in the token',
+    );
+  });
 });
 
 describe('decoding json payload', () => {

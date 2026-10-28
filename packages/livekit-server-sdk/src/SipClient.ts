@@ -779,10 +779,13 @@ export class SipClient extends ServiceBase {
     // Dialing a phone and waiting for an answer takes longer than a normal call,
     // and the request must outlast ringing so the call can be answered. Pin the
     // ring window explicitly so our request timeout doesn't depend on the server's
-    // default (which could change out from under us).
+    // default (which could change out from under us). Use locals so the
+    // caller's options object is left as it was passed in.
+    let ringingTimeout = opts.ringingTimeout;
+    let timeout = opts.timeout;
     if (opts.waitUntilAnswered) {
-      opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
-      opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
+      ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
+      timeout = dialRequestTimeout(timeout, ringingTimeout);
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -801,8 +804,8 @@ export class SipClient extends ServiceBase {
       headers: opts.headers,
       hidePhoneNumber: opts.hidePhoneNumber,
       includeHeaders: opts.includeHeaders,
-      ringingTimeout: opts.ringingTimeout
-        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
         : undefined,
       maxCallDuration: opts.maxCallDuration
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
@@ -818,7 +821,7 @@ export class SipClient extends ServiceBase {
         'CreateSIPParticipant',
         req,
         await this.authHeader({}, { call: true }),
-        opts.timeout,
+        timeout,
       );
       return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
     } catch (e) {
@@ -846,9 +849,10 @@ export class SipClient extends ServiceBase {
 
     // Transferring a call dials a phone, which takes longer than a normal call,
     // so keep the request alive past ringing. Pin the ring window explicitly so
-    // our request timeout doesn't depend on the server's default.
-    opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
-    opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
+    // our request timeout doesn't depend on the server's default. Use locals so
+    // the caller's options object is left as it was passed in.
+    const ringingTimeout = opts.ringingTimeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS;
+    const timeout = dialRequestTimeout(opts.timeout, ringingTimeout);
 
     const req = new TransferSIPParticipantRequest({
       participantIdentity: participantIdentity,
@@ -856,8 +860,8 @@ export class SipClient extends ServiceBase {
       transferTo: transferTo,
       playDialtone: opts.playDialtone,
       headers: opts.headers,
-      ringingTimeout: opts.ringingTimeout
-        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
         : undefined,
     }).toJson();
 
@@ -867,7 +871,7 @@ export class SipClient extends ServiceBase {
         'TransferSIPParticipant',
         req,
         await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
-        opts.timeout,
+        timeout,
       );
     } catch (e) {
       throw asSipCallError(e);

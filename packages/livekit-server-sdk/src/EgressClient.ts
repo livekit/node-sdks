@@ -8,6 +8,7 @@ import type {
   EncodingOptionsPreset,
   ImageOutput,
   SegmentedFileOutput,
+  StreamDestination,
   StreamOutput,
   WebhookConfig,
 } from '@livekit/protocol';
@@ -614,19 +615,28 @@ export class EgressClient extends ServiceBase {
    * @param egressId -
    * @param addOutputUrls -
    * @param removeOutputUrls -
+   * @param addDestinations - stream urls to add, each with an id of your choice that the
+   * resulting `StreamInfo` carries back in `id`. Remove them with `removeOutputUrls`.
    */
   async updateStream(
     egressId: string,
     addOutputUrls?: string[],
     removeOutputUrls?: string[],
+    addDestinations?: StreamDestination[],
   ): Promise<EgressInfo> {
     addOutputUrls ??= [];
     removeOutputUrls ??= [];
+    addDestinations ??= [];
 
     const data = await this.rpc.request(
       svc,
       'UpdateStream',
-      new UpdateStreamRequest({ egressId, addOutputUrls, removeOutputUrls }).toJson(),
+      new UpdateStreamRequest({
+        egressId,
+        addOutputUrls,
+        removeOutputUrls,
+        addDestinations,
+      }).toJson(),
       await this.authHeader({ roomRecord: true }),
     );
     return EgressInfo.fromJson(data, { ignoreUnknownFields: true });

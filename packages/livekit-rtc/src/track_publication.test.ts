@@ -1,10 +1,7 @@
 // SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  SetRemoteTrackPublicationQualityRequest,
-  VideoQuality,
-} from '@livekit/rtc-ffi-bindings';
+import { SetRemoteTrackPublicationQualityRequest, VideoQuality } from '@livekit/rtc-ffi-bindings';
 import { describe, expect, it, vi } from 'vitest';
 import { FfiClient } from './ffi_client.js';
 import { RemoteTrackPublication } from './track_publication.js';

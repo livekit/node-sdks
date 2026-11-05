@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.19.3
+
+### Patch Changes
+
+- Stop `createSipParticipant` and `transferSipParticipant` from writing `ringingTimeout` and `timeout` into the options object passed in. Frozen options no longer throw. - [#770](https://github.com/livekit/node-sdks/pull/770) ([@Abhishek-B-R](https://github.com/Abhishek-B-R))
+
 ## 2.19.2
 
 ### Patch Changes

@@ -10,6 +10,8 @@ minimumReleaseAgeExclude:
   - vite@6.4.3
   # Renovate security update: vitest@4.1.11
   - vitest@4.1.11
+  # Renovate security update: happy-dom@21.0.4
+  - happy-dom@21.0.4
 
 catalog:
   '@livekit/protocol': 1.53.0

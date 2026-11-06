@@ -209,7 +209,7 @@ export class TwirpRpc {
       let response: Response | undefined;
       let transportError: unknown;
       try {
-        response = await fetch(new URL(path, current), init);
+        response = await fetch(twirpUrl(current, path), init);
       } catch (e) {
         transportError = e;
       }
@@ -252,6 +252,19 @@ export class TwirpRpc {
 
     throw new Error('failover loop exited without returning'); // unreachable
   }
+}
+
+/**
+ * Appends the Twirp path to the host's own path. Resolving it with `new URL(path, host)`
+ * would replace a base path on the host (e.g. a server behind a reverse proxy at
+ * https://example.com/livekit), since the Twirp path is absolute.
+ */
+function twirpUrl(host: string, path: string): URL {
+  const url = new URL(host);
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+  url.search = '';
+  url.hash = '';
+  return url;
 }
 
 /** Builds a TwirpError from a non-2xx response, mirroring Twirp's JSON error shape. */

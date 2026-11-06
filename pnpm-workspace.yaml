@@ -14,7 +14,7 @@ minimumReleaseAgeExclude:
   - happy-dom@21.0.4
 
 catalog:
-  '@livekit/protocol': 1.53.0
+  '@livekit/protocol': 1.53.1
 
 # Security: force patched versions of transitive deps that parents pin to vulnerable versions.
 overrides:

@@ -40,4 +40,15 @@ describe('ClaimGrants are parsed correctly', () => {
     expect(jwtPayload.observability).toBeTypeOf('object');
     expect((jwtPayload.observability as ObservabilityGrant)?.write).toBe(true);
   });
+
+  it('does not modify the grants it converts', () => {
+    const claim: ClaimGrants = {
+      video: { canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE] },
+    };
+
+    claimsToJwtPayload(claim);
+
+    expect(claim.video?.canPublishSources).toEqual([TrackSource.CAMERA, TrackSource.MICROPHONE]);
+    expect(() => claimsToJwtPayload(claim)).not.toThrow();
+  });
 });

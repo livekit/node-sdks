@@ -111,6 +111,69 @@ describe('AudioMixer', () => {
     expect(frames.length).toBe(0);
   });
 
+  it('ends iteration when endInput() is called while a consumer is waiting', async () => {
+    const mixer = new AudioMixer(48000, 1);
+
+    // Start consuming before endInput(), so the consumer is already parked
+    // waiting for a frame when the mixer is told no more streams are coming.
+    const consumed = (async () => {
+      const frames: AudioFrame[] = [];
+      for await (const frame of mixer) {
+        frames.push(frame);
+      }
+      return frames;
+    })();
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    mixer.endInput();
+
+    const result = await Promise.race([
+      consumed,
+      new Promise<'hung'>((resolve) => setTimeout(() => resolve('hung'), 1000)),
+    ]);
+    expect(result).toEqual([]);
+
+    await mixer.aclose();
+  });
+
+  it('ends iteration when endInput() follows removal of the last stream', async () => {
+    const mixer = new AudioMixer(48000, 1, { streamTimeoutMs: 10 });
+
+    // A stream that never produces audio, like a muted participant.
+    const silentStream = async function* (): AsyncGenerator<AudioFrame> {
+      await new Promise(() => {});
+    };
+    const stream = silentStream();
+
+    const originalWarn = console.warn;
+    console.warn = () => {};
+    try {
+      mixer.addStream(stream);
+
+      const consumed = (async () => {
+        const frames: AudioFrame[] = [];
+        for await (const frame of mixer) {
+          frames.push(frame);
+        }
+        return frames;
+      })();
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      mixer.removeStream(stream);
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      mixer.endInput();
+
+      const result = await Promise.race([
+        consumed,
+        new Promise<'hung'>((resolve) => setTimeout(() => resolve('hung'), 1000)),
+      ]);
+      expect(result).toEqual([]);
+    } finally {
+      console.warn = originalWarn;
+      await mixer.aclose();
+    }
+  });
+
   it('clips audio values to int16 range', async () => {
     const sampleRate = 48000;
     const numChannels = 1;

@@ -549,6 +549,11 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   }
 
   private onFfiEvent = async (ffiEvent: FfiEvent) => {
+    // Every room in the process sees every FFI event, most of them other streams' audio frames.
+    // processFfiEvent acts on these two cases only, so the rest return before waiting on the lock.
+    if (ffiEvent.message.case != 'roomEvent' && ffiEvent.message.case != 'rpcMethodInvocation') {
+      return;
+    }
     const unlock = await this.ffiEventLock.lock();
     try {
       if (!this.localParticipant || !this.ffiHandle || !this.info) {

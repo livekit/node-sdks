@@ -159,9 +159,9 @@ export class AudioSource {
       message: { case: 'captureAudioFrame', value: req },
     });
 
-    const cb = await FfiClient.instance.waitFor<CaptureAudioFrameCallback>((ev) => {
-      return ev.message.case == 'captureAudioFrame' && ev.message.value.asyncId == res.asyncId;
-    });
+    const cb: CaptureAudioFrameCallback = await FfiClient.instance.waitForCaptureAudioFrame(
+      res.asyncId!,
+    );
 
     if (cb.error) {
       throw new Error(cb.error);

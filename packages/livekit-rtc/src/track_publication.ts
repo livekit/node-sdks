@@ -2,8 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { EncryptionType } from '@livekit/rtc-ffi-bindings';
-import type { SetSubscribedResponse } from '@livekit/rtc-ffi-bindings';
-import { SetSubscribedRequest } from '@livekit/rtc-ffi-bindings';
+import type {
+  SetRemoteTrackPublicationQualityResponse,
+  SetSubscribedResponse,
+} from '@livekit/rtc-ffi-bindings';
+import {
+  SetRemoteTrackPublicationQualityRequest,
+  SetSubscribedRequest,
+  VideoQuality,
+} from '@livekit/rtc-ffi-bindings';
 import type {
   OwnedTrackPublication,
   TrackKind,
@@ -121,4 +128,21 @@ export class RemoteTrackPublication extends TrackPublication {
       message: { case: 'setSubscribed', value: req },
     });
   }
+
+  /**
+   * For simulcast remote video publications, request a specific subscribed quality.
+   * Dispatches through the same FFI client path as {@link setSubscribed}.
+   */
+  setVideoQuality(quality: VideoQuality) {
+    const req = new SetRemoteTrackPublicationQualityRequest({
+      trackPublicationHandle: this.ffiHandle.handle,
+      quality,
+    });
+
+    FfiClient.instance.request<SetRemoteTrackPublicationQualityResponse>({
+      message: { case: 'setRemoteTrackPublicationQuality', value: req },
+    });
+  }
 }
+
+export { VideoQuality };

@@ -8,6 +8,7 @@ import {
   AudioSource,
   AudioStream,
   ConnectionState,
+  DisconnectReason,
   LocalAudioTrack,
   ParticipantKind,
   RoomEvent,
@@ -232,6 +233,40 @@ describeE2E('livekit-rtc e2e', () => {
       expect(ev.name).toBe(secondName);
 
       await first!.disconnect();
+    },
+    testTimeoutMs,
+  );
+
+  it.each([
+    [undefined, DisconnectReason.CLIENT_INITIATED],
+    [DisconnectReason.AGENT_ERROR, DisconnectReason.AGENT_ERROR],
+  ])(
+    'propagates disconnect reason %s to local and remote participants',
+    async (reason, expected) => {
+      const { rooms } = await connectTestRooms(2);
+      const [observer, leaving] = rooms;
+      const identity = leaving!.localParticipant!.identity;
+      const localReason = waitForRoomEvent(
+        leaving!,
+        RoomEvent.Disconnected,
+        testTimeoutMs,
+        (reason: DisconnectReason) => reason,
+      );
+      const remoteReason = waitForRoomEvent(
+        observer!,
+        RoomEvent.ParticipantDisconnected,
+        testTimeoutMs,
+        (participant: { disconnectReason: DisconnectReason }) => participant.disconnectReason,
+        (participant) => (participant as { identity: string }).identity === identity,
+      );
+
+      try {
+        await leaving!.disconnect(reason);
+        expect(await localReason).toBe(expected);
+        expect(await remoteReason).toBe(expected);
+      } finally {
+        await Promise.all(rooms.map((room) => room.disconnect()));
+      }
     },
     testTimeoutMs,
   );

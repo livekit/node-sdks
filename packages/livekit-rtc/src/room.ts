@@ -393,8 +393,9 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   /**
    * Disconnects from the room and cleans up all resources.
    * This will stop all tracks and close the connection.
+   * @param reason - Reason sent to the server and other participants.
    */
-  async disconnect() {
+  async disconnect(reason: DisconnectReason = DisconnectReason.CLIENT_INITIATED) {
     if (!this.isConnected) {
       return;
     }
@@ -404,6 +405,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
         case: 'disconnect',
         value: {
           roomHandle: this.ffiHandle?.handle,
+          reason,
         },
       },
     });
@@ -412,7 +414,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
-    this.cleanupOnDisconnect(DisconnectReason.CLIENT_INITIATED);
+    this.cleanupOnDisconnect(reason);
     FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
 
     this.removeAllListeners();

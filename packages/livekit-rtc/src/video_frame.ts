@@ -24,7 +24,9 @@ export class VideoFrame {
 
   /** @internal */
   get dataPtr(): bigint {
-    return FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer));
+    return FfiClient.instance.retrievePtr(
+      new Uint8Array(this.data.buffer, this.data.byteOffset, this.data.byteLength),
+    );
   }
 
   /** @internal */

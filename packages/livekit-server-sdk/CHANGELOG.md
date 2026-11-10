@@ -1,5 +1,13 @@
 # livekit-server-sdk
 
+## 2.19.3
+
+### Patch Changes
+
+- Stop `createSipParticipant` and `transferSipParticipant` from writing `ringingTimeout` and `timeout` into the options object passed in. Frozen options no longer throw. - [#770](https://github.com/livekit/node-sdks/pull/770) ([@Abhishek-B-R](https://github.com/Abhishek-B-R))
+
+- `WebhookReceiver.receive` reports a token without a `sha256` claim as "sha256 was not found in the token" instead of "sha256 checksum of body does not match", as the Python server SDK does. - [#743](https://github.com/livekit/node-sdks/pull/743) ([@ANDROIDHASSAN](https://github.com/ANDROIDHASSAN))
+
 ## 2.19.2
 
 ### Patch Changes

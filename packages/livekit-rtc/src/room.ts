@@ -393,8 +393,13 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
   /**
    * Disconnects from the room and cleans up all resources.
    * This will stop all tracks and close the connection.
+   */
+  disconnect(): Promise<void>;
+  /**
+   * @internal
    * @param reason - Reason sent to the server and other participants.
    */
+  disconnect(reason?: DisconnectReason): Promise<void>;
   async disconnect(reason: DisconnectReason = DisconnectReason.CLIENT_INITIATED) {
     if (!this.isConnected) {
       return;

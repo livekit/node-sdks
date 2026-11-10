@@ -2,4 +2,4 @@
 '@livekit/rtc-node': patch
 ---
 
-Allow Room.disconnect() to send a custom disconnect reason, preserving CLIENT_INITIATED as the default.
+Allow framework integrations to set a custom disconnect reason through an internal Room.disconnect() overload, preserving CLIENT_INITIATED as the default.

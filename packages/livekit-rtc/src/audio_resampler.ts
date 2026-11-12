@@ -174,7 +174,7 @@ export class AudioResampler {
       throw new Error(res.error);
     }
 
-    if (!res.size) {
+    if (!res.outputPtr || !res.size) {
       return [];
     }
 

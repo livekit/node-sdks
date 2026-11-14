@@ -91,4 +91,5 @@ export * from './RoomServiceClient.js';
 export * from './SipClient.js';
 export { ServerError, SipCallError, TwirpError } from './TwirpRPC.js';
 export type { ClientOptions } from './ClientOptions.js';
+export type { TokenSource } from './ServiceBase.js';
 export * from './WebhookReceiver.js';

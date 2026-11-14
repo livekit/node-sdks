@@ -47,9 +47,9 @@ export interface AccessTokenOptions {
 }
 
 export class AccessToken {
-  private apiKey: string;
+  private apiKey?: string;
 
-  private apiSecret: string;
+  private apiSecret?: string;
 
   private grants: ClaimGrants;
 
@@ -61,6 +61,9 @@ export class AccessToken {
    * Creates a new AccessToken
    * @param apiKey - API Key, can be set in env LIVEKIT_API_KEY
    * @param apiSecret - Secret, can be set in env LIVEKIT_API_SECRET
+   *
+   * Both are needed only to sign: {@link toJwt} throws without them, while
+   * {@link toClaimsJson} works without.
    */
   constructor(apiKey?: string, apiSecret?: string, options?: AccessTokenOptions) {
     if (!apiKey) {
@@ -69,11 +72,8 @@ export class AccessToken {
     if (!apiSecret) {
       apiSecret = process.env.LIVEKIT_API_SECRET;
     }
-    if (!apiKey || !apiSecret) {
-      throw Error('api-key and api-secret must be set');
-    }
     // @ts-expect-error we're not including dom lib for the server sdk so document is not defined
-    else if (typeof document !== 'undefined') {
+    if (apiKey && apiSecret && typeof document !== 'undefined') {
       // check against document rather than window because deno provides window
       console.error(
         'You should not include your API secret in your web client bundle.\n\n' +
@@ -195,6 +195,9 @@ export class AccessToken {
    * @returns JWT encoded token
    */
   async toJwt(): Promise<string> {
+    if (!this.apiKey || !this.apiSecret) {
+      throw Error('api-key and api-secret must be set');
+    }
     // TODO: check for video grant validity
 
     const secret = new TextEncoder().encode(this.apiSecret);
@@ -210,6 +213,17 @@ export class AccessToken {
       throw Error('identity is required for join but not set');
     }
     return jwt.sign(secret);
+  }
+
+  /**
+   * Returns the claims as JSON, without signing them: the payload {@link toJwt}
+   * would sign, with the identity as `identity` and without the registered
+   * claims (issuer, subject, expiry, not-before), which the signer sets. This is
+   * the shape a LiveKit server reads to issue a token, as in an agent worker's
+   * CreateJobTokenRequest. Needs no API key or secret.
+   */
+  toClaimsJson(): string {
+    return JSON.stringify({ ...claimsToJwtPayload(this.grants), identity: this.identity });
   }
 }
 

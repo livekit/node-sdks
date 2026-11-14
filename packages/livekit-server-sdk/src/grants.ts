@@ -27,7 +27,11 @@ export function claimsToJwtPayload(
   const claim: Record<string, any> = { ...grant };
   // eslint-disable-next-line no-restricted-syntax
   if (Array.isArray(claim.video?.canPublishSources)) {
-    claim.video.canPublishSources = claim.video.canPublishSources.map(trackSourceToString);
+    // a copy: the grants keep their sources, so the claims can be read more than once
+    claim.video = {
+      ...claim.video,
+      canPublishSources: claim.video.canPublishSources.map(trackSourceToString),
+    };
   }
   return claim;
 }

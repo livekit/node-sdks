@@ -161,3 +161,51 @@ describe('room configuration with agents and egress', () => {
     expect(decoded.roomConfig?.egress?.room?.roomName).toEqual('test-room');
   });
 });
+
+describe('claims as JSON', () => {
+  it('matches the grants toJwt signs, without the registered claims', async () => {
+    const t = new AccessToken(testApiKey, testSecret, {
+      identity: 'agent-1',
+      name: 'Agent',
+      metadata: 'md',
+      attributes: { foo: 'bar' },
+    });
+    t.kind = 'agent';
+    t.addGrant({ roomJoin: true, room: 'myroom', canPublish: true, canPublishSources: [1, 2] });
+    t.addSIPGrant({ call: true });
+
+    const claims = JSON.parse(t.toClaimsJson());
+    const { payload } = await jose.jwtVerify(
+      await t.toJwt(),
+      new TextEncoder().encode(testSecret),
+      { issuer: testApiKey },
+    );
+    const { iss, sub, exp, nbf, ...signed } = payload;
+
+    expect(sub).toEqual('agent-1');
+    expect(iss && exp && nbf).toBeTruthy();
+    expect(claims).toEqual({ ...signed, identity: 'agent-1' });
+    expect(claims.video).toEqual({
+      roomJoin: true,
+      room: 'myroom',
+      canPublish: true,
+      canPublishSources: ['camera', 'microphone'],
+    });
+  });
+
+  it('works without an API key or secret', () => {
+    const t = new AccessToken(undefined, undefined, { identity: 'me' });
+    t.addGrant({ roomAdmin: true, room: 'myroom' });
+
+    expect(JSON.parse(t.toClaimsJson())).toEqual({
+      identity: 'me',
+      video: { roomAdmin: true, room: 'myroom' },
+    });
+  });
+
+  it('still needs an API key and secret to sign', async () => {
+    const t = new AccessToken(undefined, undefined, { identity: 'me' });
+
+    await expect(t.toJwt()).rejects.toThrow('api-key and api-secret must be set');
+  });
+});

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { TokenSource } from './ServiceBase.js';
 
 /**
  * Options common to all clients
@@ -22,4 +23,10 @@ export type ClientOptions = {
    * it needs no secret, the client can run client-side.
    */
   token?: string;
+  /**
+   * Gets the token for each request, in place of signing one from an API key
+   * and secret. It is called with the grants the request needs, as a client
+   * with a key and secret would sign them.
+   */
+  tokenSource?: TokenSource;
 };

@@ -39,7 +39,7 @@ export class AgentDispatchClient extends ServiceBase {
    * @param options - client options
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
-    super({ apiKey, secret, token: options?.token });
+    super({ apiKey, secret, token: options?.token, tokenSource: options?.tokenSource });
     this.rpc = new TwirpRpc(host, livekitPackage, {
       requestTimeout: options?.requestTimeout,
       failover: options?.failover,

@@ -70,6 +70,8 @@ export class AudioMixer {
   private streams: Set<AudioStream>;
   private buffers: Map<AudioStream, Int16Array>;
   private streamIterators: Map<AudioStream, { next(): Promise<IteratorResult<AudioFrame>> }>;
+  // reads that timed out but are still pending: their frame is the stream's next one
+  private pendingReads: Map<AudioStream, Promise<IteratorResult<AudioFrame>>>;
   private sampleRate: number;
   private numChannels: number;
   private chunkSize: number;
@@ -91,6 +93,7 @@ export class AudioMixer {
     this.streams = new Set();
     this.buffers = new Map();
     this.streamIterators = new Map();
+    this.pendingReads = new Map();
     this.sampleRate = sampleRate;
     this.numChannels = numChannels;
     this.chunkSize =
@@ -141,6 +144,7 @@ export class AudioMixer {
     this.streams.delete(stream);
     this.buffers.delete(stream);
     this.streamIterators.delete(stream);
+    this.pendingReads.delete(stream);
   }
 
   /**
@@ -311,9 +315,13 @@ export class AudioMixer {
     // Accumulate data until we have at least chunkSize samples
     while (buf.length < this.chunkSize * this.numChannels && !exhausted && !this.closed) {
       try {
-        const result = await this.timeoutRace(iterator.next(), this.streamTimeoutMs);
+        const read = this.pendingReads.get(stream) ?? iterator.next();
+        this.pendingReads.delete(stream);
+        const result = await this.timeoutRace(read, this.streamTimeoutMs);
 
         if (result === 'timeout') {
+          // await this read again next round: a new next() would skip the frame it resolves with
+          if (this.streams.has(stream)) this.pendingReads.set(stream, read);
           console.warn(`AudioMixer: stream timeout after ${this.streamTimeoutMs}ms`);
           break;
         }

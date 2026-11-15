@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AccessToken } from './AccessToken.js';
-import type { ClaimGrants, SIPGrant, VideoGrant } from './grants.js';
+import type { ClaimGrants, SIPGrant, TokenGrants, VideoGrant } from './grants.js';
 
 /**
  * Returns a token that carries the given grants, for a client to send in place
  * of one it signs itself. The client calls it before each request with the
- * grants that request needs, so the source can cache and refresh tokens.
+ * grants that request needs, so the provider can cache and refresh tokens.
  */
-export type TokenSource = (grants: ClaimGrants) => Promise<string>;
+export type TokenProvider = (grants: TokenGrants) => Promise<string>;
 
 /**
  * Authentication options for a service client.
@@ -24,7 +24,7 @@ export interface ServiceBaseOptions {
   /** Pre-signed token; sent verbatim, skipping per-call signing. */
   token?: string;
   /** Gets the token for each call, in place of signing it with the API key and secret. */
-  tokenSource?: TokenSource;
+  tokenProvider?: TokenProvider;
 }
 
 /**
@@ -37,7 +37,7 @@ export class ServiceBase {
 
   private readonly token?: string;
 
-  private readonly tokenSource?: TokenSource;
+  private readonly tokenProvider?: TokenProvider;
 
   private readonly ttl: string;
 
@@ -61,7 +61,7 @@ export class ServiceBase {
     this.secret = options.secret;
     this.ttl = options.ttl || '10m';
     this.token = options.token;
-    this.tokenSource = options.tokenSource;
+    this.tokenProvider = options.tokenProvider;
   }
 
   async authHeader(grant: VideoGrant, sip?: SIPGrant): Promise<Record<string, string>> {
@@ -69,7 +69,7 @@ export class ServiceBase {
     if (this.token) {
       return { Authorization: `Bearer ${this.token}` };
     }
-    if (this.tokenSource) {
+    if (this.tokenProvider) {
       const grants: ClaimGrants = {};
       if (grant) {
         grants.video = { ...grant };
@@ -77,7 +77,7 @@ export class ServiceBase {
       if (sip) {
         grants.sip = { ...sip };
       }
-      return { Authorization: `Bearer ${await this.tokenSource(grants)}` };
+      return { Authorization: `Bearer ${await this.tokenProvider(grants)}` };
     }
     const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
     if (grant) {

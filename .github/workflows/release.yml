@@ -78,11 +78,19 @@ jobs:
           command: publish
           releases: ${{ needs.release.outputs.releases }}
 
+      # The docs site holds one version: an rc must not replace it.
+      - name: Check for a stable server SDK version
+        id: docs
+        run: |
+          version=$(node -p "require('./packages/livekit-server-sdk/package.json').version")
+          if [[ "$version" != *-* ]]; then echo "stable=true" >> "$GITHUB_OUTPUT"; fi
       # A failure here fails the job. A re-run is safe: publish skips the
       # versions that npm already has.
       - name: Build Server SDK Docs
+        if: steps.docs.outputs.stable == 'true'
         run: pnpm --filter=livekit-server-sdk build-docs
       - name: S3 Upload Server SDK Docs
+        if: steps.docs.outputs.stable == 'true'
         run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}

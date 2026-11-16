@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: 2026 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# After a release PR merges: tag and create the GitHub releases, then
+# publish to npm. The step that cannot be undone comes last.
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  # Re-run by hand after a fix: `verwalter release` resumes from the
+  # current state and skips what is done. With `package`, that package
+  # is reported again even when complete, so the publish job runs for it.
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Only this package; always reported to the publish job.
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  id-token: write # trusted publishing
+
+jobs:
+  release:
+    # Only a release PR the tool opened: the branch prefix alone would let
+    # any pushed `release/*` branch trigger a publish.
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/') && github.event.pull_request.user.login == 'verwalter-release[bot]' && contains(github.event.pull_request.body, '<!-- verwalter release -->'))
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.verwalter.outputs.released }}
+      releases: ${{ steps.verwalter.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit itself: a push to main right after the merge
+          # must not move the tags.
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          fetch-depth: 0
+      - id: verwalter
+        uses: livekit/verwalter@359985c1e5567b17ae84db0241fbb305c383f89e # v0.30.0
+        with:
+          command: release
+          args: ${{ inputs.package && format('--package {0}', inputs.package) || '' }}
+
+  publish:
+    needs: release
+    if: needs.release.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the tool flips draft releases after the publish
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          fetch-depth: 0 # tags decide what is published
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      # No registry-url: npm trusted publishing needs no token, and the
+      # placeholder token setup-node writes would make the publish fail.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24 # npm 11.5.1 or later is required for OIDC
+          cache: pnpm
+      - run: pnpm install
+      - name: Build server SDK
+        run: pnpm --filter="livekit-server-sdk" build
+      - name: Build rtc-node
+        run: pnpm --filter="@livekit/rtc-node" build
+      - uses: livekit/verwalter@359985c1e5567b17ae84db0241fbb305c383f89e # v0.30.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          command: publish
+          releases: ${{ needs.release.outputs.releases }}
+
+      - name: Build Server SDK Docs
+        continue-on-error: true
+        run: pnpm --filter=livekit-server-sdk build-docs
+      - name: S3 Upload Server SDK Docs
+        continue-on-error: true
+        run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: 'us-east-1'

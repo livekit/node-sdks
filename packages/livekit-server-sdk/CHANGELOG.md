@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.20.0
+
+### Minor Changes
+
+- Add a `tokenProvider` client option, which gets the token for each call from the grants the call needs, in place of signing it with an API key and secret. Add `AccessToken.toClaimsJson()`, which returns the claims as JSON without signing them; an `AccessToken` now needs an API key and secret only to sign. - [#782](https://github.com/livekit/node-sdks/pull/782) ([@davidzhao](https://github.com/davidzhao))
+
 ## 2.19.3
 
 ### Patch Changes

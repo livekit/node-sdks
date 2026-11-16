@@ -7,9 +7,10 @@
 name: Release
 
 on:
+  # Any base branch: an rc PR from `pre-release` targets the branch it
+  # was run on. The bot and marker check on the job gates the run.
   pull_request:
     types: [closed]
-    branches: [main]
   # Re-run by hand after a fix: `verwalter release` resumes from the
   # current state and skips what is done. With `package`, that package
   # is reported again even when complete, so the publish job runs for it.
@@ -77,11 +78,11 @@ jobs:
           command: publish
           releases: ${{ needs.release.outputs.releases }}
 
+      # A failure here fails the job. A re-run is safe: publish skips the
+      # versions that npm already has.
       - name: Build Server SDK Docs
-        continue-on-error: true
         run: pnpm --filter=livekit-server-sdk build-docs
       - name: S3 Upload Server SDK Docs
-        continue-on-error: true
         run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}

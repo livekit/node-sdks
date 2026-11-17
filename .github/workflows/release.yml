@@ -51,6 +51,12 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    # One publish at a time: a run by hand during the merge run waits.
+    # ponytail: one group for all releases, because the tag is not known
+    # before the release job. A third overlapping run cancels the waiting one.
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
     permissions:
       contents: write # the tool flips draft releases after the publish
       id-token: write # trusted publishing
@@ -78,17 +84,36 @@ jobs:
           command: publish
           releases: ${{ needs.release.outputs.releases }}
 
+  # Its own job: a docs failure is red, and the publish job stays green,
+  # so it is clear that the release is complete. A re-run is safe.
+  docs:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
       # The docs site holds one version: an rc must not replace it.
       - name: Check for a stable server SDK version
         id: docs
         run: |
           version=$(node -p "require('./packages/livekit-server-sdk/package.json').version")
           if [[ "$version" != *-* ]]; then echo "stable=true" >> "$GITHUB_OUTPUT"; fi
-      # A failure here fails the job. A re-run is safe: publish skips the
-      # versions that npm already has.
+      - if: steps.docs.outputs.stable == 'true'
+        run: pnpm install
+      # The build writes src/version.ts, which the docs need.
       - name: Build Server SDK Docs
         if: steps.docs.outputs.stable == 'true'
-        run: pnpm --filter=livekit-server-sdk build-docs
+        run: |
+          pnpm --filter=livekit-server-sdk build
+          pnpm --filter=livekit-server-sdk build-docs
       - name: S3 Upload Server SDK Docs
         if: steps.docs.outputs.stable == 'true'
         run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive

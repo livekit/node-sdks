@@ -74,30 +74,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
           fetch-depth: 0 # tags decide what is published
-      # verwalter checks only that the tag exists. A run by hand on a newer
-      # commit would publish other source under the tagged version. Check
-      # what this run publishes: in `releases` when it lists any, tagged,
-      # and not on npm yet.
-      - name: Make sure that each package to publish matches its release tag
-        env:
-          RELEASES: ${{ needs.release.outputs.releases }}
-        run: |
-          releases=${RELEASES:-[]}
-          for dir in packages/*/; do
-            name=$(node -p "require('./${dir}package.json').name")
-            tag="$name@$(node -p "require('./${dir}package.json').version")"
-            if [ "$(jq length <<< "$releases")" -gt 0 ] && ! jq -e --arg n "$name" 'any(.[]; .package == $n)' <<< "$releases" >/dev/null; then
-              continue
-            fi
-            git rev-parse -q --verify "refs/tags/$tag" >/dev/null || continue
-            if [ -n "$(npm view "$tag" version 2>/dev/null)" ]; then
-              continue
-            fi
-            if ! git diff --quiet "$tag" HEAD -- "$dir"; then
-              echo "::error::$dir differs from $tag. Start the run with ref=$tag."
-              exit 1
-            fi
-          done
+      # verwalter v0.30.0 checks only that the tag exists, not that the
+      # checkout matches it: set `ref` to the tag on a run by hand. The next
+      # verwalter release checks this in `publish` (livekit/verwalter#105).
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       # No registry-url: npm trusted publishing needs no token, and the
       # placeholder token setup-node writes would make the publish fail.

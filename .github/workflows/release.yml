@@ -11,11 +11,18 @@ on:
   # was run on. The bot and marker check on the job gates the run.
   pull_request:
     types: [closed]
-  # Re-run by hand after a fix: `verwalter release` resumes from the
-  # current state and skips what is done. With `package`, that package
-  # is reported again even when complete, so the publish job runs for it.
+  # A failed job is re-run with "Re-run failed jobs" on the run itself:
+  # that keeps the merge commit. Run by hand only for a fixed workflow
+  # file, with `ref` set to the release tag. `verwalter release` resumes
+  # from the current state and skips what is done. With `package`, that
+  # package is reported again even when complete, so the publish job and
+  # the docs job run for it.
   workflow_dispatch:
     inputs:
+      ref:
+        description: Commit or tag to release and publish. Set it to the release tag. Empty is the branch head.
+        required: false
+        default: ''
       package:
         description: Only this package; always reported to the publish job.
         required: false
@@ -39,7 +46,7 @@ jobs:
         with:
           # The merge commit itself: a push to main right after the merge
           # must not move the tags.
-          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
           fetch-depth: 0
       - id: verwalter
         uses: livekit/verwalter@359985c1e5567b17ae84db0241fbb305c383f89e # v0.30.0
@@ -51,20 +58,46 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    # One publish at a time: a run by hand during the merge run waits.
-    # ponytail: one group for all releases, because the tag is not known
-    # before the release job. A third overlapping run cancels the waiting one.
+    # One publish at a time, in arrival order. A waiting publish checks out
+    # after the running one ends, so it sees the newer tag and picks the
+    # right npm dist-tag. `queue: max` keeps every waiting run: without it,
+    # a third run cancels the waiting one.
     concurrency:
       group: npm-publish
       cancel-in-progress: false
+      queue: max
     permissions:
       contents: write # the tool flips draft releases after the publish
       id-token: write # trusted publishing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
           fetch-depth: 0 # tags decide what is published
+      # verwalter checks only that the tag exists. A run by hand on a newer
+      # commit would publish other source under the tagged version. Check
+      # what this run publishes: in `releases` when it lists any, tagged,
+      # and not on npm yet.
+      - name: Make sure that each package to publish matches its release tag
+        env:
+          RELEASES: ${{ needs.release.outputs.releases }}
+        run: |
+          releases=${RELEASES:-[]}
+          for dir in packages/*/; do
+            name=$(node -p "require('./${dir}package.json').name")
+            tag="$name@$(node -p "require('./${dir}package.json').version")"
+            if [ "$(jq length <<< "$releases")" -gt 0 ] && ! jq -e --arg n "$name" 'any(.[]; .package == $n)' <<< "$releases" >/dev/null; then
+              continue
+            fi
+            git rev-parse -q --verify "refs/tags/$tag" >/dev/null || continue
+            if [ -n "$(npm view "$tag" version 2>/dev/null)" ]; then
+              continue
+            fi
+            if ! git diff --quiet "$tag" HEAD -- "$dir"; then
+              echo "::error::$dir differs from $tag. Start the run with ref=$tag."
+              exit 1
+            fi
+          done
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       # No registry-url: npm trusted publishing needs no token, and the
       # placeholder token setup-node writes would make the publish fail.
@@ -86,26 +119,32 @@ jobs:
 
   # Its own job: a docs failure is red, and the publish job stays green,
   # so it is clear that the release is complete. A re-run is safe.
+  # The docs site holds one version, the newest final server SDK release
+  # from main. An rc, another branch, or a release of rtc-node alone must
+  # not replace it.
   docs:
-    needs: publish
+    needs: [release, publish]
+    if: success() && (github.event.pull_request.base.ref == 'main' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: pnpm
-      # The docs site holds one version: an rc must not replace it.
-      - name: Check for a stable server SDK version
+      - name: Check for a final server SDK release
         id: docs
+        env:
+          RELEASES: ${{ needs.release.outputs.releases }}
         run: |
-          version=$(node -p "require('./packages/livekit-server-sdk/package.json').version")
-          if [[ "$version" != *-* ]]; then echo "stable=true" >> "$GITHUB_OUTPUT"; fi
+          if jq -e 'any(.[]; .package == "livekit-server-sdk" and .prerelease == false)' <<< "${RELEASES:-[]}" >/dev/null; then
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          fi
       - if: steps.docs.outputs.stable == 'true'
         run: pnpm install
       # The build writes src/version.ts, which the docs need.

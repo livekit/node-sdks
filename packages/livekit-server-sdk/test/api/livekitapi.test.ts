@@ -37,6 +37,7 @@ import {
   SessionDescription,
   StartEgressRequest,
   StorageConfig,
+  StreamDestination,
   StreamOutput,
   StreamProtocol,
   WebSource,
@@ -182,6 +183,7 @@ d('LiveKitAPI', () => {
         'EG_abc123',
         ['rtmps://b.example.com/live/key'],
         ['rtmps://a.example.com/live/key'],
+        [new StreamDestination({ id: 'youtube', url: 'rtmps://c.example.com/live/key' })],
       ));
     it('listEgress', () =>
       api.egress.listEgress({ roomName: 'test-room', egressId: 'EG_abc123', active: true }));

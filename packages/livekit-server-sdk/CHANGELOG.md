@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.20.1
+
+### Patch Changes
+
+- Bump @livekit/protocol to 1.54.1. - [#769](https://github.com/livekit/node-sdks/pull/769) ([@renovate[bot]](https://github.com/renovate[bot]))
+
 ## 2.20.0
 
 ### Minor Changes

@@ -16,7 +16,7 @@ minimumReleaseAgeExclude:
   - glob@14.0.6
 
 catalog:
-  '@livekit/protocol': 1.53.0
+  '@livekit/protocol': 1.54.1
 
 # Security: force patched versions of transitive deps that parents pin to vulnerable versions.
 overrides:

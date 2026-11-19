@@ -49,7 +49,7 @@ jobs:
           ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
           fetch-depth: 0
       - id: verwalter
-        uses: livekit/verwalter@359985c1e5567b17ae84db0241fbb305c383f89e # v0.30.0
+        uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
         with:
           command: release
           args: ${{ inputs.package && format('--package {0}', inputs.package) || '' }}
@@ -74,9 +74,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
           fetch-depth: 0 # tags decide what is published
-      # verwalter v0.30.0 checks only that the tag exists, not that the
-      # checkout matches it: set `ref` to the tag on a run by hand. The next
-      # verwalter release checks this in `publish` (livekit/verwalter#105).
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       # No registry-url: npm trusted publishing needs no token, and the
       # placeholder token setup-node writes would make the publish fail.
@@ -89,7 +86,7 @@ jobs:
         run: pnpm --filter="livekit-server-sdk" build
       - name: Build rtc-node
         run: pnpm --filter="@livekit/rtc-node" build
-      - uses: livekit/verwalter@359985c1e5567b17ae84db0241fbb305c383f89e # v0.30.0
+      - uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
         env:
           GH_TOKEN: ${{ github.token }}
         with:
@@ -98,6 +95,24 @@ jobs:
 
   # Its own job: a docs failure is red, and the publish job stays green,
   # so it is clear that the release is complete. A re-run is safe.
+  # The end state, asserted: `status --check` fails when a tag is not on
+  # the remote, a GitHub release is missing or still a draft, or npm does
+  # not have the version. A step that was skipped without an error ends here.
+  verify:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # reads only. A draft release is visible only with write access
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+          fetch-depth: 0
+      - uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
+        with:
+          command: status
+          args: --check
+
   # The docs site holds one version, the newest final server SDK release
   # from main. An rc, another branch, or a release of rtc-node alone must
   # not replace it.

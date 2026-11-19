@@ -8,7 +8,6 @@
     "build": "turbo run build",
     "build:livekit-rtc": "turbo run build --filter=@livekit/rtc-node...",
     "build:artifacts": "turbo run artifacts --filter=@livekit/rtc-node...",
-    "ci:publish": "changeset publish",
     "api:check": "turbo run api:check",
     "api:update": "turbo run api:update",
     "format:check": "prettier --check \"**/src/**/*.{ts,tsx,md,json}\"",
@@ -19,8 +18,6 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.0",
-    "@livekit/changesets-changelog-github": "^0.2.0",
     "@rushstack/heft": "^0.74.5",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.60.1",

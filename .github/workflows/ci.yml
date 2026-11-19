@@ -5,9 +5,7 @@ env:
   CARGO_TERM_COLOR: always
 
 permissions:
-  id-token: write # Required for OIDC
-  contents: write # Required to create GH releases
-  pull-requests: write # Required to interact with PRs
+  contents: read
 
 on:
   workflow_dispatch:
@@ -90,47 +88,3 @@ jobs:
           bun install
           (cd packages/livekit-server-sdk && EXPECT_BUN_RUNTIME=1 bun --bun run test)
           (cd packages/livekit-rtc && EXPECT_BUN_RUNTIME=1 bun --bun run test)
-
-  build_and_release:
-    if: github.ref == 'refs/heads/main'
-    name: Build and release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-
-      - name: Setup node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build server SDK
-        run: pnpm --filter="livekit-server-sdk" build
-
-      - name: Build rtc-node
-        run: pnpm --filter="@livekit/rtc-node" build
-
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
-        with:
-          publish-script: pnpm ci:publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Server SDK Docs
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm --filter=livekit-server-sdk build-docs
-
-      - name: S3 Upload Server SDK Docs
-        if: steps.changesets.outputs.published == 'true'
-        run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
-          AWS_DEFAULT_REGION: 'us-east-1'

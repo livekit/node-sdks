@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+members = ["packages/*"]
+
+[versioning]
+files = ["package.json"]
+
+[release]
+tag = "{package}@{version}"
+
+[publish]
+registry = "npm"

@@ -170,8 +170,8 @@ export interface CreateSipParticipantOptions {
   playDialtone?: boolean;
   /**
    * The ringback the SIP Participant plays to the room until the phone is picked up, for example
-   * `SIPDialtone.SIP_DIALTONE_US`. Takes precedence over `playDialtone`, except for
-   * `SIP_DIALTONE_DISABLED`, which is the protobuf default and reads as unset.
+   * `SIPDialtone.SIP_DIALTONE_US`. Overrides `playDialtone`. `SIP_DIALTONE_DISABLED` is the protobuf
+   * default and counts as unset, so with `playDialtone: true` the ETSI tone still plays.
    */
   dialtone?: SIPDialtone;
   /** These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint. */
@@ -249,8 +249,8 @@ export interface TransferSipParticipantOptions {
   playDialtone?: boolean;
   /**
    * The ringback played to the SIP participant while the transfer rings, for example
-   * `SIPDialtone.SIP_DIALTONE_US`. Takes precedence over `playDialtone`, except for
-   * `SIP_DIALTONE_DISABLED`, which is the protobuf default and reads as unset.
+   * `SIPDialtone.SIP_DIALTONE_US`. Overrides `playDialtone`. `SIP_DIALTONE_DISABLED` is the protobuf
+   * default and counts as unset, so with `playDialtone: true` the ETSI tone still plays.
    */
   dialtone?: SIPDialtone;
   headers?: { [key: string]: string };

@@ -1,5 +1,11 @@
 # @livekit/rtc-node
 
+## 1.2.3
+
+### Patch Changes
+
+- Bump rtc-ffi-bindings to 0.15.0. - [#769](https://github.com/livekit/node-sdks/pull/769) ([@renovate[bot]](https://github.com/renovate[bot]))
+
 ## 1.2.2
 
 ### Patch Changes

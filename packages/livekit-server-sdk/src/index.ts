@@ -63,6 +63,7 @@ export {
   SIPInboundTrunkInfo,
   SIPTrunkInfo,
   SIPCallStatus,
+  SIPDialtone,
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StartEgressRequest,

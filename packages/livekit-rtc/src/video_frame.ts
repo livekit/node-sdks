@@ -7,6 +7,7 @@ import {
   VideoBufferInfo_ComponentInfo,
   VideoBufferType,
 } from '@livekit/rtc-ffi-bindings';
+import { brandDataClass } from './brand.js';
 import { FfiClient, FfiHandle, FfiRequest } from './ffi_client.js';
 
 export class VideoFrame {
@@ -102,6 +103,10 @@ export class VideoFrame {
     }
   }
 }
+
+// Like AudioFrame, a VideoFrame is a plain buffer plus its dimensions -- it holds no FFI handle of
+// its own, so it survives crossing a copy boundary. See ./brand.ts.
+brandDataClass(VideoFrame, Symbol.for('lk.rtc-node.VideoFrame'));
 
 const getPlaneLength = (type: VideoBufferType, width: number, height: number): number => {
   const chromaWidth = Math.trunc((width + 1) / 2);

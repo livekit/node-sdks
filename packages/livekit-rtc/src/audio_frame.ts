@@ -59,7 +59,9 @@ export class AudioFrame {
   /** @internal */
   protoInfo(): AudioFrameBufferInfo {
     return new AudioFrameBufferInfo({
-      dataPtr: FfiClient.instance.retrievePtr(new Uint8Array(this.data.buffer)),
+      dataPtr: FfiClient.instance.retrievePtr(
+        new Uint8Array(this.data.buffer, this.data.byteOffset, this.data.byteLength),
+      ),
       sampleRate: this.sampleRate,
       numChannels: this.channels,
       samplesPerChannel: this.samplesPerChannel,

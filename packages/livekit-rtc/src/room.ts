@@ -215,6 +215,24 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     return this.sidPromise;
   }
 
+  // The room SID can arrive from the connect result, from the one-shot
+  // RoomSidChanged event, or from a later room update. Store it on `info`
+  // *before* emitting: the FFI sends RoomSidChanged exactly once per
+  // connection, so a getSid() call made after that event has already been
+  // delivered has nothing left to listen for and must be able to read the
+  // SID back off `info` synchronously.
+  private updateSid(sid?: string, previousSid = this.info?.sid) {
+    if (!sid || sid === '') {
+      return;
+    }
+    if (this.info) {
+      this.info.sid = sid;
+    }
+    if (sid !== previousSid) {
+      this.emit(RoomEvent.RoomSidChanged, sid);
+    }
+  }
+
   async getRtcStats() {
     if (!this.isConnected || !this.ffiHandle) {
       throw new Error('getRtcStats requires a connected room');
@@ -885,17 +903,21 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     } else if (ev.case == 'reconnected') {
       this.emit(RoomEvent.Reconnected);
     } else if (ev.case == 'roomSidChanged') {
-      this.emit(RoomEvent.RoomSidChanged, ev.value.sid!);
+      this.updateSid(ev.value.sid);
     } else if (ev.case === 'byteStreamOpened' && ev.value.reader) {
       this.handleByteStreamOpened(ev.value.reader, ev.value.participantIdentity!);
     } else if (ev.case === 'textStreamOpened' && ev.value.reader) {
       this.handleTextStreamOpened(ev.value.reader, ev.value.participantIdentity!);
     } else if (ev.case === 'roomUpdated') {
+      const previousSid = this.info?.sid;
       this.info = ev.value;
       this.emit(RoomEvent.RoomUpdated);
+      this.updateSid(this.info.sid, previousSid);
     } else if (ev.case === 'moved') {
+      const previousSid = this.info?.sid;
       this.info = ev.value;
       this.emit(RoomEvent.Moved);
+      this.updateSid(this.info.sid, previousSid);
     } else if (ev.case === 'participantsUpdated') {
       for (const info of ev.value.participants) {
         const participant = this.retrieveParticipantByIdentity(info.identity!);

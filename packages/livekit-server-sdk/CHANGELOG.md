@@ -1,5 +1,11 @@
 # livekit-server-sdk
 
+## 2.20.2
+
+### Patch Changes
+
+- Add a `dialtone` option to `createSipParticipant` and `transferSipParticipant` to choose a regional ringback (`SIPDialtone`), and export `SIPDialtone`. - [#788](https://github.com/livekit/node-sdks/pull/788) ([@juzer-pam](https://github.com/juzer-pam))
+
 ## 2.20.1
 
 ### Patch Changes

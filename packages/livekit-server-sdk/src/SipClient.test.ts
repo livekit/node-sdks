@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+import { SIPDialtone } from '@livekit/protocol';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CreateSipParticipantOptions, TransferSipParticipantOptions } from './SipClient.js';
 import { SipClient } from './SipClient.js';
@@ -67,5 +68,34 @@ describe('SipClient dialing options', () => {
     await client().transferSipParticipant('room', 'caller', 'tel:+15105550100', opts);
 
     expect(timeouts).toEqual([60_000]);
+  });
+
+  it('createSipParticipant sends the requested dial tone', async () => {
+    const { bodies } = mockApi();
+
+    await client().createSipParticipant('ST_trunk', '+15105550100', 'room', {
+      dialtone: SIPDialtone.SIP_DIALTONE_US,
+    });
+
+    expect(bodies[0]?.dialtone).toBe('SIP_DIALTONE_US');
+  });
+
+  it('transferSipParticipant sends the requested dial tone', async () => {
+    const { bodies } = mockApi();
+
+    await client().transferSipParticipant('room', 'caller', 'tel:+15105550100', {
+      dialtone: SIPDialtone.SIP_DIALTONE_ETSI,
+    });
+
+    expect(bodies[0]?.dialtone).toBe('SIP_DIALTONE_ETSI');
+  });
+
+  it('omits the dial tone when none is requested', async () => {
+    const { bodies } = mockApi();
+
+    await client().createSipParticipant('ST_trunk', '+15105550100', 'room', { playDialtone: true });
+
+    expect(bodies[0]?.dialtone).toBeUndefined();
+    expect(bodies[0]?.playDialtone).toBe(true);
   });
 });

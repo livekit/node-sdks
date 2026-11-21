@@ -18,7 +18,7 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@rushstack/heft": "^0.74.5",
+    "@rushstack/heft": "^1.0.0",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",

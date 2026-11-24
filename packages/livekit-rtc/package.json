@@ -3,7 +3,7 @@
   "description": "LiveKit RTC Node",
   "license": "Apache-2.0",
   "author": "LiveKit",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "exports": {
@@ -31,7 +31,7 @@
   "dependencies": {
     "@datastructures-js/deque": "1.0.8",
     "@livekit/mutex": "^1.0.0",
-    "@livekit/rtc-ffi-bindings": "0.13.1",
+    "@livekit/rtc-ffi-bindings": "0.15.0",
     "@livekit/typed-emitter": "^3.0.0",
     "pino": "^9.0.0",
     "pino-pretty": "^13.2.0"

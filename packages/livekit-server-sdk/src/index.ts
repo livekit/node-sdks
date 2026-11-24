@@ -63,6 +63,7 @@ export {
   SIPInboundTrunkInfo,
   SIPTrunkInfo,
   SIPCallStatus,
+  SIPDialtone,
   SegmentedFileOutput,
   SegmentedFileProtocol,
   StartEgressRequest,
@@ -92,4 +93,5 @@ export * from './RoomServiceClient.js';
 export * from './SipClient.js';
 export { ServerError, SipCallError, TwirpError } from './TwirpRPC.js';
 export type { ClientOptions } from './ClientOptions.js';
+export type { TokenProvider } from './ServiceBase.js';
 export * from './WebhookReceiver.js';

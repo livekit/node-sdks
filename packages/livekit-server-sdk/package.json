@@ -1,6 +1,6 @@
 {
   "name": "livekit-server-sdk",
-  "version": "2.19.2",
+  "version": "2.20.1",
   "description": "Server-side SDK for LiveKit",
   "main": "dist/index.js",
   "require": "dist/index.cjs",
@@ -34,8 +34,6 @@
     "build": "tsup --onSuccess \"tsc -p tsconfig.json --declaration --emitDeclarationOnly --skipLibCheck\"",
     "build:watch": "tsc --watch",
     "build-docs": "typedoc",
-    "changeset": "changeset",
-    "ci:publish": "pnpm build && changeset publish",
     "lint": "eslint src",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
@@ -49,11 +47,9 @@
     "jose": "^5.1.2"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.0",
     "@edge-runtime/vm": "^5.0.0",
-    "@livekit/changesets-changelog-github": "^0.2.0",
     "@types/node": "^20.10.1",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.5.1",
     "typedoc": "^0.28.20",

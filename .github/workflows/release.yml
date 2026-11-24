@@ -1,0 +1,192 @@
+# SPDX-FileCopyrightText: 2026 LiveKit, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# After a release PR merges: tag and create the GitHub releases, then
+# publish to npm. The step that cannot be undone comes last.
+name: Release
+
+on:
+  # Any base branch: an rc PR from `pre-release` targets the branch it
+  # was run on. The bot and marker check on the job gates the run.
+  pull_request:
+    types: [closed]
+  # A failed job is re-run with "Re-run failed jobs" on the run itself:
+  # that keeps the merge commit. Run by hand only for a fixed workflow
+  # file, with `ref` set to the release tag. `verwalter release` resumes
+  # from the current state and skips what is done. With `package`, that
+  # package is reported again even when complete, so the publish job and
+  # the docs job run for it.
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit or tag to release and publish. Set it to the release tag. Empty is the branch head.
+        required: false
+        default: ''
+      package:
+        description: Only this package; always reported to the publish job.
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  id-token: write # trusted publishing
+
+jobs:
+  # Build before the tag: a build that fails stops the run before
+  # anything is public. The publish and docs jobs use this build.
+  build:
+    # Only a release PR the tool opened: the branch prefix alone would let
+    # any pushed `release/*` branch trigger a publish.
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/') && github.event.pull_request.user.login == 'verwalter-release[bot]' && contains(github.event.pull_request.body, '<!-- verwalter release -->'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install
+      - name: Build server SDK
+        run: pnpm --filter="livekit-server-sdk" build
+      - name: Build rtc-node
+        run: pnpm --filter="@livekit/rtc-node" build
+      # The build output, and the generated version file that both
+      # packages ship in `src`.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build
+          if-no-files-found: error
+          path: |
+            packages/livekit-server-sdk/dist
+            packages/livekit-server-sdk/src/version.ts
+            packages/livekit-rtc/dist
+            packages/livekit-rtc/src/version.ts
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.verwalter.outputs.released }}
+      releases: ${{ steps.verwalter.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit itself: a push to main right after the merge
+          # must not move the tags.
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+          fetch-depth: 0
+      - id: verwalter
+        uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
+        with:
+          command: release
+          args: ${{ inputs.package && format('--package {0}', inputs.package) || '' }}
+
+  publish:
+    needs: release
+    if: needs.release.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # One publish at a time, in arrival order. A waiting publish checks out
+    # after the running one ends, so it sees the newer tag and picks the
+    # right npm dist-tag. `queue: max` keeps every waiting run: without it,
+    # a third run cancels the waiting one.
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write # the tool flips draft releases after the publish
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+          fetch-depth: 0 # tags decide what is published
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      # No registry-url: npm trusted publishing needs no token, and the
+      # placeholder token setup-node writes would make the publish fail.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24 # npm 11.5.1 or later is required for OIDC
+          cache: pnpm
+      - run: pnpm install
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build
+          path: packages
+      - uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          command: publish
+          releases: ${{ needs.release.outputs.releases }}
+
+  # The end state, asserted: `status --check` fails when a tag is not on
+  # the remote, a GitHub release is missing or still a draft, or npm does
+  # not have the version. A step that was skipped without an error ends here.
+  verify:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # reads only. A draft release is visible only with write access
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+          fetch-depth: 0
+      - uses: livekit/verwalter@39e3d7c57c2b6d96cf2d4b7771f3ab199490faba # v0.31.0
+        with:
+          command: status
+          args: --check
+
+  # Its own job: a docs failure is red, and the publish job stays green,
+  # so it is clear that the release is complete. A re-run is safe.
+  # The docs site holds one version, the newest final server SDK release
+  # from main. An rc, another branch, or a release of rtc-node alone must
+  # not replace it.
+  docs:
+    needs: [release, publish]
+    if: success() && (github.event.pull_request.base.ref == 'main' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || inputs.ref || github.sha }}
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Check for a final server SDK release
+        id: docs
+        env:
+          RELEASES: ${{ needs.release.outputs.releases }}
+        run: |
+          if jq -e 'any(.[]; .package == "livekit-server-sdk" and .prerelease == false)' <<< "${RELEASES:-[]}" >/dev/null; then
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.docs.outputs.stable == 'true'
+        run: pnpm install
+      # The build job's output has src/version.ts, which the docs need.
+      - if: steps.docs.outputs.stable == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build
+          path: packages
+      - name: Build Server SDK Docs
+        if: steps.docs.outputs.stable == 'true'
+        run: pnpm --filter=livekit-server-sdk build-docs
+      - name: S3 Upload Server SDK Docs
+        if: steps.docs.outputs.stable == 'true'
+        run: aws s3 cp packages/livekit-server-sdk/docs/ s3://livekit-docs/server-sdk-js --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOCS_DEPLOY_AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_DEPLOY_AWS_API_SECRET }}
+          AWS_DEFAULT_REGION: 'us-east-1'

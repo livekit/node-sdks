@@ -1,5 +1,19 @@
 # @livekit/rtc-node
 
+## 1.2.3
+
+### Patch Changes
+
+- Bump rtc-ffi-bindings to 0.15.0. - [#769](https://github.com/livekit/node-sdks/pull/769) ([@renovate[bot]](https://github.com/renovate[bot]))
+
+## 1.2.2
+
+### Patch Changes
+
+- Allow framework integrations to set a custom disconnect reason through an internal Room.disconnect() overload, preserving CLIENT_INITIATED as the default. - [#778](https://github.com/livekit/node-sdks/pull/778) ([@davidzhao](https://github.com/davidzhao))
+
+- Bump rtc-ffi-bindings to 0.13.2, which drops the libwebrtc TURN/TLS roots that trust the compromised eMudhra intermediate CAs. - [#766](https://github.com/livekit/node-sdks/pull/766) ([@erikhortsch](https://github.com/erikhortsch))
+
 ## 1.2.1
 
 ### Patch Changes

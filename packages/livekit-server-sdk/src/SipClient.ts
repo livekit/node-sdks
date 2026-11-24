@@ -6,6 +6,7 @@ import type {
   ListUpdate,
   Pagination,
   RoomConfiguration,
+  SIPDialtone,
   SIPHeaderOptions,
   SIPMediaConfig,
   SIPMediaEncryption,
@@ -167,6 +168,12 @@ export interface CreateSipParticipantOptions {
   playRingtone?: boolean;
   /** If `true`, the SIP Participant plays a dial tone to the room until the phone is picked up. */
   playDialtone?: boolean;
+  /**
+   * The ringback the SIP Participant plays to the room until the phone is picked up, for example
+   * `SIPDialtone.SIP_DIALTONE_US`. Overrides `playDialtone`. `SIP_DIALTONE_DISABLED` is the protobuf
+   * default and counts as unset, so with `playDialtone: true` the ETSI tone still plays.
+   */
+  dialtone?: SIPDialtone;
   /** These headers are sent as-is and may help identify this call as coming from LiveKit for the other SIP endpoint. */
   headers?: { [key: string]: string };
   /** Map SIP response headers from INVITE to sip.h.* participant attributes automatically. */
@@ -240,6 +247,12 @@ export interface SipOutboundTrunkUpdateOptions {
 
 export interface TransferSipParticipantOptions {
   playDialtone?: boolean;
+  /**
+   * The ringback played to the SIP participant while the transfer rings, for example
+   * `SIPDialtone.SIP_DIALTONE_US`. Overrides `playDialtone`. `SIP_DIALTONE_DISABLED` is the protobuf
+   * default and counts as unset, so with `playDialtone: true` the ETSI tone still plays.
+   */
+  dialtone?: SIPDialtone;
   headers?: { [key: string]: string };
   /** Maximum time for the transfer destination to answer the call, in seconds. */
   ringingTimeout?: number;
@@ -260,7 +273,7 @@ export class SipClient extends ServiceBase {
    * @param options - client options
    */
   constructor(host: string, apiKey?: string, secret?: string, options?: ClientOptions) {
-    super({ apiKey, secret, token: options?.token });
+    super({ apiKey, secret, token: options?.token, tokenProvider: options?.tokenProvider });
     this.rpc = new TwirpRpc(host, livekitPackage, {
       requestTimeout: options?.requestTimeout,
       failover: options?.failover,
@@ -779,10 +792,13 @@ export class SipClient extends ServiceBase {
     // Dialing a phone and waiting for an answer takes longer than a normal call,
     // and the request must outlast ringing so the call can be answered. Pin the
     // ring window explicitly so our request timeout doesn't depend on the server's
-    // default (which could change out from under us).
+    // default (which could change out from under us). Use locals so the
+    // caller's options object is left as it was passed in.
+    let ringingTimeout = opts.ringingTimeout;
+    let timeout = opts.timeout;
     if (opts.waitUntilAnswered) {
-      opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
-      opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
+      ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
+      timeout = dialRequestTimeout(timeout, ringingTimeout);
     }
 
     const req = new CreateSIPParticipantRequest({
@@ -798,11 +814,12 @@ export class SipClient extends ServiceBase {
       participantAttributes: opts.participantAttributes,
       dtmf: opts.dtmf,
       playDialtone: opts.playDialtone ?? opts.playRingtone,
+      dialtone: opts.dialtone,
       headers: opts.headers,
       hidePhoneNumber: opts.hidePhoneNumber,
       includeHeaders: opts.includeHeaders,
-      ringingTimeout: opts.ringingTimeout
-        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
         : undefined,
       maxCallDuration: opts.maxCallDuration
         ? new Duration({ seconds: BigInt(opts.maxCallDuration) })
@@ -818,7 +835,7 @@ export class SipClient extends ServiceBase {
         'CreateSIPParticipant',
         req,
         await this.authHeader({}, { call: true }),
-        opts.timeout,
+        timeout,
       );
       return SIPParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
     } catch (e) {
@@ -846,18 +863,20 @@ export class SipClient extends ServiceBase {
 
     // Transferring a call dials a phone, which takes longer than a normal call,
     // so keep the request alive past ringing. Pin the ring window explicitly so
-    // our request timeout doesn't depend on the server's default.
-    opts.ringingTimeout ??= DEFAULT_RINGING_TIMEOUT_SECONDS;
-    opts.timeout = dialRequestTimeout(opts.timeout, opts.ringingTimeout);
+    // our request timeout doesn't depend on the server's default. Use locals so
+    // the caller's options object is left as it was passed in.
+    const ringingTimeout = opts.ringingTimeout ?? DEFAULT_RINGING_TIMEOUT_SECONDS;
+    const timeout = dialRequestTimeout(opts.timeout, ringingTimeout);
 
     const req = new TransferSIPParticipantRequest({
       participantIdentity: participantIdentity,
       roomName: roomName,
       transferTo: transferTo,
       playDialtone: opts.playDialtone,
+      dialtone: opts.dialtone,
       headers: opts.headers,
-      ringingTimeout: opts.ringingTimeout
-        ? new Duration({ seconds: BigInt(opts.ringingTimeout) })
+      ringingTimeout: ringingTimeout
+        ? new Duration({ seconds: BigInt(ringingTimeout) })
         : undefined,
     }).toJson();
 
@@ -867,7 +886,7 @@ export class SipClient extends ServiceBase {
         'TransferSIPParticipant',
         req,
         await this.authHeader({ roomAdmin: true, room: roomName }, { call: true }),
-        opts.timeout,
+        timeout,
       );
     } catch (e) {
       throw asSipCallError(e);

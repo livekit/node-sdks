@@ -21,13 +21,17 @@ export function trackSourceToString(source: TrackSource) {
 }
 
 export function claimsToJwtPayload(
-  grant: ClaimGrants,
+  grant: TokenGrants,
 ): JWTPayload & { video?: Record<string, unknown> } {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const claim: Record<string, any> = { ...grant };
   // eslint-disable-next-line no-restricted-syntax
   if (Array.isArray(claim.video?.canPublishSources)) {
-    claim.video.canPublishSources = claim.video.canPublishSources.map(trackSourceToString);
+    // a copy: the grants keep their sources, so the claims can be read more than once
+    claim.video = {
+      ...claim.video,
+      canPublishSources: claim.video.canPublishSources.map(trackSourceToString),
+    };
   }
   return claim;
 }
@@ -130,3 +134,11 @@ export interface ClaimGrants extends JWTPayload {
   roomPreset?: string;
   roomConfig?: RoomConfiguration;
 }
+
+/**
+ * The grants that a `TokenProvider` is asked for. Today these are v1 claims
+ * (`ClaimGrants`). Grants v2 will be accepted here too. The provider does not
+ * convert between the two: it passes the grants on with {@link claimsToJwtPayload},
+ * and the server that signs the token converts them to the format of its key.
+ */
+export type TokenGrants = ClaimGrants;

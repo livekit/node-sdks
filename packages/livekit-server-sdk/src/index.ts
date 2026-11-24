@@ -68,6 +68,7 @@ export {
   SegmentedFileProtocol,
   StartEgressRequest,
   StorageConfig,
+  StreamDestination,
   StreamOutput,
   StreamProtocol,
   TemplateSource,

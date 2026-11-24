@@ -1,5 +1,12 @@
 # livekit-server-sdk
 
+## 2.20.2
+
+### Patch Changes
+
+- Add `addDestinations` to `EgressClient.updateStream` and export `StreamDestination`, so a stream started with `StreamOutput.destinations` or added to a running egress carries an id that egress reports back on `StreamInfo.id` (livekit/egress#1462). Update @livekit/protocol to 1.53.1. - [#772](https://github.com/livekit/node-sdks/pull/772) ([@CSantosM](https://github.com/CSantosM))
+- Add a `dialtone` option to `createSipParticipant` and `transferSipParticipant` to choose a regional ringback (`SIPDialtone`), and export `SIPDialtone`. - [#788](https://github.com/livekit/node-sdks/pull/788) ([@juzer-pam](https://github.com/juzer-pam))
+
 ## 2.20.1
 
 ### Patch Changes

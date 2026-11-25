@@ -130,7 +130,7 @@ export class KeyProvider {
     return (res.message.value as RatchetSharedKeyResponse).newKey!;
   }
 
-  setKey(participantIdentity: string, keyIndex: number) {
+  setKey(participantIdentity: string, key: Uint8Array, keyIndex: number) {
     const req = new E2eeRequest({
       roomHandle: this.roomHandle,
       message: {
@@ -138,6 +138,7 @@ export class KeyProvider {
         value: new SetKeyRequest({
           keyIndex: keyIndex,
           participantIdentity: participantIdentity,
+          key: key,
         }),
       },
     });
@@ -198,12 +199,20 @@ export class KeyProvider {
 export class FrameCryptor {
   private roomHandle = BigInt(0);
   participantIdentity: string;
+  trackSid: string;
   keyIndex: number;
   enabled: boolean;
 
-  constructor(roomHandle: bigint, participantIdentity: string, keyIndex: number, enabled: boolean) {
+  constructor(
+    roomHandle: bigint,
+    participantIdentity: string,
+    trackSid: string,
+    keyIndex: number,
+    enabled: boolean,
+  ) {
     this.roomHandle = roomHandle;
     this.participantIdentity = participantIdentity;
+    this.trackSid = trackSid;
     this.keyIndex = keyIndex;
     this.enabled = enabled;
   }
@@ -216,6 +225,7 @@ export class FrameCryptor {
         case: 'cryptorSetEnabled',
         value: new FrameCryptorSetEnabledRequest({
           participantIdentity: this.participantIdentity,
+          trackSid: this.trackSid,
           enabled: this.enabled,
         }),
       },
@@ -237,6 +247,7 @@ export class FrameCryptor {
         case: 'cryptorSetKeyIndex',
         value: new FrameCryptorSetKeyIndexRequest({
           participantIdentity: this.participantIdentity,
+          trackSid: this.trackSid,
           keyIndex: this.keyIndex,
         }),
       },
@@ -312,6 +323,7 @@ export class E2EEManager {
         new FrameCryptor(
           this.roomHandle,
           cryptor.participantIdentity!,
+          cryptor.trackSid!,
           cryptor.keyIndex!,
           cryptor.enabled!,
         ),

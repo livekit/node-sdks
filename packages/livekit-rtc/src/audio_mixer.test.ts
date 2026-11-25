@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AudioFrame } from './audio_frame.js';
 import { AudioMixer } from './audio_mixer.js';
 
@@ -264,6 +264,39 @@ describe('AudioMixer', () => {
       expect(warnings.some((w) => w.includes('stream timeout after'))).toBe(true);
     } finally {
       console.warn = originalWarn;
+    }
+  });
+
+  it('keeps the frames of a stream that was late once', async () => {
+    const sampleRate = 48000;
+    const numChannels = 1;
+    const samplesPerChannel = 480;
+    const mixer = new AudioMixer(sampleRate, numChannels, {
+      blocksize: samplesPerChannel,
+      streamTimeoutMs: 10,
+    });
+
+    // five frames, the third of which arrives well after the timeout
+    async function* lateOnce(): AsyncGenerator<AudioFrame> {
+      for (let i = 0; i < 5; i++) {
+        if (i === 2) await new Promise((resolve) => setTimeout(resolve, 50));
+        const data = new Int16Array(numChannels * samplesPerChannel).fill(100);
+        yield new AudioFrame(data, sampleRate, numChannels, samplesPerChannel);
+      }
+    }
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      mixer.addStream(lateOnce());
+      let samples = 0;
+      for await (const frame of mixer) {
+        samples += frame.data.filter((s) => s === 100).length;
+      }
+
+      expect(warn).toHaveBeenCalled();
+      expect(samples).toBe(5 * samplesPerChannel);
+    } finally {
+      warn.mockRestore();
     }
   });
 });

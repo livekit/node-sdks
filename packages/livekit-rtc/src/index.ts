@@ -68,6 +68,7 @@ export {
   LocalTrackPublication,
   RemoteTrackPublication,
   TrackPublication,
+  VideoQuality,
 } from './track_publication.js';
 export type { Transcription, TranscriptionSegment } from './transcription.js';
 export type { ChatMessage } from './types.js';

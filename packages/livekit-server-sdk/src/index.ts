@@ -51,6 +51,7 @@ export {
   RoomCompositeEgressRequest,
   RoomConfiguration,
   RoomEgress,
+  RoomEndReason,
   S3Upload,
   SessionDescription,
   SIPDispatchRule,

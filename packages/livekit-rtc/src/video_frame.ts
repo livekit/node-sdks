@@ -118,13 +118,13 @@ const getPlaneLength = (type: VideoBufferType, width: number, height: number): n
     case VideoBufferType.I420:
       return width * height + chromaWidth * chromaHeight * 2;
     case VideoBufferType.I420A:
-      return width * height * 2 + chromaWidth * chromaWidth * 2;
+      return width * height * 2 + chromaWidth * chromaHeight * 2;
     case VideoBufferType.I422:
       return width * height + chromaWidth * height * 2;
     case VideoBufferType.I010:
       return width * height * 2 + chromaWidth * chromaHeight * 4;
     case VideoBufferType.NV12:
-      return width * height + chromaWidth * chromaWidth * 2;
+      return width * height + chromaWidth * chromaHeight * 2;
   }
 };
 

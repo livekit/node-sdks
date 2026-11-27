@@ -52,7 +52,9 @@ export class FfiClient extends (EventEmitter as new () => TypedEmitter<FfiClient
         const event = FfiEvent.fromBinary(event_data);
         this.emit(FfiClientEvent.FfiEvent, event);
       },
-      true,
+      // Nothing consumes forwarded logs, and capturing them forwards every native record down to
+      // trace level as an FFI event. Left uncaptured, the native logger honors RUST_LOG instead.
+      false,
       SDK_VERSION,
     );
   }

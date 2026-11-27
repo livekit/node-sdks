@@ -54,9 +54,12 @@ describe('Room.disconnect', () => {
   });
 });
 
-describe('server-initiated disconnect', () => {
-  it('stops routing FFI events to the room', async () => {
-    const roomHandle = BigInt(1);
+describe('FFI event listener', () => {
+  const roomHandle = BigInt(1);
+
+  /** A Room wired up as if connect() had succeeded, listening to FFI events. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function makeListeningRoom(): any {
     const room = new Room();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const r = room as any;
@@ -69,25 +72,64 @@ describe('server-initiated disconnect', () => {
     });
     FfiClient.instance.on(FfiClientEvent.FfiEvent, r.onFfiEvent);
     onTestFinished(() => {
-      FfiClient.instance.off(FfiClientEvent.FfiEvent, r.onFfiEvent);
+      FfiClient.instance.removeAllListeners(FfiClientEvent.FfiEvent);
     });
-    const disconnected = vi.fn();
-    room.on(RoomEvent.Disconnected, disconnected);
+    return r;
+  }
 
-    await r.onFfiEvent(
-      new FfiEvent({
-        message: {
-          case: 'roomEvent',
-          value: new ProtoRoomEvent({
-            roomHandle,
-            message: { case: 'disconnected', value: { reason: DisconnectReason.ROOM_DELETED } },
-          }),
-        },
-      }),
-    );
+  const disconnectedEvent = (reason: DisconnectReason) =>
+    new FfiEvent({
+      message: {
+        case: 'roomEvent',
+        value: new ProtoRoomEvent({
+          roomHandle,
+          message: { case: 'disconnected', value: { reason } },
+        }),
+      },
+    });
+
+  const registrations = (r: { onFfiEvent: unknown }) =>
+    FfiClient.instance.listeners(FfiClientEvent.FfiEvent).filter((l) => l === r.onFfiEvent).length;
+
+  it('is removed when the server disconnects the room', async () => {
+    const r = makeListeningRoom();
+    const disconnected = vi.fn();
+    r.on(RoomEvent.Disconnected, disconnected);
+
+    await r.onFfiEvent(disconnectedEvent(DisconnectReason.ROOM_DELETED));
 
     expect(disconnected).toHaveBeenCalledExactlyOnceWith(DisconnectReason.ROOM_DELETED);
-    expect(room.connectionState).toBe(ConnectionState.CONN_DISCONNECTED);
-    expect(FfiClient.instance.listeners(FfiClientEvent.FfiEvent)).not.toContain(r.onFfiEvent);
+    expect(r.connectionState).toBe(ConnectionState.CONN_DISCONNECTED);
+    expect(registrations(r)).toBe(0);
+  });
+
+  it('is removed by disconnect()', async () => {
+    const r = makeListeningRoom();
+    vi.spyOn(FfiClient.instance, 'request').mockReturnValue({ asyncId: BigInt(1) });
+    vi.spyOn(FfiClient.instance, 'waitFor').mockResolvedValue({ asyncId: BigInt(1) });
+
+    await r.disconnect();
+
+    expect(registrations(r)).toBe(0);
+  });
+
+  it('is kept for a connect() started from RoomEvent.Disconnected during disconnect()', async () => {
+    const r = makeListeningRoom();
+    vi.spyOn(FfiClient.instance, 'request').mockReturnValue({ asyncId: BigInt(1) });
+    vi.spyOn(FfiClient.instance, 'waitFor')
+      // disconnect(): the room event arrives before the disconnect callback.
+      .mockImplementationOnce(async () => {
+        await r.onFfiEvent(disconnectedEvent(DisconnectReason.CLIENT_INITIATED));
+        return { asyncId: BigInt(1) };
+      })
+      // connect(): the join is still in progress when disconnect() returns.
+      .mockReturnValueOnce(new Promise(() => {}));
+    r.once(RoomEvent.Disconnected, () => {
+      void r.connect('ws://localhost:7880', 'token');
+    });
+
+    await r.disconnect();
+
+    expect(registrations(r)).toBe(1);
   });
 });

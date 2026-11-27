@@ -420,7 +420,6 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     });
 
     this.cleanupOnDisconnect(reason);
-    FfiClient.instance.removeListener(FfiClientEvent.FfiEvent, this.onFfiEvent);
 
     this.removeAllListeners();
   }
@@ -514,6 +513,14 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
     // This causes any in-flight operations (publishData, publishTrack, etc.)
     // to reject and clean up their event listeners.
     this.disconnectController.abort();
+
+    // Stop routing FFI events to this room, whichever path disconnected it:
+    // disconnect() returns early once the server has disconnected the room, and
+    // a listener left behind receives every later FFI event of the process and
+    // keeps the Room from being garbage collected. This runs before
+    // RoomEvent.Disconnected, so a connect() started from that event keeps the
+    // listener it registers.
+    FfiClient.instance.off(FfiClientEvent.FfiEvent, this.onFfiEvent);
 
     this.updateConnectionState(ConnectionState.CONN_DISCONNECTED);
     this.emit(RoomEvent.Disconnected, reason);
